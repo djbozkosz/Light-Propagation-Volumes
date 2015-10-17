@@ -1,5 +1,6 @@
 CC           = g++
 CCVER        = -std=c++0x
+TARGETNAME   = LightPropagationVolumes
 
 ifeq ($(OS), Windows_NT)
   CCFLAGS    = -D __NO_INLINE__
@@ -21,7 +22,7 @@ SRC          = main.cpp engine.cpp scenes.cpp models.cpp renderer.cpp shaders.cp
 OBJ          = $(SRC:.cpp=.o)
 SOURCES      = $(addprefix src/, $(SRC))
 OBJECTS      = $(addprefix obj/, $(OBJ))
-TARGET       = lpv.exe
+TARGET       = bin/$(TARGETNAME).exe
 
 all: $(SOURCES) $(TARGET)
 
