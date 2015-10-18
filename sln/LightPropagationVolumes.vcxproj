@@ -32,10 +32,12 @@
   <ItemGroup>
     <ClInclude Include="..\src\camera.h" />
     <ClInclude Include="..\src\context.h" />
+    <ClInclude Include="..\src\culling.h" />
     <ClInclude Include="..\src\engine.h" />
     <ClInclude Include="..\src\filesystem.h" />
     <ClInclude Include="..\src\framebuffers.h" />
     <ClInclude Include="..\src\headers\cameraTypes.h" />
+    <ClInclude Include="..\src\headers\cullingTypes.h" />
     <ClInclude Include="..\src\headers\mapsTypes.h" />
     <ClInclude Include="..\src\headers\math.h" />
     <ClInclude Include="..\src\headers\modelTypes.h" />
@@ -48,6 +50,7 @@
     <ClInclude Include="..\src\matrix.h" />
     <ClInclude Include="..\src\models.h" />
     <ClInclude Include="..\src\openGL.h" />
+    <ClInclude Include="..\src\pickColor.h" />
     <ClInclude Include="..\src\renderer.h" />
     <ClInclude Include="..\src\scenes.h" />
     <ClInclude Include="..\src\shaders.h" />
@@ -97,7 +100,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>ENV_SDL;WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>pushd ".." &amp;&amp; mingw32-make -j2 &amp;&amp; popd</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>pushd ".." &amp;&amp; mingw32-make all &amp;&amp; popd</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>pushd ".." &amp;&amp; mingw32-make clean &amp;&amp; popd</NMakeCleanCommandLine>
@@ -105,7 +108,7 @@
     <NMakeOutput>..\bin\LightPropagationVolumes.exe</NMakeOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>ENV_SDL;WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>pushd ".." &amp;&amp; mingw32-make -j2 &amp;&amp; popd</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>pushd ".." &amp;&amp; mingw32-make all &amp;&amp; popd</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>pushd ".." &amp;&amp; mingw32-make clean &amp;&amp; popd</NMakeCleanCommandLine>

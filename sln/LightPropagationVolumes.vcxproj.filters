@@ -121,5 +121,14 @@
     <ClInclude Include="..\src\headers\types.h">
       <Filter>Header Files\headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\headers\cullingTypes.h">
+      <Filter>Header Files\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\culling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\pickColor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

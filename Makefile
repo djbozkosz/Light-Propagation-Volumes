@@ -1,6 +1,7 @@
 CC           = g++
 CCVER        = -std=c++0x
 TARGETNAME   = LightPropagationVolumes
+ENVIRONMENT  = -D ENV_SDL
 
 ifeq ($(OS), Windows_NT)
   CCFLAGS    = -D __NO_INLINE__
@@ -15,7 +16,7 @@ else
   RUN        = ./
 endif
 
-CFLAGS       = -pedantic -Wall -Wextra -Wdouble-promotion -Wunreachable-code -O3 $(CCVER) $(CCFLAGS) -c
+CFLAGS       = -pedantic -Wall -Wextra -Wdouble-promotion -Wunreachable-code -O3 $(CCVER) $(CCFLAGS) $(ENVIRONMENT) -c
 LIBS         = -lopengl32 -lglew32 -lSDL2
 
 SRC          = main.cpp engine.cpp scenes.cpp models.cpp renderer.cpp shaders.cpp framebuffers.cpp maps.cpp filesystem.cpp
