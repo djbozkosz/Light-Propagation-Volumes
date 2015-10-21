@@ -37,7 +37,7 @@ class CMaps : public CEngineBase
 
     CMap *addMap(const SMap &map);
     inline CMap *addFbo(const std::string &name, uint32 width, uint32 height) { maps[name] = CMap(context, SMap(name, width, height)); return &maps.find(name)->second; }
-    void removeMap(const std::string &file);
+    uint32 removeMap(const std::string &file);
 
     inline void finishBind() const { /*context->getOpenGL()->*/glActiveTexture(GL_TEXTURE0); }
     void unbind(GLuint uniform = 0, uint8 sampler = 0) const;
@@ -64,9 +64,7 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, bool mipmap, bool edge) co
 //------------------------------------------------------------------------------
 inline CMap *CMaps::addMap(const SMap &map)
 {
-  CMap *m = getMap(map.file);
-
-  if(m)
+  if(CMap *m = getMap(map.file))
     return m;
 
   maps[map.file] = CMap(context, map);
@@ -74,20 +72,20 @@ inline CMap *CMaps::addMap(const SMap &map)
   return &maps.find(map.file)->second;
 }
 //------------------------------------------------------------------------------
-inline void CMaps::removeMap(const std::string &file)
+inline uint32 CMaps::removeMap(const std::string &file)
 {
   //COpenGL *gl = context->getOpenGL();
-  CMap *m = getMap(file);
+  if(CMap *m = getMap(file))
+  {
+    GLuint texture = m->getMap()->texture;
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDeleteTextures(1, &texture);
+    return maps.erase(file);
+  }
 
-  if(!m)
-    return;
-
-  GLuint texture = m->getMap()->texture;
-  glBindTexture(GL_TEXTURE_2D, texture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glDeleteTextures(1, &texture);
-  maps.erase(file);
+  return 0;
 }
 //------------------------------------------------------------------------------
 inline void CMaps::unbind(GLuint uniform, uint8 sampler) const

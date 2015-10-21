@@ -17,6 +17,14 @@ namespace NMap
   {
     DEFAULT_NORMAL = 0
   };
+
+  enum EPickColorInc
+  {
+    PICK_INC_1 = 1,
+    PICK_INC_2 = 2,
+    PICK_INC_4 = 4,
+    PICK_INC_8 = 8
+  };
 }
 //-----------------------------------------------------------------------------
 struct SColor
@@ -28,6 +36,37 @@ struct SColor
 
   inline SColor() : r(0), g(0), b(0), a(0) {}
   inline SColor(uint8 r, uint8 g, uint8 b, uint8 a = 255) : r(r), g(g), b(b), a(a) {}
+  inline SColor(const glm::vec3 &v) : r(v.r * 255.0f), g(v.g * 255.0f), b(v.b * 255.0f), a(0) {}
+  inline SColor(const glm::vec4 &v) : r(v.r * 255.0f), g(v.g * 255.0f), b(v.b * 255.0f), a(v.a * 255.0f) {}
+
+  inline glm::vec3 toVec3() { return glm::vec3(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f); }
+  inline glm::vec4 toVec4() { return glm::vec4(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, static_cast<float>(a) / 255.0f); }
+};
+//-----------------------------------------------------------------------------
+struct SPoint
+{
+  uint32 x;
+  uint32 y;
+
+  inline SPoint(uint32 x = 0, uint32 y = 0) : x(x), y(y) {}
+};
+//-----------------------------------------------------------------------------
+struct SSize
+{
+  uint32 w;
+  uint32 h;
+
+  inline SSize(uint32 w = 0, uint32 h = 0) : w(w), h(h) {}
+};
+//-----------------------------------------------------------------------------
+struct SRect
+{
+  SPoint p;
+  SSize s;
+
+  inline SRect() {}
+  inline SRect(uint32 x, uint32 y, uint32 w, uint32 h) : p(SPoint(x, y)), s(SSize(w, h)) {}
+  inline SRect(const SPoint &p, const SSize &s) : p(p), s(s) {}
 };
 //-----------------------------------------------------------------------------
 struct SMap

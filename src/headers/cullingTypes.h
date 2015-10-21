@@ -2,9 +2,7 @@
 #ifndef CULLINGTYPES_H
 #define CULLINGTYPES_H
 
-#include <glm/glm.hpp>
-
-#include "openGLTypes.h"
+#include "types.h"
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

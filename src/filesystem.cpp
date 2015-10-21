@@ -2,6 +2,97 @@
 #include "filesystem.h"
 
 //---------------------------------------------------------------------------
+CFile::CFile() : CEngineBase()
+{
+}
+//---------------------------------------------------------------------------
+CFile::CFile(CContext *context, const SFile &file) : CEngineBase(context), file(file)
+{
+}
+//---------------------------------------------------------------------------
+CFile::~CFile()
+{
+}
+//---------------------------------------------------------------------------
+void CFile::read(void *dest, uint32 bytes)
+{
+  if(file.mode == NFile::MODE_READ)
+  {
+    try { file.in->read(reinterpret_cast<char *>(dest), bytes); }
+    catch(std::ifstream::failure)
+    {
+      memset(dest, 0, bytes);
+      return;
+    }
+  }
+}
+//---------------------------------------------------------------------------
+void CFile::write(const void *src, uint32 bytes)
+{
+  if(file.mode == NFile::MODE_WRITE)
+    file.out->write(reinterpret_cast<const char *>(src), bytes);
+}
+//---------------------------------------------------------------------------
+uint32 CFile::tell()
+{
+  if(file.mode == NFile::MODE_READ)
+    return static_cast<uint32>(file.in->tellg());
+  else if(file.mode == NFile::MODE_WRITE)
+    return static_cast<uint32>(file.out->tellp());
+
+  return 0;
+}
+//---------------------------------------------------------------------------
+void CFile::seek(int32 pos, NFile::ESeek way)
+{
+  std::ios_base::seekdir way2;
+
+  if(way == NFile::FSEEK_BEG)
+    way2 = std::ios_base::beg;
+  else if(way == NFile::FSEEK_CUR)
+    way2 = std::ios_base::cur;
+  else if(way == NFile::FSEEK_END)
+    way2 = std::ios_base::end;
+  else
+    return;
+
+  if(file.mode == NFile::MODE_READ)
+    file.in->seekg(pos, way2);
+  else if(file.mode == NFile::MODE_WRITE)
+    file.out->seekp(pos, way2);
+}
+//---------------------------------------------------------------------------
+uint32 CFile::size()
+{
+  uint32 pos;
+  uint32 size;
+
+  if(file.mode != NFile::MODE_READ)
+    return 0;
+
+  pos = tell();
+  seek(0, NFile::FSEEK_END);
+  size = tell();
+  seek(pos, NFile::FSEEK_BEG);
+
+  return size;
+}
+//---------------------------------------------------------------------------
+void CFile::close()
+{
+  if(file.mode == NFile::MODE_READ)
+  {
+    file.in->close();
+    delete file.in;
+  }
+  else if(file.mode == NFile::MODE_WRITE)
+  {
+    file.out->close();
+    delete file.out;
+  }
+  file.mode = NFile::MODE_CLOSE;
+}
+//---------------------------------------------------------------------------
 CFilesystem::CFilesystem() : CEngineBase()
 {
   clearSearchPathes();
@@ -16,176 +107,71 @@ CFilesystem::~CFilesystem()
 {
 }
 //---------------------------------------------------------------------------
-CFile CFilesystem::open(std::string path, NFile::EFileMode fileMode, uint32 *file, bool quietMode)
+CFile *CFilesystem::open(const SFile &file)
 {
-  uint32 index = files.size();
-  if(file) *file = index;
+  SFile f(file);
+  f.id = files.size();
+  bool opened = false;
 
-  files.push_back(SFile());
-  files[index].mode = fileMode;
-  files[index].path = path;
-  files[index].quiet = quietMode;
-
-  try
+  if(f.mode == NFile::MODE_READ)
   {
-    if(files[index].mode == NFile::FILE_READ)
+    for(auto i = searchPathes.cbegin(); i != searchPathes.cend(); i++)
     {
-      files[index].prefix = NFile::STR_DEFAULT_SEARCH_PATH;
-      for(auto i = searchPathes.cbegin(); i != searchPathes.cend(); i++)
-      {
-        std::ifstream ifs;
-        ifs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        try { ifs.open(*i+path, std::ifstream::binary); }
-        catch(std::ifstream::failure) { continue; }
-        ifs.close();
-        files[index].prefix = *i;
-        break;
-      }
+      f.in = new std::ifstream();
+      f.in->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-      files[index].in = new std::ifstream();
-      files[index].in->exceptions(std::ifstream::failbit | std::ifstream::badbit);
-      try { files[index].in->open(files[index].prefix+path, std::ifstream::binary); }
-      catch(std::ifstream::failure)
-      {
-        close(index + 1, NFile::FILE_ABNORMAL_CLOSE);
-        throw CException(NFile::STR_ERROR_UNABLE_OPEN, NException::EO_FILESYSTEM, std::string(), files[index].path);
-      }
-      return CFile(context, index + 1);
-    }
-    else if(files[index].mode == NFile::FILE_WRITE)
-    {
-      files[index].out = new std::ofstream();
-      files[index].out->exceptions(std::ofstream::failbit | std::ofstream::badbit);
-      try { files[index].out->open(path, std::ofstream::binary); }
-      catch(std::ofstream::failure)
-      {
-        close(index + 1, NFile::FILE_ABNORMAL_CLOSE);
-        throw CException(NFile::STR_ERROR_UNABLE_OPEN, NException::EO_FILESYSTEM, std::string(), files[index].path);
-      }
-      return CFile(context, index + 1);
+      try { f.in->open(i->first+f.path, std::ifstream::binary); }
+      catch(std::ifstream::failure) { delete f.in; continue; }
+
+      opened = true;
+      f.prefix = i->first;
+
+      break;
     }
   }
-  catch(CException &e)
+  else if(f.mode == NFile::MODE_WRITE)
   {
-    if(!files[index].quiet)
-      std::cerr << e.what() << "\n";
-    throw e;
-  }
-
-  return CFile(context, index + 1);
-}
-//---------------------------------------------------------------------------
-void CFilesystem::read(uint32 file, void *dest, uint32 bytes)
-{
-  if(files[file - 1].mode == NFile::FILE_READ)
-  {
-    try { files[file - 1].in->read(reinterpret_cast<char *>(dest), bytes); }
-    catch(std::ifstream::failure)
+    for(auto i = searchPathes.cbegin(); i != searchPathes.cend(); i++)
     {
-      if(!files[file - 1].quiet)
-        std::cerr << CException::warning(NFile::STR_ERROR_READ_BEYOND, NException::EO_FILESYSTEM, std::string(), files[file - 1].path) << std::endl;
-      memset(dest, 0, bytes);
-      return;
+      f.out = new std::ofstream();
+      f.out->exceptions(std::ofstream::failbit | std::ofstream::badbit);
+
+      try { f.out->open(i->first+f.path, std::ofstream::binary); }
+      catch(std::ofstream::failure) { delete f.out; continue; }
+
+      opened = true;
+      f.prefix = i->first;
+
+      break;
     }
   }
-}
-//---------------------------------------------------------------------------
-void CFilesystem::write(uint32 file, void *src, uint32 bytes)
-{
-  if(files[file - 1].mode == NFile::FILE_WRITE)
-    files[file - 1].out->write(reinterpret_cast<char *>(src), bytes);
-}
-//---------------------------------------------------------------------------
-uint32 CFilesystem::tell(uint32 file)
-{
-  if(files[file - 1].mode == NFile::FILE_READ)
-    return static_cast<uint32>(files[file - 1].in->tellg());
-  else if(files[file - 1].mode == NFile::FILE_WRITE)
-    return static_cast<uint32>(files[file - 1].out->tellp());
 
-  return 0;
+  if(!opened)
+    return NULL;
+
+  files.push_back(CFile(context, f));
+
+  return &files.back();
 }
 //---------------------------------------------------------------------------
-void CFilesystem::seek(uint32 file, int pos, NFile::EFileSeek way)
+inline std::vector<std::string> CFilesystem::getSearchPathes() const
 {
-  std::ios_base::seekdir way2;
-  if(way == NFile::FSEEK_BEG) way2 = std::ios_base::beg;
-  else if(way == NFile::FSEEK_CUR) way2 = std::ios_base::cur;
-  else if(way == NFile::FSEEK_END) way2 = std::ios_base::end;
-  else return;
+  std::vector<std::string> keys;
 
-  if(files[file - 1].mode == NFile::FILE_READ)
-    files[file - 1].in->seekg(pos, way2);
-  else if(files[file - 1].mode == NFile::FILE_WRITE)
-    files[file - 1].out->seekp(pos, way2);
-}
-//---------------------------------------------------------------------------
-uint32 CFilesystem::size(uint32 file)
-{
-  uint32 pos;
-  uint32 size;
+  for(auto it = searchPathes.cbegin(); it != searchPathes.cend(); it++)
+    keys.push_back(it->first);
 
-  if(files[file - 1].mode == NFile::FILE_READ)
-  {
-    pos = tell(file);
-    seek(file, 0, NFile::FSEEK_END);
-    size = tell(file);
-    seek(file, pos, NFile::FSEEK_BEG);
-    return size;
-  }
-
-  return 0;
-}
-//---------------------------------------------------------------------------
-void CFilesystem::close(uint32 file, NFile::EFileMode normalClose)
-{
-  if(files[file - 1].mode == NFile::FILE_READ)
-  {
-    if(normalClose == NFile::FILE_NORMAL_CLOSE)
-      files[file - 1].in->close();
-    delete files[file - 1].in;
-  }
-  else if(files[file - 1].mode == NFile::FILE_WRITE)
-  {
-    if(normalClose == NFile::FILE_NORMAL_CLOSE)
-      files[file - 1].out->close();
-    delete files[file - 1].out;
-  }
-  files[file - 1].mode = NFile::FILE_INACITVE;
+  return keys;
 }
 //---------------------------------------------------------------------------
 std::string CFilesystem::getStringList() const
 {
   std::string text = "";
 
-  for(uint32 i = 0; i < files.size(); i++)
-    text = text+CStr(NFile::STR_FILES_LIST, i + 1, files[i].path.c_str()).str()+"\n";
+  uint32 i = 0;
+  for(auto it = files.cbegin(); it != files.cend(); it++, i++)
+    text = text+CStr(NFile::STR_FILES_LIST, i, it->getFile()->path.c_str()).str()+"\n";
 
   return text;
-}
-//---------------------------------------------------------------------------
-void CFilesystem::addSearchPath(std::string path)
-{
-  searchPathes.push_back(path);
-}
-//---------------------------------------------------------------------------
-bool CFilesystem::removeSearchPath(std::string path)
-{
-  for(auto i = searchPathes.begin(); i != searchPathes.end(); i++)
-  {
-    if(*i == path)
-    {
-      searchPathes.erase(i);
-      return true;
-    }
-  }
-
-  return false;
-}
-//---------------------------------------------------------------------------
-void CFilesystem::clearSearchPathes()
-{
-  searchPathes.clear();
-  searchPathes.push_back(NFile::STR_DEFAULT_SEARCH_PATH);
 }
 //---------------------------------------------------------------------------

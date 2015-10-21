@@ -28,16 +28,21 @@
     <ClCompile Include="..\src\renderer.cpp" />
     <ClCompile Include="..\src\scenes.cpp" />
     <ClCompile Include="..\src\shaders.cpp" />
+    <ClCompile Include="..\src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\camera.h" />
     <ClInclude Include="..\src\context.h" />
     <ClInclude Include="..\src\culling.h" />
     <ClInclude Include="..\src\engine.h" />
+    <ClInclude Include="..\src\exceptions.h" />
     <ClInclude Include="..\src\filesystem.h" />
     <ClInclude Include="..\src\framebuffers.h" />
     <ClInclude Include="..\src\headers\cameraTypes.h" />
     <ClInclude Include="..\src\headers\cullingTypes.h" />
+    <ClInclude Include="..\src\headers\engineTypes.h" />
+    <ClInclude Include="..\src\headers\exceptionTypes.h" />
+    <ClInclude Include="..\src\headers\fileTypes.h" />
     <ClInclude Include="..\src\headers\mapsTypes.h" />
     <ClInclude Include="..\src\headers\math.h" />
     <ClInclude Include="..\src\headers\modelTypes.h" />
@@ -45,6 +50,7 @@
     <ClInclude Include="..\src\headers\rendererTypes.h" />
     <ClInclude Include="..\src\headers\sceneTypes.h" />
     <ClInclude Include="..\src\headers\shaderTypes.h" />
+    <ClInclude Include="..\src\headers\stringTypes.h" />
     <ClInclude Include="..\src\headers\types.h" />
     <ClInclude Include="..\src\maps.h" />
     <ClInclude Include="..\src\matrix.h" />
@@ -54,7 +60,9 @@
     <ClInclude Include="..\src\renderer.h" />
     <ClInclude Include="..\src\scenes.h" />
     <ClInclude Include="..\src\shaders.h" />
+    <ClInclude Include="..\src\string.h" />
     <ClInclude Include="..\src\vector.h" />
+    <ClInclude Include="..\src\window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{07C1131B-89B3-4C26-B8BA-F602FC350C57}</ProjectGuid>

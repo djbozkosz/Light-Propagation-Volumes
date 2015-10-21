@@ -11,58 +11,48 @@
 #include "headers/fileTypes.h"
 
 //---------------------------------------------------------------------------
-class CFile;
+class CFile : public CEngineBase
+{
+  private:
+    SFile file;
+
+  public:
+    CFile();
+    CFile(CContext *context, const SFile &file);
+    ~CFile();
+
+    void read(void *dest, uint32 bytes);
+    void write(const void *src, uint32 bytes);
+    uint32 tell();
+    void seek(int32 pos, NFile::ESeek way);
+    uint32 size();
+    void close();
+
+    inline const SFile *getFile() const { return &file; }
+};
 //---------------------------------------------------------------------------
 class CFilesystem : public CEngineBase
 {
   private:
-  std::vector<SFile> files;
-  std::vector<std::string> searchPathes;
+    std::list<CFile> files;
+    std::map<std::string, std::string> searchPathes;
 
   public:
-  CFilesystem();
-  CFilesystem(CContext *context);
-  ~CFilesystem();
+    CFilesystem();
+    CFilesystem(CContext *context);
+    ~CFilesystem();
 
-  CFile open(std::string path, NFile::EFileMode fileMode, uint32 *file = NULL, bool quietMode = false);
-  void read(uint32 file, void *dest, uint32 bytes);
-  void write(uint32 file, void *src, uint32 bytes);
-  uint32 tell(uint32 file);
-  void seek(uint32 file, int pos, NFile::EFileSeek way);
-  uint32 size(uint32 file);
-  void close(uint32 file, NFile::EFileMode normalClose = NFile::FILE_NORMAL_CLOSE);
+    CFile *open(const SFile &file);
 
-  void addSearchPath(std::string path);
-  bool removeSearchPath(std::string path);
-  void clearSearchPathes();
+    inline void addSearchPath(const std::string &path) { searchPathes[path] = path; }
+    inline uint32 removeSearchPath(const std::string &path) { return searchPathes.erase(path); }
+    inline void clearSearchPathes() { searchPathes.clear(); }
 
-  inline uint32 getFilesCount() const { return files.size(); }
-  inline const SFile *getFile(uint32 file) const { if((!file) || (file > files.size())) return NULL; return &files[file - 1]; }
-  inline const std::vector<std::string> *getSearchPathes() const { return &searchPathes; }
+    inline uint32 getFilesCount() const { return files.size(); }
+    inline CFile *getFile(uint32 id) { if(id > files.size()) return NULL; auto it = files.begin(); std::advance(it, id); return &(*it); }
+    std::vector<std::string> getSearchPathes() const;
 
-  std::string getStringList() const;
-};
-//---------------------------------------------------------------------------
-class CFile : public CEngineBase
-{
-  private:
-  uint32 file;
-
-  public:
-  inline CFile() : CEngineBase(), file(0) {}
-  inline CFile(CContext *context) : CEngineBase(context), file(0) {}
-  inline CFile(CContext *context, uint32 file) : CEngineBase(context), file(file) {}
-  inline ~CFile() {}
-
-  inline void read(void *dest, uint32 bytes) { context->getFilesystem()->read(file, dest, bytes); }
-  inline void write(void *src, uint32 bytes) { context->getFilesystem()->write(file, src, bytes); }
-  inline uint32 tell() { return context->getFilesystem()->tell(file); }
-  inline void seek(int pos, NFile::EFileSeek way) { context->getFilesystem()->seek(file, pos, way); }
-  inline uint32 size() { return context->getFilesystem()->size(file); }
-  inline void close(NFile::EFileMode normalClose = NFile::FILE_NORMAL_CLOSE) { context->getFilesystem()->close(file, normalClose); }
-
-  inline uint32 getFileID() const { return file; }
-  inline const SFile *getFile() const { return context->getFilesystem()->getFile(file); }
+    std::string getStringList() const;
 };
 //---------------------------------------------------------------------------
 #endif // FILESYSTEM_H

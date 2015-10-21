@@ -32,7 +32,7 @@ class CFramebuffers : public CEngineBase
   CFramebuffers(CContext *context);
   ~CFramebuffers();
 
-  inline CFramebuffer *addFbo(const SFramebuffer &framebuffer) { framebuffers[framebuffer.name] = CFramebuffer(context, framebuffer); return &framebuffers.find(framebuffer.name)->second; }
+  inline CFramebuffer *addFbo(const SFramebuffer &framebuffer);
   // remove fbo
 
   void unbind() const;
@@ -45,6 +45,16 @@ inline void CFramebuffer::bind() const
   //COpenGL *gl = context->getOpenGL();
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.fboColor);
   glViewport(0, 0, framebuffer.width, framebuffer.height);
+}
+//------------------------------------------------------------------------------
+inline CFramebuffer *CFramebuffers::addFbo(const SFramebuffer &framebuffer)
+{
+  if(CFramebuffer *f = getFramebuffer(framebuffer.name))
+    return f;
+
+  framebuffers[framebuffer.name] = CFramebuffer(context, framebuffer);
+
+  return &framebuffers.find(framebuffer.name)->second;
 }
 //------------------------------------------------------------------------------
 inline void CFramebuffers::unbind() const

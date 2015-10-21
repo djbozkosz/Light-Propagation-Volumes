@@ -19,7 +19,7 @@ endif
 CFLAGS       = -pedantic -Wall -Wextra -Wdouble-promotion -Wunreachable-code -O3 $(CCVER) $(CCFLAGS) $(ENVIRONMENT) -c
 LIBS         = -lopengl32 -lglew32 -lSDL2
 
-SRC          = main.cpp engine.cpp scenes.cpp models.cpp renderer.cpp shaders.cpp framebuffers.cpp maps.cpp filesystem.cpp
+SRC          = main.cpp engine.cpp window.cpp scenes.cpp models.cpp renderer.cpp shaders.cpp framebuffers.cpp maps.cpp filesystem.cpp
 OBJ          = $(SRC:.cpp=.o)
 SOURCES      = $(addprefix src/, $(SRC))
 OBJECTS      = $(addprefix obj/, $(OBJ))

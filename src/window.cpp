@@ -1,41 +1,30 @@
 ﻿//------------------------------------------------------------------------------
-#ifndef OPENGL_H
-#define OPENGL_H
-
-#include "filesystem.h"
-#include "headers/openGLTypes.h"
+#include "window.h"
 
 //------------------------------------------------------------------------------
-class COpenGL : public CEngineBase
+CWindow::CWindow() : CEngineBase()
 {
-  private:
-  //
-
-  public:
-    COpenGL();
-    COpenGL(CContext *context);
-    ~COpenGL();
-    void makeCurrent();
-};
-//------------------------------------------------------------------------------
-inline COpenGL::COpenGL() : CEngineBase()
-{
-  //
 }
 //------------------------------------------------------------------------------
-inline COpenGL::COpenGL(CContext *context) : CEngineBase(context)
+CWindow::CWindow(CContext *context) : CEngineBase(context)
 {
-  //
 }
 //------------------------------------------------------------------------------
-inline COpenGL::~COpenGL()
+CWindow::~CWindow()
 {
-  //
 }
 //------------------------------------------------------------------------------
-inline void COpenGL::makeCurrent()
+void CWindow::initialize()
 {
-  //
 }
 //------------------------------------------------------------------------------
-#endif // OPENGL_H
+void CWindow::paint()
+{
+}
+//------------------------------------------------------------------------------
+void CWindow::resize(uint32 width, uint32 height)
+{
+  UNUSED(width);
+  UNUSED(height);
+}
+//------------------------------------------------------------------------------

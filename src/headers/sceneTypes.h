@@ -58,12 +58,10 @@ struct SSceneModel
 {
   CModel *model;
   bool backdrop;
-  std::map<const SMaterial *, SMaterial> customMaterials;
   std::list<SShaderTechnique> meshes;
 
   inline SSceneModel() : model(NULL), backdrop(false) {}
-  inline SSceneModel(CModel *model, bool backdrop = false, const std::map<const SMaterial *, SMaterial> &customMaterials = std::map<const SMaterial *, SMaterial>()) : model(model), backdrop(backdrop), customMaterials(customMaterials) {}
-  inline SSceneModel(CModel *model, const std::map<const SMaterial *, SMaterial> &customMaterials) : model(model), backdrop(false), customMaterials(customMaterials) {}
+  inline SSceneModel(CModel *model, bool backdrop = false) : model(model), backdrop(backdrop) {}
 };
 //------------------------------------------------------------------------------
 struct SSceneLight
