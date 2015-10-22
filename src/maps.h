@@ -3,7 +3,7 @@
 #define MAPS_H
 
 #include "camera.h"
-#include "headers/mapsTypes.h"
+#include "headers/mapTypes.h"
 
 //------------------------------------------------------------------------------
 class CMap : public CEngineBase

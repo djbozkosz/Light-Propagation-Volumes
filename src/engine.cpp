@@ -2,19 +2,36 @@
 #include "engine.h"
 
 //------------------------------------------------------------------------------
-CEngine::CEngine() : CEngineBase()
+CEngine::CEngine(
+#ifdef ENV_QT
+  QObject *parent
+#endif
+  ) :
+#ifdef ENV_QT
+  QObject(parent),
+#endif
+  window(NULL)
 {
-  context.setContext(this, &window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
+  window = new CWindow(&context
+#ifdef ENV_QT
+    , this
+#endif
+  );
+  context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
   context.setEngineCallbacks(&staticIncDrawCalls, &staticGetClassName, &staticGetEngine);
+
+  initialize(); // test only
 }
 //------------------------------------------------------------------------------
 CEngine::~CEngine()
 {
+#ifndef ENV_QT
+  delete window;
+#endif
 }
 //------------------------------------------------------------------------------
 void CEngine::initialize()
 {
-  window = CWindow(&context);
   scenes = CScenes(&context);
   models = CModels(&context);
   renderer = CRenderer(&context);
@@ -31,6 +48,36 @@ void CEngine::initialize()
 //------------------------------------------------------------------------------
 void CEngine::initializeFinish()
 {
+}
+//------------------------------------------------------------------------------
+void CEngine::event()
+{
+}
+//------------------------------------------------------------------------------
+void CEngine::mousePress(NEngine::EMouseButton buttons)
+{
+  UNUSED(buttons);
+}
+//------------------------------------------------------------------------------
+void CEngine::mouseRelease(NEngine::EMouseButton buttons)
+{
+  UNUSED(buttons);
+}
+//------------------------------------------------------------------------------
+void CEngine::mouseMove(int32 x, int32 y)
+{
+  UNUSED(x);
+  UNUSED(y);
+}
+//------------------------------------------------------------------------------
+void CEngine::keyPress(NEngine::EKey key)
+{
+  UNUSED(key);
+}
+//------------------------------------------------------------------------------
+void CEngine::keyRelease(NEngine::EKey key)
+{
+  UNUSED(key);
 }
 //------------------------------------------------------------------------------
 void CEngine::updateTicks()

@@ -16,8 +16,6 @@
 //-----------------------------------------------------------------------------
 namespace NEngine
 {
-  static const uint8 KEYS_COUNT = 6;
-
   static const uint32 REDRAW_TIMER_MS = 17;
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
@@ -47,17 +45,25 @@ namespace NEngine
     "Str",
   };
 
-  enum EKeys
+  enum EKey
   {
-    KEY_F = 0,
-    KEY_B,
-    KEY_L,
-    KEY_R,
-    KEY_D,
-    KEY_U
+    KEY = 0x01,
+    KEY_FRONT = 0x01,
+    KEY_BACK = 0x02,
+    KEY_LEFT = 0x04,
+    KEY_RIGHT = 0x08,
+    KEY_DOWN = 0x10,
+    KEY_UP = 0x11
   };
 
-  enum EEngineClasses
+  enum EMouseButton
+  {
+    MOUSE_BTN_NO = 0x00,
+    MOUSE_BTN_LEFT = 0x01,
+    MOUSE_BTN_RIGHT = 0x02
+  };
+
+  enum EEngineClass
   {
     ENGINE_CAMERA = 0,
     ENGINE_CONTEXT,
@@ -92,7 +98,7 @@ struct SEngine
   glm::vec2 cursor;
   glm::vec2 cursorOld;
 
-  bool keys[NEngine::KEYS_COUNT];
+  NEngine::EKey keysMovement;
 
   uint32 tickOld;
   uint32 tickNew;
@@ -109,10 +115,7 @@ struct SEngine
 #endif
   //std::vector<SDL_TimerID> timers;
 
-  inline SEngine() : activeRendering(false), delayedRendering(false), finishedRendering(false), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0)
-  {
-    memset(keys, 0, sizeof(bool) * NEngine::KEYS_COUNT);
-  }
+  inline SEngine() : activeRendering(false), delayedRendering(false), finishedRendering(false), keysMovement(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

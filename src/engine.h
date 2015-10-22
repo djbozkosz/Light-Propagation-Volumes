@@ -5,13 +5,20 @@
 #include "window.h"
 
 //------------------------------------------------------------------------------
-class CEngine : public CEngineBase
+class CEngine
+#ifdef ENV_QT
+  : public QObject
+#endif
 {
   private:
+#ifdef ENV_QT
+    Q_OBJECT
+#endif
+
     SEngine engine;
 
     CContext context;
-    CWindow window;
+    CWindow *window;
     CScenes scenes;
     CModels models;
     CRenderer renderer;
@@ -26,16 +33,27 @@ class CEngine : public CEngineBase
     CExceptions exceptions;
 
     // static callbacks
+  protected:
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
     static inline const SEngine *staticGetEngine(const CContext *context) { return context->getEngine()->getEngine(); }
 
     void initialize();
     void initializeFinish();
+    void event();
+    void mousePress(NEngine::EMouseButton buttons);
+    void mouseRelease(NEngine::EMouseButton buttons);
+    void mouseMove(int32 x, int32 y);
+    void keyPress(NEngine::EKey key);
+    void keyRelease(NEngine::EKey key);
 
   public:
-    CEngine(); // timer.start();
-    ~CEngine();
+    CEngine(
+#ifdef ENV_QT
+      QObject *parent = NULL
+#endif
+      ); // timer.start();
+    virtual ~CEngine();
 
     inline void incDrawCalls() { engine.drawCalls++; }
     void updateTicks();

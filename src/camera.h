@@ -52,40 +52,40 @@ inline bool CCamera::setMove()
   bool ret = false;
   const SEngine *e = context->engineGetEngine();
 
-  if(e->keys[NEngine::KEY_F])
+  if(e->keysMovement & NEngine::KEY_FRONT)
   {
     camera.position.x += camera.position.w * e->simulationStep * sinf(camera.rotation.y * NMath::DEG_2_RAD) * cosf(camera.rotation.x * NMath::DEG_2_RAD);
     camera.position.y -= camera.position.w * e->simulationStep * sinf(camera.rotation.x * NMath::DEG_2_RAD);
     camera.position.z += camera.position.w * e->simulationStep * cosf(camera.rotation.y * NMath::DEG_2_RAD) * cosf(camera.rotation.x * NMath::DEG_2_RAD);
     ret = true;
   }
-  else if(e->keys[NEngine::KEY_B])
+  if(e->keysMovement & NEngine::KEY_BACK)
   {
     camera.position.x -= camera.position.w * e->simulationStep * sinf(camera.rotation.y * NMath::DEG_2_RAD) * cosf(camera.rotation.x * NMath::DEG_2_RAD);
     camera.position.y += camera.position.w * e->simulationStep * sinf(camera.rotation.x * NMath::DEG_2_RAD);
     camera.position.z -= camera.position.w * e->simulationStep * cosf(camera.rotation.y * NMath::DEG_2_RAD) * cosf(camera.rotation.x * NMath::DEG_2_RAD);
     ret = true;
   }
-  else if(e->keys[NEngine::KEY_L])
+  if(e->keysMovement & NEngine::KEY_LEFT)
   {
     camera.position.x -= camera.position.w * e->simulationStep * cosf(camera.rotation.y * NMath::DEG_2_RAD);
     camera.position.z += camera.position.w * e->simulationStep * sinf(camera.rotation.y * NMath::DEG_2_RAD);
     ret = true;
   }
-  else if(e->keys[NEngine::KEY_R])
+  if(e->keysMovement & NEngine::KEY_RIGHT)
   {
     camera.position.x += camera.position.w * e->simulationStep * cosf(camera.rotation.y * NMath::DEG_2_RAD);
     camera.position.z -= camera.position.w * e->simulationStep * sinf(camera.rotation.y * NMath::DEG_2_RAD);
     ret = true;
   }
-  else if(e->keys[NEngine::KEY_D])
+  if(e->keysMovement & NEngine::KEY_DOWN)
   {
     camera.position.x -= camera.position.w * e->simulationStep * sinf(camera.rotation.x * NMath::DEG_2_RAD) * sinf(camera.rotation.y * NMath::DEG_2_RAD);
     camera.position.y -= camera.position.w * e->simulationStep * cosf(camera.rotation.x * NMath::DEG_2_RAD);
     camera.position.z -= camera.position.w * e->simulationStep * sinf(camera.rotation.x * NMath::DEG_2_RAD) * cosf(camera.rotation.y * NMath::DEG_2_RAD);
     ret = true;
   }
-  else if(e->keys[NEngine::KEY_U])
+  if(e->keysMovement & NEngine::KEY_UP)
   {
     camera.position.x += camera.position.w * e->simulationStep * sinf(camera.rotation.x * NMath::DEG_2_RAD) * sinf(camera.rotation.y * NMath::DEG_2_RAD);
     camera.position.y += camera.position.w * e->simulationStep * cosf(camera.rotation.x * NMath::DEG_2_RAD);

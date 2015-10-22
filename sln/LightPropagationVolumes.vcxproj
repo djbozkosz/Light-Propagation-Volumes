@@ -43,7 +43,7 @@
     <ClInclude Include="..\src\headers\engineTypes.h" />
     <ClInclude Include="..\src\headers\exceptionTypes.h" />
     <ClInclude Include="..\src\headers\fileTypes.h" />
-    <ClInclude Include="..\src\headers\mapsTypes.h" />
+    <ClInclude Include="..\src\headers\mapTypes.h" />
     <ClInclude Include="..\src\headers\math.h" />
     <ClInclude Include="..\src\headers\modelTypes.h" />
     <ClInclude Include="..\src\headers\openGLTypes.h" />

@@ -100,9 +100,6 @@
     <ClInclude Include="..\src\headers\cameraTypes.h">
       <Filter>Header Files\headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\headers\mapsTypes.h">
-      <Filter>Header Files\headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\headers\math.h">
       <Filter>Header Files\headers</Filter>
     </ClInclude>
@@ -153,6 +150,9 @@
     </ClInclude>
     <ClInclude Include="..\src\window.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\headers\mapTypes.h">
+      <Filter>Header Files\headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

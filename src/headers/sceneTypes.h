@@ -2,7 +2,7 @@
 #ifndef SCENETYPES_H
 #define SCENETYPES_H
 
-#include "mapsTypes.h"
+#include "mapTypes.h"
 #include "modelTypes.h"
 #include "shaderTypes.h"
 
