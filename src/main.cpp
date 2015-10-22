@@ -5,10 +5,31 @@
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-  (void) argc;
-  (void) argv;
+#ifdef ENV_QT
+  QApplication a(argc, argv);
+#else
+  (void)argc;
+  (void)argv;
+#endif
 
-  CEngine engine;
+  CEngine e;
+
+  try
+  {
+    return
+#if defined(ENV_QT)
+      a
+#elif defined(ENV_SDL)
+      e
+#endif
+      .exec();
+  }
+  catch(std::runtime_error &re)
+  {
+    std::cout << "aaa\n";
+    e.showMessage("Critical Exception", re.what());
+  }
+
   return 0;
 }
 //------------------------------------------------------------------------------

@@ -20,6 +20,8 @@ namespace NEngine
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
+  static const char STR_APP_NAME[] = "Light Propagation Volumes";
+
   static const char *const STR_ENGINE_CLASSES[] =
   {
     "Camera",
@@ -95,6 +97,9 @@ struct SEngine
   bool delayedRendering;
   bool finishedRendering;
 
+  bool fullscreen;
+  bool consoleVisible;
+
   glm::vec2 cursor;
   glm::vec2 cursorOld;
 
@@ -115,7 +120,7 @@ struct SEngine
 #endif
   //std::vector<SDL_TimerID> timers;
 
-  inline SEngine() : activeRendering(false), delayedRendering(false), finishedRendering(false), keysMovement(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0) {}
+  inline SEngine() : activeRendering(false), delayedRendering(false), finishedRendering(false), fullscreen(false), consoleVisible(false), keysMovement(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

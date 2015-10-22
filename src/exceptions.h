@@ -18,11 +18,11 @@ class CException : std::runtime_error, public CEngineBase
   public:
     CException(CContext *context, const SException &exception) throw();
 
-#ifdef _MSC_VER
-    virtual inline const char *what() const { return msg.c_str(); }
-#else
-    virtual inline const char *what() const noexcept(true) { return msg.c_str(); }
+    virtual inline const char *what() const
+#ifndef _MSC_VER
+      noexcept(true)
 #endif
+    { return msg.c_str(); }
 };
 //-----------------------------------------------------------------------------
 class CExceptions : public CEngineBase
@@ -35,7 +35,7 @@ class CExceptions : public CEngineBase
     inline CExceptions(CContext *context) : CEngineBase(context) {}
     inline ~CExceptions() {}
 
-    inline void throwException(const SException &exception) { CException(context, exception); }
+    inline void throwException(const SException &exception) { throw CException(context, exception); }
 };
 //-----------------------------------------------------------------------------
 inline CException::CException(CContext *context, const SException &exception) throw() : std::runtime_error(std::string()), CEngineBase(context), exception(exception)

@@ -8,6 +8,7 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QTouchEvent>
+#include <QString>
 
 #if QT_VERSION < 0x050400
 #include <QGLWidget>
@@ -31,14 +32,20 @@ class CWindow : public
   CEngineBase
 {
   private:
-#ifdef ENV_QT
+#if defined(ENV_QT)
     Q_OBJECT
+#elif defined(ENV_SDL)
+    SDL_Window *SDLwindow;
+    SDL_GLContext SDLcontext;
 #endif
 
   protected:
-    virtual void initialize();
-    virtual void paint();
-    virtual void resize(int width, int height);
+    virtual void paintGL();
+#ifdef ENV_SDL
+  public:
+#endif
+    virtual void initializeGL();
+    virtual void resizeGL(int width, int height);
 #ifdef ENV_QT
     virtual bool event(QEvent *event);
 #endif
@@ -50,6 +57,13 @@ class CWindow : public
 #endif
       );
     virtual ~CWindow();
+
+#ifdef ENV_SDL
+    inline void repaint() { paintGL(); }
+
+    const SDL_Window *getSDLWindow() const { return SDLwindow; }
+    const SDL_GLContext *getSDLContext() const { return &SDLcontext; }
+#endif
 
 #ifdef ENV_QT
   signals:

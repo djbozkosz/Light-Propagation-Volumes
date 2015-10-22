@@ -5,7 +5,7 @@ ENVIRONMENT  = -D ENV_SDL
 
 ifeq ($(OS), Windows_NT)
   CCFLAGS    = -D __NO_INLINE__
-  LDFLAGS    = -static-libgcc -static-libstdc++
+  LDFLAGS    = -static-libgcc -static-libstdc++ -mwindows
   RM         = del /S
   RUN        = 
 else
