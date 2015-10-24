@@ -34,6 +34,7 @@ class CEngine
 
   protected:
     // static callbacks
+  static inline uint32 staticOnTimeout(uint32 interval, void *context) { reinterpret_cast<CContext *>(context)->getEngine()->onTimeout(); return interval; }
     static inline void staticShowMessage(const CContext *context, const std::string &title, const std::string &text, bool modal = true) { context->getEngine()->showMessage(title, text, modal); }
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
@@ -48,7 +49,7 @@ class CEngine
     void initializeFinish();
     void mousePress(NEngine::EMouseButton buttons);
     void mouseRelease(NEngine::EMouseButton buttons);
-    void mouseMove(int32 x, int32 y);
+    void mouseMove(const SPoint &point, NEngine::EMouseButton buttons);
     void keyPress(NEngine::EKey key);
     void keyRelease(NEngine::EKey key);
 
@@ -60,11 +61,27 @@ class CEngine
       ); // timer.start();
     virtual ~CEngine();
 
-#ifdef ENV_SDL
+#if defined(ENV_QT)
+    inline void quit() { qApp->quit(); }
+#elif defined(ENV_SDL)
     inline int32 exec() { return event(); }
+    inline void quit() { SDL_Event event; event.type = SDL_QUIT; SDL_PushEvent(&event); }
+    void simulationStep();
+#endif
+
+#ifdef ENV_QT
+  public slots:
+#endif
+    void onTimeout();
+#ifdef ENV_QT
+  public:
 #endif
 
     void showMessage(const std::string &title, const std::string &text, bool modal = true) const;
+
+    bool isKeyForDelayedRendering() const;
+    NEngine::EMouseButton getMouseButton(int32 button) const;
+    NEngine::EKey getKey(int32 key) const;
 
     inline void incDrawCalls() { engine.drawCalls++; }
     void updateTicks();

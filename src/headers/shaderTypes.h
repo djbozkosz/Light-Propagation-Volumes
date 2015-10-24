@@ -163,11 +163,6 @@ struct SShaderTechnique
   mutable glm::mat4 mvp;
   mutable glm::vec3 cam;
 
-  mutable glm::vec4 pos; // pro screen space věci, gui, text, partikly, atd...
-  mutable glm::vec4 posOffset;
-  mutable glm::vec2 texPos;
-  const char *text; // null terminated klasika
-
   mutable const SMaterial *material;
 
   glm::vec3 pickColor;
@@ -180,7 +175,7 @@ struct SShaderTechnique
   glm::vec2 fogRange;
   glm::vec3 fogColor;
 
-  inline SShaderTechnique() : text(NULL), material(NULL) {}
+  inline SShaderTechnique() : material(NULL) {}
 };
 //------------------------------------------------------------------------------
 struct SShader

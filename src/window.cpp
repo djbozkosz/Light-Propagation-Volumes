@@ -49,8 +49,8 @@ void CWindow::initializeGL()
 
   SDLcontext = SDL_GL_CreateContext(SDLwindow);
 
-  if(SDL_GL_SetSwapInterval(-1) == -1)
-    SDL_GL_SetSwapInterval(1);
+  /*if(SDL_GL_SetSwapInterval(-1) == -1)
+    SDL_GL_SetSwapInterval(1);*/
 
   if(glewInit() != GLEW_OK)
     CWindow::context->getExceptions()->throwException(SException(this, "Unable to init GLEW!"));
@@ -59,8 +59,18 @@ void CWindow::initializeGL()
 #endif
 
   //COpenGL *gl = CEngineBase::context->getOpenGL();
+  //gl->makeCurrent();
 
-  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glEnable(GL_DEPTH_TEST);
+
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CW);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_BLEND);
+
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 #ifdef ENV_QT
   emit onInitializeFinishGL();
@@ -69,16 +79,25 @@ void CWindow::initializeGL()
 //------------------------------------------------------------------------------
 void CWindow::paintGL()
 {
+  std::cout << "paint\n";
   //COpenGL *gl = CEngineBase::context->getOpenGL();
+  //gl->makeCurrent();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+#ifdef ENV_SDL
+  SDL_GL_SwapWindow(SDLwindow);
+#endif
 }
 //------------------------------------------------------------------------------
 void CWindow::resizeGL(int width, int height)
 {
+  std::cout << "resize" << width << " " << height << "\n";
   //COpenGL *gl = CEngineBase::context->getOpenGL();
+  //gl->makeCurrent();
 
   glViewport(0, 0, width, height);
+  CEngineBase::context->getCamera()->setSize(width, height);
 }
 //------------------------------------------------------------------------------
 #ifdef ENV_QT

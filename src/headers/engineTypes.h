@@ -4,6 +4,8 @@
 
 #include <string>
 #include <vector>
+#include <list>
+#include <map>
 
 #if defined(ENV_QT)
 #include <QElapsedTimer>
@@ -16,7 +18,7 @@
 //-----------------------------------------------------------------------------
 namespace NEngine
 {
-  static const uint32 REDRAW_TIMER_MS = 17;
+  static const uint32 REDRAW_TIMER_MS = 1000;
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
@@ -49,13 +51,15 @@ namespace NEngine
 
   enum EKey
   {
-    KEY = 0x01,
-    KEY_FRONT = 0x01,
-    KEY_BACK = 0x02,
-    KEY_LEFT = 0x04,
-    KEY_RIGHT = 0x08,
-    KEY_DOWN = 0x10,
-    KEY_UP = 0x11
+    KEY = 0x0000,
+    KEY_QUIT = 0x0100,
+
+    KEY_FRONT = 0x0200,
+    KEY_BACK = 0x0201,
+    KEY_LEFT = 0x0202,
+    KEY_RIGHT = 0x0204,
+    KEY_DOWN = 0x0208,
+    KEY_UP = 0x0210
   };
 
   enum EMouseButton
@@ -94,16 +98,14 @@ namespace NEngine
 struct SEngine
 {
   bool activeRendering;
-  bool delayedRendering;
-  bool finishedRendering;
-
   bool fullscreen;
   bool consoleVisible;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
 
-  NEngine::EKey keysMovement;
+  NEngine::EKey keys;
+  std::map<uint32, NEngine::EKey> keysMap;
 
   uint32 tickOld;
   uint32 tickNew;
@@ -120,7 +122,7 @@ struct SEngine
 #endif
   //std::vector<SDL_TimerID> timers;
 
-  inline SEngine() : activeRendering(false), delayedRendering(false), finishedRendering(false), fullscreen(false), consoleVisible(false), keysMovement(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0) {}
+  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H
