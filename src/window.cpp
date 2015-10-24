@@ -79,7 +79,6 @@ void CWindow::initializeGL()
 //------------------------------------------------------------------------------
 void CWindow::paintGL()
 {
-  std::cout << "paint\n";
   //COpenGL *gl = CEngineBase::context->getOpenGL();
   //gl->makeCurrent();
 
@@ -92,7 +91,6 @@ void CWindow::paintGL()
 //------------------------------------------------------------------------------
 void CWindow::resizeGL(int width, int height)
 {
-  std::cout << "resize" << width << " " << height << "\n";
   //COpenGL *gl = CEngineBase::context->getOpenGL();
   //gl->makeCurrent();
 

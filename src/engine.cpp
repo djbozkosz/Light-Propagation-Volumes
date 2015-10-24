@@ -82,6 +82,7 @@ int32 CEngine::event()
   initialize();
   window->initializeGL();
   initializeFinish();
+  window->resizeGL(1024, 600);
 
   SDL_Event event;
 
@@ -89,9 +90,9 @@ int32 CEngine::event()
   {
     if(event.type == SDL_WINDOWEVENT)
     {
-      uint32 type = event.window.windowID;
+      uint32 type = event.window.event;
 
-      if((type == SDL_WINDOWEVENT_SHOWN) || (type == SDL_WINDOWEVENT_EXPOSED))
+      if(type == SDL_WINDOWEVENT_EXPOSED)
         simulationStep();
       else if(type == SDL_WINDOWEVENT_RESIZED)
         window->resizeGL(event.window.data1, event.window.data2);
@@ -116,14 +117,12 @@ int32 CEngine::event()
 //------------------------------------------------------------------------------
 void CEngine::simulationStep()
 {
-  std::cout << "simulationStep\n";
   context.getCamera()->setMove();
   window->repaint();
 }
 //------------------------------------------------------------------------------
 void CEngine::onTimeout()
 {
-  std::cout << "onTimeout\n";
 #ifdef ENV_SDL
   SDL_RemoveTimer(engine.timer);
 #endif
@@ -132,12 +131,12 @@ void CEngine::onTimeout()
 
   if((isKeyForDelayedRendering()) || (engine.activeRendering))
   {
-    std::cout << "repaintWindow\n";
 #if defined(ENV_QT)
     simulationStep();
 #elif defined(ENV_SDL)
     SDL_Event event;
-    event.type = SDL_WINDOWEVENT_EXPOSED;
+    event.type = SDL_WINDOWEVENT;
+    event.window.event = SDL_WINDOWEVENT_EXPOSED;
     SDL_PushEvent(&event);
 #endif
   }
@@ -163,7 +162,6 @@ void CEngine::mouseMove(const SPoint &point, NEngine::EMouseButton buttons)
 {
   if(buttons & NEngine::MOUSE_BTN_RIGHT)
   {
-    std::cout << "mouseMove\n";
     engine.cursor = glm::vec2(static_cast<float>(point.x), static_cast<float>(point.x));
     context.getCamera()->setRotate();
     engine.cursorOld = engine.cursor;
@@ -218,13 +216,12 @@ bool CEngine::isKeyForDelayedRendering() const
 NEngine::EMouseButton CEngine::getMouseButton(int32 button) const
 {
   return static_cast<NEngine::EMouseButton>(
-    ((button == SDL_BUTTON_LEFT) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN_NO) |
-    ((button == SDL_BUTTON_RIGHT) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN_NO));
+    (((button == SDL_BUTTON_LEFT) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN_NO) |
+    (((button == SDL_BUTTON_RIGHT) || (button == SDL_BUTTON_X1) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN_NO));
 }
 //------------------------------------------------------------------------------
 NEngine::EKey CEngine::getKey(int32 key) const
 {
-  std::cout << "getKey " << key << "\n";
   auto it = engine.keysMap.find(key);
 
   if(it == engine.keysMap.cend())

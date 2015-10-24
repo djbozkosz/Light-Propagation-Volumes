@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------------
 namespace NEngine
 {
-  static const uint32 REDRAW_TIMER_MS = 1000;
+  static const uint32 REDRAW_TIMER_MS = 17;
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
@@ -52,14 +52,14 @@ namespace NEngine
   enum EKey
   {
     KEY = 0x0000,
-    KEY_QUIT = 0x0100,
+    KEY_FRONT = 0x0001,
+    KEY_BACK = 0x0002,
+    KEY_LEFT = 0x0004,
+    KEY_RIGHT = 0x0008,
+    KEY_DOWN = 0x0010,
+    KEY_UP = 0x0020,
 
-    KEY_FRONT = 0x0200,
-    KEY_BACK = 0x0201,
-    KEY_LEFT = 0x0202,
-    KEY_RIGHT = 0x0204,
-    KEY_DOWN = 0x0208,
-    KEY_UP = 0x0210
+    KEY_QUIT = 0x0040
   };
 
   enum EMouseButton

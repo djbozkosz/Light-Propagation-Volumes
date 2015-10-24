@@ -61,8 +61,8 @@ class CWindow : public
 #ifdef ENV_SDL
     inline void repaint() { paintGL(); }
 
-    const SDL_Window *getSDLWindow() const { return SDLwindow; }
-    const SDL_GLContext *getSDLContext() const { return &SDLcontext; }
+    inline const SDL_Window *getSDLWindow() const { return SDLwindow; }
+    inline const SDL_GLContext *getSDLContext() const { return &SDLcontext; }
 #endif
 
 #ifdef ENV_QT
