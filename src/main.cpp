@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
   }
   catch(std::runtime_error &re)
   {
-    std::cout << "aaa\n";
     e.showMessage("Critical Exception", re.what());
   }
 

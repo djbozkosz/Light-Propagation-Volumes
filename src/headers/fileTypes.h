@@ -12,21 +12,20 @@
 //---------------------------------------------------------------------------
 namespace NFile
 {
+  static const uint8 SIGNATURE_LENGTH = 3;
+  static const uint8 SIGNATURE_LENGTH_LONG = 4;
+
   static const char STR_DATA_MAPS[] = "maps/";
   static const char STR_DATA_MODELS[] = "models/";
   static const char STR_DATA_SHADERS[] = "shaders/";
   static const char STR_DATA_SETTINGS[] = "settings.ini";
 
-  static const char STR_ERROR_UNABLE_OPEN[] = "Unable to open file";
+  static const char STR_ERROR_UNABLE_OPEN[] = "Unable to open file: \"%s\"";
   static const char STR_ERROR_READ_BEYOND[] = "Read beyond end of file";
 
   static const char STR_FILES_LIST[] = "%ud, %s";
 
-  static const char STR_DEFAULT_SEARCH_PATH[] = "";
-
   static const char *const STR_SEARCH_PATHES[] = { "bin/", "data/", "../bin/", "../data/" };
-
-  static const uint8 FILE_OPEN_ERROR = 0;
 
   enum EMode
   {
@@ -54,7 +53,7 @@ struct SFile
   std::ofstream *out;
 
   inline SFile() : mode(NFile::MODE_INACITVE), id(-1), in(NULL), out(NULL) {}
-  inline SFile(const std::string &path, NFile::EMode mode) : mode(mode), id(-1), path(path), in(NULL), out(NULL) {}
+  inline SFile(const std::string &path, NFile::EMode mode = NFile::MODE_READ) : mode(mode), id(-1), path(path), in(NULL), out(NULL) {}
 };
 //---------------------------------------------------------------------------
 #endif // FILETYPES_H

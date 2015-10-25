@@ -66,6 +66,12 @@ class CContext
     inline std::string engineGetClassName(const CEngineBase *object) { return fncEngineGetClassName(this, object); }
     inline const SEngine *engineGetEngine() const { return fncEngineGetEngine(this); }
 
+    // console
+    inline void log(const std::string &msg) const { std::cout << msg << "\n"; }
+    inline void warning(const std::string &msg) const { std::cout << "WARNING: " << msg << "!\n"; }
+    inline void error(const std::string &msg) const { std::cout << "ERROR: " << msg << "!\n"; }
+
+    // gets
     inline CEngine *getEngine() { return engine; }
     inline CScenes *getScenes() { return scenes; }
     inline CModels *getModels() { return models; }

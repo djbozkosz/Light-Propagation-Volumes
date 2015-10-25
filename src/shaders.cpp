@@ -22,7 +22,7 @@ void CShader::compile()
   GLint status = 0;
   GLint infoLength = 0;
   std::string log;
-  CFile *f = context->getFilesystem()->open(SFile(shader.file, NFile::MODE_READ));
+  CFile *f = context->getFilesystem()->open(SFile(shader.file));
 
   if(!f)
     return;
@@ -47,7 +47,7 @@ void CShader::compile()
   if(infoLength)
     glGetShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
   if(&log[0])
-    std::cout << log.c_str();
+    context->log(log);
 
   if(status == GL_FALSE)
   {
@@ -139,7 +139,7 @@ void CShaderProgram::link()
     glGetProgramInfoLog(program.program, infoLength, &infoLength, &log[0]);
 #ifndef Q_OS_SYMBIAN
   if(&log[0])
-    std::cout << log.c_str();
+    context->log(log);
 #endif
   if(status == GL_FALSE)
   {
@@ -224,7 +224,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique) const
        (program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
       glEnable(GL_BLEND);
 
-    if(program.name == NShader::PROGRAM_BASIC)
+    /*if(program.name == NShader::PROGRAM_BASIC)
     {
       setSampler(m->diffuseTexture, program.uniforms.difTex, NShader::SAMPLER_BASIC_DIF, m->mipmap, m->edge);
     }
@@ -258,7 +258,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique) const
       setSampler(m->normalTexture, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->mipmap, m->edge);
     }
 
-    glUniform1f(program.uniforms.opacity, m->opacity);
+    glUniform1f(program.uniforms.opacity, m->opacity);*/
     context->getMaps()->finishBind();
   }
 

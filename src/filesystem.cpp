@@ -147,7 +147,10 @@ CFile *CFilesystem::open(const SFile &file)
   }
 
   if(!opened)
+  {
+    context->error(CStr(NFile::STR_ERROR_UNABLE_OPEN, f.path.c_str()));
     return NULL;
+  }
 
   files.push_back(CFile(context, f));
 

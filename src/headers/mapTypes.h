@@ -79,7 +79,7 @@ struct SMap
   uint32 height;
 
   inline SMap() : texture(0), framebuffer(false), width(0), height(0) {}
-  inline SMap(const std::string &file, const glm::vec4 &color = glm::vec4(0.6, 0.3, 0.2, 1.0)) : file(file), texture(0), color(color), framebuffer(false), width(0), height(0) {}
+  inline SMap(const std::string &file, const glm::vec4 &color = glm::vec4(0.3, 0.2, 0.1, 1.0)) : file(file), texture(0), color(color), framebuffer(false), width(0), height(0) {}
   inline SMap(const std::string &fboName, uint32 width, uint32 height) : file(fboName), texture(0), framebuffer(true), width(width), height(height) {}
 };
 
