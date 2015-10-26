@@ -29,9 +29,12 @@ class CModel : public CEngineBase
     NModel::EModelState loadDummy(CFile *f, SMesh *mesh);
     NModel::EModelState loadTarget(CFile *f, SMesh *mesh);
     NModel::EModelState loadBone(CFile *f, SMesh *mesh);
-    void update(SSceneObject *sceneObject, SSceneModel *sceneModel) const;
+
+    void update(NModel::EMeshUpdateType type = NModel::UPDATE_ALL);
+    void updateSceneObject(SSceneObject *sceneObject, SSceneModel *sceneModel) const;
     void render(const SSceneObject *sceneObject, const SSceneModel *sceneModel) const;
 
+    static const SStandardMeshLod *getLod(const SMesh *mesh, const glm::vec3 cam);
     inline const SModel *getModel() const { return &model; }
     inline const SMaterial *getMaterial(uint16 index) const { if((!index) || (index >= model.materials.size())) return NULL; auto it = model.materials.cbegin(); std::advance(it, index - 1); return &(*it); } // starts from 1
     inline const SMesh *getMesh(const std::string &name) const { auto it = model.meshes.find(name); if(it == model.meshes.end()) return NULL; return &it->second; }

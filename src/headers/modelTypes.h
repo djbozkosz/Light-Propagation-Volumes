@@ -73,6 +73,13 @@ namespace NModel
     STATE_INVALID_MESH_VISUAL_TYPE
   };
 
+  enum EMeshUpdateType
+  {
+    UPDATE_ALL = 0xff,
+    UPDATE_TRANSFORMATION = 0x01,
+    UPDATE_GEOMETRY = 0x02
+  };
+
   enum EMaterial // : uint32
   {
     MATERIAL_DEFAULT              = 0x00000001,
@@ -176,12 +183,15 @@ namespace NModel
 }
 //------------------------------------------------------------------------------
 class CMap;
+class CShaderProgram;
 struct SMesh;
 
 //------------------------------------------------------------------------------
 struct SMaterial
 {
   uint32 type;
+  const CShaderProgram *program;
+
   glm::vec3 colorAmbient;
   glm::vec3 colorDiffuse;
   glm::vec3 colorEmission;
@@ -200,13 +210,16 @@ struct SMaterial
   std::string alphaMapName;
   const CMap *alphaMap;
 
+  const CMap *specularMap;
+  const CMap *normalMap;
+
   uint32 animatedFramesCount;
   uint16 animatedUndefined0;
   uint32 animatedFramesPeriod;
   uint32 animatedUndefined1;
   uint32 animatedUndefined2;
 
-  inline SMaterial() : type(0), opacity(1.0f), environmentMapRatio(0.0f), environmentMapLength(0), environmentMap(NULL), diffuseMapLength(0), diffuseMap(NULL), alphaMapLength(0), alphaMap(NULL), animatedFramesCount(0), animatedUndefined0(0), animatedFramesPeriod(1000), animatedUndefined1(0), animatedUndefined2(0) {}
+  inline SMaterial() : type(0), program(NULL), opacity(1.0f), environmentMapRatio(0.0f), environmentMapLength(0), environmentMap(NULL), diffuseMapLength(0), diffuseMap(NULL), alphaMapLength(0), alphaMap(NULL), specularMap(NULL), normalMap(NULL), animatedFramesCount(0), animatedUndefined0(0), animatedFramesPeriod(1000), animatedUndefined1(0), animatedUndefined2(0) {}
 };
 //------------------------------------------------------------------------------
 struct SBoundingBox
@@ -465,8 +478,8 @@ struct SMesh
 //------------------------------------------------------------------------------
 struct SModel
 {
-  std::string path;
   NModel::EModelState state;
+  std::string path;
   char signature[NFile::SIGNATURE_LENGTH_LONG];
   uint16 version;
   uint64 timestamp;
@@ -476,7 +489,7 @@ struct SModel
   std::map<std::string, SMesh> meshes;
   uint8 allowAnimation;
 
-  inline SModel() : state(NModel::STATE_INVALID), version(0), timestamp(0), materialsCount(0), meshesCount(0), allowAnimation(0)
+  inline SModel(const std::string &path = std::string()) : state(NModel::STATE_INVALID), path(path), version(0), timestamp(0), materialsCount(0), meshesCount(0), allowAnimation(0)
   {
     memset(signature, 0, sizeof(char) * NFile::SIGNATURE_LENGTH_LONG);
   }

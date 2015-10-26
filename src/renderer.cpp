@@ -17,12 +17,12 @@ CRenderer::~CRenderer()
 //------------------------------------------------------------------------------
 void CRenderer::addMesh(const SRenderMesh &mesh)
 {
-  /*if(renderer.mode == NRenderer::MODE_PICK)
+  if(renderer.mode == NRenderer::MODE_PICK)
     meshes[NShader::PROGRAM_COLOR].push_back(mesh);
   else if(renderer.mode == NRenderer::MODE_DEPTH)
     meshes[NShader::PROGRAM_DEPTH].push_back(mesh);
   else if((mesh.material) && (mesh.material->program))
-    meshes[mesh.material->program->getShaderProgram()->name].push_back(mesh);*/
+    meshes[mesh.material->program->getShaderProgram()->name].push_back(mesh);
 }
 //------------------------------------------------------------------------------
 void CRenderer::dispatch() const

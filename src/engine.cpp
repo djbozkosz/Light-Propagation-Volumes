@@ -69,10 +69,15 @@ void CEngine::initialize()
   openGL = COpenGL(&context);
   filesystem = CFilesystem(&context);
   exceptions = CExceptions(&context);
+
+  for(uint32 i = 0; i < NFile::SEARCH_PATHES_COUNT; i++)
+    filesystem.addSearchPath(NFile::STR_SEARCH_PATHES[i]);
 }
 //------------------------------------------------------------------------------
 void CEngine::initializeFinish()
 {
+  models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"scene.4ds"));
+
   engine.timer = SDL_AddTimer(NEngine::REDRAW_TIMER_MS, staticOnTimeout, &context);
 }
 //------------------------------------------------------------------------------

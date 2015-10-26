@@ -15,6 +15,8 @@ namespace NFile
   static const uint8 SIGNATURE_LENGTH = 3;
   static const uint8 SIGNATURE_LENGTH_LONG = 4;
 
+  static const uint32 SEARCH_PATHES_COUNT = 5;
+
   static const char STR_DATA_MAPS[] = "maps/";
   static const char STR_DATA_MODELS[] = "models/";
   static const char STR_DATA_SHADERS[] = "shaders/";
@@ -25,7 +27,7 @@ namespace NFile
 
   static const char STR_FILES_LIST[] = "%ud, %s";
 
-  static const char *const STR_SEARCH_PATHES[] = { "bin/", "data/", "../bin/", "../data/" };
+  static const char *const STR_SEARCH_PATHES[] = { "", "bin/", "data/", "../bin/", "../data/" };
 
   enum EMode
   {

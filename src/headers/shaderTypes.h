@@ -51,6 +51,21 @@ namespace NShader
   static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL[] = "data/shaders/perFragmentNormal.fs";
   static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA[] = "data/shaders/perFragmentNormalAlpha.fs";
 
+  static const char STR_ERROR_COMPILE[] = "Shader Compilation Error: \"%s\"!";
+  static const char STR_ERROR_LINK[] = "Program Link Error: \"%s\"!";
+
+  static const char *const STR_SHADERS_LIST[] =
+  {
+    "Color",
+    "Depth",
+    "Basic",
+    "Basic Alpha",
+    "Per Fragment",
+    "Per Fragment Alpha",
+    "Per Fragment Normal",
+    "Per Fragment Normal Alpha"
+  };
+
   static const char *const STR_SHADER_VERTEX_LIST[] =
   {
     STR_SHADER_VERTER_COLOR,
@@ -91,7 +106,7 @@ namespace NShader
     PROGRAM_PER_FRAGMENT,
     PROGRAM_PER_FRAGMENT_ALPHA,
     PROGRAM_PER_FRAGMENT_NORMAL,
-    PROGRAM_PER_FRAGMENT_NORMAL_ALPHA,
+    PROGRAM_PER_FRAGMENT_NORMAL_ALPHA
   };
 
   enum ESampler

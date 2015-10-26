@@ -26,36 +26,39 @@ void CSceneObject::update(NScene::ESceneUpdateType type)
 {
   UNUSED(type);
 
-  if(object.type == NScene::OBJECT_TYPE_MODEL)
+  if((object.type == NScene::OBJECT_TYPE_MODEL) && (model.model))
   {
-    if(((type & NScene::UPDATE_MODEL) || (type & NScene::UPDATE_TRANSFORMATION)) && (model.model))
-      model.model->update(&object, &model);
+    if(type & NScene::UPDATE_TRANSFORMATION)
+      object.mw = SMatrix::composeTransformation(object.position, object.rotation, object.scale);
+    if(type & NScene::UPDATE_MODEL)
+    {
+      model.model->updateSceneObject(&object, &model);
+
+      for(auto mesh = model.meshes.begin(); mesh != model.meshes.end(); mesh++)
+        mesh->pickColor = object.pickColor.toVec3();
+    }
     if(type & NScene::UPDATE_LIGHTING)
     {
-      for(auto t = model.meshes.begin(); t != model.meshes.end(); t++)
+      for(auto mesh = model.meshes.begin(); mesh != model.meshes.end(); mesh++)
       {
-        //SShaderTechnique *t; // test
-        t->pickColor = object.pickColor.toVec3();
-
         for(auto so = object.parent->getSceneObjects()->cbegin(); so != object.parent->getSceneObjects()->cend(); so++)
         {
-          //CSceneObject *so; // test
           if(so->second.getObject()->type == NScene::OBJECT_TYPE_LIGHT)
           {
             const SSceneLight *light = so->second.getLight();
             if(light->type == NScene::OBJECT_LIGHT_TYPE_AMBIENT)
-              t->lightAmb = light->color;
+              mesh->lightAmb = light->color;
             else if(light->type == NScene::OBJECT_LIGHT_TYPE_POINT)
             {
-              t->lightPos = so->second.getObject()->position;
-              t->lightRange = light->range;
-              t->lightColor = light->color;
-              t->lightSpeColor = light->specularColor;
+              mesh->lightPos = so->second.getObject()->position;
+              mesh->lightRange = light->range;
+              mesh->lightColor = light->color;
+              mesh->lightSpeColor = light->specularColor;
             }
             else if(light->type == NScene::OBJECT_LIGHT_TYPE_FOG)
             {
-              t->fogRange = light->range;
-              t->fogColor = light->color;
+              mesh->fogRange = light->range;
+              mesh->fogColor = light->color;
             }
           }
         }

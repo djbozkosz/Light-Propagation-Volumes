@@ -50,15 +50,7 @@ void CShader::compile()
     context->log(log);
 
   if(status == GL_FALSE)
-  {
-    /*QMessageBox *msg = new QMessageBox();
-    msg->setWindowTitle("Shader Compilation Error: "+shader.file);
-    msg->setText(&log[0]);
-    msg->setStandardButtons(QMessageBox::Ok);
-    msg->setDefaultButton(QMessageBox::Ok);
-    msg->setModal(false);
-    msg->show();*/
-  }
+    context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.file.c_str()), &log[0], false);
 
   f->close();
 }
@@ -147,11 +139,7 @@ void CShaderProgram::link()
     if(&log[0])
       qDebug(&log[0]);
 #endif
-    /*QMessageBox *msg = new QMessageBox();
-    msg->setWindowTitle(std::string("Shader Program Link Error: %1").arg(program.name));
-    msg->setText(&log[0]);
-    msg->setModal(false);
-    msg->show();*/
+    context->engineShowMessage(CStr(NShader::STR_ERROR_LINK, NShader::STR_SHADERS_LIST[program.name]), &log[0], false);
   }
 }
 //------------------------------------------------------------------------------
@@ -224,41 +212,41 @@ void CShaderProgram::begin(const SShaderTechnique *technique) const
        (program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
       glEnable(GL_BLEND);
 
-    /*if(program.name == NShader::PROGRAM_BASIC)
+    if(program.name == NShader::PROGRAM_BASIC)
     {
-      setSampler(m->diffuseTexture, program.uniforms.difTex, NShader::SAMPLER_BASIC_DIF, m->mipmap, m->edge);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
     }
     else if((program.name == NShader::PROGRAM_BASIC_ALPHA))
     {
-      setSampler(m->diffuseTexture, program.uniforms.difTex, NShader::SAMPLER_BASIC_APLHA_DIF, m->mipmap, m->edge);
-      setSampler(m->alphaTexture, program.uniforms.alpTex, NShader::SAMPLER_BASIC_APLHA_ALP, m->mipmap, m->edge);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_APLHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_BASIC_APLHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT)
     {
-      setSampler(m->diffuseTexture, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->mipmap, m->edge);
-      setSampler(m->specularTexture, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->mipmap, m->edge);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA)
     {
-      setSampler(m->diffuseTexture, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DIF, m->mipmap, m->edge);
-      setSampler(m->alphaTexture, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->mipmap, m->edge);
-      setSampler(m->specularTexture, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->mipmap, m->edge);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL)
     {
-      setSampler(m->diffuseTexture, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DIF, m->mipmap, m->edge);
-      setSampler(m->specularTexture, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->mipmap, m->edge);
-      setSampler(m->normalTexture, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->mipmap, m->edge);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
     {
-      setSampler(m->diffuseTexture, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF, m->mipmap, m->edge);
-      setSampler(m->alphaTexture, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP, m->mipmap, m->edge);
-      setSampler(m->specularTexture, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->mipmap, m->edge);
-      setSampler(m->normalTexture, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->mipmap, m->edge);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING);
     }
 
-    glUniform1f(program.uniforms.opacity, m->opacity);*/
+    glUniform1f(program.uniforms.opacity, m->opacity);
     context->getMaps()->finishBind();
   }
 

@@ -16,8 +16,12 @@ namespace NCamera
   static const float FOV = 60.0f;
 
   static const float SCALE_X = -1.0f;
-  static const float SCALE_Y = 1.0f;
-  static const float SCALE_Z = 1.0f;
+  static const float SCALE_Y =  1.0f;
+  static const float SCALE_Z =  1.0f;
+
+  static const float SCALE_FIX_X = -1.0f;
+  static const float SCALE_FIX_Y =  1.0f;
+  static const float SCALE_FIX_Z = -1.0f;
 
   static const float MOVEMENT_SPEED = 1.0f;
   static const float SENSITIVITY_SPEED = 1.0f;

@@ -9,8 +9,7 @@ CModel::CModel() : CEngineBase()
 CModel::CModel(CContext *context, const SModel &model) : CEngineBase(context), model(model)
 {
   load();
-  /*for(auto mesh = this->model.meshes.begin(); mesh != this->model.meshes.end(); mesh++)
-    context->getModels()->createVbo(&(*mesh));*/
+  update();
 }
 //------------------------------------------------------------------------------
 CModel::~CModel()
@@ -60,7 +59,7 @@ NModel::EModelState CModel::load()
 
   f->read(&model.meshesCount, sizeof(uint16));
 
-  for(uint16 i = 0; i < model.materialsCount; i++)
+  for(uint16 i = 0; i < model.meshesCount; i++)
   {
     SMesh mesh;
 
@@ -615,61 +614,179 @@ NModel::EModelState CModel::loadBone(CFile *f, SMesh *mesh)
   return NModel::STATE_VALID;
 }
 //------------------------------------------------------------------------------
-void CModel::update(SSceneObject *sceneObject, SSceneModel *sceneModel) const
+void CModel::update(NModel::EMeshUpdateType type)
 {
-  /*bool soMeshesChanged = false;
-
-  sceneObject->mw = SMatrix::composeTransformation(sceneObject->position, sceneObject->rotation, sceneObject->scale);
-
-  if(sceneModel->meshes.size() != model.meshes.size())
+  if(type & NModel::UPDATE_TRANSFORMATION)
   {
-    sceneModel->meshes.clear();
-    soMeshesChanged = true;
+    std::vector<SMesh *> meshes(model.meshes.size(), NULL);
+    for(auto it = model.meshes.begin(); it != model.meshes.end(); it++)
+      meshes[it->second.index - 1] = &it->second;
+
+    for(uint32 i = 0; i < meshes.size(); i++)
+    {
+      meshes[i]->transformation = SMatrix::composeTransformation(meshes[i]->position, meshes[i]->rotation, meshes[i]->scale);
+      if(meshes[i]->link)
+        meshes[i]->transformation = meshes[i]->link->transformation * meshes[i]->transformation;
+    }
   }
-
-  auto sceneMesh = sceneModel->meshes.begin();
-  for(auto mesh = model.meshes.begin(); mesh != model.meshes.end(); mesh++, sceneMesh++)
+  if(type & NModel::UPDATE_GEOMETRY)
   {
-    SShaderTechnique *t;
+    //COpenGL *gl = context->getOpenGL();
 
-    if(soMeshesChanged)
-      sceneModel->meshes.push_back(SShaderTechnique());
-    t = &(*sceneMesh);
-    t->mw = sceneObject->mw * mesh->transformation;
-    t->mwnit = glm::mat3(glm::transpose(glm::inverse(t->mw)));
-  }*/
+    for(auto it = model.meshes.begin(); it != model.meshes.end(); it++)
+    {
+      SMesh *mesh = &it->second;
+
+      if(mesh->type == NModel::MESH_TYPE_STANDARD)
+      {
+        if((mesh->visualType == NModel::MESH_VISUAL_TYPE_STANDARD) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MESH) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MORPH) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_BILLBOARD) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_MORPH))
+        {
+          for(auto lod = mesh->standardMesh.lods.begin(); lod != mesh->standardMesh.lods.end(); lod++)
+          {
+            std::vector<float> vx(lod->vertices.size() * NModel::VERTEX_PNTBTC_SIZE);
+            std::vector<uint16> in;
+
+            uint32 i = 0;
+            for(auto vertex = lod->vertices.begin(); vertex != lod->vertices.end(); vertex++)
+            {
+              vx[i++] = vertex->position.x;
+              vx[i++] = vertex->position.y;
+              vx[i++] = vertex->position.z;
+              vx[i++] = vertex->normal.x;
+              vx[i++] = vertex->normal.y;
+              vx[i++] = vertex->normal.z;
+              vx[i++] = vertex->normalTangent.x;
+              vx[i++] = vertex->normalTangent.y;
+              vx[i++] = vertex->normalTangent.z;
+              vx[i++] = vertex->normalBitangent.x;
+              vx[i++] = vertex->normalBitangent.y;
+              vx[i++] = vertex->normalBitangent.z;
+              vx[i++] = vertex->texCoord.x;
+              vx[i++] = vertex->texCoord.y;
+              vx[i++] = vertex->color.x;
+              vx[i++] = vertex->color.y;
+              vx[i++] = vertex->color.z;
+              vx[i++] = vertex->color.w;
+            }
+
+            i = 0;
+            for(auto group = lod->faceGroups.begin(); group != lod->faceGroups.end(); group++)
+            {
+              in.resize(in.size() + group->faces.size() * NModel::FACE_SIZE);
+
+              for(auto face = group->faces.begin(); face != group->faces.end(); face++)
+              {
+                in[i++] = face->vertex0;
+                in[i++] = face->vertex1;
+                in[i++] = face->vertex2;
+              }
+            }
+
+            if(lod->vboVertices)
+              glDeleteBuffers(1, &lod->vboVertices);
+            if(lod->vboIndices)
+              glDeleteBuffers(1, &lod->vboIndices);
+
+            glGenBuffers(1, &lod->vboVertices);
+            glGenBuffers(1, &lod->vboIndices);
+
+            glBindBuffer(GL_ARRAY_BUFFER, lod->vboVertices);
+            glBufferData(GL_ARRAY_BUFFER, vx.size() * sizeof(float), &vx[0], GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lod->vboIndices);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, in.size() * sizeof(uint16), &in[0], GL_STATIC_DRAW);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+          }
+        }
+      }
+    }
+  }
+}
+//------------------------------------------------------------------------------
+void CModel::updateSceneObject(SSceneObject *sceneObject, SSceneModel *sceneModel) const
+{
+  sceneModel->meshes.clear();
+
+  for(auto it = model.meshes.cbegin(); it != model.meshes.cend(); it++)
+  {
+    const SMesh *mesh = &it->second;
+    sceneModel->meshes.push_back(SShaderTechnique());
+    SShaderTechnique *sceneMesh = &sceneModel->meshes.back();
+
+    sceneMesh->mw = sceneObject->mw * mesh->transformation;
+    sceneMesh->mwnit = glm::mat3(glm::transpose(glm::inverse(sceneMesh->mw)));
+  }
 }
 //------------------------------------------------------------------------------
 void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneModel) const
 {
-  /*if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()))
+  if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()))
     return;
 
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
   bool mergedMeshes = ((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH)) ? true : false;
   auto soMesh = sceneModel->meshes.cbegin();
 
-  for(auto mesh = model.meshes.cbegin(); mesh != model.meshes.cend(); mesh++, soMesh++)
+  for(auto it = model.meshes.cbegin(); it != model.meshes.cend(); it++, soMesh++)
   {
+    const SMesh *mesh = &it->second;
     const SCamera *c = context->getCamera()->getCamera();
+
     soMesh->mvp = c->viewProjection * soMesh->mw;
-    soMesh->cam = glm::vec3(c->position) * glm::vec3(-1.0, 1.0, -1.0);
-    uint32 faceStart = 0;
+    soMesh->cam = glm::vec3(c->position) * glm::vec3(NCamera::SCALE_FIX_X, NCamera::SCALE_FIX_Y, NCamera::SCALE_FIX_Z);
 
-    for(uint32 j = 0; j < mesh->faces.size(); j++)
+    if(mesh->type == NModel::MESH_TYPE_STANDARD)
     {
-      uint32 facesCount = mesh->faces[j].faces.size();
+      if((mesh->visualType == NModel::MESH_VISUAL_TYPE_STANDARD) ||
+         (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MESH) ||
+         (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MORPH) ||
+         (mesh->visualType == NModel::MESH_VISUAL_TYPE_BILLBOARD) ||
+         (mesh->visualType == NModel::MESH_VISUAL_TYPE_MORPH))
+      {
+        if(const SStandardMeshLod *lod = getLod(mesh, soMesh->cam))
+        {
+          uint32 faceStart = 0;
 
-      context->getRenderer()->addMesh(SRenderMesh(
-        mesh->vboVertices, mesh->vboIndices,
-        (mergedMeshes) ? 0 : faceStart,
-        ((mergedMeshes) ? faceStart : 0) + facesCount,
-        &(*soMesh),
-        (mergedMeshes) ? NULL : mesh->faces[j].material));
+          for(auto faceGroup = lod->faceGroups.cbegin(); faceGroup != lod->faceGroups.cend(); faceGroup++)
+          {
+            context->getRenderer()->addMesh(SRenderMesh(
+              lod->vboVertices, lod->vboIndices,
+              (mergedMeshes) ? 0 : faceStart,
+              ((mergedMeshes) ? faceStart : 0) + faceGroup->faces.size(),
+              &(*soMesh),
+              (mergedMeshes) ? NULL : faceGroup->material));
 
-      faceStart += facesCount;
+            faceStart += faceGroup->faces.size();
+          }
+        }
+      }
     }
-  }*/
+  }
+}
+//------------------------------------------------------------------------------
+const SStandardMeshLod *CModel::getLod(const SMesh *mesh, const glm::vec3 cam)
+{
+  if(mesh->type == NModel::MESH_TYPE_STANDARD)
+  {
+    if((mesh->visualType == NModel::MESH_VISUAL_TYPE_STANDARD) ||
+       (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MESH) ||
+       (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MORPH) ||
+       (mesh->visualType == NModel::MESH_VISUAL_TYPE_BILLBOARD) ||
+       (mesh->visualType == NModel::MESH_VISUAL_TYPE_MORPH))
+    { // todo - calc distance
+      UNUSED(cam);
+
+      if(mesh->standardMesh.lods.size())
+        return &(*mesh->standardMesh.lods.cbegin());
+    }
+  }
+
+  return NULL;
 }
 //------------------------------------------------------------------------------
 CModels::CModels() : CEngineBase()
