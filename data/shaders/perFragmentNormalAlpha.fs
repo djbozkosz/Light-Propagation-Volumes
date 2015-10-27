@@ -14,6 +14,7 @@ uniform sampler2D alpTex;
 uniform sampler2D speTex;
 uniform sampler2D norTex;
 
+uniform int type;
 uniform float opacity;
 
 uniform vec3 lightAmb;
@@ -28,7 +29,11 @@ out vec4 glFragColor;
 
 void main()
 {
-  vec3 fragDif = texture(difTex, texCoord).rgb;
+  vec4 fragDif = texture(difTex, texCoord);
+
+  if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
+    discard;
+
   vec3 fragAlp = texture(alpTex, texCoord).rgb;
   vec3 fragSpe = texture(speTex, texCoord).rgb;
 
@@ -50,5 +55,5 @@ void main()
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
   float alpha = (fragAlp.r + fragAlp.g + fragAlp.b) * 0.3333333334 * color.a * opacity + (colorSpe.r + colorSpe.g + colorSpe.b) * 0.3333333334;
-  glFragColor = vec4(mix(fragDif * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), alpha);
+  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), alpha);
 }

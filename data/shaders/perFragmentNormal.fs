@@ -13,6 +13,8 @@ uniform sampler2D difTex;
 uniform sampler2D speTex;
 uniform sampler2D norTex;
 
+uniform int type;
+
 uniform vec3 lightAmb;
 uniform vec3 lightPos;
 uniform vec2 lightRange;
@@ -25,7 +27,11 @@ out vec4 glFragColor;
 
 void main()
 {
-  vec3 fragDif = texture(difTex, texCoord).rgb;
+  vec4 fragDif = texture(difTex, texCoord);
+
+  if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
+    discard;
+
   vec3 fragSpe = texture(speTex, texCoord).rgb;
 
   float fragDist = distance(cam, positionWorld);
@@ -45,5 +51,5 @@ void main()
   /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
-  glFragColor = vec4(mix(fragDif * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
+  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
 }
