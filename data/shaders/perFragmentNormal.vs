@@ -22,7 +22,7 @@ void main()
   positionWorld = vec4(mw * vec4(vertexPosition, 1.0)).xyz;
   texCoord = vertexTexCoord;
   color = vertexColor;
-  mat3 m = mat3(normalize(mwnit * vertexNormalTangent), normalize(mwnit * vertexNormalBitangent), normalize(mwnit * vertexNormal));
+  mat3 m = mat3(normalize(mwnit * vertexNormalTangent), normalize(mwnit * /*vertexNormalBitangent*/cross(vertexNormal, vertexNormalTangent)), normalize(mwnit * vertexNormal));
   mtbnt = mat3(m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2]);
   gl_Position = mvp * vec4(vertexPosition, 1.0);
 }

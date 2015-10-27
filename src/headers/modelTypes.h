@@ -78,7 +78,8 @@ namespace NModel
   {
     UPDATE_ALL = 0xff,
     UPDATE_TRANSFORMATION = 0x01,
-    UPDATE_GEOMETRY = 0x02
+    UPDATE_TANGENT_BASE = 0x02,
+    UPDATE_GEOMETRY = 0x04
   };
 
   enum EMaterial // : uint32

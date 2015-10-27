@@ -107,12 +107,44 @@ NModel::EModelState CModel::loadMaterial(CFile *f, SMaterial *mat)
   f->read(&mat->diffuseMapName[0], sizeof(char) * mat->diffuseMapLength);
   mat->diffuseMap = context->getMaps()->addMap(SMap(mat->diffuseMapName));
 
+  if(mat->diffuseMapName.length())
+  { // additional maps
+    const std::string file = CStr::extPathFile(mat->diffuseMapName);
+    const std::string ext = CStr::extExt(mat->diffuseMapName);
+    const char *const additionalMapNames[] = { NMap::STR_MAP_SUFFIX_SPEC, NMap::STR_MAP_SUFFIX_NORMAL };
+    const CMap **const additionalMaps[] = { &mat->specularMap, &mat->normalMap };
+    const SColor defaultColors[] = { SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A), SColor(NMap::DEFAULT_MAP_NORMAL_R, NMap::DEFAULT_MAP_NORMAL_G, NMap::DEFAULT_MAP_NORMAL_B, NMap::DEFAULT_MAP_NORMAL_A) };
+
+    for(uint8 i = 0; i < 2; i++)
+    {
+      const std::string map(CStr(NMap::STR_MAP_SUFFIX, file.c_str(), additionalMapNames[i], ext.c_str()));
+      CFile *f = context->getFilesystem()->open(SFile(std::string(NFile::STR_DATA_MAPS)+map, true));
+      if(f)
+      {
+        f->close();
+        *additionalMaps[i] = context->getMaps()->addMap(SMap(map, defaultColors[i]));
+        if(i == 1)
+          mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL);
+      }
+    }
+  }
+
   if((mat->type & NModel::MATERIAL_ALPHA) && (mat->diffuseMapLength))
   {
     f->read(&mat->alphaMapLength, sizeof(uint8));
     mat->alphaMapName.resize(mat->alphaMapLength);
     f->read(&mat->alphaMapName[0], sizeof(char) * mat->alphaMapLength);
     mat->alphaMap = context->getMaps()->addMap(SMap(mat->alphaMapName));
+
+    if(mat->alphaMap)
+    {
+      if(mat->program->getShaderProgram()->name == NShader::PROGRAM_BASIC)
+        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_BASIC_ALPHA);
+      else if(mat->program->getShaderProgram()->name == NShader::PROGRAM_PER_FRAGMENT)
+        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_ALPHA);
+      else if(mat->program->getShaderProgram()->name == NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA);
+    }
   }
 
   if(mat->type & NModel::MATERIAL_ANIMATED)
@@ -633,6 +665,108 @@ void CModel::update(NModel::EMeshUpdateType type)
       meshes[i]->transformation = SMatrix::composeTransformation(meshes[i]->position, meshes[i]->rotation, meshes[i]->scale);
       if(meshes[i]->link)
         meshes[i]->transformation = meshes[i]->link->transformation * meshes[i]->transformation;
+    }
+  }
+  if(type & NModel::UPDATE_TANGENT_BASE)
+  {
+    for(auto it = model.meshes.begin(); it != model.meshes.end(); it++)
+    {
+      SMesh *mesh = &it->second;
+
+      if(mesh->type == NModel::MESH_TYPE_STANDARD)
+      {
+        if((mesh->visualType == NModel::MESH_VISUAL_TYPE_STANDARD) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MESH) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MORPH) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_BILLBOARD) ||
+           (mesh->visualType == NModel::MESH_VISUAL_TYPE_MORPH))
+        {
+          for(auto lod = mesh->standardMesh.lods.begin(); lod != mesh->standardMesh.lods.end(); lod++)
+          {
+            std::vector<bool> mappedVertices(lod->vertices.size(), false);
+
+            for(auto group = lod->faceGroups.begin(); group != lod->faceGroups.end(); group++)
+            {
+              for(auto face = group->faces.begin(); face != group->faces.end(); face++)
+              {
+                const uint16 v[] = { face->vertex0, face->vertex1, face->vertex2, face->vertex0, face->vertex1 };
+                for(uint8 i = 0; i < 3; i++)
+                {
+                  if(!mappedVertices[v[i]])
+                  {
+                    SVertex *v0 = &lod->vertices[v[i]];
+                    const SVertex *v1 = &lod->vertices[v[i + 1]];
+                    const SVertex *v2 = &lod->vertices[v[i + 2]];
+
+                    glm::vec3 deltaPosition1 = v1->position - v0->position;
+                    glm::vec3 deltaPosition2 = v2->position - v0->position;
+                    glm::vec2 deltaTexCoord1 = v1->texCoord - v0->texCoord;
+                    glm::vec2 deltaTexCoord2 = v2->texCoord - v0->texCoord;
+
+                    /*if((!v0->texCoord.x) && (!v0->texCoord.y) && (!v1->texCoord.x) && (!v1->texCoord.y) && (!v0->texCoord.x) && (!v0->texCoord.y) && (!v2->texCoord.x) && (!v2->texCoord.y))
+                    {
+                      glm::vec3 vec1 = v1->position - v0->position;
+                      glm::vec3 vec2 = glm::cross(glm::normalize(v0->normal), glm::normalize(vec1));
+
+                      float max = vec2.x;
+                      uint8 axis = 0;
+                      if(vec2.y > max)
+                      {
+                        max = vec2.y;
+                        axis = 1;
+                      }
+                      if(vec2.z > max)
+                      {
+                        max = vec2.z;
+                        axis = 2;
+                      }
+                      if(axis == 0)
+                      {
+                        deltaTexCoord1 = glm::vec2(v1->position.y, v1->position.z) - glm::vec2(v2->position.y, v2->position.z);
+                        deltaTexCoord2 = glm::vec2(v2->position.y, v2->position.z) - glm::vec2(v2->position.y, v2->position.z);
+                      }
+                      else if(axis == 1)
+                      {
+                        deltaTexCoord1 = glm::vec2(v1->position.x, v1->position.z) - glm::vec2(v2->position.x, v2->position.z);
+                        deltaTexCoord2 = glm::vec2(v2->position.x, v2->position.z) - glm::vec2(v2->position.x, v2->position.z);
+                      }
+                      else
+                      {
+                        deltaTexCoord1 = glm::vec2(v1->position.x, v1->position.y) - glm::vec2(v2->position.x, v2->position.y);
+                        deltaTexCoord2 = glm::vec2(v2->position.x, v2->position.y) - glm::vec2(v2->position.x, v2->position.y);
+                      }
+                    }*/
+
+                    float recip = 1.0f / (deltaTexCoord1.x * deltaTexCoord2.y - deltaTexCoord1.y * deltaTexCoord2.x);
+                    v0->normalTangent = (deltaPosition1 * deltaTexCoord2.y - deltaPosition2 * deltaTexCoord1.y) * recip;
+                    v0->normalBitangent = (deltaPosition2 * deltaTexCoord1.x - deltaPosition1 * deltaTexCoord2.x) * recip;
+
+                    mappedVertices[v[i]] = true;
+                  }
+
+                  /*if(model.path.find("cube") != std::string::npos)
+                  {
+                    SVertex *v0 = &lod->vertices[v[i]];
+                    std::cout
+                      << v0->position.x << ", " << v0->position.y << ", " << v0->position.z << ", "
+                      << v0->normal.x << ", " << v0->normal.y << ", " << v0->normal.z << ", "
+                      << v0->normalTangent.x << ", " << v0->normalTangent.y << ", " << v0->normalTangent.z << ", "
+                      << v0->normalBitangent.x << ", " << v0->normalBitangent.y << ", " << v0->normalBitangent.z << ", "
+                      << v0->texCoord.x << ", " << v0->texCoord.y << ", \n";
+                  }*/
+                }
+              }
+            }
+
+            for(auto vertex = lod->vertices.begin(); vertex != lod->vertices.end(); vertex++)
+            {
+              vertex->normalTangent = glm::normalize(vertex->normalTangent - vertex->normal * glm::dot(vertex->normal, vertex->normalTangent));
+              if(glm::dot(glm::cross(vertex->normal, vertex->normalTangent), vertex->normalBitangent) < 0.0f)
+                vertex->normalTangent = vertex->normalTangent * -1.0f;
+            }
+          }
+        }
+      }
     }
   }
   if(type & NModel::UPDATE_GEOMETRY)

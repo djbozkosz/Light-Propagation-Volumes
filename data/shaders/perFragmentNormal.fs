@@ -42,8 +42,8 @@ void main()
   vec3 colorSpe = lightSpeColor.rgb * pow(max(0.0, dot(viewDir, reflect(-lightDir, normalDir))), lightSpeColor.a) * lightDot * lightDist;
 
   float fogDist = clamp((fragDist - fogRange.x) / (fogRange.y - fogRange.x), 0.0, 1.0);
-  float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
-  float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;
+  /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
+  float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
-  glFragColor = vec4(mix(fragDif * color.rgb * colorDif + fragSpe * colorSpe + fresPow * fogColor, fogColor + fogDot * lightColor, fogDist), 1.0);
+  glFragColor = vec4(mix(fragDif * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
 }

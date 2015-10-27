@@ -74,6 +74,7 @@ void CEngine::initialize()
 
   for(uint32 i = 0; i < NFile::SEARCH_PATHES_COUNT; i++)
     filesystem.addSearchPath(NFile::STR_SEARCH_PATHES[i]);
+  filesystem.addSearchPath("C:/Hry/Mafia/");
 
   camera.setSize(1024, 600);
 }
@@ -87,7 +88,7 @@ void CEngine::initializeFinish()
   {
     s->addSceneObjectLight(SSceneObject("light_amb"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
     s->addSceneObjectLight(SSceneObject("light_fog"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.5f, 0.6f, 0.7f), glm::vec2(0.0f, 1.0f)));
-    s->addSceneObjectLight(SSceneObject("light_sun", glm::vec3(200000.0f, 1000000.0f, -500000.0f)), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(100.0f, 100.0f, 100.0f, 512.0f)));
+    s->addSceneObjectLight(SSceneObject("light_sun", glm::vec3(200000.0f, 1000000.0f, -500000.0f)), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(1.0f, 1.0f, 1.0f, 64.0f)));
 
     s->addSceneObjectModel(
       SSceneObject("scene.4ds"),

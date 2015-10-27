@@ -17,12 +17,25 @@ namespace NMap
   static const uint8 RGB_BITS_SIZE = 24;
   static const uint8 RGBA_BITS_SIZE = 32;
 
+  static const uint8 DEFAULT_MAP_R = 64;
+  static const uint8 DEFAULT_MAP_G = 32;
+  static const uint8 DEFAULT_MAP_B = 16;
+  static const uint8 DEFAULT_MAP_A = 255;
+  static const uint8 DEFAULT_MAP_NORMAL_R = 128;
+  static const uint8 DEFAULT_MAP_NORMAL_G = 128;
+  static const uint8 DEFAULT_MAP_NORMAL_B = 255;
+  static const uint8 DEFAULT_MAP_NORMAL_A = 255;
+
   static const uint32 RGBA_MASK_R = 0x000000ff;
   static const uint32 RGBA_MASK_G = 0x0000ff00;
   static const uint32 RGBA_MASK_B = 0x00ff0000;
   static const uint32 RGBA_MASK_A = 0xff000000;
 
   static const uint8 COLOR_KEY_OFFSET = 4;
+
+  static const char STR_MAP_SUFFIX_SPEC[] = "_SPEC";
+  static const char STR_MAP_SUFFIX_NORMAL[] = "_DDN";
+  static const char STR_MAP_SUFFIX[] = "%s%s%s";
 
   static const char STR_DEFAULT_NORMAL[] = ":/maps/data/maps/defaultNormal00.png";
 
@@ -50,7 +63,7 @@ struct SColor
   uint8 a;
 
   inline SColor() : r(0), g(0), b(0), a(0) {}
-  inline SColor(uint8 r, uint8 g, uint8 b, uint8 a = 255) : r(r), g(g), b(b), a(a) {}
+  inline SColor(uint8 r, uint8 g, uint8 b, uint8 a = NMap::DEFAULT_MAP_A) : r(r), g(g), b(b), a(a) {}
   inline SColor(const glm::vec3 &v) : r(v.r * 255.0f), g(v.g * 255.0f), b(v.b * 255.0f), a(0) {}
   inline SColor(const glm::vec4 &v) : r(v.r * 255.0f), g(v.g * 255.0f), b(v.b * 255.0f), a(v.a * 255.0f) {}
 
@@ -94,7 +107,7 @@ struct SMap
   uint32 height;
 
   inline SMap() : texture(0), framebuffer(false), width(0), height(0) {}
-  inline SMap(const std::string &file, const SColor &color = SColor(64, 32, 16, 255)) : file(file), texture(0), color(color), framebuffer(false), width(0), height(0) {}
+  inline SMap(const std::string &file, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), framebuffer(false), width(0), height(0) {}
   inline SMap(const std::string &fboName, uint32 width, uint32 height) : file(fboName), texture(0), framebuffer(true), width(width), height(height) {}
 };
 

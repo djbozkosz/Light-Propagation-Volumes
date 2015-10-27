@@ -53,9 +53,11 @@ struct SFile
   std::string path;
   std::ifstream *in;
   std::ofstream *out;
+  bool quiet;
 
-  inline SFile() : mode(NFile::MODE_INACITVE), id(-1), in(NULL), out(NULL) {}
-  inline SFile(const std::string &path, NFile::EMode mode = NFile::MODE_READ) : mode(mode), id(-1), path(path), in(NULL), out(NULL) {}
+  inline SFile() : mode(NFile::MODE_INACITVE), id(-1), in(NULL), out(NULL), quiet(false) {}
+  inline SFile(const std::string &path, NFile::EMode mode = NFile::MODE_READ) : mode(mode), id(-1), path(path), in(NULL), out(NULL), quiet(false) {}
+  inline SFile(const std::string &path, bool quiet, NFile::EMode mode = NFile::MODE_READ) : mode(mode), id(-1), path(path), in(NULL), out(NULL), quiet(quiet) {}
 };
 //---------------------------------------------------------------------------
 #endif // FILETYPES_H

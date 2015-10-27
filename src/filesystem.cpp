@@ -148,7 +148,8 @@ CFile *CFilesystem::open(const SFile &file)
 
   if(!opened)
   {
-    context->error(CStr(NFile::STR_ERROR_UNABLE_OPEN, f.path.c_str()));
+    if(!f.quiet)
+      context->error(CStr(NFile::STR_ERROR_UNABLE_OPEN, f.path.c_str()));
     return NULL;
   }
 
