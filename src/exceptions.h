@@ -35,7 +35,7 @@ class CExceptions : public CEngineBase
     inline CExceptions(CContext *context) : CEngineBase(context) {}
     inline ~CExceptions() {}
 
-    inline void throwException(const SException &exception) { throw CException(context, exception); }
+    inline void throwException(const SException &exception) { /*debug*/ context->error(CStr("%s: %s (%s), File: %s, Code: %d", context->engineGetClassName(exception.sender).c_str(), exception.text.c_str(), exception.description.c_str(), exception.file.c_str(), exception.code)); /*throw CException(context, exception);*/ }
 };
 //-----------------------------------------------------------------------------
 inline CException::CException(CContext *context, const SException &exception) throw() : std::runtime_error(std::string()), CEngineBase(context), exception(exception)

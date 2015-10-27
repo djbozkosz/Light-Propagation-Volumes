@@ -154,5 +154,55 @@
     <ClInclude Include="..\src\headers\mapTypes.h">
       <Filter>Header Files\headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\headers\windowTypes.h">
+      <Filter>Header Files\headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data\shaders\basic.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\basicAlpha.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\color.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\depth.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragment.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentAlpha.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormal.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormalAlpha.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\basic.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\color.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\depth.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\guiText.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\particles.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragment.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormal.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
   </ItemGroup>
 </Project>

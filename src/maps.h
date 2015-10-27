@@ -2,6 +2,12 @@
 #ifndef MAPS_H
 #define MAPS_H
 
+#if defined(ENV_QT)
+#include <QImage>
+#elif defined(ENV_SDL)
+#include <SDL2/SDL_image.h>
+#endif
+
 #include "camera.h"
 #include "headers/mapTypes.h"
 
@@ -17,6 +23,8 @@ class CMap : public CEngineBase
     ~CMap();
 
     void load();
+    static void setColorKeyIntoAlpha(uint8 *data, uint32 width, uint32 height); // rgba 32-bit
+    static void clampBitmap(uint8 *data, uint32 width, uint32 height, uint32 &newWidth, uint32 &newHeight, uint32 maxSize);
 
     void bind(GLuint uniform = 0, uint8 sampler = 0, bool mipmap = true, bool edge = false) const;
 
@@ -48,15 +56,16 @@ class CMaps : public CEngineBase
 inline void CMap::bind(GLuint uniform, uint8 sampler, bool mipmap, bool edge) const
 {
   //COpenGL *gl = context->getOpenGL();
+
   glActiveTexture(GL_TEXTURE0 + sampler);
   glBindTexture(GL_TEXTURE_2D, map.texture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
   /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   if(mipmap)
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 1.0f);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 1.0f);
   else
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 8.0f);*/
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 8.0f);*/
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, edge ? GL_CLAMP_TO_EDGE : GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, edge ? GL_CLAMP_TO_EDGE : GL_REPEAT);
   glUniform1i(uniform, sampler);
@@ -75,6 +84,7 @@ inline CMap *CMaps::addMap(const SMap &map)
 inline uint32 CMaps::removeMap(const std::string &file)
 {
   //COpenGL *gl = context->getOpenGL();
+
   if(CMap *m = getMap(file))
   {
     GLuint texture = m->getMap()->texture;
@@ -91,6 +101,7 @@ inline uint32 CMaps::removeMap(const std::string &file)
 inline void CMaps::unbind(GLuint uniform, uint8 sampler) const
 {
   //COpenGL *gl = context->getOpenGL();
+
   glActiveTexture(GL_TEXTURE0 + sampler);
   glBindTexture(GL_TEXTURE_2D, 0);
   glUniform1i(uniform, sampler);

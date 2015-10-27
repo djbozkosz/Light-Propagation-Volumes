@@ -8,7 +8,7 @@ CRenderer::CRenderer() : CEngineBase()
 //------------------------------------------------------------------------------
 CRenderer::CRenderer(CContext *context) : CEngineBase(context)
 {
-  meshes.resize(NShader::SHADERS_COUNT);
+  meshes.resize(NShader::PROGRAMS_COUNT);
 }
 //------------------------------------------------------------------------------
 CRenderer::~CRenderer()
@@ -32,7 +32,7 @@ void CRenderer::dispatch() const
   if(renderer.mode == NRenderer::MODE_BACKDROP)
     glDisable(GL_DEPTH_TEST);
 
-  for(uint32 i = 0; i < NShader::SHADERS_COUNT; i++)
+  for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
   {
     //const NShader::EProgram p = static_cast<NShader::EProgram>(i);
 
@@ -57,17 +57,21 @@ void CRenderer::dispatch() const
 
       mesh->technique->material = mesh->material;
 
+      if(mesh->material->type & NModel::MATERIAL_TWO_SIDED)
+        glDisable(GL_CULL_FACE);
+
       prog->begin(mesh->technique);
       glDrawElements(GL_TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, GL_UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE));
       prog->end(mesh->technique);
 
       context->engineIncDrawCalls();
 
+      if(mesh->material->type & NModel::MATERIAL_TWO_SIDED)
+        glEnable(GL_CULL_FACE);
+
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
-
-    //prog->forceEnd();
 
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       glEnable(GL_DEPTH_TEST);*/

@@ -7,7 +7,9 @@
 //------------------------------------------------------------------------------
 namespace NShader
 {
-  static const uint32 SHADERS_COUNT = 8;
+  static const uint32 VERTEX_SHADERS_COUNT = 5;
+  static const uint32 FRAGMENT_SHADERS_COUNT = 8;
+  static const uint32 PROGRAMS_COUNT = 8;
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
@@ -27,6 +29,7 @@ namespace NShader
   static const char STR_SHADER_UNIFORM_NOR_TEX[] = "norTex";
   static const char STR_SHADER_UNIFORM_BUM_TEX[] = "bumTex";
   static const char STR_SHADER_UNIFORM_ENV_TEX[] = "envTex";
+  static const char STR_SHADER_UNIFORM_TYPE[] = "type";
   static const char STR_SHADER_UNIFORM_OPACITY[] = "opacity";
   static const char STR_SHADER_UNIFORM_LIGHT_AMB[] = "lightAmb";
   static const char STR_SHADER_UNIFORM_LIGHT_POS[] = "lightPos";
@@ -36,25 +39,27 @@ namespace NShader
   static const char STR_SHADER_UNIFORM_FOG_RANGE[] = "fogRange";
   static const char STR_SHADER_UNIFORM_FOG_COLOR[] = "fogColor";
 
-  static const char STR_SHADER_VERTER_COLOR[] = "data/shaders/color.vs";
-  static const char STR_SHADER_VERTER_DEPTH[] = "data/shaders/depth.vs";
-  static const char STR_SHADER_VERTER_BASIC[] = "data/shaders/basic.vs";
-  static const char STR_SHADER_VERTER_PER_FRAGMENT[] = "data/shaders/perFragment.vs";
-  static const char STR_SHADER_VERTER_PER_FRAGMENT_NORMAL[] = "data/shaders/perFragmentNormal.vs";
+  static const char STR_SHADER_VERTER_COLOR[] = "color.vs";
+  static const char STR_SHADER_VERTER_DEPTH[] = "depth.vs";
+  static const char STR_SHADER_VERTER_BASIC[] = "basic.vs";
+  static const char STR_SHADER_VERTER_PER_FRAGMENT[] = "perFragment.vs";
+  static const char STR_SHADER_VERTER_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.vs";
 
-  static const char STR_SHADER_FRAGMENT_COLOR[] = "data/shaders/color.fs";
-  static const char STR_SHADER_FRAGMENT_DEPTH[] = "data/shaders/depth.fs";
-  static const char STR_SHADER_FRAGMENT_BASIC[] = "data/shaders/basic.fs";
-  static const char STR_SHADER_FRAGMENT_BASIC_ALPHA[] = "data/shaders/basicAlpha.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT[] = "data/shaders/perFragment.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA[] = "data/shaders/perFragmentAlpha.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL[] = "data/shaders/perFragmentNormal.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA[] = "data/shaders/perFragmentNormalAlpha.fs";
+  static const char STR_SHADER_FRAGMENT_COLOR[] = "color.fs";
+  static const char STR_SHADER_FRAGMENT_DEPTH[] = "depth.fs";
+  static const char STR_SHADER_FRAGMENT_BASIC[] = "basic.fs";
+  static const char STR_SHADER_FRAGMENT_BASIC_ALPHA[] = "basicAlpha.fs";
+  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT[] = "perFragment.fs";
+  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA[] = "perFragmentAlpha.fs";
+  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.fs";
+  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA[] = "perFragmentNormalAlpha.fs";
 
   static const char STR_ERROR_COMPILE[] = "Shader Compilation Error: \"%s\"!";
   static const char STR_ERROR_LINK[] = "Program Link Error: \"%s\"!";
+  static const char STR_ERROR_VERTEX_ATTACH[] = "No Vertex Shader attached to Program: \"%s\"";
+  static const char STR_ERROR_FRAGMENT_ATTACH[] = "No Fragment Shader attached to Program: \"%s\"";
 
-  static const char *const STR_SHADERS_LIST[] =
+  static const char *const STR_PROGRAM_LIST[] =
   {
     "Color",
     "Depth",
@@ -66,7 +71,30 @@ namespace NShader
     "Per Fragment Normal Alpha"
   };
 
-  static const char *const STR_SHADER_VERTEX_LIST[] =
+  // unique lists
+  static const char *const STR_VERTEX_SHADER_LIST[] =
+  {
+    STR_SHADER_VERTER_COLOR,
+    STR_SHADER_VERTER_DEPTH,
+    STR_SHADER_VERTER_BASIC,
+    STR_SHADER_VERTER_PER_FRAGMENT,
+    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL
+  };
+
+  static const char *const STR_FRAGMENT_SHADER_LIST[] =
+  {
+    STR_SHADER_FRAGMENT_COLOR,
+    STR_SHADER_FRAGMENT_DEPTH,
+    STR_SHADER_FRAGMENT_BASIC,
+    STR_SHADER_FRAGMENT_BASIC_ALPHA,
+    STR_SHADER_FRAGMENT_PER_FRAGMENT,
+    STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA,
+    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL,
+    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA
+  };
+
+  // linking lists
+  static const char *const STR_PROGRAM_VERTEX_SHADER_LIST[] =
   {
     STR_SHADER_VERTER_COLOR,
     STR_SHADER_VERTER_DEPTH,
@@ -78,7 +106,7 @@ namespace NShader
     STR_SHADER_VERTER_PER_FRAGMENT_NORMAL,
   };
 
-  static const char *const STR_SHADER_FRAGMENT_LIST[] =
+  static const char *const STR_PROGRAM_FRAGMENT_SHADER_LIST[] =
   {
     STR_SHADER_FRAGMENT_COLOR,
     STR_SHADER_FRAGMENT_DEPTH,
@@ -150,6 +178,7 @@ struct SShaderUniforms
   GLuint bumTex;
   GLuint envTex;
 
+  GLuint type;
   GLuint opacity;
 
   GLuint lightAmb;
@@ -164,7 +193,7 @@ struct SShaderUniforms
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), vertexNormalBitangent(0), vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), cam(0),
     difTex(0), alpTex(0), speTex(0), norTex(0), bumTex(0), envTex(0),
-    opacity(0),
+    type(0), opacity(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0)
   {

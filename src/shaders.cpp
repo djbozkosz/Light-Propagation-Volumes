@@ -22,7 +22,7 @@ void CShader::compile()
   GLint status = 0;
   GLint infoLength = 0;
   std::string log;
-  CFile *f = context->getFilesystem()->open(SFile(shader.file));
+  CFile *f = context->getFilesystem()->open(SFile(std::string(NFile::STR_DATA_SHADERS)+shader.file));
 
   if(!f)
     return;
@@ -46,7 +46,7 @@ void CShader::compile()
   log.resize(infoLength);
   if(infoLength)
     glGetShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
-  if(&log[0])
+  if((&log[0]) && (status == GL_TRUE) && (log.find("warning") != std::string::npos))
     context->log(log);
 
   if(status == GL_FALSE)
@@ -119,6 +119,17 @@ void CShaderProgram::link()
   GLint infoLength = 0;
   std::string log;
 
+  if(!program.vertexShader)
+  {
+    context->error(CStr(NShader::STR_ERROR_VERTEX_ATTACH, NShader::STR_PROGRAM_LIST[program.name]));
+    return;
+  }
+  if(!program.fragmentShader)
+  {
+    context->error(CStr(NShader::STR_ERROR_FRAGMENT_ATTACH, NShader::STR_PROGRAM_LIST[program.name]));
+    return;
+  }
+
   program.program = glCreateProgram();
   glAttachShader(program.program, program.vertexShader->getShader()->shader);
   glAttachShader(program.program, program.fragmentShader->getShader()->shader);
@@ -129,18 +140,14 @@ void CShaderProgram::link()
   log.resize(infoLength);
   if(infoLength)
     glGetProgramInfoLog(program.program, infoLength, &infoLength, &log[0]);
+
 #ifndef Q_OS_SYMBIAN
-  if(&log[0])
+  if((&log[0]) && (status == GL_TRUE) && (log.find("warning") != std::string::npos))
     context->log(log);
 #endif
+
   if(status == GL_FALSE)
-  {
-#ifdef Q_OS_SYMBIAN
-    if(&log[0])
-      qDebug(&log[0]);
-#endif
-    context->engineShowMessage(CStr(NShader::STR_ERROR_LINK, NShader::STR_SHADERS_LIST[program.name]), &log[0], false);
-  }
+    context->engineShowMessage(CStr(NShader::STR_ERROR_LINK, NShader::STR_PROGRAM_LIST[program.name]), &log[0], false);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::initUniforms()
@@ -163,6 +170,7 @@ void CShaderProgram::initUniforms()
   program.uniforms.norTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_NOR_TEX);
   program.uniforms.bumTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_BUM_TEX);
   program.uniforms.envTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_ENV_TEX);
+  program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_TYPE);
   program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_OPACITY);
   program.uniforms.lightAmb = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_AMB);
   program.uniforms.lightPos = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_POS);
@@ -199,7 +207,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique) const
     return;
 
   glUniformMatrix4fv(program.uniforms.mw, 1, GL_FALSE, glm::value_ptr(technique->mw));
-  glUniformMatrix4fv(program.uniforms.mwnit, 1, GL_FALSE, glm::value_ptr(technique->mwnit));
+  glUniformMatrix3fv(program.uniforms.mwnit, 1, GL_FALSE, glm::value_ptr(technique->mwnit));
   glUniformMatrix4fv(program.uniforms.mvp, 1, GL_FALSE, glm::value_ptr(technique->mvp));
   glUniform3f(program.uniforms.cam, technique->cam.x, technique->cam.y, technique->cam.z);
 
@@ -246,6 +254,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique) const
       setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING);
     }
 
+    glUniform1i(program.uniforms.type, m->type);
     glUniform1f(program.uniforms.opacity, m->opacity);
     context->getMaps()->finishBind();
   }

@@ -114,15 +114,13 @@ struct SEngine
   uint32 fpsCounter;
 
   uint32 drawCalls;
+  uint32 maxTextureSize;
 
-#if defined(ENV_QT)
-  QElapsedTimer timer;
-#elif defined(ENV_SDL)
-  SDL_TimerID timer;
+#ifdef ENV_SDL
+  std::vector<SDL_TimerID> timers;
 #endif
-  //std::vector<SDL_TimerID> timers;
 
-  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0) {}
+  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), maxTextureSize(0) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

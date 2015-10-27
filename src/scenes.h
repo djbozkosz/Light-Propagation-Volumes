@@ -65,7 +65,6 @@ class CScene : public CEngineBase
 class CScenes : public CEngineBase
 {
   private:
-  std::string activeSceneName;
   CScene *activeScene;
   std::map<std::string, CScene> scenes;
 
@@ -75,11 +74,10 @@ class CScenes : public CEngineBase
   ~CScenes();
 
   inline CScene *addScene(const SScene &scene) { scenes[scene.name] = CScene(context, scene); return &scenes.find(scene.name)->second; }
-  inline uint32 removeScene(const std::string &name) { if(name == activeSceneName) { activeSceneName.clear(); activeScene = NULL; } return scenes.erase(name); }
+  inline uint32 removeScene(const std::string &name) { if((activeScene) && (name == activeScene->getScene()->name)) { activeScene = NULL; } return scenes.erase(name); }
   CScene *setActiveScene(const std::string &name);
 
   inline CScene *getScene(const std::string &name) { auto it = scenes.find(name); if(it == scenes.end()) return NULL; return &it->second; }
-  inline const std::string &getActiveSceneName() const { return activeSceneName; }
   inline CScene *getActiveScene() { return activeScene; }
 };
 //------------------------------------------------------------------------------
@@ -126,15 +124,9 @@ inline CScene *CScenes::setActiveScene(const std::string &name)
   auto it = scenes.find(name);
 
   if(it == scenes.end())
-  {
-    activeSceneName.clear();
     activeScene = NULL;
-  }
   else
-  {
-    activeSceneName = it->second.getScene()->name;
     activeScene = &it->second;
-  }
 
   return getActiveScene();
 }

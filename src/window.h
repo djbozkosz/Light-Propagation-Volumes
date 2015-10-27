@@ -18,6 +18,7 @@
 #endif
 
 #include "scenes.h"
+#include "headers/windowTypes.h"
 
 //------------------------------------------------------------------------------
 class CWindow : public

@@ -11,7 +11,22 @@
 //-----------------------------------------------------------------------------
 namespace NMap
 { // todo
+  static const uint32 RGB_SIZE = 3;
+  static const uint32 RGBA_SIZE = 4;
+
+  static const uint8 RGB_BITS_SIZE = 24;
+  static const uint8 RGBA_BITS_SIZE = 32;
+
+  static const uint32 RGBA_MASK_R = 0x000000ff;
+  static const uint32 RGBA_MASK_G = 0x0000ff00;
+  static const uint32 RGBA_MASK_B = 0x00ff0000;
+  static const uint32 RGBA_MASK_A = 0xff000000;
+
+  static const uint8 COLOR_KEY_OFFSET = 4;
+
   static const char STR_DEFAULT_NORMAL[] = ":/maps/data/maps/defaultNormal00.png";
+
+  static const char STR_ERROR_UNABLE_TO_OPEN[] = "Unable to open map: \"%s\"";
 
   enum EMapDefault
   {
@@ -73,13 +88,13 @@ struct SMap
 {
   std::string file;
   GLuint texture;
-  glm::vec4 color;
+  SColor color;
   bool framebuffer;
   uint32 width;
   uint32 height;
 
   inline SMap() : texture(0), framebuffer(false), width(0), height(0) {}
-  inline SMap(const std::string &file, const glm::vec4 &color = glm::vec4(0.3, 0.2, 0.1, 1.0)) : file(file), texture(0), color(color), framebuffer(false), width(0), height(0) {}
+  inline SMap(const std::string &file, const SColor &color = SColor(64, 32, 16, 255)) : file(file), texture(0), color(color), framebuffer(false), width(0), height(0) {}
   inline SMap(const std::string &fboName, uint32 width, uint32 height) : file(fboName), texture(0), framebuffer(true), width(width), height(height) {}
 };
 

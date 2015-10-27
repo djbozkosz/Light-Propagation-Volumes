@@ -33,10 +33,11 @@ namespace NModel
   static const char STR_MODEL_SIGNATURE[] = "4DS";
   static const char STR_MESH_HIDDEN_WCOL[] = "wcol";
 
+  static const char STR_ERROR_UNABLE_TO_OPEN[] = "Unable to open model: \"%s\"";
   static const char STR_ERROR_INVALID_SIGNATURE[] = "Invalid signature: \"%s\"";
-  static const char STR_ERROR_INVALID_VERSION[] = "Invalid version: 0x%x (supported version only: 0x%x)";
-  static const char STR_ERROR_INVALID_MESH_TYPE[] = "Invalid mesh type: 0x%x";
-  static const char STR_ERROR_INVALID_MESH_VISUAL_TYPE[] = "Invalid mesh visual type: 0x%x";
+  static const char STR_ERROR_INVALID_VERSION[] = "Invalid version: %x (supported version only: %x)";
+  static const char STR_ERROR_INVALID_MESH_TYPE[] = "Invalid mesh type: %x";
+  static const char STR_ERROR_INVALID_MESH_VISUAL_TYPE[] = "Invalid mesh visual type: %x";
 
   static const char STR_WARNING_INVALID_MESH_LINK[] = "Invalid mesh link index";
   static const char STR_WARNING_INVALID_STANDARD_MESH_INSTANCE[] = "Invalid standard mesh: \"%s\" instance index";

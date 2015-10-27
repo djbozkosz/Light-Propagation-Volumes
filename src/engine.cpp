@@ -18,9 +18,11 @@ CEngine::CEngine(
 #endif
   );
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
-  context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticGetClassName, &staticGetEngine);
+  context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
   engine.consoleVisible = true;
+  //engine.fullscreen = true;
+  engine.maxTextureSize = 256;
 
 #if defined(ENV_QT)
   connect(window, SIGNAL(onInitializeGL()), this, SLOT(initialize()));
@@ -72,13 +74,34 @@ void CEngine::initialize()
 
   for(uint32 i = 0; i < NFile::SEARCH_PATHES_COUNT; i++)
     filesystem.addSearchPath(NFile::STR_SEARCH_PATHES[i]);
+
+  camera.setSize(1024, 600);
 }
 //------------------------------------------------------------------------------
 void CEngine::initializeFinish()
 {
-  models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"scene.4ds"));
+  camera.setRange(0.1f, 200.0f);
 
-  engine.timer = SDL_AddTimer(NEngine::REDRAW_TIMER_MS, staticOnTimeout, &context);
+  scenes.addScene(SScene("scene"));
+  if(CScene *s = scenes.setActiveScene("scene"))
+  {
+    s->addSceneObjectLight(SSceneObject("light_amb"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
+    s->addSceneObjectLight(SSceneObject("light_fog"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.5f, 0.6f, 0.7f), glm::vec2(0.0f, 1.0f)));
+    s->addSceneObjectLight(SSceneObject("light_sun", glm::vec3(200000.0f, 1000000.0f, -500000.0f)), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(100.0f, 100.0f, 100.0f, 512.0f)));
+
+    s->addSceneObjectModel(
+      SSceneObject("scene.4ds"),
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))))
+      ->update();
+  }
+
+  camera.setSpeed(10.0f);
+
+#if defined(ENV_QT)
+  QTimer::singleShot(NEngine::REDRAW_TIMER_MS, this, SLOT(onTimeout()));
+#elif defined(ENV_SDL)
+  engine.timers.push_back(SDL_AddTimer(NEngine::REDRAW_TIMER_MS, staticOnTimeout, &context));
+#endif
 }
 //------------------------------------------------------------------------------
 #ifdef ENV_SDL
@@ -87,7 +110,6 @@ int32 CEngine::event()
   initialize();
   window->initializeGL();
   initializeFinish();
-  window->resizeGL(1024, 600);
 
   SDL_Event event;
 
@@ -129,7 +151,9 @@ void CEngine::simulationStep()
 void CEngine::onTimeout()
 {
 #ifdef ENV_SDL
-  SDL_RemoveTimer(engine.timer);
+  for(uint32 i = 0; i < engine.timers.size(); i++)
+    SDL_RemoveTimer(engine.timers[i]);
+  engine.timers.clear();
 #endif
 
   updateTicks();
@@ -149,7 +173,7 @@ void CEngine::onTimeout()
 #if defined(ENV_QT)
   QTimer::singleShot(NEngine::REDRAW_TIMER_MS, this, SLOT(onTimeout()));
 #elif defined(ENV_SDL)
-  engine.timer = SDL_AddTimer(NEngine::REDRAW_TIMER_MS, staticOnTimeout, &context);
+  engine.timers.push_back(SDL_AddTimer(NEngine::REDRAW_TIMER_MS, staticOnTimeout, &context));
 #endif
 }
 //------------------------------------------------------------------------------
@@ -165,13 +189,15 @@ void CEngine::mouseRelease(NEngine::EMouseButton buttons)
 //------------------------------------------------------------------------------
 void CEngine::mouseMove(const SPoint &point, NEngine::EMouseButton buttons)
 {
+  engine.cursor = glm::vec2(static_cast<float>(point.y), static_cast<float>(point.x));
+
   if(buttons & NEngine::MOUSE_BTN_RIGHT)
   {
-    engine.cursor = glm::vec2(static_cast<float>(point.x), static_cast<float>(point.x));
     context.getCamera()->setRotate();
-    engine.cursorOld = engine.cursor;
     window->repaint();
   }
+
+  engine.cursorOld = engine.cursor;
 }
 //------------------------------------------------------------------------------
 void CEngine::keyPress(NEngine::EKey key)

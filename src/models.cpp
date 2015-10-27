@@ -22,6 +22,7 @@ NModel::EModelState CModel::load()
 
   if(!f)
   {
+    //context->error(CStr(NModel::STR_ERROR_UNABLE_TO_OPEN, model.path.c_str()));
     model.state = NModel::STATE_INVALID_NOT_FOUND;
     return model.state;
   }
@@ -45,7 +46,6 @@ NModel::EModelState CModel::load()
 
   f->read(&model.timestamp, sizeof(uint64));
   f->read(&model.materialsCount, sizeof(uint16));
-  model.materials.resize(model.materialsCount);
 
   for(uint16 i = 0; i < model.materialsCount; i++)
   {
@@ -79,6 +79,8 @@ NModel::EModelState CModel::load()
 //------------------------------------------------------------------------------
 NModel::EModelState CModel::loadMaterial(CFile *f, SMaterial *mat)
 {
+  mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT);
+
   f->read(&mat->type, sizeof(uint32));
   f->read(&mat->colorAmbient.x, sizeof(float));
   f->read(&mat->colorAmbient.y, sizeof(float));
@@ -129,6 +131,7 @@ NModel::EModelState CModel::loadMesh(CFile *f, SMesh *mesh)
 {
   mesh->index = model.meshes.size() + 1;
   f->read(&mesh->type, sizeof(uint8));
+
   if((mesh->type != NModel::MESH_TYPE_STANDARD) &&
      (mesh->type != NModel::MESH_TYPE_SECTOR) &&
      (mesh->type != NModel::MESH_TYPE_DUMMY) &&
@@ -222,6 +225,9 @@ NModel::EModelState CModel::loadStandardMesh(CFile *f, SMesh *mesh)
   smesh->instancedMesh = getMesh(smesh->instancedMeshIndex);
   if((!smesh->instancedMesh) && (smesh->instancedMeshIndex))
     context->warning(CStr(NModel::STR_WARNING_INVALID_STANDARD_MESH_INSTANCE, mesh->name.c_str()));
+
+  if(smesh->instancedMesh)
+    return NModel::STATE_VALID;
 
   f->read(&smesh->lodsCount, sizeof(uint8));
   if(!smesh->lodsCount)
@@ -738,7 +744,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     const SCamera *c = context->getCamera()->getCamera();
 
     soMesh->mvp = c->viewProjection * soMesh->mw;
-    soMesh->cam = glm::vec3(c->position) * glm::vec3(NCamera::SCALE_FIX_X, NCamera::SCALE_FIX_Y, NCamera::SCALE_FIX_Z);
+    soMesh->cam = glm::vec3(c->position);// * glm::vec3(NCamera::SCALE_FIX_X, NCamera::SCALE_FIX_Y, NCamera::SCALE_FIX_Z);
 
     if(mesh->type == NModel::MESH_TYPE_STANDARD)
     {

@@ -37,6 +37,7 @@ class CEngine
   static inline uint32 staticOnTimeout(uint32 interval, void *context) { reinterpret_cast<CContext *>(context)->getEngine()->onTimeout(); return interval; }
     static inline void staticShowMessage(const CContext *context, const std::string &title, const std::string &text, bool modal = true) { context->getEngine()->showMessage(title, text, modal); }
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
+    static inline void staticClearDrawCalls(CContext *context) { context->getEngine()->clearDrawCalls(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
     static inline const SEngine *staticGetEngine(const CContext *context) { return context->getEngine()->getEngine(); }
 
@@ -84,6 +85,7 @@ class CEngine
     NEngine::EKey getKey(int32 key) const;
 
     inline void incDrawCalls() { engine.drawCalls++; }
+    inline void clearDrawCalls() { engine.drawCalls = 0; }
     void updateTicks();
 
     std::string getClassName(const CEngineBase *object);

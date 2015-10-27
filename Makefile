@@ -17,7 +17,7 @@ else
 endif
 
 CFLAGS       = -pedantic -Wall -Wextra -Wdouble-promotion -Wunreachable-code -O3 $(CCVER) $(CCFLAGS) $(ENVIRONMENT) -c
-LIBS         = -lopengl32 -lglew32 -lSDL2
+LIBS         = -lopengl32 -lglew32 -lSDL2 -lSDL2_image
 
 SRC          = main.cpp engine.cpp window.cpp scenes.cpp models.cpp renderer.cpp shaders.cpp framebuffers.cpp maps.cpp filesystem.cpp
 OBJ          = $(SRC:.cpp=.o)

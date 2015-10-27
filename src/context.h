@@ -49,6 +49,7 @@ class CContext
     // callbacks engine static
     void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal);
     void (*fncEngineIncDrawCalls)(CContext *context);
+    void (*fncEngineClearDrawCalls)(CContext *context);
     std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object);
     const SEngine *(*fncEngineGetEngine)(const CContext *context);
 
@@ -58,11 +59,12 @@ class CContext
     inline ~CContext() {}
 
     void setContext(CEngine *engine, CWindow *window, CScenes *scenes, CModels *models, CRenderer *renderer, CShaders *shaders, CCulling *culling, CPickColor *pickColor, CFramebuffers *framebuffers, CMaps *maps, CCamera *camera, COpenGL *openGL, CFilesystem *filesystem, CExceptions *exceptions);
-    void setEngineCallbacks(void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal), void (*fncEngineIncDrawCalls)(CContext *context), std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object), const SEngine *(*fncEngineGetEngine)(const CContext *context));
+    void setEngineCallbacks(void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal), void (*fncEngineIncDrawCalls)(CContext *context), void (*fncEngineClearDrawCalls)(CContext *context), std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object), const SEngine *(*fncEngineGetEngine)(const CContext *context));
 
     // callbacks engine
     inline void engineShowMessage(const std::string &title, const std::string &text, bool modal = true) const { fncEngineShowMessage(this, title, text, modal); }
     inline void engineIncDrawCalls() { fncEngineIncDrawCalls(this); }
+    inline void engineClearDrawCalls() { fncEngineClearDrawCalls(this); }
     inline std::string engineGetClassName(const CEngineBase *object) { return fncEngineGetClassName(this, object); }
     inline const SEngine *engineGetEngine() const { return fncEngineGetEngine(this); }
 
@@ -132,10 +134,11 @@ inline void CContext::setContext(CEngine *engine, CWindow *window, CScenes *scen
   if(exceptions)   this->exceptions = exceptions;
 }
 //------------------------------------------------------------------------------
-inline void CContext::setEngineCallbacks(void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal), void (*fncEngineIncDrawCalls)(CContext *context), std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object), const SEngine *(*fncEngineGetEngine)(const CContext *context))
+inline void CContext::setEngineCallbacks(void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal), void (*fncEngineIncDrawCalls)(CContext *context), void (*fncEngineClearDrawCalls)(CContext *context), std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object), const SEngine *(*fncEngineGetEngine)(const CContext *context))
 {
   if(fncEngineShowMessage)  this->fncEngineShowMessage = fncEngineShowMessage;
   if(fncEngineIncDrawCalls) this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
+  if(fncEngineClearDrawCalls) this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
   if(fncEngineGetClassName) this->fncEngineGetClassName = fncEngineGetClassName;
   if(fncEngineGetEngine)    this->fncEngineGetEngine = fncEngineGetEngine;
 }
