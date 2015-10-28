@@ -3,7 +3,6 @@
 #define RENDERER_H
 
 #include "shaders.h"
-#include "headers/rendererTypes.h"
 #include "headers/sceneTypes.h"
 
 //------------------------------------------------------------------------------

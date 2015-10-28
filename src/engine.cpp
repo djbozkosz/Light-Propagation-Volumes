@@ -25,6 +25,8 @@ CEngine::CEngine(
   engine.maxTextureSize = 256;
 
 #if defined(ENV_QT)
+  engine.timer.start();
+
   connect(window, SIGNAL(onInitializeGL()), this, SLOT(initialize()));
   connect(window, SIGNAL(onInitializeFinishGL()), this, SLOT(initializeFinish()));
   connect(window, SIGNAL(onMousePress(NEngine::EMouseButton buttons)), this, SLOT(mousePress(NEngine::EMouseButton buttons)));
@@ -87,16 +89,21 @@ void CEngine::initializeFinish()
   if(CScene *s = scenes.setActiveScene("scene"))
   {
     s->addSceneObjectLight(SSceneObject("light_amb"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
-    s->addSceneObjectLight(SSceneObject("light_fog"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.5f, 0.6f, 0.7f), glm::vec2(0.0f, 1.0f)));
-    s->addSceneObjectLight(SSceneObject("light_sun", glm::vec3(200000.0f, 1000000.0f, -500000.0f)), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(1.0f, 1.0f, 1.0f, 64.0f)));
+    s->addSceneObjectLight(SSceneObject("light_fog"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
+    s->addSceneObjectLight(SSceneObject("light_sun", glm::vec3(700000.0f, 1000000.0f, -200000.0f)), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(3.0f, 3.0f, 3.0f, 64.0f)));
 
     s->addSceneObjectModel(
-      SSceneObject("scene.4ds"),
+      SSceneObject("sky", glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true))
+      ->update();
+
+    s->addSceneObjectModel(
+      SSceneObject("scene"),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))))
       ->update();
   }
 
-  camera.setSpeed(10.0f);
+  camera.setSpeed(50.0f);
 
 #if defined(ENV_QT)
   QTimer::singleShot(NEngine::REDRAW_TIMER_MS, this, SLOT(onTimeout()));
@@ -219,7 +226,7 @@ void CEngine::showMessage(const std::string &title, const std::string &text, boo
   context.log(CStr("%s: %s", title.c_str(), text.c_str()));
 
 #if defined(ENV_QT)
-  QMessageBox *msg = new QMessageBox(this);
+  QMessageBox *msg = new QMessageBox();
   msg->setWindowTitle(title.c_str());
   msg->setText(text.c_str());
   msg->setStandardButtons(QMessageBox::Ok);
@@ -247,9 +254,15 @@ bool CEngine::isKeyForDelayedRendering() const
 //------------------------------------------------------------------------------
 NEngine::EMouseButton CEngine::getMouseButton(int32 button) const
 {
+#if defined(ENV_QT)
+  return NEngine::MOUSE_BTN_NO;
+#elif defined(ENV_SDL)
   return static_cast<NEngine::EMouseButton>(
     (((button == SDL_BUTTON_LEFT) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN_NO) |
     (((button == SDL_BUTTON_RIGHT) || (button == SDL_BUTTON_X1) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN_NO));
+#endif
+
+  return NEngine::MOUSE_BTN_NO;
 }
 //------------------------------------------------------------------------------
 NEngine::EKey CEngine::getKey(int32 key) const
@@ -266,7 +279,7 @@ void CEngine::updateTicks()
 {
   engine.tickNew =
 #if defined(ENV_QT)
-    static_cast<uint32>(timer.elapsed());
+    static_cast<uint32>(engine.timer.elapsed());
 #elif defined(ENV_SDL)
     SDL_GetTicks();
 #endif

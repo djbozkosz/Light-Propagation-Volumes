@@ -16,6 +16,7 @@ class CFramebuffer : public CEngineBase
   ~CFramebuffer();
 
   void create();
+  inline void setCamera(const SCamera &camera) { framebuffer.camera = camera; }
 
   void bind() const;
 
@@ -43,7 +44,7 @@ class CFramebuffers : public CEngineBase
 inline void CFramebuffer::bind() const
 {
   //COpenGL *gl = context->getOpenGL();
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.fboColor);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.fbo);
   glViewport(0, 0, framebuffer.width, framebuffer.height);
 }
 //------------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 #include <QMouseEvent>
 #include <QTouchEvent>
 #include <QString>
+#include <QTimer>
 
 #if QT_VERSION < 0x050400
 #include <QGLWidget>
@@ -39,6 +40,9 @@ class CWindow : public
     SDL_Window *SDLwindow;
     SDL_GLContext SDLcontext;
 #endif
+
+    // temp
+    bool shadowFirst;
 
   protected:
     virtual void paintGL();

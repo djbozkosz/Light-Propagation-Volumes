@@ -14,6 +14,8 @@ namespace NMap
   static const uint32 RGB_SIZE = 3;
   static const uint32 RGBA_SIZE = 4;
 
+  static const uint32 CUBE_SIZE = 6;
+
   static const uint8 RGB_BITS_SIZE = 24;
   static const uint8 RGBA_BITS_SIZE = 32;
 
@@ -37,9 +39,15 @@ namespace NMap
   static const char STR_MAP_SUFFIX_NORMAL[] = "_DDN";
   static const char STR_MAP_SUFFIX[] = "%s%s%s";
 
+  static const char STR_FBO_MAP_NAME[] = "%s_%d";
+
+  static const char *const STR_CUBE_MAP_NAMES[] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
+
   static const char STR_DEFAULT_NORMAL[] = ":/maps/data/maps/defaultNormal00.png";
 
   static const char STR_ERROR_UNABLE_TO_OPEN[] = "Unable to open map: \"%s\"";
+  static const char STR_ERROR_INVALID_FBO[] = "Unable to create framebuffer!";
+  static const char STR_ERROR_INVALID_FBO_STATUS[] = "Status: %ud.";
 
   enum EMapDefault
   {
@@ -52,6 +60,26 @@ namespace NMap
     PICK_INC_2 = 2,
     PICK_INC_4 = 4,
     PICK_INC_8 = 8
+  };
+
+  enum EMapFormat
+  {
+    FORMAT_NO = 0x00,
+    FORMAT_2D = 0x01,
+    FORMAT_3D = 0x02,
+    FORMAT_CUBE = 0x04,
+    FORMAT_DEPTH = 0x08,
+    FORMAT_STENCIL = 0x10,
+    FORMAT_LINEAR = 0x20,
+    FORMAT_MIPMAP = 0x40,
+    FORMAT_EDGE = 0x80
+  };
+
+  enum ERboFormat
+  {
+    RBO_NO = 0x00,
+    RBO_DEPTH = 0x01,
+    RBO_STENCIL = 0x02
   };
 }
 //-----------------------------------------------------------------------------
@@ -102,30 +130,46 @@ struct SMap
   std::string file;
   GLuint texture;
   SColor color;
-  bool framebuffer;
+  uint8 format;
   uint32 width;
   uint32 height;
+  uint32 depth;
 
-  inline SMap() : texture(0), framebuffer(false), width(0), height(0) {}
-  inline SMap(const std::string &file, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), framebuffer(false), width(0), height(0) {}
-  inline SMap(const std::string &fboName, uint32 width, uint32 height) : file(fboName), texture(0), framebuffer(true), width(width), height(height) {}
+  inline SMap() : texture(0), format(NMap::FORMAT_2D), width(0), height(0), depth(0) {}
+  inline SMap(const std::string &file, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), format(NMap::FORMAT_2D), width(0), height(0), depth(0) {}
+  inline SMap(const std::string &file, uint8 format, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), format(format), width(0), height(0), depth(0) {}
+  inline SMap(const std::string &name, uint8 format, uint32 width, uint32 height, uint32 depth = 0) : file(name), texture(0), format(format), width(width), height(height), depth(depth) {}
 };
 
 class CMap;
 
+struct SFramebufferAttachment
+{
+  uint8 format;
+  const CMap *map;
+
+  inline SFramebufferAttachment() : format(NMap::FORMAT_2D), map(NULL) {}
+  inline SFramebufferAttachment(uint8 format, const CMap *map) : format(format), map(map) {}
+};
+
 struct SFramebuffer
 {
   std::string name;
-  GLuint fboColor;
+  GLuint fbo;
   GLuint rboDepth;
-  const CMap *fboColorTexture;
-  bool color;
-  bool depth;
+  GLuint rboStencil;
+  std::vector<SFramebufferAttachment> attachments;
+  uint8 rboFormat;
   uint32 width;
   uint32 height;
+  SCamera camera;
 
-  inline SFramebuffer() : fboColor(0), rboDepth(0), fboColorTexture(NULL), color(false), depth(false), width(1), height(1) {}
-  inline SFramebuffer(const std::string &name, bool color, bool depth, uint32 width, uint32 height) : name(name), fboColor(0), rboDepth(0), fboColorTexture(NULL), color(color), depth(depth), width(width), height(height) {}
+  inline SFramebuffer() : fbo(0), rboDepth(0), rboStencil(0), rboFormat(NMap::RBO_DEPTH), width(1), height(1) {}
+  inline SFramebuffer(const std::string &name, const std::vector<uint8> &attachments, uint8 rboFormat, uint32 width, uint32 height) : name(name), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height)
+  {
+    for(auto it = attachments.cbegin(); it != attachments.cend(); it++)
+      this->attachments.push_back(SFramebufferAttachment(*it, NULL));
+  }
 };
 //-----------------------------------------------------------------------------
 #endif // MAPSTYPES_H

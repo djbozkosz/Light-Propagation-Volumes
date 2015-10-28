@@ -20,7 +20,7 @@ class CCamera : public CEngineBase
 
     inline void setCamera(const SCamera &camera) { this->camera = camera; updateMatrices(); }
     inline void setSize(float width, float height) { camera.width = width; camera.height = height; updateMatrices(); }
-    inline void setRange(float clipNear, float clipFar) { camera.clipNear = clipNear; camera.clipFar = clipFar; updateMatrices(); }
+    inline void setRange(float clipNear, float clipFar, float clipLeft = 0.0f, float clipRight = 0.0f, float clipTop = 0.0f, float clipBottom = 0.0f) { camera.clipNear = clipNear; camera.clipFar = clipFar; camera.clipLeft = clipLeft; camera.clipRight = clipRight; camera.clipTop = clipTop; camera.clipBottom = clipBottom; updateMatrices(); }
     inline void setFov(float fov) { camera.fov = fov; updateMatrices(); }
 
     inline void setPosition(glm::vec3 position) { camera.position.x = position.x; camera.position.y = position.y; camera.position.z = position.z; updateMatrices(); }
@@ -36,6 +36,11 @@ class CCamera : public CEngineBase
 //------------------------------------------------------------------------------
 inline void CCamera::updateMatrices()
 {
+  if((camera.clipLeft != 0.0f) || (camera.clipRight != 0.0f) || (camera.clipTop != 0.0f) || (camera.clipBottom != 0.0f))
+    camera.projType = NCamera::PROJ_ORTOGRAPHIC;
+  else
+    camera.projType = NCamera::PROJ_PERSPECTIVE;
+
   camera.view = glm::scale(
     glm::translate(
       glm::rotate(
@@ -43,7 +48,12 @@ inline void CCamera::updateMatrices()
         (camera.rotation.y + NMath::PI_RAD) * NMath::DEG_2_RAD, glm::vec3(0.0, 1.0, 0.0)),
       glm::vec3(camera.position.x * -NCamera::SCALE_X, camera.position.y * -NCamera::SCALE_Y, camera.position.z * -NCamera::SCALE_Z)),
     glm::vec3(NCamera::SCALE_X, NCamera::SCALE_Y, NCamera::SCALE_Z));
-  camera.projection = glm::perspective(camera.fov * NMath::DEG_2_RAD, camera.width / camera.height, camera.clipNear, camera.clipFar);
+
+  if(camera.projType == NCamera::PROJ_PERSPECTIVE)
+    camera.projection = glm::perspective(camera.fov * NMath::DEG_2_RAD, camera.width / camera.height, camera.clipNear, camera.clipFar);
+  else
+    camera.projection = glm::ortho<float>(camera.clipLeft, camera.clipRight, camera.clipBottom, camera.clipTop, camera.clipNear, camera.clipFar);
+
   camera.viewProjection = camera.projection * camera.view;
 }
 //------------------------------------------------------------------------------

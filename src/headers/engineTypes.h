@@ -116,7 +116,9 @@ struct SEngine
   uint32 drawCalls;
   uint32 maxTextureSize;
 
-#ifdef ENV_SDL
+#if defined(ENV_QT)
+  QElapsedTimer timer;
+#elif defined(ENV_SDL)
   std::vector<SDL_TimerID> timers;
 #endif
 

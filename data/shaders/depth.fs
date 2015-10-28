@@ -1,14 +1,14 @@
 #version 130
 precision lowp float;
 
-in vec2 texCoord;
-in vec4 color;
+//in vec2 texCoord;
+//in vec4 color;
 
-uniform sampler2D difTex;
+//uniform sampler2D difTex;
 
-out vec4 glFragColor;
+out float glFragColor;
 
 void main()
 {
-  glFragColor = vec4(texture(difTex, texCoord).rgb * color.rgb, 1.0);
+  glFragColor = gl_FragCoord.z;
 }

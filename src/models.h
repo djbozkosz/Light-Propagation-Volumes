@@ -59,12 +59,16 @@ class CModels : public CEngineBase
 //------------------------------------------------------------------------------
 inline CModel *CModels::addModel(const SModel &model)
 {
-  if(CModel *m = getModel(model.path))
+  CModel *m = getModel(model.path);
+  if(m)
     return m;
 
   models[model.path] = CModel(context, model);
+  m = getModel(model.path);
+  m->load();
+  m->update();
 
-  return &models.find(model.path)->second;
+  return m;
 }
 //------------------------------------------------------------------------------
 #endif // MODELS_H

@@ -163,15 +163,17 @@ void CShaderProgram::initUniforms()
   program.uniforms.mw = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MW);
   program.uniforms.mwnit = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MWNIT);
   program.uniforms.mvp = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MVP);
+  program.uniforms.mvpdb = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MVPDB);
   program.uniforms.cam = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_CAM);
   program.uniforms.difTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DIF_TEX);
   program.uniforms.alpTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_ALP_TEX);
   program.uniforms.speTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_SPE_TEX);
   program.uniforms.norTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_NOR_TEX);
-  program.uniforms.bumTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_BUM_TEX);
   program.uniforms.envTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_ENV_TEX);
+  program.uniforms.depthTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DEPTH_TEX);
   program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_TYPE);
   program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_OPACITY);
+  program.uniforms.depthOffset = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DEPTH_OFFSET);
   program.uniforms.lightAmb = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_AMB);
   program.uniforms.lightPos = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_POS);
   program.uniforms.lightRange = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_RANGE);
@@ -186,7 +188,7 @@ void CShaderProgram::bind() const
   /*context->getOpenGL()->*/glUseProgram(program.program);
 }
 //------------------------------------------------------------------------------
-void CShaderProgram::begin(const SShaderTechnique *technique) const
+void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode mode) const
 {
   //COpenGL *gl = context->getOpenGL();
 
@@ -209,11 +211,13 @@ void CShaderProgram::begin(const SShaderTechnique *technique) const
   glUniformMatrix4fv(program.uniforms.mw, 1, GL_FALSE, glm::value_ptr(technique->mw));
   glUniformMatrix3fv(program.uniforms.mwnit, 1, GL_FALSE, glm::value_ptr(technique->mwnit));
   glUniformMatrix4fv(program.uniforms.mvp, 1, GL_FALSE, glm::value_ptr(technique->mvp));
+  glUniformMatrix4fv(program.uniforms.mvpdb, 1, GL_FALSE, glm::value_ptr(technique->mvpdb));
   glUniform3f(program.uniforms.cam, technique->cam.x, technique->cam.y, technique->cam.z);
 
   if(technique->material)
   {
     const SMaterial *m = technique->material;
+    const CMap *dirShadow = context->getMaps()->getMap("dirShadow_0");
 
     if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
        (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
@@ -222,40 +226,45 @@ void CShaderProgram::begin(const SShaderTechnique *technique) const
 
     if(program.name == NShader::PROGRAM_BASIC)
     {
-      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_DIF, ((m->type & NModel::MATERIAL_MIP_MAPPING) ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR) | (mode == NRenderer::MODE_BACKDROP ? NMap::FORMAT_EDGE : NMap::FORMAT_NO));
     }
     else if((program.name == NShader::PROGRAM_BASIC_ALPHA))
     {
-      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_APLHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_BASIC_APLHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_APLHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_BASIC_APLHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT)
     {
-      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA)
     {
-      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH, NMap::FORMAT_LINEAR);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL)
     {
-      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH, NMap::FORMAT_LINEAR);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
     {
-      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING);
-      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING);
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH, NMap::FORMAT_LINEAR);
     }
 
     glUniform1i(program.uniforms.type, m->type);
     glUniform1f(program.uniforms.opacity, m->opacity);
+    glUniform2f(program.uniforms.depthOffset, 0.5f / static_cast<float>(dirShadow->getMap()->width), 0.5f / static_cast<float>(dirShadow->getMap()->height));
     context->getMaps()->finishBind();
   }
 

@@ -7,7 +7,7 @@
 #endif
 
 #include "culling.h"
-#include "headers/shaderTypes.h"
+#include "headers/rendererTypes.h"
 
 //------------------------------------------------------------------------------
 class CShader : public CEngineBase
@@ -32,7 +32,7 @@ class CShaderProgram : public CEngineBase
   private:
     SShaderProgram program;
 
-    void setSampler(const CMap *texture, GLuint uniform, uint8 sampler, bool mipmap = true, bool edge = false) const;
+    void setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint8 format = NMap::FORMAT_MIPMAP) const;
 
   public:
     CShaderProgram();
@@ -43,7 +43,7 @@ class CShaderProgram : public CEngineBase
     void initUniforms();
 
     void bind() const;
-    void begin(const SShaderTechnique *technique) const;
+    void begin(const SShaderTechnique *technique, NRenderer::EMode mode = NRenderer::MODE_STANDARD) const;
     void end(const SShaderTechnique *technique) const;
     void unbind() const;
 
@@ -104,10 +104,10 @@ inline CShaderProgram *CShaders::addShaderProgram(const SShaderProgram &shaderPr
   return getShaderProgram(shaderProgram.name);
 }
 //------------------------------------------------------------------------------
-inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint8 sampler, bool mipmap, bool edge) const
+inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint8 format) const
 {
   if(texture)
-    texture->bind(uniform, sampler, mipmap, edge);
+    texture->bind(uniform, sampler, format);
   else
     context->getMaps()->unbind(uniform, sampler);
 }

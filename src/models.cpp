@@ -8,8 +8,6 @@ CModel::CModel() : CEngineBase()
 //------------------------------------------------------------------------------
 CModel::CModel(CContext *context, const SModel &model) : CEngineBase(context), model(model)
 {
-  load();
-  update();
 }
 //------------------------------------------------------------------------------
 CModel::~CModel()
@@ -878,7 +876,9 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     const SCamera *c = context->getCamera()->getCamera();
 
     soMesh->mvp = c->viewProjection * soMesh->mw;
-    soMesh->cam = glm::vec3(c->position);// * glm::vec3(NCamera::SCALE_FIX_X, NCamera::SCALE_FIX_Y, NCamera::SCALE_FIX_Z);
+    soMesh->mvpdb = context->getFramebuffers()->getFramebuffer("dirShadow")->getFrameBuffer()->camera.viewProjection * soMesh->mw;
+
+    soMesh->cam = glm::vec3(c->position);
 
     if(mesh->type == NModel::MESH_TYPE_STANDARD)
     {
@@ -894,12 +894,18 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
 
           for(auto faceGroup = lod->faceGroups.cbegin(); faceGroup != lod->faceGroups.cend(); faceGroup++)
           {
-            context->getRenderer()->addMesh(SRenderMesh(
-              lod->vboVertices, lod->vboIndices,
-              (mergedMeshes) ? 0 : faceStart,
-              ((mergedMeshes) ? faceStart : 0) + faceGroup->faces.size(),
-              &(*soMesh),
-              (mergedMeshes) ? NULL : faceGroup->material));
+            auto last = lod->faceGroups.cend();
+            last--;
+
+            if((!mergedMeshes) || (faceGroup == last))
+            {
+              context->getRenderer()->addMesh(SRenderMesh(
+                lod->vboVertices, lod->vboIndices,
+                (mergedMeshes) ? 0 : faceStart,
+                ((mergedMeshes) ? faceStart : 0) + faceGroup->faces.size(),
+                &(*soMesh),
+                (mergedMeshes) ? NULL : faceGroup->material));
+            }
 
             faceStart += faceGroup->faces.size();
           }
@@ -922,7 +928,7 @@ const SStandardMeshLod *CModel::getLod(const SMesh *mesh, const glm::vec3 cam)
       UNUSED(cam);
 
       if(mesh->standardMesh.lods.size())
-        return &(*mesh->standardMesh.lods.cbegin());
+        return &mesh->standardMesh.lods.front();
     }
   }
 

@@ -22,15 +22,17 @@ namespace NShader
   static const char STR_SHADER_UNIFORM_MW[] = "mw"; // model world (4x4)
   static const char STR_SHADER_UNIFORM_MWNIT[] = "mwnit"; // model world normal inversed transposed (3x3)
   static const char STR_SHADER_UNIFORM_MVP[] = "mvp"; // projection * view * model world (4x4)
+  static const char STR_SHADER_UNIFORM_MVPDB[] = "mvpdb"; // mvp depth bias
   static const char STR_SHADER_UNIFORM_CAM[] = "cam"; // camera world
   static const char STR_SHADER_UNIFORM_DIF_TEX[] = "difTex";
   static const char STR_SHADER_UNIFORM_ALP_TEX[] = "alpTex";
   static const char STR_SHADER_UNIFORM_SPE_TEX[] = "speTex";
   static const char STR_SHADER_UNIFORM_NOR_TEX[] = "norTex";
-  static const char STR_SHADER_UNIFORM_BUM_TEX[] = "bumTex";
   static const char STR_SHADER_UNIFORM_ENV_TEX[] = "envTex";
+  static const char STR_SHADER_UNIFORM_DEPTH_TEX[] = "depthTex";
   static const char STR_SHADER_UNIFORM_TYPE[] = "type";
   static const char STR_SHADER_UNIFORM_OPACITY[] = "opacity";
+  static const char STR_SHADER_UNIFORM_DEPTH_OFFSET[] = "depthOffset";
   static const char STR_SHADER_UNIFORM_LIGHT_AMB[] = "lightAmb";
   static const char STR_SHADER_UNIFORM_LIGHT_POS[] = "lightPos";
   static const char STR_SHADER_UNIFORM_LIGHT_RANGE[] = "lightRange";
@@ -144,16 +146,20 @@ namespace NShader
     SAMPLER_BASIC_APLHA_ALP,
     SAMPLER_PER_FRAGMENT_DIF = 0,
     SAMPLER_PER_FRAGMENT_SPE,
+    SAMPLER_PER_FRAGMENT_DEPTH,
     SAMPLER_PER_FRAGMENT_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_ALPHA_SPE,
+    SAMPLER_PER_FRAGMENT_ALPHA_DEPTH,
     SAMPLER_PER_FRAGMENT_NORMAL_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_NOR,
+    SAMPLER_PER_FRAGMENT_NORMAL_DEPTH,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH
   };
 }
 //------------------------------------------------------------------------------
@@ -169,17 +175,19 @@ struct SShaderUniforms
   GLuint mw;
   GLuint mwnit;
   GLuint mvp;
+  GLuint mvpdb;
   GLuint cam;
 
   GLuint difTex;
   GLuint alpTex;
   GLuint speTex;
   GLuint norTex;
-  GLuint bumTex;
   GLuint envTex;
+  GLuint depthTex;
 
   GLuint type;
   GLuint opacity;
+  GLuint depthOffset;
 
   GLuint lightAmb;
   GLuint lightPos;
@@ -191,9 +199,9 @@ struct SShaderUniforms
   GLuint fogColor;
 
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), vertexNormalBitangent(0), vertexTexCoord(0), vertexColor(0),
-    mw(0), mwnit(0), mvp(0), cam(0),
-    difTex(0), alpTex(0), speTex(0), norTex(0), bumTex(0), envTex(0),
-    type(0), opacity(0),
+    mw(0), mwnit(0), mvp(0), mvpdb(0), cam(0),
+    difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0),
+    type(0), opacity(0), depthOffset(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0)
   {
@@ -205,6 +213,7 @@ struct SShaderTechnique
   glm::mat4 mw;
   glm::mat3 mwnit;
   mutable glm::mat4 mvp;
+  mutable glm::mat4 mvpdb;
   mutable glm::vec3 cam;
 
   mutable const SMaterial *material;

@@ -59,7 +59,7 @@ class CEngine
 #ifdef ENV_QT
       QObject *parent = NULL
 #endif
-      ); // timer.start();
+      );
     virtual ~CEngine();
 
 #if defined(ENV_QT)
@@ -67,8 +67,8 @@ class CEngine
 #elif defined(ENV_SDL)
     inline int32 exec() { return event(); }
     inline void quit() { SDL_Event event; event.type = SDL_QUIT; SDL_PushEvent(&event); }
-    void simulationStep();
 #endif
+    void simulationStep();
 
 #ifdef ENV_QT
   public slots:

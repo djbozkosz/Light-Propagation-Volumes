@@ -2,7 +2,22 @@
 #ifndef OPENGLTYPES_H
 #define OPENGLTYPES_H
 
+#if defined(ENV_QT)
+/*#undef __gl_h_
+#undef __GL_H__
+#undef _GL_H
+#undef __X_GL_H
+#undef __gl2_h_
+#undef __gltypes_h_
+#undef __REGAL_H__
+#undef __glext_h_
+#undef __GLEXT_H_
+#undef __gl_ATI_h_*/
+
+#include <QGLFunctions>
+#elif defined(ENV_SDL)
 #include <gl/glew.h>
+#endif
 
 #include "types.h"
 

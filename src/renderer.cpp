@@ -22,7 +22,19 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
   else if(renderer.mode == NRenderer::MODE_DEPTH)
     meshes[NShader::PROGRAM_DEPTH].push_back(mesh);
   else if((mesh.material) && (mesh.material->program))
-    meshes[mesh.material->program->getShaderProgram()->name].push_back(mesh);
+  {
+    NShader::EProgram p = mesh.material->program->getShaderProgram()->name;
+
+    if(renderer.mode == NRenderer::MODE_BACKDROP)
+    {
+      if((p == NShader::PROGRAM_PER_FRAGMENT_ALPHA) || (p == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
+        meshes[NShader::PROGRAM_BASIC_ALPHA].push_back(mesh);
+      else
+        meshes[NShader::PROGRAM_BASIC].push_back(mesh);
+    }
+    else
+      meshes[mesh.material->program->getShaderProgram()->name].push_back(mesh);
+  }
 }
 //------------------------------------------------------------------------------
 void CRenderer::dispatch() const
@@ -34,8 +46,14 @@ void CRenderer::dispatch() const
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
   {
-    //const NShader::EProgram p = static_cast<NShader::EProgram>(i);
+    const NShader::EProgram p = static_cast<NShader::EProgram>(i);
 
+    if((p == NShader::PROGRAM_COLOR) || (p == NShader::PROGRAM_DEPTH))
+    {
+      glDisable(GL_CULL_FACE);
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(2.5f, 1.0f);
+    }
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       glDisable(GL_DEPTH_TEST);*/
 
@@ -57,22 +75,28 @@ void CRenderer::dispatch() const
 
       mesh->technique->material = mesh->material;
 
-      if(mesh->material->type & NModel::MATERIAL_TWO_SIDED)
+      if((p != NShader::PROGRAM_COLOR) && (p != NShader::PROGRAM_DEPTH) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
         glDisable(GL_CULL_FACE);
 
-      prog->begin(mesh->technique);
+      prog->begin(mesh->technique, renderer.mode);
       glDrawElements(GL_TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, GL_UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE));
       prog->end(mesh->technique);
 
       context->engineIncDrawCalls();
 
-      if(mesh->material->type & NModel::MATERIAL_TWO_SIDED)
+      if((p != NShader::PROGRAM_COLOR) && (p != NShader::PROGRAM_DEPTH) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
         glEnable(GL_CULL_FACE);
 
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
+    if((p == NShader::PROGRAM_COLOR) || (p == NShader::PROGRAM_DEPTH))
+    {
+      glPolygonOffset(0.0f, 0.0f);
+      glDisable(GL_POLYGON_OFFSET_FILL);
+      glEnable(GL_CULL_FACE);
+    }
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       glEnable(GL_DEPTH_TEST);*/
   }
