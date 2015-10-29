@@ -27,6 +27,8 @@ class CCamera : public CEngineBase
     void setMove();
     inline void setRotation(glm::vec3 rotation) { camera.rotation.x = rotation.x; camera.rotation.y = rotation.y; camera.rotation.z = rotation.z; updateMatrices(); }
     void setRotate();
+    inline void setScale(glm::vec3 scale) { camera.scale = scale; updateMatrices(); }
+    inline void resetScale() { camera.scale = glm::vec3(NCamera::SCALE_X, NCamera::SCALE_Y, NCamera::SCALE_Z); updateMatrices(); }
     void setHover(int32 x = 0, int32 y = 0);
     inline void setSpeed(float speed = NCamera::MOVEMENT_SPEED) { camera.position.w = speed; }
     inline void setSensitivity(float sensitivity = NCamera::SENSITIVITY_SPEED) { camera.rotation.w = sensitivity; }
@@ -47,7 +49,7 @@ inline void CCamera::updateMatrices()
         glm::rotate(glm::mat4(1.0), camera.rotation.x * NMath::DEG_2_RAD, glm::vec3(1.0, 0.0, 0.0)),
         (camera.rotation.y + NMath::PI_RAD) * NMath::DEG_2_RAD, glm::vec3(0.0, 1.0, 0.0)),
       glm::vec3(camera.position.x * -NCamera::SCALE_X, camera.position.y * -NCamera::SCALE_Y, camera.position.z * -NCamera::SCALE_Z)),
-    glm::vec3(NCamera::SCALE_X, NCamera::SCALE_Y, NCamera::SCALE_Z));
+    camera.scale);
 
   if(camera.projType == NCamera::PROJ_PERSPECTIVE)
     camera.projection = glm::perspective(camera.fov * NMath::DEG_2_RAD, camera.width / camera.height, camera.clipNear, camera.clipFar);

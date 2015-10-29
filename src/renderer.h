@@ -3,7 +3,6 @@
 #define RENDERER_H
 
 #include "shaders.h"
-#include "headers/sceneTypes.h"
 
 //------------------------------------------------------------------------------
 class CRenderer : public CEngineBase

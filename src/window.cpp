@@ -100,10 +100,9 @@ void CWindow::initializeGL()
   context->getMaps()->loadDefaultMaps();
 
   std::vector<uint8> fboAttachments;
+  const uint32 maxDepthTextureSize = CEngineBase::context->engineGetEngine()->maxDepthTextureSize;
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
-  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer("dirShadow", fboAttachments, NMap::RBO_NO, 2048, 2048));
-  // todo smazat
-  shadowFirst = false;
+  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, maxDepthTextureSize, maxDepthTextureSize));
 
   for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
     s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
@@ -135,10 +134,10 @@ void CWindow::paintGL()
 
   if(CScene *s = context->getScenes()->getActiveScene())
   {
-    const glm::vec3 pos = glm::vec3(cam->getCamera()->position);
-    const glm::vec3 rot = glm::vec3(cam->getCamera()->rotation);
-    const float clipNear = cam->getCamera()->clipNear;
-    const float clipFar = cam->getCamera()->clipFar;
+    const glm::vec3 pos = glm::vec3(c->position);
+    const glm::vec3 rot = glm::vec3(c->rotation);
+    const float clipNear = c->clipNear;
+    const float clipFar = c->clipFar;
 
     // sbybox
     cam->setPosition(glm::vec3());
@@ -149,14 +148,24 @@ void CWindow::paintGL()
     ren->dispatch();
     ren->clearGroups();
 
-    // shadow map
-    if(!shadowFirst)
+    // depth map
+    CFramebuffer *f = fbo->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO);
+    CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
+    if((f) && (sun))
     {
-      cam->setPosition(glm::vec3(35.0f, 50.0f, -10.0f));
-      cam->setRotation(glm::vec3(50.0, -75.0, 0.0));
-      cam->setRange(30.0f, 80.0f, -20.0f, 20.0f, 25.0f, -25.0f);
+      cam->setRange(-50.0f, 50.0f, -30.0f, 30.0f, 30.0f, -30.0f);
 
-      CFramebuffer *f = fbo->getFramebuffer("dirShadow");
+      const glm::quat r = sun->getObject()->rotation;
+      const float step = (c->clipRight - c->clipLeft) / f->getFrameBuffer()->width;
+      const glm::vec3 gridPos0(pos.x * cosf(-r.z) - pos.z * sinf(-r.z), pos.y * cosf(r.y), pos.x * sinf(-r.z) + pos.z * cosf(-r.z));
+      const glm::vec3 gridPos1(static_cast<float>(static_cast<int32>(gridPos0.x / step)) * step, static_cast<float>(static_cast<int32>(gridPos0.y / step)) * step, static_cast<float>(static_cast<int32>(gridPos0.z / step)) * step);
+      const glm::vec3 gridPos2(gridPos1.x * cosf(r.z) - gridPos1.z * sinf(r.z), gridPos1.y * cosf(-r.y), gridPos1.x * sinf(r.z) + gridPos1.z * cosf(r.z));
+
+      //std::cout << "pos " << pos.x << " " << pos.y << " " << pos.z << ", pos2 " << gridPos2.x << " " << gridPos2.y << " " << gridPos2.z << "\n";
+      cam->setPosition(gridPos2);
+      cam->setRotation(glm::vec3(r.y * NMath::RAD_2_DEG, -r.z * NMath::RAD_2_DEG, 0.0f));
+      cam->setScale(glm::vec3(NCamera::SCALE_X, NCamera::SCALE_Y, -NCamera::SCALE_Z));
+
       f->setCamera(*c);
       f->bind();
       glClear(GL_DEPTH_BUFFER_BIT);
@@ -167,12 +176,12 @@ void CWindow::paintGL()
       ren->clearGroups();
 
       fbo->unbind();
-      shadowFirst = true;
     }
     
     // standard
     cam->setPosition(pos);
     cam->setRotation(rot);
+    cam->resetScale();
     cam->setRange(clipNear, clipFar);
 
     ren->setMode(NRenderer::MODE_STANDARD);

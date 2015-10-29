@@ -2,13 +2,17 @@
 #ifndef SCENETYPES_H
 #define SCENETYPES_H
 
-#include "mapTypes.h"
-#include "modelTypes.h"
 #include "shaderTypes.h"
 
 //------------------------------------------------------------------------------
 namespace NScene
 {
+  static const float SUN_DIR_MUL = 100000.0f;
+
+  static const char STR_OBJECT_LIGHT_AMB[] = "light_amb";
+  static const char STR_OBJECT_LIGHT_FOG[] = "light_fog";
+  static const char STR_OBJECT_LIGHT_SUN[] = "light_sun";
+
   enum ESceneObjectType
   {
     OBJECT_TYPE_NONE = 0,
@@ -87,9 +91,10 @@ struct SSceneText
 struct SScene
 {
   std::string name;
+  bool changed;
 
   inline SScene() {}
-  inline SScene(const std::string &name) : name(name) {}
+  inline SScene(const std::string &name) : name(name), changed(true) {}
 };
 //------------------------------------------------------------------------------
 #endif // SCENETYPES_H

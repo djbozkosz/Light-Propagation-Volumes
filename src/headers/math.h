@@ -8,7 +8,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <cmath>
 #include "types.h"
@@ -18,6 +21,7 @@ namespace NMath
 {
   static const float PI = 3.1415926535897932384626433832795f;
   static const float PI_2 = 6.283185307179586476925286766559f;
+  static const float DIV_PI = 1.5707963267948966192313216916398;
   static const float DIV_2_PI = 0.63661977236758134307553505349006f;
   static const float PI_RAD = 180.0f;
   static const float PI_2_RAD = 360.0f;

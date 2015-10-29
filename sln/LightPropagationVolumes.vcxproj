@@ -73,8 +73,6 @@
     <None Include="..\data\shaders\color.vs" />
     <None Include="..\data\shaders\depth.fs" />
     <None Include="..\data\shaders\depth.vs" />
-    <None Include="..\data\shaders\guiText.vs" />
-    <None Include="..\data\shaders\particles.vs" />
     <None Include="..\data\shaders\perFragment.fs" />
     <None Include="..\data\shaders\perFragment.vs" />
     <None Include="..\data\shaders\perFragmentAlpha.fs" />

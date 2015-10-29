@@ -157,7 +157,7 @@ void CShaderProgram::initUniforms()
   program.uniforms.vertexPosition = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_POSITION);
   program.uniforms.vertexNormal = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_NORMAL);
   program.uniforms.vertexNormalTangent = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_NORMAL_TANGENT);
-  program.uniforms.vertexNormalBitangent = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_NORMAL_BITANGENT);
+  //program.uniforms.vertexNormalBitangent = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_NORMAL_BITANGENT);
   program.uniforms.vertexTexCoord = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_TEX_COORD);
   program.uniforms.vertexColor = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_COLOR);
   program.uniforms.mw = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MW);
@@ -191,19 +191,32 @@ void CShaderProgram::bind() const
 void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode mode) const
 {
   //COpenGL *gl = context->getOpenGL();
+  uint32 stride = sizeof(float) * (((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH)) ? NModel::VERTEX_P_SIZE : NModel::VERTEX_PNTTC_SIZE);
 
-  glEnableVertexAttribArray(program.uniforms.vertexPosition);
-  glEnableVertexAttribArray(program.uniforms.vertexNormal);
-  glEnableVertexAttribArray(program.uniforms.vertexNormalTangent);
-  glEnableVertexAttribArray(program.uniforms.vertexNormalBitangent);
-  glEnableVertexAttribArray(program.uniforms.vertexTexCoord);
-  glEnableVertexAttribArray(program.uniforms.vertexColor);
-  glVertexAttribPointer(program.uniforms.vertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_POSITION));
-  glVertexAttribPointer(program.uniforms.vertexNormal, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL));
-  glVertexAttribPointer(program.uniforms.vertexNormalTangent, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_TANGENT));
-  glVertexAttribPointer(program.uniforms.vertexNormalBitangent, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_BITANGENT));
-  glVertexAttribPointer(program.uniforms.vertexTexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_TEX_COORD));
-  glVertexAttribPointer(program.uniforms.vertexColor, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_COLOR));
+  if(program.name >= NShader::PROGRAM_COLOR)
+  {
+    glEnableVertexAttribArray(program.uniforms.vertexPosition);
+    glVertexAttribPointer(program.uniforms.vertexPosition, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_POSITION));
+  }
+  if(program.name >= NShader::PROGRAM_BASIC)
+  {
+    glEnableVertexAttribArray(program.uniforms.vertexTexCoord);
+    glEnableVertexAttribArray(program.uniforms.vertexColor);
+    glVertexAttribPointer(program.uniforms.vertexTexCoord, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_TEX_COORD));
+    glVertexAttribPointer(program.uniforms.vertexColor, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_COLOR));
+  }
+  if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+  {
+    glEnableVertexAttribArray(program.uniforms.vertexNormal);
+    glVertexAttribPointer(program.uniforms.vertexNormal, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL));
+  }
+  if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+  {
+    glEnableVertexAttribArray(program.uniforms.vertexNormalTangent);
+    //glEnableVertexAttribArray(program.uniforms.vertexNormalBitangent);
+    glVertexAttribPointer(program.uniforms.vertexNormalTangent, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_TANGENT));
+    //glVertexAttribPointer(program.uniforms.vertexNormalBitangent, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_BITANGENT));
+  }
 
   if(!technique)
     return;
@@ -217,7 +230,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
   if(technique->material)
   {
     const SMaterial *m = technique->material;
-    const CMap *dirShadow = context->getMaps()->getMap("dirShadow_0");
+    const CMap *depthMap = context->getMaps()->getMap(NWindow::STR_ORTHO_DEPTH_FBO_MAP);
 
     if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
        (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
@@ -226,7 +239,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
 
     if(program.name == NShader::PROGRAM_BASIC)
     {
-      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_DIF, ((m->type & NModel::MATERIAL_MIP_MAPPING) ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR) | (mode == NRenderer::MODE_BACKDROP ? NMap::FORMAT_EDGE : NMap::FORMAT_NO));
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_BASIC_DIF, ((m->type & NModel::MATERIAL_MIP_MAPPING) ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR) | (mode == NRenderer::MODE_BACKDROP ? NMap::FORMAT_EDGE : NMap::FORMAT));
     }
     else if((program.name == NShader::PROGRAM_BASIC_ALPHA))
     {
@@ -237,21 +250,21 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     {
       setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
+      setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA)
     {
       setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH, NMap::FORMAT_LINEAR);
+      setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL)
     {
       setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH, NMap::FORMAT_LINEAR);
+      setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
     }
     else if(program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
     {
@@ -259,26 +272,31 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-      setSampler(dirShadow, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH, NMap::FORMAT_LINEAR);
+      setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
     }
 
     glUniform1i(program.uniforms.type, m->type);
     glUniform1f(program.uniforms.opacity, m->opacity);
-    glUniform2f(program.uniforms.depthOffset, 0.5f / static_cast<float>(dirShadow->getMap()->width), 0.5f / static_cast<float>(dirShadow->getMap()->height));
+    glUniform2f(program.uniforms.depthOffset, 0.5f / static_cast<float>(depthMap->getMap()->width), 0.5f / static_cast<float>(depthMap->getMap()->height));
     context->getMaps()->finishBind();
   }
 
-  const SCamera *cam = context->getCamera()->getCamera();
   if(program.name == NShader::PROGRAM_COLOR)
     glUniform3f(program.uniforms.lightAmb, technique->pickColor.x, technique->pickColor.y, technique->pickColor.z);
   else
     glUniform3f(program.uniforms.lightAmb, technique->lightAmb.x, technique->lightAmb.y, technique->lightAmb.z);
-  glUniform3f(program.uniforms.lightPos, technique->lightPos.x, technique->lightPos.y, technique->lightPos.z);
-  glUniform2f(program.uniforms.lightRange, technique->lightRange.x, technique->lightRange.y);
-  glUniform3f(program.uniforms.lightColor, technique->lightColor.x, technique->lightColor.y, technique->lightColor.z);
-  glUniform4f(program.uniforms.lightSpeColor, technique->lightSpeColor.x, technique->lightSpeColor.y, technique->lightSpeColor.z, technique->lightSpeColor.w);
-  glUniform2f(program.uniforms.fogRange, technique->fogRange.x * cam->clipFar, technique->fogRange.y * cam->clipFar);
-  glUniform3f(program.uniforms.fogColor, technique->fogColor.x, technique->fogColor.y, technique->fogColor.z);
+
+  if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+  {
+    const SCamera *cam = context->getCamera()->getCamera();
+
+    glUniform3f(program.uniforms.lightPos, technique->lightPos.x, technique->lightPos.y, technique->lightPos.z);
+    glUniform2f(program.uniforms.lightRange, technique->lightRange.x, technique->lightRange.y);
+    glUniform3f(program.uniforms.lightColor, technique->lightColor.x, technique->lightColor.y, technique->lightColor.z);
+    glUniform4f(program.uniforms.lightSpeColor, technique->lightSpeColor.x, technique->lightSpeColor.y, technique->lightSpeColor.z, technique->lightSpeColor.w);
+    glUniform2f(program.uniforms.fogRange, technique->fogRange.x * cam->clipFar, technique->fogRange.y * cam->clipFar);
+    glUniform3f(program.uniforms.fogColor, technique->fogColor.x, technique->fogColor.y, technique->fogColor.z);
+  }
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::end(const SShaderTechnique *technique) const
@@ -293,12 +311,20 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
       glDisable(GL_BLEND);
   }
 
-  glDisableVertexAttribArray(program.uniforms.vertexPosition);
-  glDisableVertexAttribArray(program.uniforms.vertexNormal);
-  glDisableVertexAttribArray(program.uniforms.vertexNormalTangent);
-  glDisableVertexAttribArray(program.uniforms.vertexNormalBitangent);
-  glDisableVertexAttribArray(program.uniforms.vertexTexCoord);
-  glDisableVertexAttribArray(program.uniforms.vertexColor);
+  if(program.name >= NShader::PROGRAM_COLOR)
+    glDisableVertexAttribArray(program.uniforms.vertexPosition);
+  if(program.name >= NShader::PROGRAM_BASIC)
+  {
+    glDisableVertexAttribArray(program.uniforms.vertexTexCoord);
+    glDisableVertexAttribArray(program.uniforms.vertexColor);
+  }
+  if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+    glDisableVertexAttribArray(program.uniforms.vertexNormal);
+  if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+  {
+    glDisableVertexAttribArray(program.uniforms.vertexNormalTangent);
+    //glDisableVertexAttribArray(program.uniforms.vertexNormalBitangent);
+  }
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::unbind() const

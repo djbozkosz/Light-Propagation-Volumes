@@ -52,9 +52,10 @@ class CScene : public CEngineBase
   inline CSceneObject *addSceneObjectLight(const SSceneObject &object, const SSceneLight &light);
   inline uint32 removeSceneObject(const std::string &name) { return sceneObjects.erase(name); }
 
+  inline void setChanged(bool changed) { scene.changed = changed; }
+
   void update(NScene::ESceneUpdateType type = NScene::UPDATE_ALL) { for(auto it = sceneObjects.begin(); it != sceneObjects.end(); it++) it->second.update(type); }
   inline void clear() { sceneObjects.clear(); }
-
   void render() const { for(auto it = sceneObjects.cbegin(); it != sceneObjects.cend(); it++) it->second.render(); }
 
   inline const SScene *getScene() const { return &scene; }
@@ -82,9 +83,9 @@ class CScenes : public CEngineBase
 };
 //------------------------------------------------------------------------------
 inline void CSceneObject::setLight(const SSceneLight &light)
-{
+{ // inline due scene forward declaration
   this->light = light;
-  object.parent->update();
+  object.parent->update(NScene::UPDATE_LIGHTING);
 }
 //------------------------------------------------------------------------------
 inline CSceneObject *CScene::addSceneObject(const SSceneObject &object)

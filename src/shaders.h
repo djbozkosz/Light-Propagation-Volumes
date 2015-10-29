@@ -8,6 +8,8 @@
 
 #include "culling.h"
 #include "headers/rendererTypes.h"
+#include "headers/windowTypes.h"
+#include "headers/sceneTypes.h"
 
 //------------------------------------------------------------------------------
 class CShader : public CEngineBase

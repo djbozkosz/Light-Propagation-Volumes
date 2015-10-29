@@ -22,6 +22,9 @@ namespace NEngine
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
+  static const uint32 MAX_TEXTURE_SIZE = 0;
+  static const uint32 MAX_DEPTH_TEXTURE_SIZE = 2048;
+
   static const char STR_APP_NAME[] = "Light Propagation Volumes";
 
   static const char *const STR_ENGINE_CLASSES[] =
@@ -52,19 +55,27 @@ namespace NEngine
   enum EKey
   {
     KEY = 0x0000,
-    KEY_FRONT = 0x0001,
-    KEY_BACK = 0x0002,
-    KEY_LEFT = 0x0004,
-    KEY_RIGHT = 0x0008,
-    KEY_DOWN = 0x0010,
-    KEY_UP = 0x0020,
 
-    KEY_QUIT = 0x0040
+    KEY_FRONT        = 0x0001,
+    KEY_BACK         = 0x0002,
+    KEY_LEFT         = 0x0004,
+    KEY_RIGHT        = 0x0008,
+    KEY_DOWN         = 0x0010,
+    KEY_UP           = 0x0020,
+
+    KEY_SPECIAL_FRONT = 0x0040,
+    KEY_SPECIAL_BACK  = 0x0080,
+    KEY_SPECIAL_LEFT  = 0x0100,
+    KEY_SPECIAL_RIGHT = 0x0200,
+    KEY_SPECIAL_DOWN  = 0x0400,
+    KEY_SPECIAL_UP    = 0x0800,
+
+    KEY_QUIT         = 0x1000
   };
 
   enum EMouseButton
   {
-    MOUSE_BTN_NO = 0x00,
+    MOUSE_BTN = 0x00,
     MOUSE_BTN_LEFT = 0x01,
     MOUSE_BTN_RIGHT = 0x02
   };
@@ -114,7 +125,9 @@ struct SEngine
   uint32 fpsCounter;
 
   uint32 drawCalls;
+
   uint32 maxTextureSize;
+  uint32 maxDepthTextureSize;
 
 #if defined(ENV_QT)
   QElapsedTimer timer;
@@ -122,7 +135,7 @@ struct SEngine
   std::vector<SDL_TimerID> timers;
 #endif
 
-  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), maxTextureSize(0) {}
+  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

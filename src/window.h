@@ -41,9 +41,6 @@ class CWindow : public
     SDL_GLContext SDLcontext;
 #endif
 
-    // temp
-    bool shadowFirst;
-
   protected:
     virtual void paintGL();
 #ifdef ENV_SDL

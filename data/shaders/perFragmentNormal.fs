@@ -34,7 +34,14 @@ void main()
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
 
-  float depthVis = 0.0;
+  float depthVis = 0.0;// texture(depthTex, depthCoord);
+  /*for(float y = -depthOffset.y * 2.0; y <= depthOffset.y * 2.0; y += depthOffset.y * 2.0)
+  {
+    for(float x = -depthOffset.x * 2.0; x <= depthOffset.x * 2.0; x += depthOffset.x * 2.0)
+    {
+      depthVis += 0.11111111111111111111111111111111 * texture(depthTex, depthCoord + vec3(x, y, 0.0));
+    }
+  }*/
   depthVis += 0.25 * texture(depthTex, depthCoord + vec3(depthOffset.x, depthOffset.y, 0.0));
   depthVis += 0.25 * texture(depthTex, depthCoord + vec3(depthOffset.x, -depthOffset.y, 0.0));
   depthVis += 0.25 * texture(depthTex, depthCoord + vec3(-depthOffset.x, depthOffset.y, 0.0));

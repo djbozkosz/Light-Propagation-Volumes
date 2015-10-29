@@ -192,12 +192,6 @@
     <None Include="..\data\shaders\depth.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
-    <None Include="..\data\shaders\guiText.vs">
-      <Filter>Shader Files\Vertex</Filter>
-    </None>
-    <None Include="..\data\shaders\particles.vs">
-      <Filter>Shader Files\Vertex</Filter>
-    </None>
     <None Include="..\data\shaders\perFragment.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>

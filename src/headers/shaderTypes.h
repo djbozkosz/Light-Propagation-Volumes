@@ -2,6 +2,7 @@
 #ifndef SHADERSTYPES_H
 #define SHADERSTYPES_H
 
+#include "mapTypes.h"
 #include "modelTypes.h"
 
 //------------------------------------------------------------------------------
@@ -16,7 +17,7 @@ namespace NShader
   static const char STR_SHADER_UNIFORM_VERTEX_POSITION[] = "vertexPosition";
   static const char STR_SHADER_UNIFORM_VERTEX_NORMAL[] = "vertexNormal";
   static const char STR_SHADER_UNIFORM_VERTEX_NORMAL_TANGENT[] = "vertexNormalTangent";
-  static const char STR_SHADER_UNIFORM_VERTEX_NORMAL_BITANGENT[] = "vertexNormalBitangent";
+  //static const char STR_SHADER_UNIFORM_VERTEX_NORMAL_BITANGENT[] = "vertexNormalBitangent";
   static const char STR_SHADER_UNIFORM_VERTEX_TEX_COORD[] = "vertexTexCoord";
   static const char STR_SHADER_UNIFORM_VERTEX_COLOR[] = "vertexColor";
   static const char STR_SHADER_UNIFORM_MW[] = "mw"; // model world (4x4)
@@ -168,7 +169,7 @@ struct SShaderUniforms
   GLuint vertexPosition;
   GLuint vertexNormal;
   GLuint vertexNormalTangent;
-  GLuint vertexNormalBitangent;
+  //GLuint vertexNormalBitangent;
   GLuint vertexTexCoord;
   GLuint vertexColor;
 
@@ -198,7 +199,7 @@ struct SShaderUniforms
   GLuint fogRange;
   GLuint fogColor;
 
-  inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), vertexNormalBitangent(0), vertexTexCoord(0), vertexColor(0),
+  inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), /*vertexNormalBitangent(0),*/ vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), mvpdb(0), cam(0),
     difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0),
     type(0), opacity(0), depthOffset(0),

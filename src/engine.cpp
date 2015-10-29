@@ -20,9 +20,10 @@ CEngine::CEngine(
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
   context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
-  engine.consoleVisible = true;
+  //engine.consoleVisible = true;
   //engine.fullscreen = true;
   engine.maxTextureSize = 256;
+  //engine.maxDepthTextureSize = 1024;
 
 #if defined(ENV_QT)
   engine.timer.start();
@@ -37,8 +38,6 @@ CEngine::CEngine(
 
   // fill keys move map
 #elif defined(ENV_SDL)
-  engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
-
   engine.keysMap[SDLK_w] = NEngine::KEY_FRONT;
   engine.keysMap[SDLK_UP] = NEngine::KEY_FRONT;
   engine.keysMap[SDLK_s] = NEngine::KEY_BACK;
@@ -49,6 +48,15 @@ CEngine::CEngine(
   engine.keysMap[SDLK_RIGHT] = NEngine::KEY_RIGHT;
   engine.keysMap[SDLK_q] = NEngine::KEY_DOWN;
   engine.keysMap[SDLK_e] = NEngine::KEY_UP;
+
+  engine.keysMap[SDLK_i] = NEngine::KEY_SPECIAL_FRONT;
+  engine.keysMap[SDLK_k] = NEngine::KEY_SPECIAL_BACK;
+  engine.keysMap[SDLK_j] = NEngine::KEY_SPECIAL_LEFT;
+  engine.keysMap[SDLK_l] = NEngine::KEY_SPECIAL_RIGHT;
+  engine.keysMap[SDLK_u] = NEngine::KEY_SPECIAL_DOWN;
+  engine.keysMap[SDLK_o] = NEngine::KEY_SPECIAL_UP;
+
+  engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 #endif
 }
 //------------------------------------------------------------------------------
@@ -76,7 +84,7 @@ void CEngine::initialize()
 
   for(uint32 i = 0; i < NFile::SEARCH_PATHES_COUNT; i++)
     filesystem.addSearchPath(NFile::STR_SEARCH_PATHES[i]);
-  filesystem.addSearchPath("C:/Hry/Mafia/");
+  //filesystem.addSearchPath("C:/Hry/Mafia/");
 
   camera.setSize(1024, 600);
 }
@@ -88,9 +96,11 @@ void CEngine::initializeFinish()
   scenes.addScene(SScene("scene"));
   if(CScene *s = scenes.setActiveScene("scene"))
   {
-    s->addSceneObjectLight(SSceneObject("light_amb"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
-    s->addSceneObjectLight(SSceneObject("light_fog"), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
-    s->addSceneObjectLight(SSceneObject("light_sun", glm::vec3(700000.0f, 1000000.0f, -200000.0f)), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(3.0f, 3.0f, 3.0f, 64.0f)));
+    const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87/*f0.0f, 0.0f*/);
+    const glm::vec3 sunPos = glm::vec3(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y)) * NScene::SUN_DIR_MUL;
+    s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_AMB), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
+    s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_FOG), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
+    s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_SUN, sunPos, sunRot), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(3.0f, 3.0f, 3.0f, 64.0f)));
 
     s->addSceneObjectModel(
       SSceneObject("sky", glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
@@ -103,7 +113,7 @@ void CEngine::initializeFinish()
       ->update();
   }
 
-  camera.setSpeed(50.0f);
+  camera.setSpeed(5.0f);
 
 #if defined(ENV_QT)
   QTimer::singleShot(NEngine::REDRAW_TIMER_MS, this, SLOT(onTimeout()));
@@ -153,6 +163,44 @@ int32 CEngine::event()
 void CEngine::simulationStep()
 {
   context.getCamera()->setMove();
+
+  if((engine.keys & NEngine::KEY_SPECIAL_FRONT) ||
+     (engine.keys & NEngine::KEY_SPECIAL_BACK) ||
+     (engine.keys & NEngine::KEY_SPECIAL_LEFT) ||
+     (engine.keys & NEngine::KEY_SPECIAL_RIGHT))
+  {
+    if(CScene *s = scenes.getActiveScene())
+    {
+      if(CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN))
+      {
+        const SSceneObject *o = sun->getObject();
+        glm::quat r = o->rotation;
+        const float d = NMath::PI / 72.0f; // 5 deg
+
+        if(engine.keys & NEngine::KEY_SPECIAL_FRONT)
+        {
+          r.y += d;
+          if(r.y > NMath::DIV_PI)
+            r.y = NMath::DIV_PI;
+        }
+        else if(engine.keys & NEngine::KEY_SPECIAL_BACK)
+        {
+          r.y -= d;
+          if(r.y < -NMath::DIV_PI)
+            r.y = -NMath::DIV_PI;
+        }
+        else if(engine.keys & NEngine::KEY_SPECIAL_LEFT)
+          r.z -= d;
+        else if(engine.keys & NEngine::KEY_SPECIAL_RIGHT)
+          r.z += d;
+
+        //std::cout << r.y << " " << r.z << "\n";
+        sun->setPosition(glm::vec3(sinf(r.z) * cosf(r.y), r.y, cosf(r.z) * cosf(r.y)) * NScene::SUN_DIR_MUL);
+        sun->setRotation(r);
+      }
+    }
+  }
+
   window->repaint();
 }
 //------------------------------------------------------------------------------
@@ -246,7 +294,13 @@ bool CEngine::isKeyForDelayedRendering() const
      (engine.keys & NEngine::KEY_LEFT) ||
      (engine.keys & NEngine::KEY_RIGHT) ||
      (engine.keys & NEngine::KEY_UP) ||
-     (engine.keys & NEngine::KEY_DOWN))
+     (engine.keys & NEngine::KEY_DOWN) ||
+     (engine.keys & NEngine::KEY_SPECIAL_FRONT) ||
+     (engine.keys & NEngine::KEY_SPECIAL_BACK) ||
+     (engine.keys & NEngine::KEY_SPECIAL_LEFT) ||
+     (engine.keys & NEngine::KEY_SPECIAL_RIGHT) ||
+     (engine.keys & NEngine::KEY_SPECIAL_UP) ||
+     (engine.keys & NEngine::KEY_SPECIAL_DOWN))
     return true;
   
   return false;
@@ -258,11 +312,11 @@ NEngine::EMouseButton CEngine::getMouseButton(int32 button) const
   return NEngine::MOUSE_BTN_NO;
 #elif defined(ENV_SDL)
   return static_cast<NEngine::EMouseButton>(
-    (((button == SDL_BUTTON_LEFT) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN_NO) |
-    (((button == SDL_BUTTON_RIGHT) || (button == SDL_BUTTON_X1) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN_NO));
+    (((button == SDL_BUTTON_LEFT) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN) |
+    (((button == SDL_BUTTON_RIGHT) || (button == SDL_BUTTON_X1) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN));
 #endif
 
-  return NEngine::MOUSE_BTN_NO;
+  return NEngine::MOUSE_BTN;
 }
 //------------------------------------------------------------------------------
 NEngine::EKey CEngine::getKey(int32 key) const
@@ -300,7 +354,7 @@ void CEngine::updateTicks()
 //------------------------------------------------------------------------------
 std::string CEngine::getClassName(const CEngineBase *object)
 {
-  UNUSED(object);
+  UNUSED(object); // todo doplnit !!! třídy
   return "abc";
 }
 //------------------------------------------------------------------------------

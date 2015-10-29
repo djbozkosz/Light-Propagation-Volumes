@@ -14,14 +14,16 @@
 //------------------------------------------------------------------------------
 namespace NModel
 {
+  static const uint32 VERTEX_P_SIZE = 3;
   static const uint32 VERTEX_PNT_SIZE = 8;
-  static const uint32 VERTEX_PNTBTC_SIZE = 18;
+  static const uint32 VERTEX_PNTTC_SIZE = 15; // PNTBTC 18
+
   static const uint8 VBO_OFFSET_POSITION = 0;
   static const uint8 VBO_OFFSET_NORMAL = 3;
   static const uint8 VBO_OFFSET_NORMAL_TANGENT = 6;
-  static const uint8 VBO_OFFSET_NORMAL_BITANGENT = 9;
-  static const uint8 VBO_OFFSET_TEX_COORD = 12;
-  static const uint8 VBO_OFFSET_COLOR = 14;
+  //static const uint8 VBO_OFFSET_NORMAL_BITANGENT = 9;
+  static const uint8 VBO_OFFSET_TEX_COORD = 9; // 12
+  static const uint8 VBO_OFFSET_COLOR = 11; // 14
 
   static const uint32 FACE_SIZE = 3;
 
@@ -274,11 +276,12 @@ struct SStandardMeshLod
   uint16 verticesCount;
   std::vector<SVertex> vertices;
   GLuint vboVertices;
+  GLuint vboSimpleVertices;
   GLuint vboIndices;
   uint8 faceGroupsCount;
   std::list<SFacesGroup> faceGroups;
 
-  inline SStandardMeshLod() : ratio(0.0f), verticesCount(0), vboVertices(0), vboIndices(0), faceGroupsCount(0) {}
+  inline SStandardMeshLod() : ratio(0.0f), verticesCount(0), vboVertices(0), vboSimpleVertices(0), vboIndices(0), faceGroupsCount(0) {}
 };
 //------------------------------------------------------------------------------
 struct SStandardMesh

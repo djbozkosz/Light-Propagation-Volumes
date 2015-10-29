@@ -785,10 +785,12 @@ void CModel::update(NModel::EMeshUpdateType type)
         {
           for(auto lod = mesh->standardMesh.lods.begin(); lod != mesh->standardMesh.lods.end(); lod++)
           {
-            std::vector<float> vx(lod->vertices.size() * NModel::VERTEX_PNTBTC_SIZE);
+            std::vector<float> vx(lod->vertices.size() * NModel::VERTEX_PNTTC_SIZE);
+            std::vector<float> vxs(lod->vertices.size() * NModel::VERTEX_P_SIZE); // simple
             std::vector<uint16> in;
 
             uint32 i = 0;
+            uint32 is = 0;
             for(auto vertex = lod->vertices.begin(); vertex != lod->vertices.end(); vertex++)
             {
               vx[i++] = vertex->position.x;
@@ -800,15 +802,19 @@ void CModel::update(NModel::EMeshUpdateType type)
               vx[i++] = vertex->normalTangent.x;
               vx[i++] = vertex->normalTangent.y;
               vx[i++] = vertex->normalTangent.z;
-              vx[i++] = vertex->normalBitangent.x;
+              /*vx[i++] = vertex->normalBitangent.x;
               vx[i++] = vertex->normalBitangent.y;
-              vx[i++] = vertex->normalBitangent.z;
+              vx[i++] = vertex->normalBitangent.z;*/
               vx[i++] = vertex->texCoord.x;
               vx[i++] = vertex->texCoord.y;
               vx[i++] = vertex->color.x;
               vx[i++] = vertex->color.y;
               vx[i++] = vertex->color.z;
               vx[i++] = vertex->color.w;
+
+              vxs[is++] = vertex->position.x;
+              vxs[is++] = vertex->position.y;
+              vxs[is++] = vertex->position.z;
             }
 
             i = 0;
@@ -830,10 +836,15 @@ void CModel::update(NModel::EMeshUpdateType type)
               glDeleteBuffers(1, &lod->vboIndices);
 
             glGenBuffers(1, &lod->vboVertices);
+            glGenBuffers(1, &lod->vboSimpleVertices);
             glGenBuffers(1, &lod->vboIndices);
 
             glBindBuffer(GL_ARRAY_BUFFER, lod->vboVertices);
             glBufferData(GL_ARRAY_BUFFER, vx.size() * sizeof(float), &vx[0], GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            glBindBuffer(GL_ARRAY_BUFFER, lod->vboSimpleVertices);
+            glBufferData(GL_ARRAY_BUFFER, vxs.size() * sizeof(float), &vxs[0], GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lod->vboIndices);
@@ -876,7 +887,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     const SCamera *c = context->getCamera()->getCamera();
 
     soMesh->mvp = c->viewProjection * soMesh->mw;
-    soMesh->mvpdb = context->getFramebuffers()->getFramebuffer("dirShadow")->getFrameBuffer()->camera.viewProjection * soMesh->mw;
+    soMesh->mvpdb = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO)->getFrameBuffer()->camera.viewProjection * soMesh->mw;
 
     soMesh->cam = glm::vec3(c->position);
 
@@ -900,7 +911,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
             if((!mergedMeshes) || (faceGroup == last))
             {
               context->getRenderer()->addMesh(SRenderMesh(
-                lod->vboVertices, lod->vboIndices,
+                (mergedMeshes) ? lod->vboSimpleVertices : lod->vboVertices, lod->vboIndices,
                 (mergedMeshes) ? 0 : faceStart,
                 ((mergedMeshes) ? faceStart : 0) + faceGroup->faces.size(),
                 &(*soMesh),

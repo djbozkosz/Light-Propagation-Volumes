@@ -65,6 +65,8 @@ void CSceneObject::update(NScene::ESceneUpdateType type)
       }
     }
   }
+  if((object.type == NScene::OBJECT_TYPE_LIGHT) && (type != NScene::UPDATE_ALL) && (type & NScene::UPDATE_TRANSFORMATION))
+    object.parent->update(NScene::UPDATE_LIGHTING);
 }
 //------------------------------------------------------------------------------
 void CSceneObject::render() const

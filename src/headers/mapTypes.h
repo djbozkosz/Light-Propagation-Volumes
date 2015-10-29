@@ -64,7 +64,7 @@ namespace NMap
 
   enum EMapFormat
   {
-    FORMAT_NO = 0x00,
+    FORMAT = 0x00,
     FORMAT_2D = 0x01,
     FORMAT_3D = 0x02,
     FORMAT_CUBE = 0x04,
@@ -77,7 +77,7 @@ namespace NMap
 
   enum ERboFormat
   {
-    RBO_NO = 0x00,
+    RBO = 0x00,
     RBO_DEPTH = 0x01,
     RBO_STENCIL = 0x02
   };
