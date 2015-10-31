@@ -122,7 +122,7 @@ namespace NEngine
 struct SEngine
 {
   bool activeRendering;
-  NEngine::EEngineFlags flags;
+  uint8 flags;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
@@ -153,7 +153,7 @@ struct SEngine
   std::vector<SDL_TimerID> timers;
 #endif
 
-  inline SEngine() : activeRendering(false), flags(NEngine::EFLAG), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH), defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE), orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE), orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH), shadowJittering(NEngine::SHADOW_JITTERING) {}
+  inline SEngine() : activeRendering(false), flags(NEngine::EFLAG_MAXIMIZED), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH), defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE), orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE), orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH), shadowJittering(NEngine::SHADOW_JITTERING) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

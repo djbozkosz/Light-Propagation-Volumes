@@ -27,13 +27,13 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
 
     if(renderer.mode == NRenderer::MODE_BACKDROP)
     {
-      if((p == NShader::PROGRAM_PER_FRAGMENT_ALPHA) || (p == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
+      if((p >= NShader::PROGRAM_PER_FRAGMENT_ALPHA) && (p <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER))
         meshes[NShader::PROGRAM_BASIC_ALPHA].push_back(mesh);
       else
         meshes[NShader::PROGRAM_BASIC].push_back(mesh);
     }
     else
-      meshes[mesh.material->program->getShaderProgram()->name].push_back(mesh);
+      meshes[mesh.material->program->getShaderProgram()->name + ((context->engineGetEngine()->shadowJittering > 0.0f) ? 1 : 0)].push_back(mesh);
   }
 }
 //------------------------------------------------------------------------------

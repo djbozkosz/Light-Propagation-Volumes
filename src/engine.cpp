@@ -20,14 +20,14 @@ CEngine::CEngine(
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
   context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
-  engine.flags = NEngine::EFLAG_MAXIMIZED;
-  engine.maxTextureSize = 256;
+  //engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
+  //engine.maxTextureSize = 256;
   //engine.maxDepthTextureSize = 256;
   engine.defaultScreenWidth = 1024;
   engine.defaultScreenHeight = 600;
   //engine.orthoDepthSize = 64.0f;
   //engine.orthoDepthDepth = 200.0f;
-  engine.shadowJittering = 2.0f;
+  //engine.shadowJittering = 0.0f;
 
 #if defined(ENV_QT)
   engine.timer.start();
