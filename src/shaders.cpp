@@ -173,7 +173,7 @@ void CShaderProgram::initUniforms()
   program.uniforms.depthTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DEPTH_TEX);
   program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_TYPE);
   program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_OPACITY);
-  program.uniforms.depthOffset = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DEPTH_OFFSET);
+  program.uniforms.depthTexelSize = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DEPTH_TEXEL_SIZE);
   program.uniforms.lightAmb = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_AMB);
   program.uniforms.lightPos = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_POS);
   program.uniforms.lightRange = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_RANGE);
@@ -277,7 +277,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
 
     glUniform1i(program.uniforms.type, m->type);
     glUniform1f(program.uniforms.opacity, m->opacity);
-    glUniform2f(program.uniforms.depthOffset, 0.5f / static_cast<float>(depthMap->getMap()->width), 0.5f / static_cast<float>(depthMap->getMap()->height));
+    glUniform3f(program.uniforms.depthTexelSize, 0.5f / static_cast<float>(depthMap->getMap()->width), 0.5f / static_cast<float>(depthMap->getMap()->height), context->engineGetEngine()->shadowJittering);
     context->getMaps()->finishBind();
   }
 

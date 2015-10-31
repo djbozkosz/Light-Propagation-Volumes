@@ -33,7 +33,7 @@ void CWindow::initializeGL()
 {
   const SCamera *c = CWindow::context->getCamera()->getCamera();
 
-  if(CWindow::context->engineGetEngine()->consoleVisible)
+  if(CWindow::context->engineGetEngine()->flags & NEngine::EFLAG_SHOW_CONSOLE)
   {
 #if defined(_WIN32)
     AllocConsole();
@@ -56,7 +56,8 @@ void CWindow::initializeGL()
 
   if(!(SDLwindow = SDL_CreateWindow(
     NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED/*1550 - c->width*/, SDL_WINDOWPOS_UNDEFINED/*850 - c->height*/, c->width, c->height,
-    SDL_WINDOW_OPENGL | ((context->engineGetEngine()->fullscreen) ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE)
+    SDL_WINDOW_OPENGL | ((context->engineGetEngine()->flags & NEngine::EFLAG_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN :
+      ((context->engineGetEngine()->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
   )))
     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_WINDOW));
 

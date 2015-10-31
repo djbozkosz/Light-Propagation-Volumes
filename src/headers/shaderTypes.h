@@ -33,7 +33,7 @@ namespace NShader
   static const char STR_SHADER_UNIFORM_DEPTH_TEX[] = "depthTex";
   static const char STR_SHADER_UNIFORM_TYPE[] = "type";
   static const char STR_SHADER_UNIFORM_OPACITY[] = "opacity";
-  static const char STR_SHADER_UNIFORM_DEPTH_OFFSET[] = "depthOffset";
+  static const char STR_SHADER_UNIFORM_DEPTH_TEXEL_SIZE[] = "depthTexelSize";
   static const char STR_SHADER_UNIFORM_LIGHT_AMB[] = "lightAmb";
   static const char STR_SHADER_UNIFORM_LIGHT_POS[] = "lightPos";
   static const char STR_SHADER_UNIFORM_LIGHT_RANGE[] = "lightRange";
@@ -188,7 +188,7 @@ struct SShaderUniforms
 
   GLuint type;
   GLuint opacity;
-  GLuint depthOffset;
+  GLuint depthTexelSize;
 
   GLuint lightAmb;
   GLuint lightPos;
@@ -202,7 +202,7 @@ struct SShaderUniforms
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), /*vertexNormalBitangent(0),*/ vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), mvpdb(0), cam(0),
     difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0),
-    type(0), opacity(0), depthOffset(0),
+    type(0), opacity(0), depthTexelSize(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0)
   {

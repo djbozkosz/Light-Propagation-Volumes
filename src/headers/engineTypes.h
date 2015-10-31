@@ -28,6 +28,7 @@ namespace NEngine
   static const uint32 MAX_DEPTH_TEXTURE_SIZE = 2048;
   static const uint32 ORTHO_DEPTH_SIZE = 32.0f;
   static const uint32 ORTHO_DEPTH_DEPTH = 200.0f;
+  static const uint32 SHADOW_JITTERING = 2.0f;
 
   static const char STR_APP_NAME[] = "Light Propagation Volumes";
 
@@ -54,6 +55,14 @@ namespace NEngine
     "Shader Program",
     "Shaders",
     "Str",
+  };
+
+  enum EEngineFlags
+  {
+    EFLAG = 0x00,
+    EFLAG_SHOW_CONSOLE = 0x01,
+    EFLAG_MAXIMIZED = 0x02,
+    EFLAG_FULLSCREEN = 0x04,
   };
 
   enum EKey
@@ -113,8 +122,7 @@ namespace NEngine
 struct SEngine
 {
   bool activeRendering;
-  bool fullscreen;
-  bool consoleVisible;
+  NEngine::EEngineFlags flags;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
@@ -137,6 +145,7 @@ struct SEngine
   uint32 maxDepthTextureSize;
   float orthoDepthSize;
   float orthoDepthDepth;
+  float shadowJittering;
 
 #if defined(ENV_QT)
   QElapsedTimer timer;
@@ -144,7 +153,7 @@ struct SEngine
   std::vector<SDL_TimerID> timers;
 #endif
 
-  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH), defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE), orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE), orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH) {}
+  inline SEngine() : activeRendering(false), flags(NEngine::EFLAG), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH), defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE), orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE), orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH), shadowJittering(NEngine::SHADOW_JITTERING) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H
