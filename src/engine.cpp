@@ -24,6 +24,10 @@ CEngine::CEngine(
   //engine.fullscreen = true;
   engine.maxTextureSize = 256;
   //engine.maxDepthTextureSize = 1024;
+  engine.defaultScreenWidth = 1024;
+  engine.defaultScreenHeight = 600;
+  //engine.orthoDepthSize = 64.0f;
+  //engine.orthoDepthDepth = 200.0f;
 
 #if defined(ENV_QT)
   engine.timer.start();
@@ -86,7 +90,7 @@ void CEngine::initialize()
     filesystem.addSearchPath(NFile::STR_SEARCH_PATHES[i]);
   //filesystem.addSearchPath("C:/Hry/Mafia/");
 
-  camera.setSize(1024, 600);
+  camera.setSize(engine.defaultScreenWidth, engine.defaultScreenHeight);
 }
 //------------------------------------------------------------------------------
 void CEngine::initializeFinish()
@@ -96,7 +100,7 @@ void CEngine::initializeFinish()
   scenes.addScene(SScene("scene"));
   if(CScene *s = scenes.setActiveScene("scene"))
   {
-    const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87/*f0.0f, 0.0f*/);
+    const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87f/*0.0f, 0.0f*/);
     const glm::vec3 sunPos = glm::vec3(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y)) * NScene::SUN_DIR_MUL;
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_AMB), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_FOG), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
@@ -194,9 +198,11 @@ void CEngine::simulationStep()
         else if(engine.keys & NEngine::KEY_SPECIAL_RIGHT)
           r.z += d;
 
-        //std::cout << r.y << " " << r.z << "\n";
-        sun->setPosition(glm::vec3(sinf(r.z) * cosf(r.y), r.y, cosf(r.z) * cosf(r.y)) * NScene::SUN_DIR_MUL);
+        sun->setPosition(glm::vec3(sinf(r.z) * cosf(r.y), sinf(r.y), cosf(r.z) * cosf(r.y)) * NScene::SUN_DIR_MUL);
         sun->setRotation(r);
+        if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+          f->setChanged(true);
+        //std::cout << "sun " << o->position.x << " " << o->position.y << " " << o->position.z << ", " << (r.y * NMath::RAD_2_DEG) << " " << (r.z * NMath::RAD_2_DEG) << "\n";
       }
     }
   }

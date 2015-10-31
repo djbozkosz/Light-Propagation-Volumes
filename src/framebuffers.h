@@ -16,6 +16,7 @@ class CFramebuffer : public CEngineBase
   ~CFramebuffer();
 
   void create();
+  inline void setChanged(bool changed) { framebuffer.changed = changed; }
   inline void setCamera(const SCamera &camera) { framebuffer.camera = camera; }
 
   void bind() const;

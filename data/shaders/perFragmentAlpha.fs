@@ -36,11 +36,15 @@ void main()
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
 
-  float depthVis = 0.0;
-  depthVis += 0.25 * texture(depthTex, depthCoord + vec3(depthOffset.x, depthOffset.y, 0.0));
+  //float depthVis = 0.0;
+  float depthVis = texture(depthTex, depthCoord);
+  /*for(float y = -depthOffset.y * 2.0; y <= depthOffset.y * 2.0; y += depthOffset.y * 2.0)
+  for(float x = -depthOffset.x * 2.0; x <= depthOffset.x * 2.0; x += depthOffset.x * 2.0)
+  depthVis += 0.11111 * texture(depthTex, depthCoord + vec3(x, y, 0.0));*/
+  /*depthVis += 0.25 * texture(depthTex, depthCoord + vec3(depthOffset.x, depthOffset.y, 0.0));
   depthVis += 0.25 * texture(depthTex, depthCoord + vec3(depthOffset.x, -depthOffset.y, 0.0));
   depthVis += 0.25 * texture(depthTex, depthCoord + vec3(-depthOffset.x, depthOffset.y, 0.0));
-  depthVis += 0.25 * texture(depthTex, depthCoord + vec3(-depthOffset.x, -depthOffset.y, 0.0));
+  depthVis += 0.25 * texture(depthTex, depthCoord + vec3(-depthOffset.x, -depthOffset.y, 0.0));*/
 
   vec3 fragAlp = texture(alpTex, texCoord).rgb;
   vec3 fragSpe = texture(speTex, texCoord).rgb;

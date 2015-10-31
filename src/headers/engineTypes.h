@@ -22,8 +22,12 @@ namespace NEngine
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
+  static const uint32 DEFAULT_SCREEN_WIDTH = 1024;
+  static const uint32 DEFAULT_SCREEN_HEIGHT = 600;
   static const uint32 MAX_TEXTURE_SIZE = 0;
   static const uint32 MAX_DEPTH_TEXTURE_SIZE = 2048;
+  static const uint32 ORTHO_DEPTH_SIZE = 32.0f;
+  static const uint32 ORTHO_DEPTH_DEPTH = 200.0f;
 
   static const char STR_APP_NAME[] = "Light Propagation Volumes";
 
@@ -126,8 +130,13 @@ struct SEngine
 
   uint32 drawCalls;
 
+  uint32 defaultScreenWidth;
+  uint32 defaultScreenHeight;
+
   uint32 maxTextureSize;
   uint32 maxDepthTextureSize;
+  float orthoDepthSize;
+  float orthoDepthDepth;
 
 #if defined(ENV_QT)
   QElapsedTimer timer;
@@ -135,7 +144,7 @@ struct SEngine
   std::vector<SDL_TimerID> timers;
 #endif
 
-  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE) {}
+  inline SEngine() : activeRendering(false), fullscreen(false), consoleVisible(false), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH), defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE), orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE), orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

@@ -155,6 +155,7 @@ struct SFramebufferAttachment
 struct SFramebuffer
 {
   std::string name;
+  bool changed;
   GLuint fbo;
   GLuint rboDepth;
   GLuint rboStencil;
@@ -164,8 +165,8 @@ struct SFramebuffer
   uint32 height;
   SCamera camera;
 
-  inline SFramebuffer() : fbo(0), rboDepth(0), rboStencil(0), rboFormat(NMap::RBO_DEPTH), width(1), height(1) {}
-  inline SFramebuffer(const std::string &name, const std::vector<uint8> &attachments, uint8 rboFormat, uint32 width, uint32 height) : name(name), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height)
+  inline SFramebuffer() : changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(NMap::RBO_DEPTH), width(1), height(1) {}
+  inline SFramebuffer(const std::string &name, const std::vector<uint8> &attachments, uint8 rboFormat, uint32 width, uint32 height) : name(name), changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height)
   {
     for(auto it = attachments.cbegin(); it != attachments.cend(); it++)
       this->attachments.push_back(SFramebufferAttachment(*it, NULL));

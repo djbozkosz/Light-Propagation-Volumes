@@ -23,10 +23,12 @@ namespace NMath
   static const float PI_2 = 6.283185307179586476925286766559f;
   static const float DIV_PI = 1.5707963267948966192313216916398;
   static const float DIV_2_PI = 0.63661977236758134307553505349006f;
-  static const float PI_RAD = 180.0f;
-  static const float PI_2_RAD = 360.0f;
-  static const float RAD_2_DEG = PI_RAD / PI;
-  static const float DEG_2_RAD = PI / PI_RAD;
+  static const float PI_DEG = 180.0f;
+  static const float PI_2_DEG = 360.0f;
+  static const float DIV_PI_DEG = 90.0f;
+  static const float DIV_2_PI_DEG = 45.0f;
+  static const float RAD_2_DEG = PI_DEG / PI;
+  static const float DEG_2_RAD = PI / PI_DEG;
   static const uint8 MAT3 = 9;
   static const uint8 MAT4 = 16;
 }

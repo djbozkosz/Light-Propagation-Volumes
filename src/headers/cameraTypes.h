@@ -19,6 +19,10 @@ namespace NCamera
   static const float SCALE_Y =  1.0f;
   static const float SCALE_Z =  1.0f;
 
+  static const float ORTHO_DEPTH_SCALE_X = 1.0f;
+  static const float ORTHO_DEPTH_SCALE_Y = 1.0f;
+  static const float ORTHO_DEPTH_SCALE_Z = -1.0f;
+
   static const float MOVEMENT_SPEED = 1.0f;
   static const float SENSITIVITY_SPEED = 1.0f;
 

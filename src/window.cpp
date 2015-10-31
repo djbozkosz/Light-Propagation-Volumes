@@ -55,7 +55,7 @@ void CWindow::initializeGL()
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);*/
 
   if(!(SDLwindow = SDL_CreateWindow(
-    NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c->width, c->height,
+    NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED/*1550 - c->width*/, SDL_WINDOWPOS_UNDEFINED/*850 - c->height*/, c->width, c->height,
     SDL_WINDOW_OPENGL | ((context->engineGetEngine()->fullscreen) ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE)
   )))
     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_WINDOW));
@@ -81,10 +81,10 @@ void CWindow::initializeGL()
   CShaders *s = CEngineBase::context->getShaders();
   //gl->makeCurrent();
 
-  context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(glGetString(GL_VENDOR)));
-  context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
-  context->log(std::string("Version: ")+reinterpret_cast<const char *>(glGetString(GL_VERSION)));
-  context->log(std::string("GLSL Version: ")+reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+  CEngineBase::context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(glGetString(GL_VENDOR)));
+  CEngineBase::context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
+  CEngineBase::context->log(std::string("Version: ")+reinterpret_cast<const char *>(glGetString(GL_VERSION)));
+  CEngineBase::context->log(std::string("GLSL Version: ")+reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
   glEnable(GL_DEPTH_TEST);
 
@@ -97,7 +97,7 @@ void CWindow::initializeGL()
 
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-  context->getMaps()->loadDefaultMaps();
+  CEngineBase::context->getMaps()->loadDefaultMaps();
 
   std::vector<uint8> fboAttachments;
   const uint32 maxDepthTextureSize = CEngineBase::context->engineGetEngine()->maxDepthTextureSize;
@@ -127,12 +127,13 @@ void CWindow::paintGL()
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CCamera *cam = CEngineBase::context->getCamera();
   const SCamera *c = cam->getCamera();
+  const SEngine *e = CEngineBase::context->engineGetEngine();
   //gl->makeCurrent();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  context->engineClearDrawCalls();
+  CEngineBase::context->engineClearDrawCalls();
 
-  if(CScene *s = context->getScenes()->getActiveScene())
+  if(CScene *s = CEngineBase::context->getScenes()->getActiveScene())
   {
     const glm::vec3 pos = glm::vec3(c->position);
     const glm::vec3 rot = glm::vec3(c->rotation);
@@ -151,20 +152,25 @@ void CWindow::paintGL()
     // depth map
     CFramebuffer *f = fbo->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO);
     CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
-    if((f) && (sun))
+    const glm::vec3 orthoScale(NCamera::ORTHO_DEPTH_SCALE_X, NCamera::ORTHO_DEPTH_SCALE_Y, NCamera::ORTHO_DEPTH_SCALE_Z);
+
+    if((f) && (sun) &&
+       ((f->getFrameBuffer()->changed) ||
+       (glm::length(glm::vec3(f->getFrameBuffer()->camera.position) * orthoScale - pos) > (e->orthoDepthSize * 0.1f))))
     {
-      cam->setRange(-50.0f, 50.0f, -30.0f, 30.0f, 30.0f, -30.0f);
+      //std::cout << "update " << glm::to_string(glm::vec3(f->getFrameBuffer()->camera.position) * orthoScale) << " | " << glm::to_string(pos) << "\n";
+      cam->setRange(-e->orthoDepthDepth, e->orthoDepthDepth, -e->orthoDepthSize, e->orthoDepthSize, e->orthoDepthSize, -e->orthoDepthSize);
 
       const glm::quat r = sun->getObject()->rotation;
       const float step = (c->clipRight - c->clipLeft) / f->getFrameBuffer()->width;
-      const glm::vec3 gridPos0(pos.x * cosf(-r.z) - pos.z * sinf(-r.z), pos.y * cosf(r.y), pos.x * sinf(-r.z) + pos.z * cosf(-r.z));
-      const glm::vec3 gridPos1(static_cast<float>(static_cast<int32>(gridPos0.x / step)) * step, static_cast<float>(static_cast<int32>(gridPos0.y / step)) * step, static_cast<float>(static_cast<int32>(gridPos0.z / step)) * step);
-      const glm::vec3 gridPos2(gridPos1.x * cosf(r.z) - gridPos1.z * sinf(r.z), gridPos1.y * cosf(-r.y), gridPos1.x * sinf(r.z) + gridPos1.z * cosf(r.z));
+      const glm::vec3 invSun = glm::vec3(glm::rotate(glm::rotate(glm::mat4(1.0), r.y, glm::vec3(1.0, 0.0, 0.0)), -r.z, glm::vec3(0.0, 1.0, 0.0)) * glm::vec4(pos, 1.0));
+      const glm::vec3 invSunFloor(static_cast<float>(static_cast<int32>(invSun.x / step)) * step, static_cast<float>(static_cast<int32>(invSun.y / step)) * step, static_cast<float>(static_cast<int32>(invSun.z / step)) * step);
+      const glm::vec3 sunFloor(glm::rotate(glm::rotate(glm::mat4(1.0), r.z, glm::vec3(0.0, 1.0, 0.0)), -r.y, glm::vec3(1.0, 0.0, 0.0)) * glm::vec4(invSunFloor, 1.0));
 
-      //std::cout << "pos " << pos.x << " " << pos.y << " " << pos.z << ", pos2 " << gridPos2.x << " " << gridPos2.y << " " << gridPos2.z << "\n";
-      cam->setPosition(gridPos2);
+      //std::cout << ccc.x << " " << ccc.y << " " << ccc.z << "\n";
+      cam->setPosition(sunFloor * orthoScale);
       cam->setRotation(glm::vec3(r.y * NMath::RAD_2_DEG, -r.z * NMath::RAD_2_DEG, 0.0f));
-      cam->setScale(glm::vec3(NCamera::SCALE_X, NCamera::SCALE_Y, -NCamera::SCALE_Z));
+      cam->setScale(c->scale * orthoScale);
 
       f->setCamera(*c);
       f->bind();
@@ -176,6 +182,7 @@ void CWindow::paintGL()
       ren->clearGroups();
 
       fbo->unbind();
+      f->setChanged(false);
     }
     
     // standard
@@ -190,7 +197,13 @@ void CWindow::paintGL()
     ren->clearGroups();
   }
 
-  std::string title = CStr(NWindow::STR_APP_TITLE, context->engineGetEngine()->drawCalls);
+  std::string title = CStr(
+    NWindow::STR_APP_TITLE,
+    static_cast<double>(static_cast<float>(static_cast<int32>(c->position.x / 0.01f)) * 0.01f),
+    static_cast<double>(static_cast<float>(static_cast<int32>(c->position.y / 0.01f)) * 0.01f),
+    static_cast<double>(static_cast<float>(static_cast<int32>(c->position.z / 0.01f)) * 0.01f),
+    CEngineBase::context->engineGetEngine()->drawCalls);
+
 #if defined(ENV_QT)
   setWindowTitle(title.c_str());
 #elif defined(ENV_SDL)
@@ -226,4 +239,61 @@ bool CWindow::event(QEvent *event)
     ::event(event);
 }
 #endif
+//------------------------------------------------------------------------------
+//test debug, don't panic !
+/*const glm::mat4 rot2_ = glm::rotate(glm::rotate(glm::mat4(1.0), r.z, glm::vec3(0.0, 1.0, 0.0)), -r.y, glm::vec3(1.0, 0.0, 0.0));
+glUseProgram(0);
+glEnable(GL_BLEND);
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+glMultMatrixf(glm::value_ptr(c->projection));
+glMatrixMode(GL_MODELVIEW);
+glLoadIdentity();
+glMultMatrixf(glm::value_ptr(c->view));
+glMultMatrixf(glm::value_ptr(rot2_));
+const float range = 20.0f;
+
+glBegin(GL_LINES);
+glColor4f(0.5f, 0.5f, 1.0f, 0.2f);
+
+for(float y = -step * range; y <= (step * range); y += step)
+{
+  for(float x = -step * range; x <= (step * range); x += step)
+  {
+    glVertex3f(-range, y, x);
+    glVertex3f(range, y, x);
+    glVertex3f(x, -range, y);
+    glVertex3f(x, range, y);
+    glVertex3f(x, y, -range);
+    glVertex3f(x, y, range);
+  }
+}
+glEnd();
+
+glLoadIdentity();
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+glMatrixMode(GL_MODELVIEW);
+glDisable(GL_BLEND);
+
+glDisable(GL_DEPTH_TEST);
+glEnable(GL_TEXTURE_2D);
+glBindTexture(GL_TEXTURE_2D, CEngineBase::context->getMaps()->getMap(NWindow::STR_ORTHO_DEPTH_FBO_MAP)->getMap()->texture);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+const float fboW = f->getFrameBuffer()->width * 2.0f / c->width * 2.0f;
+const float fboH = f->getFrameBuffer()->height * 2.0f / c->height * 2.0f;
+glBegin(GL_QUADS);
+glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+glTexCoord2f(1.0f, 1.0f);
+glVertex3f(-1.0f, 1.0f, 1.0f);
+glTexCoord2f(0.0f, 1.0f);
+glVertex3f(-1.0f + fboW, 1.0f, 1.0f);
+glTexCoord2f(0.0f, 0.0f);
+glVertex3f(-1.0f + fboW, 1.0f - fboH, 1.0f);
+glTexCoord2f(1.0f, 0.0f);
+glVertex3f(-1.0f, 1.0f - fboH, 1.0f);
+glEnd();
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+glDisable(GL_TEXTURE_2D);
+glEnable(GL_DEPTH_TEST);*/
 //------------------------------------------------------------------------------

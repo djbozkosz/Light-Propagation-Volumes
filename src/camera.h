@@ -47,7 +47,7 @@ inline void CCamera::updateMatrices()
     glm::translate(
       glm::rotate(
         glm::rotate(glm::mat4(1.0), camera.rotation.x * NMath::DEG_2_RAD, glm::vec3(1.0, 0.0, 0.0)),
-        (camera.rotation.y + NMath::PI_RAD) * NMath::DEG_2_RAD, glm::vec3(0.0, 1.0, 0.0)),
+        (camera.rotation.y + NMath::PI_DEG) * NMath::DEG_2_RAD, glm::vec3(0.0, 1.0, 0.0)),
       glm::vec3(camera.position.x * -NCamera::SCALE_X, camera.position.y * -NCamera::SCALE_Y, camera.position.z * -NCamera::SCALE_Z)),
     camera.scale);
 
@@ -116,14 +116,14 @@ inline void CCamera::setRotate()
   glm::vec2 cur = e->cursorOld - e->cursor;
   camera.rotation.x = camera.rotation.x - cur.x * camera.rotation.w;
   camera.rotation.y = camera.rotation.y - cur.y * camera.rotation.w;
-  if(camera.rotation.x > NMath::PI_RAD)
-    camera.rotation.x = camera.rotation.x - NMath::PI_2_RAD;
-  if(camera.rotation.x < -NMath::PI_RAD)
-    camera.rotation.x = camera.rotation.x + NMath::PI_2_RAD;
-  if(camera.rotation.y > NMath::PI_RAD)
-    camera.rotation.y = camera.rotation.y - NMath::PI_2_RAD;
-  if(camera.rotation.y < -NMath::PI_RAD)
-    camera.rotation.y = camera.rotation.y + NMath::PI_2_RAD;
+  if(camera.rotation.x > NMath::PI_DEG)
+    camera.rotation.x = camera.rotation.x - NMath::PI_2_DEG;
+  if(camera.rotation.x < -NMath::PI_DEG)
+    camera.rotation.x = camera.rotation.x + NMath::PI_2_DEG;
+  if(camera.rotation.y > NMath::PI_DEG)
+    camera.rotation.y = camera.rotation.y - NMath::PI_2_DEG;
+  if(camera.rotation.y < -NMath::PI_DEG)
+    camera.rotation.y = camera.rotation.y + NMath::PI_2_DEG;
   camera.rotation.z = 0.0;
 
   updateMatrices();
