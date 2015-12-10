@@ -8,7 +8,6 @@ CShader::CShader() : CEngineBase()
 //------------------------------------------------------------------------------
 CShader::CShader(CContext *context, const SShader &shader) : CEngineBase(context), shader(shader)
 {
-  compile();
 }
 //------------------------------------------------------------------------------
 CShader::~CShader()
@@ -104,8 +103,6 @@ CShaderProgram::CShaderProgram() : CEngineBase()
 //------------------------------------------------------------------------------
 CShaderProgram::CShaderProgram(CContext *context, const SShaderProgram &shaderProgram) : CEngineBase(context), program(shaderProgram)
 {
-  link();
-  initUniforms();
 }
 //------------------------------------------------------------------------------
 CShaderProgram::~CShaderProgram()
@@ -154,33 +151,33 @@ void CShaderProgram::initUniforms()
 {
   //COpenGL *gl = context->getOpenGL();
 
-  program.uniforms.vertexPosition = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_POSITION);
-  program.uniforms.vertexNormal = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_NORMAL);
-  program.uniforms.vertexNormalTangent = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_NORMAL_TANGENT);
-  //program.uniforms.vertexNormalBitangent = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_NORMAL_BITANGENT);
-  program.uniforms.vertexTexCoord = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_TEX_COORD);
-  program.uniforms.vertexColor = glGetAttribLocation(program.program, NShader::STR_SHADER_UNIFORM_VERTEX_COLOR);
-  program.uniforms.mw = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MW);
-  program.uniforms.mwnit = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MWNIT);
-  program.uniforms.mvp = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MVP);
-  program.uniforms.mvpdb = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_MVPDB);
-  program.uniforms.cam = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_CAM);
-  program.uniforms.difTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DIF_TEX);
-  program.uniforms.alpTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_ALP_TEX);
-  program.uniforms.speTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_SPE_TEX);
-  program.uniforms.norTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_NOR_TEX);
-  program.uniforms.envTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_ENV_TEX);
-  program.uniforms.depthTex = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DEPTH_TEX);
-  program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_TYPE);
-  program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_OPACITY);
-  program.uniforms.depthTexelSize = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_DEPTH_TEXEL_SIZE);
-  program.uniforms.lightAmb = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_AMB);
-  program.uniforms.lightPos = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_POS);
-  program.uniforms.lightRange = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_RANGE);
-  program.uniforms.lightColor = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_COLOR);
-  program.uniforms.lightSpeColor = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_LIGHT_SPEC_COLOR);
-  program.uniforms.fogRange = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_FOG_RANGE);
-  program.uniforms.fogColor = glGetUniformLocation(program.program, NShader::STR_SHADER_UNIFORM_FOG_COLOR);
+  program.uniforms.vertexPosition = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_POSITION);
+  program.uniforms.vertexNormal = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL);
+  program.uniforms.vertexNormalTangent = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL_TANGENT);
+  //program.uniforms.vertexNormalBitangent = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL_BITANGENT);
+  program.uniforms.vertexTexCoord = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_TEX_COORD);
+  program.uniforms.vertexColor = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_COLOR);
+  program.uniforms.mw = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MW);
+  program.uniforms.mwnit = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MWNIT);
+  program.uniforms.mvp = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MVP);
+  program.uniforms.mvpdb = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MVPDB);
+  program.uniforms.cam = glGetUniformLocation(program.program, NShader::STR_UNIFORM_CAM);
+  program.uniforms.difTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DIF_TEX);
+  program.uniforms.alpTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_ALP_TEX);
+  program.uniforms.speTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_SPE_TEX);
+  program.uniforms.norTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_NOR_TEX);
+  program.uniforms.envTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_ENV_TEX);
+  program.uniforms.depthTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEX);
+  program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_UNIFORM_TYPE);
+  program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_UNIFORM_OPACITY);
+  program.uniforms.depthTexelSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEXEL_SIZE);
+  program.uniforms.lightAmb = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_AMB);
+  program.uniforms.lightPos = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_POS);
+  program.uniforms.lightRange = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_RANGE);
+  program.uniforms.lightColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_COLOR);
+  program.uniforms.lightSpeColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_SPEC_COLOR);
+  program.uniforms.fogRange = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FOG_RANGE);
+  program.uniforms.fogColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FOG_COLOR);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::bind() const
@@ -203,7 +200,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     glEnableVertexAttribArray(program.uniforms.vertexTexCoord);
     glEnableVertexAttribArray(program.uniforms.vertexColor);
     glVertexAttribPointer(program.uniforms.vertexTexCoord, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_TEX_COORD));
-    glVertexAttribPointer(program.uniforms.vertexColor, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_COLOR));
+    glVertexAttribPointer(program.uniforms.vertexColor, 4, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_COLOR));
   }
   if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
   {
@@ -236,6 +233,11 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
        (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
        (program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
       glEnable(GL_BLEND);
+
+    // použít
+    /*const uint8 matFlags = ((m->type & NModel::MAT_MIPMAP) ? NMap::FORMAT_MIPMAP : NMap::FORMAT) |
+                           ((m->type & NModel::MAT_LINEAR) ? NMap::FORMAT_LINEAR : NMap::FORMAT) |
+                           ((m->type & NModel::MAT_EDGE) ? NMap::FORMAT_EDGE : NMap::FORMAT);*/
 
     if(program.name == NShader::PROGRAM_BASIC)
     {

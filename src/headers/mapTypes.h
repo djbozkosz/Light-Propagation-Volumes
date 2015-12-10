@@ -59,7 +59,9 @@ namespace NMap
     PICK_INC_1 = 1,
     PICK_INC_2 = 2,
     PICK_INC_4 = 4,
-    PICK_INC_8 = 8
+    PICK_INC_8 = 8,
+    PICK_INC_16 = 16,
+    PICK_INC_32 = 32
   };
 
   enum EMapFormat
@@ -140,7 +142,7 @@ struct SMap
   inline SMap(const std::string &file, uint8 format, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), format(format), width(0), height(0), depth(0) {}
   inline SMap(const std::string &name, uint8 format, uint32 width, uint32 height, uint32 depth = 0) : file(name), texture(0), format(format), width(width), height(height), depth(depth) {}
 };
-
+//-----------------------------------------------------------------------------
 class CMap;
 
 struct SFramebufferAttachment
@@ -151,7 +153,7 @@ struct SFramebufferAttachment
   inline SFramebufferAttachment() : format(NMap::FORMAT_2D), map(NULL) {}
   inline SFramebufferAttachment(uint8 format, const CMap *map) : format(format), map(map) {}
 };
-
+//-----------------------------------------------------------------------------
 struct SFramebuffer
 {
   std::string name;

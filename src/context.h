@@ -54,19 +54,119 @@ class CContext
     const SEngine *(*fncEngineGetEngine)(const CContext *context);
 
   public:
-    inline CContext() : engine(NULL), scenes(NULL), models(NULL), renderer(NULL), shaders(NULL), culling(NULL), pickColor(NULL), framebuffers(NULL), maps(NULL), camera(NULL), openGL(NULL), filesystem(NULL), exceptions(NULL), fncEngineGetClassName(NULL) {}
-    inline CContext(CEngine *engine, CWindow *window, CScenes *scenes, CModels *models, CRenderer *renderer, CShaders *shaders, CCulling *culling, CPickColor *pickColor, CFramebuffers *framebuffers, CMaps *maps, CCamera *camera, COpenGL *openGL, CFilesystem *filesystem, CExceptions *exceptions) : engine(engine), window(window), scenes(scenes), models(models), renderer(renderer), shaders(shaders), culling(culling), pickColor(pickColor), framebuffers(framebuffers), maps(maps), camera(camera), openGL(openGL), filesystem(filesystem), exceptions(exceptions), fncEngineGetClassName(NULL) {}
-    inline ~CContext() {}
+//------------------------------------------------------------------------------
+    inline CContext() :
+      engine(NULL),
+      scenes(NULL),
+      models(NULL),
+      renderer(NULL),
+      shaders(NULL),
+      culling(NULL),
+      pickColor(NULL),
+      framebuffers(NULL),
+      maps(NULL),
+      camera(NULL),
+      openGL(NULL),
+      filesystem(NULL),
+      exceptions(NULL),
 
-    void setContext(CEngine *engine, CWindow *window, CScenes *scenes, CModels *models, CRenderer *renderer, CShaders *shaders, CCulling *culling, CPickColor *pickColor, CFramebuffers *framebuffers, CMaps *maps, CCamera *camera, COpenGL *openGL, CFilesystem *filesystem, CExceptions *exceptions);
-    void setEngineCallbacks(void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal), void (*fncEngineIncDrawCalls)(CContext *context), void (*fncEngineClearDrawCalls)(CContext *context), std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object), const SEngine *(*fncEngineGetEngine)(const CContext *context));
+      fncEngineShowMessage(NULL),
+      fncEngineIncDrawCalls(NULL),
+      fncEngineClearDrawCalls(NULL),
+      fncEngineGetClassName(NULL),
+      fncEngineGetEngine(NULL) {}
+//------------------------------------------------------------------------------
+    inline CContext(
+      CEngine *engine,
+      CWindow *window,
+      CScenes *scenes,
+      CModels *models,
+      CRenderer *renderer,
+      CShaders *shaders,
+      CCulling *culling,
+      CPickColor *pickColor,
+      CFramebuffers *framebuffers,
+      CMaps *maps,
+      CCamera *camera,
+      COpenGL *openGL,
+      CFilesystem *filesystem,
+      CExceptions *exceptions) :
+        engine(engine),
+        window(window),
+        scenes(scenes),
+        models(models),
+        renderer(renderer),
+        shaders(shaders),
+        culling(culling),
+        pickColor(pickColor),
+        framebuffers(framebuffers),
+        maps(maps),
+        camera(camera),
+        openGL(openGL),
+        filesystem(filesystem),
+        exceptions(exceptions),
+
+        fncEngineShowMessage(NULL),
+        fncEngineIncDrawCalls(NULL),
+        fncEngineClearDrawCalls(NULL),
+        fncEngineGetClassName(NULL),
+        fncEngineGetEngine(NULL) {}
+//------------------------------------------------------------------------------
+    inline ~CContext() {}
+//------------------------------------------------------------------------------
+    inline void setContext(
+      CEngine *engine,
+      CWindow *window,
+      CScenes *scenes,
+      CModels *models,
+      CRenderer *renderer,
+      CShaders *shaders,
+      CCulling *culling,
+      CPickColor *pickColor,
+      CFramebuffers *framebuffers,
+      CMaps *maps,
+      CCamera *camera,
+      COpenGL *openGL,
+      CFilesystem *filesystem,
+      CExceptions *exceptions)
+    {
+      if(engine)       this->engine = engine;
+      if(window)       this->window = window;
+      if(scenes)       this->scenes = scenes;
+      if(models)       this->models = models;
+      if(renderer)     this->renderer = renderer;
+      if(shaders)      this->shaders = shaders;
+      if(culling)      this->culling = culling;
+      if(pickColor)    this->pickColor = pickColor;
+      if(framebuffers) this->framebuffers = framebuffers;
+      if(maps)         this->maps = maps;
+      if(camera)       this->camera = camera;
+      if(openGL)       this->openGL = openGL;
+      if(filesystem)   this->filesystem = filesystem;
+      if(exceptions)   this->exceptions = exceptions;
+    }
+//------------------------------------------------------------------------------
+    inline void setEngineCallbacks(
+      void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal),
+      void (*fncEngineIncDrawCalls)(CContext *context),
+      void (*fncEngineClearDrawCalls)(CContext *context),
+      std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object),
+      const SEngine *(*fncEngineGetEngine)(const CContext *context))
+    {
+      if(fncEngineShowMessage)  this->fncEngineShowMessage = fncEngineShowMessage;
+      if(fncEngineIncDrawCalls) this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
+      if(fncEngineClearDrawCalls) this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
+      if(fncEngineGetClassName) this->fncEngineGetClassName = fncEngineGetClassName;
+      if(fncEngineGetEngine)    this->fncEngineGetEngine = fncEngineGetEngine;
+    }
+//------------------------------------------------------------------------------
 
     // callbacks engine
-    inline void engineShowMessage(const std::string &title, const std::string &text, bool modal = true) const { fncEngineShowMessage(this, title, text, modal); }
-    inline void engineIncDrawCalls() { fncEngineIncDrawCalls(this); }
-    inline void engineClearDrawCalls() { fncEngineClearDrawCalls(this); }
-    inline std::string engineGetClassName(const CEngineBase *object) { return fncEngineGetClassName(this, object); }
-    inline const SEngine *engineGetEngine() const { return fncEngineGetEngine(this); }
+    inline void engineShowMessage(const std::string &title, const std::string &text, bool modal = true) const { if(fncEngineShowMessage) fncEngineShowMessage(this, title, text, modal); }
+    inline void engineIncDrawCalls() { if(fncEngineIncDrawCalls) fncEngineIncDrawCalls(this); }
+    inline void engineClearDrawCalls() { if(fncEngineClearDrawCalls) fncEngineClearDrawCalls(this); }
+    inline std::string engineGetClassName(const CEngineBase *object) { if(fncEngineGetClassName) return fncEngineGetClassName(this, object); return std::string(); }
+    inline const SEngine *engineGetEngine() const { if(fncEngineGetEngine) return fncEngineGetEngine(this); return NULL; }
 
     // console
     inline void log(const std::string &msg) const { std::cout << msg << "\n"; }
@@ -115,32 +215,5 @@ class CEngineBase
 
     inline CContext *getContext() { return context; }
 };
-//------------------------------------------------------------------------------
-inline void CContext::setContext(CEngine *engine, CWindow *window, CScenes *scenes, CModels *models, CRenderer *renderer, CShaders *shaders, CCulling *culling, CPickColor *pickColor, CFramebuffers *framebuffers, CMaps *maps, CCamera *camera, COpenGL *openGL, CFilesystem *filesystem, CExceptions *exceptions)
-{
-  if(engine)       this->engine = engine;
-  if(window)       this->window = window;
-  if(scenes)       this->scenes = scenes;
-  if(models)       this->models = models;
-  if(renderer)     this->renderer = renderer;
-  if(shaders)      this->shaders = shaders;
-  if(culling)      this->culling = culling;
-  if(pickColor)    this->pickColor = pickColor;
-  if(framebuffers) this->framebuffers = framebuffers;
-  if(maps)         this->maps = maps;
-  if(camera)       this->camera = camera;
-  if(openGL)       this->openGL = openGL;
-  if(filesystem)   this->filesystem = filesystem;
-  if(exceptions)   this->exceptions = exceptions;
-}
-//------------------------------------------------------------------------------
-inline void CContext::setEngineCallbacks(void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal), void (*fncEngineIncDrawCalls)(CContext *context), void (*fncEngineClearDrawCalls)(CContext *context), std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object), const SEngine *(*fncEngineGetEngine)(const CContext *context))
-{
-  if(fncEngineShowMessage)  this->fncEngineShowMessage = fncEngineShowMessage;
-  if(fncEngineIncDrawCalls) this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
-  if(fncEngineClearDrawCalls) this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
-  if(fncEngineGetClassName) this->fncEngineGetClassName = fncEngineGetClassName;
-  if(fncEngineGetEngine)    this->fncEngineGetEngine = fncEngineGetEngine;
-}
 //------------------------------------------------------------------------------
 #endif // CONTEXT_H

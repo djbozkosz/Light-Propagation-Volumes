@@ -906,12 +906,11 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
         if(const SStandardMeshLod *lod = getLod(mesh, soMesh->cam))
         {
           uint32 faceStart = 0;
+          auto last = lod->faceGroups.cend();
+          last--;
 
-          for(auto faceGroup = lod->faceGroups.cbegin(); faceGroup != lod->faceGroups.cend(); faceGroup++)
+          for(auto faceGroup = lod->faceGroups.cbegin(); faceGroup != lod->faceGroups.cend(); faceStart += faceGroup->faces.size(), faceGroup++)
           {
-            auto last = lod->faceGroups.cend();
-            last--;
-
             if((!mergedMeshes) || (faceGroup == last))
             {
               context->getRenderer()->addMesh(SRenderMesh(
@@ -921,8 +920,6 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
                 &(*soMesh),
                 (mergedMeshes) ? NULL : faceGroup->material));
             }
-
-            faceStart += faceGroup->faces.size();
           }
         }
       }

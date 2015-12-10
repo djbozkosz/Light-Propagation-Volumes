@@ -76,21 +76,29 @@ inline CShader *CShaders::addShader(const SShader &shader)
 {
   if(shader.type == NShader::TYPE_VERTEX)
   {
-    if(CShader *vs = getVertexShader(shader.file))
+    CShader *vs = getVertexShader(shader.file);
+
+    if(vs)
       return vs;
 
     vertexShaders[shader.file] = CShader(context, shader);
+    vs = getVertexShader(shader.file);
+    vs->compile();
 
-    return getVertexShader(shader.file);
+    return vs;
   }
   else if(shader.type == NShader::TYPE_FRAGMENT)
   {
-    if(CShader *fs = getFragmentShader(shader.file))
+    CShader *fs = getFragmentShader(shader.file);
+
+    if(fs)
       return fs;
 
     fragmentShaders[shader.file] = CShader(context, shader);
+    fs = getFragmentShader(shader.file);
+    fs->compile();
 
-    return getFragmentShader(shader.file);
+    return fs;
   }
 
   return NULL;
@@ -98,12 +106,17 @@ inline CShader *CShaders::addShader(const SShader &shader)
 //------------------------------------------------------------------------------
 inline CShaderProgram *CShaders::addShaderProgram(const SShaderProgram &shaderProgram)
 {
-  if(CShaderProgram *sp = getShaderProgram(shaderProgram.name))
+  CShaderProgram *sp = getShaderProgram(shaderProgram.name);
+
+  if(sp)
     return sp;
 
   shaderPrograms[shaderProgram.name] = CShaderProgram(context, shaderProgram);
+  sp = getShaderProgram(shaderProgram.name);
+  sp->link();
+  sp->initUniforms();
 
-  return getShaderProgram(shaderProgram.name);
+  return sp;
 }
 //------------------------------------------------------------------------------
 inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint8 format) const

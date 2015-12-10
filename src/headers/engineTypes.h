@@ -67,23 +67,26 @@ namespace NEngine
 
   enum EKey
   {
-    KEY = 0x0000,
+    KEY                       = 0x00000000,
 
-    KEY_FRONT        = 0x0001,
-    KEY_BACK         = 0x0002,
-    KEY_LEFT         = 0x0004,
-    KEY_RIGHT        = 0x0008,
-    KEY_DOWN         = 0x0010,
-    KEY_UP           = 0x0020,
+    KEY_FRONT                 = 0x00000001,
+    KEY_BACK                  = 0x00000002,
+    KEY_LEFT                  = 0x00000004,
+    KEY_RIGHT                 = 0x00000008,
+    KEY_DOWN                  = 0x00000010,
+    KEY_UP                    = 0x00000020,
 
-    KEY_SPECIAL_FRONT = 0x0040,
-    KEY_SPECIAL_BACK  = 0x0080,
-    KEY_SPECIAL_LEFT  = 0x0100,
-    KEY_SPECIAL_RIGHT = 0x0200,
-    KEY_SPECIAL_DOWN  = 0x0400,
-    KEY_SPECIAL_UP    = 0x0800,
+    KEY_SPECIAL_FRONT         = 0x00000040,
+    KEY_SPECIAL_BACK          = 0x00000080,
+    KEY_SPECIAL_LEFT          = 0x00000100,
+    KEY_SPECIAL_RIGHT         = 0x00000200,
+    KEY_SPECIAL_DOWN          = 0x00000400,
+    KEY_SPECIAL_UP            = 0x00000800,
 
-    KEY_QUIT         = 0x1000
+    KEY_SHADOW_JITTERING_DOWN = 0x00001000,
+    KEY_SHADOW_JITTERING_UP   = 0x00002000,
+
+    KEY_QUIT                  = 0x00004000
   };
 
   enum EMouseButton
@@ -152,8 +155,26 @@ struct SEngine
 #elif defined(ENV_SDL)
   std::vector<SDL_TimerID> timers;
 #endif
+  bool waitForFlushTimers;
 
-  inline SEngine() : activeRendering(false), flags(NEngine::EFLAG_MAXIMIZED), keys(NEngine::KEY), tickOld(0), tickNew(0), simulationStep(1.0), fps(0.0), fpsCounter(0), drawCalls(0), defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH), defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT), maxTextureSize(NEngine::MAX_TEXTURE_SIZE), maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE), orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE), orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH), shadowJittering(NEngine::SHADOW_JITTERING) {}
+  inline SEngine() :
+    activeRendering(false),
+    flags(NEngine::EFLAG_MAXIMIZED),
+    keys(NEngine::KEY),
+    tickOld(0),
+    tickNew(0),
+    simulationStep(1.0),
+    fps(0.0),
+    fpsCounter(0),
+    drawCalls(0),
+    defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH),
+    defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
+    maxTextureSize(NEngine::MAX_TEXTURE_SIZE),
+    maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE),
+    orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
+    orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH),
+    shadowJittering(NEngine::SHADOW_JITTERING),
+    waitForFlushTimers(false) {}
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

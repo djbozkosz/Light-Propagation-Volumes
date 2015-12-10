@@ -73,12 +73,16 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, uint8 format) const
 //------------------------------------------------------------------------------
 inline CMap *CMaps::addMap(const SMap &map)
 {
-  if(CMap *m = getMap(map.file))
+  CMap *m = getMap(map.file);
+
+  if(m)
     return m;
 
   maps[map.file] = CMap(context, map);
+  m = getMap(map.file);
+  m->load();
 
-  return &maps.find(map.file)->second;
+  return m;
 }
 //------------------------------------------------------------------------------
 inline uint32 CMaps::removeMap(const std::string &file)

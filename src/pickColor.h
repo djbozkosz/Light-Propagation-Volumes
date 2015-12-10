@@ -13,40 +13,43 @@ class CPickColor : public CEngineBase
 
   public:
     inline CPickColor() : CEngineBase() {}
-    inline CPickColor(CContext *context, NMap::EPickColorInc inc = NMap::PICK_INC_1) : CEngineBase(context), inc(inc) { uint8 i = static_cast<uint8>(inc); color = SColor(i, i, i); }
+    inline CPickColor(CContext *context, NMap::EPickColorInc inc = NMap::PICK_INC_1) : CEngineBase(context), inc(inc) { restart(); }
     inline ~CPickColor() {}
 
     inline void setInc(NMap::EPickColorInc inc) { this->inc = inc; }
     inline void setColor(const SColor &color) { this->color = color; }
+    inline void restart() { uint8 i = static_cast<uint8>(inc); color = SColor(i, i, i); }
+
     inline const SColor *getColor() const { return &color; }
-    const SColor *getNextColor();
+    const SColor &getNextColor();
+    inline NMap::EPickColorInc getInc() const { return inc; }
 };
 //---------------------------------------------------------------------------
-inline const SColor *CPickColor::getNextColor()
+inline const SColor &CPickColor::getNextColor()
 {
   uint8 i = static_cast<uint8>(inc);
   color.b += i;
 
-  if(color.b >= 255)
+  if(color.b >= (255 - i))
   {
     color.b = i;
     color.g += i;
   }
 
-  if(color.b >= 255)
+  if(color.g >= (255 - i))
   {
-    color.b = i;
+    color.g = i;
     color.r += i;
   }
 
-  if(color.r >= 255)
+  if(color.r >= (255 - i))
   {
     color.r = 0;
     color.g = 0;
     color.b = 0;
   }
 
-  return &color;
+  return color;
 }
 //---------------------------------------------------------------------------
 #endif // PICKCOLOR_H

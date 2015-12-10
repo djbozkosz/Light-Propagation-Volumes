@@ -57,7 +57,20 @@ struct SCamera
   glm::mat4 view;
   glm::mat4 viewProjection;
 
-  SCamera() : position(0.0, 0.0, 0.0, NCamera::MOVEMENT_SPEED), rotation(0.0, 0.0, 0.0, NCamera::SENSITIVITY_SPEED), scale(NCamera::SCALE_X, NCamera::SCALE_Y, NCamera::SCALE_Z), width(1.0), height(1.0), projType(NCamera::PROJ_PERSPECTIVE), clipNear(NCamera::CLIP_NEAR), clipFar(NCamera::CLIP_FAR), clipLeft(0.0f), clipRight(0.0f), clipTop(0.0f), clipBottom(0.0f), fov(NCamera::FOV) {}
+  SCamera() :
+    position(0.0, 0.0, 0.0, NCamera::MOVEMENT_SPEED),
+    rotation(0.0, 0.0, 0.0, NCamera::SENSITIVITY_SPEED),
+    scale(NCamera::SCALE_X, NCamera::SCALE_Y, NCamera::SCALE_Z),
+    width(1.0),
+    height(1.0),
+    projType(NCamera::PROJ_PERSPECTIVE),
+    clipNear(NCamera::CLIP_NEAR),
+    clipFar(NCamera::CLIP_FAR),
+    clipLeft(0.0f),
+    clipRight(0.0f),
+    clipTop(0.0f),
+    clipBottom(0.0f),
+    fov(NCamera::FOV) {}
 };
 //-----------------------------------------------------------------------------
 #endif // CAMERATYPES_H

@@ -8,38 +8,39 @@
 class CFramebuffer : public CEngineBase
 {
   private:
-  SFramebuffer framebuffer;
+    SFramebuffer framebuffer;
 
   public:
-  CFramebuffer();
-  CFramebuffer(CContext *context, const SFramebuffer &framebuffer);
-  ~CFramebuffer();
+    CFramebuffer();
+    CFramebuffer(CContext *context, const SFramebuffer &framebuffer);
+    ~CFramebuffer();
 
-  void create();
-  inline void setChanged(bool changed) { framebuffer.changed = changed; }
-  inline void setCamera(const SCamera &camera) { framebuffer.camera = camera; }
+    void create();
+    inline void setChanged(bool changed) { framebuffer.changed = changed; }
+    inline void setCamera(const SCamera &camera) { framebuffer.camera = camera; }
 
-  void bind() const;
+    void bind() const;
 
-  inline const SFramebuffer *getFrameBuffer() const { return &framebuffer; }
+    inline const SFramebuffer *getFrameBuffer() const { return &framebuffer; }
+    inline const SFramebufferAttachment *getAttachment(uint32 index) const { if(index >= framebuffer.attachments.size()) return NULL; return &framebuffer.attachments[index]; }
 };
 //------------------------------------------------------------------------------
 class CFramebuffers : public CEngineBase
 {
   private:
-  std::map<std::string, CFramebuffer> framebuffers;
+    std::map<std::string, CFramebuffer> framebuffers;
 
   public:
-  CFramebuffers();
-  CFramebuffers(CContext *context);
-  ~CFramebuffers();
+    CFramebuffers();
+    CFramebuffers(CContext *context);
+    ~CFramebuffers();
 
-  inline CFramebuffer *addFbo(const SFramebuffer &framebuffer);
-  // remove fbo
+    CFramebuffer *addFbo(const SFramebuffer &framebuffer);
+    // remove fbo
 
-  void unbind() const;
+    void unbind() const;
 
-  inline CFramebuffer *getFramebuffer(const std::string &name) { auto it = framebuffers.find(name); if(it == framebuffers.end()) return NULL; return &it->second; }
+    inline CFramebuffer *getFramebuffer(const std::string &name) { auto it = framebuffers.find(name); if(it == framebuffers.end()) return NULL; return &it->second; }
 };
 //------------------------------------------------------------------------------
 inline void CFramebuffer::bind() const

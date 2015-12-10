@@ -61,7 +61,8 @@ void CWindow::initializeGL()
   )))
     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_WINDOW));
 
-  SDLcontext = SDL_GL_CreateContext(SDLwindow);
+  if(!(SDLcontext = SDL_GL_CreateContext(SDLwindow)))
+    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GL_CONTEXT));
 
   uint32 imgInited = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
   if(!(imgInited & IMG_INIT_JPG))
@@ -219,7 +220,7 @@ void CWindow::resizeGL(int width, int height)
   //gl->makeCurrent();
 
   glViewport(0, 0, width, height);
-  CEngineBase::context->getCamera()->setSize(width, height);
+  CEngineBase::context->getCamera()->setSize(static_cast<float>(width), static_cast<float>(height));
 
 #ifdef ENV_SDL
   repaint();

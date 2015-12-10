@@ -14,58 +14,58 @@ namespace NShader
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
-  static const char STR_SHADER_UNIFORM_VERTEX_POSITION[] = "vertexPosition";
-  static const char STR_SHADER_UNIFORM_VERTEX_NORMAL[] = "vertexNormal";
-  static const char STR_SHADER_UNIFORM_VERTEX_NORMAL_TANGENT[] = "vertexNormalTangent";
-  //static const char STR_SHADER_UNIFORM_VERTEX_NORMAL_BITANGENT[] = "vertexNormalBitangent";
-  static const char STR_SHADER_UNIFORM_VERTEX_TEX_COORD[] = "vertexTexCoord";
-  static const char STR_SHADER_UNIFORM_VERTEX_COLOR[] = "vertexColor";
-  static const char STR_SHADER_UNIFORM_MW[] = "mw"; // model world (4x4)
-  static const char STR_SHADER_UNIFORM_MWNIT[] = "mwnit"; // model world normal inversed transposed (3x3)
-  static const char STR_SHADER_UNIFORM_MVP[] = "mvp"; // projection * view * model world (4x4)
-  static const char STR_SHADER_UNIFORM_MVPDB[] = "mvpdb"; // mvp depth bias
-  static const char STR_SHADER_UNIFORM_CAM[] = "cam"; // camera world
-  static const char STR_SHADER_UNIFORM_DIF_TEX[] = "difTex";
-  static const char STR_SHADER_UNIFORM_ALP_TEX[] = "alpTex";
-  static const char STR_SHADER_UNIFORM_SPE_TEX[] = "speTex";
-  static const char STR_SHADER_UNIFORM_NOR_TEX[] = "norTex";
-  static const char STR_SHADER_UNIFORM_ENV_TEX[] = "envTex";
-  static const char STR_SHADER_UNIFORM_DEPTH_TEX[] = "depthTex";
-  static const char STR_SHADER_UNIFORM_TYPE[] = "type";
-  static const char STR_SHADER_UNIFORM_OPACITY[] = "opacity";
-  static const char STR_SHADER_UNIFORM_DEPTH_TEXEL_SIZE[] = "depthTexelSize";
-  static const char STR_SHADER_UNIFORM_LIGHT_AMB[] = "lightAmb";
-  static const char STR_SHADER_UNIFORM_LIGHT_POS[] = "lightPos";
-  static const char STR_SHADER_UNIFORM_LIGHT_RANGE[] = "lightRange";
-  static const char STR_SHADER_UNIFORM_LIGHT_COLOR[] = "lightColor";
-  static const char STR_SHADER_UNIFORM_LIGHT_SPEC_COLOR[] = "lightSpeColor";
-  static const char STR_SHADER_UNIFORM_FOG_RANGE[] = "fogRange";
-  static const char STR_SHADER_UNIFORM_FOG_COLOR[] = "fogColor";
+  static const char STR_ATTRIB_VERTEX_POSITION[] = "vertexPosition";
+  static const char STR_ATTRIB_VERTEX_NORMAL[] = "vertexNormal";
+  static const char STR_ATTRIB_VERTEX_NORMAL_TANGENT[] = "vertexNormalTangent";
+  //static const char STR_ATTRIB_VERTEX_NORMAL_BITANGENT[] = "vertexNormalBitangent";
+  static const char STR_ATTRIB_VERTEX_TEX_COORD[] = "vertexTexCoord";
+  static const char STR_ATTRIB_VERTEX_COLOR[] = "vertexColor";
+  static const char STR_UNIFORM_MW[] = "mw"; // model world (4x4)
+  static const char STR_UNIFORM_MWNIT[] = "mwnit"; // model world normal inversed transposed (3x3)
+  static const char STR_UNIFORM_MVP[] = "mvp"; // projection * view * model world (4x4)
+  static const char STR_UNIFORM_MVPDB[] = "mvpdb"; // mvp depth bias
+  static const char STR_UNIFORM_CAM[] = "cam"; // camera world
+  static const char STR_UNIFORM_DIF_TEX[] = "difTex";
+  static const char STR_UNIFORM_ALP_TEX[] = "alpTex";
+  static const char STR_UNIFORM_SPE_TEX[] = "speTex";
+  static const char STR_UNIFORM_NOR_TEX[] = "norTex";
+  static const char STR_UNIFORM_ENV_TEX[] = "envTex";
+  static const char STR_UNIFORM_DEPTH_TEX[] = "depthTex";
+  static const char STR_UNIFORM_TYPE[] = "type";
+  static const char STR_UNIFORM_OPACITY[] = "opacity";
+  static const char STR_UNIFORM_DEPTH_TEXEL_SIZE[] = "depthTexelSize";
+  static const char STR_UNIFORM_LIGHT_AMB[] = "lightAmb";
+  static const char STR_UNIFORM_LIGHT_POS[] = "lightPos";
+  static const char STR_UNIFORM_LIGHT_RANGE[] = "lightRange";
+  static const char STR_UNIFORM_LIGHT_COLOR[] = "lightColor";
+  static const char STR_UNIFORM_LIGHT_SPEC_COLOR[] = "lightSpeColor";
+  static const char STR_UNIFORM_FOG_RANGE[] = "fogRange";
+  static const char STR_UNIFORM_FOG_COLOR[] = "fogColor";
 
-  static const char STR_SHADER_VERTER_COLOR[] = "color.vs";
-  static const char STR_SHADER_VERTER_DEPTH[] = "depth.vs";
-  static const char STR_SHADER_VERTER_BASIC[] = "basic.vs";
-  static const char STR_SHADER_VERTER_PER_FRAGMENT[] = "perFragment.vs";
-  static const char STR_SHADER_VERTER_PER_FRAGMENT_SHADOW[] = "perFragmentShadow.vs";
-  static const char STR_SHADER_VERTER_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.vs";
-  static const char STR_SHADER_VERTER_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.vs";
+  static const char STR_VERTEX_COLOR[] = "color.vs";
+  static const char STR_VERTEX_DEPTH[] = "depth.vs";
+  static const char STR_VERTEX_BASIC[] = "basic.vs";
+  static const char STR_VERTEX_PER_FRAGMENT[] = "perFragment.vs";
+  static const char STR_VERTEX_PER_FRAGMENT_SHADOW[] = "perFragmentShadow.vs";
+  static const char STR_VERTEX_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.vs";
+  static const char STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.vs";
 
-  static const char STR_SHADER_FRAGMENT_COLOR[] = "color.fs";
-  static const char STR_SHADER_FRAGMENT_DEPTH[] = "depth.fs";
-  static const char STR_SHADER_FRAGMENT_BASIC[] = "basic.fs";
-  static const char STR_SHADER_FRAGMENT_BASIC_ALPHA[] = "basicAlpha.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT[] = "perFragment.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_SHADOW[] = "perFragmentShadow.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER[] = "perFragmentShadowJitter.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA[] = "perFragmentAlpha.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW[] = "perFragmentAlphaShadow.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER[] = "perFragmentAlphaShadowJitter.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER[] = "perFragmentNormalShadowJitter.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA[] = "perFragmentNormalAlpha.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW[] = "perFragmentNormalAlphaShadow.fs";
-  static const char STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER[] = "perFragmentNormalAlphaShadowJitter.fs";
+  static const char STR_FRAGMENT_COLOR[] = "color.fs";
+  static const char STR_FRAGMENT_DEPTH[] = "depth.fs";
+  static const char STR_FRAGMENT_BASIC[] = "basic.fs";
+  static const char STR_FRAGMENT_BASIC_ALPHA[] = "basicAlpha.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT[] = "perFragment.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_SHADOW[] = "perFragmentShadow.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER[] = "perFragmentShadowJitter.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_ALPHA[] = "perFragmentAlpha.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW[] = "perFragmentAlphaShadow.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER[] = "perFragmentAlphaShadowJitter.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER[] = "perFragmentNormalShadowJitter.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA[] = "perFragmentNormalAlpha.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW[] = "perFragmentNormalAlphaShadow.fs";
+  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER[] = "perFragmentNormalAlphaShadowJitter.fs";
 
   static const char STR_ERROR_COMPILE[] = "Shader Compilation Error: \"%s\"!";
   static const char STR_ERROR_LINK[] = "Program Link Error: \"%s\"!";
@@ -95,74 +95,74 @@ namespace NShader
   // unique lists
   static const char *const STR_VERTEX_SHADER_LIST[] =
   {
-    STR_SHADER_VERTER_COLOR,
-    STR_SHADER_VERTER_DEPTH,
-    STR_SHADER_VERTER_BASIC,
-    STR_SHADER_VERTER_PER_FRAGMENT,
-    STR_SHADER_VERTER_PER_FRAGMENT_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL_SHADOW
+    STR_VERTEX_COLOR,
+    STR_VERTEX_DEPTH,
+    STR_VERTEX_BASIC,
+    STR_VERTEX_PER_FRAGMENT,
+    STR_VERTEX_PER_FRAGMENT_SHADOW,
+    STR_VERTEX_PER_FRAGMENT_NORMAL,
+    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW
   };
 
   static const char *const STR_FRAGMENT_SHADER_LIST[] =
   {
-    STR_SHADER_FRAGMENT_COLOR,
-    STR_SHADER_FRAGMENT_DEPTH,
-    STR_SHADER_FRAGMENT_BASIC,
-    STR_SHADER_FRAGMENT_BASIC_ALPHA,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER
+    STR_FRAGMENT_COLOR,
+    STR_FRAGMENT_DEPTH,
+    STR_FRAGMENT_BASIC,
+    STR_FRAGMENT_BASIC_ALPHA,
+    STR_FRAGMENT_PER_FRAGMENT,
+    STR_FRAGMENT_PER_FRAGMENT_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER,
+    STR_FRAGMENT_PER_FRAGMENT_ALPHA,
+    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER
   };
 
   // linking lists
   static const char *const STR_PROGRAM_VERTEX_SHADER_LIST[] =
   {
-    STR_SHADER_VERTER_COLOR,
-    STR_SHADER_VERTER_DEPTH,
-    STR_SHADER_VERTER_BASIC,
-    STR_SHADER_VERTER_BASIC,
-    STR_SHADER_VERTER_PER_FRAGMENT,
-    STR_SHADER_VERTER_PER_FRAGMENT_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT,
-    STR_SHADER_VERTER_PER_FRAGMENT_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_SHADER_VERTER_PER_FRAGMENT_NORMAL_SHADOW
+    STR_VERTEX_COLOR,
+    STR_VERTEX_DEPTH,
+    STR_VERTEX_BASIC,
+    STR_VERTEX_BASIC,
+    STR_VERTEX_PER_FRAGMENT,
+    STR_VERTEX_PER_FRAGMENT_SHADOW,
+    STR_VERTEX_PER_FRAGMENT_SHADOW,
+    STR_VERTEX_PER_FRAGMENT,
+    STR_VERTEX_PER_FRAGMENT_SHADOW,
+    STR_VERTEX_PER_FRAGMENT_SHADOW,
+    STR_VERTEX_PER_FRAGMENT_NORMAL,
+    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
+    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
+    STR_VERTEX_PER_FRAGMENT_NORMAL,
+    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
+    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW
   };
 
   static const char *const STR_PROGRAM_FRAGMENT_SHADER_LIST[] =
   {
-    STR_SHADER_FRAGMENT_COLOR,
-    STR_SHADER_FRAGMENT_DEPTH,
-    STR_SHADER_FRAGMENT_BASIC,
-    STR_SHADER_FRAGMENT_BASIC_ALPHA,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    STR_SHADER_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER
+    STR_FRAGMENT_COLOR,
+    STR_FRAGMENT_DEPTH,
+    STR_FRAGMENT_BASIC,
+    STR_FRAGMENT_BASIC_ALPHA,
+    STR_FRAGMENT_PER_FRAGMENT,
+    STR_FRAGMENT_PER_FRAGMENT_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER,
+    STR_FRAGMENT_PER_FRAGMENT_ALPHA,
+    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER
   };
 
   enum EType

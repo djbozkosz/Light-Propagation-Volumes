@@ -27,7 +27,7 @@ CEngine::CEngine(
   engine.defaultScreenHeight = 600;
   //engine.orthoDepthSize = 64.0f;
   //engine.orthoDepthDepth = 200.0f;
-  //engine.shadowJittering = 0.0f;
+  engine.shadowJittering = 0.0f;
 
 #if defined(ENV_QT)
   engine.timer.start();
@@ -59,6 +59,9 @@ CEngine::CEngine(
   engine.keysMap[SDLK_l] = NEngine::KEY_SPECIAL_RIGHT;
   engine.keysMap[SDLK_u] = NEngine::KEY_SPECIAL_DOWN;
   engine.keysMap[SDLK_o] = NEngine::KEY_SPECIAL_UP;
+
+  engine.keysMap[SDLK_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
+  engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 #endif
@@ -108,13 +111,11 @@ void CEngine::initializeFinish()
 
     s->addSceneObjectModel(
       SSceneObject("sky", glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true))
-      ->update();
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true));
 
     s->addSceneObjectModel(
       SSceneObject("scene"),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))))
-      ->update();
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
   }
 
   camera.setSpeed(5.0f);
@@ -141,7 +142,7 @@ int32 CEngine::event()
     {
       uint32 type = event.window.event;
 
-      if(type == SDL_WINDOWEVENT_EXPOSED)
+      if((type == SDL_WINDOWEVENT_EXPOSED) && (!engine.waitForFlushTimers))
         simulationStep();
       else if(type == SDL_WINDOWEVENT_RESIZED)
         window->resizeGL(event.window.data1, event.window.data2);
@@ -225,10 +226,16 @@ void CEngine::onTimeout()
 #if defined(ENV_QT)
     simulationStep();
 #elif defined(ENV_SDL)
-    SDL_Event event;
-    event.type = SDL_WINDOWEVENT;
-    event.window.event = SDL_WINDOWEVENT_EXPOSED;
-    SDL_PushEvent(&event);
+    SDL_Event upEvent;
+    engine.waitForFlushTimers = SDL_PeepEvents(&upEvent, 1, SDL_PEEKEVENT, SDL_KEYUP, SDL_KEYUP);
+
+    if(!engine.waitForFlushTimers)
+    {
+      SDL_Event event;
+      event.type = SDL_WINDOWEVENT;
+      event.window.event = SDL_WINDOWEVENT_EXPOSED;
+      SDL_PushEvent(&event);
+    }
 #endif
   }
 
@@ -266,6 +273,20 @@ void CEngine::keyPress(NEngine::EKey key)
 {
   if(key & NEngine::KEY_QUIT)
     quit();
+  else if(key & NEngine::KEY_SHADOW_JITTERING_DOWN)
+  {
+    engine.shadowJittering -= 0.2f;
+    if(engine.shadowJittering < 0.0f)
+      engine.shadowJittering = 0.0;
+  }
+  else if(key & NEngine::KEY_SHADOW_JITTERING_UP)
+    engine.shadowJittering += 0.2f;
+
+  if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
+  {
+    context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
+    window->repaint();
+  }
 
   engine.keys = static_cast<NEngine::EKey>(static_cast<uint32>(engine.keys) | static_cast<uint32>(key));
 }

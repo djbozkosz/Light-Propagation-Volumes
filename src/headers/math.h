@@ -21,7 +21,7 @@ namespace NMath
 {
   static const float PI = 3.1415926535897932384626433832795f;
   static const float PI_2 = 6.283185307179586476925286766559f;
-  static const float DIV_PI = 1.5707963267948966192313216916398;
+  static const float DIV_PI = 1.5707963267948966192313216916398f;
   static const float DIV_2_PI = 0.63661977236758134307553505349006f;
   static const float PI_DEG = 180.0f;
   static const float PI_2_DEG = 360.0f;

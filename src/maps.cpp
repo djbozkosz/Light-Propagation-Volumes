@@ -8,7 +8,6 @@ CMap::CMap() : CEngineBase()
 //------------------------------------------------------------------------------
 CMap::CMap(CContext *context, const SMap &map) : CEngineBase(context), map(map)
 {
-  load();
 }
 //------------------------------------------------------------------------------
 CMap::~CMap()
@@ -138,8 +137,7 @@ void CMap::load()
       if(!loaded)
       {
         //context->error(CStr(NMap::STR_ERROR_UNABLE_TO_OPEN, map.file.c_str()));
-        const uint8 color[4] = { map.color.r, map.color.g, map.color.b, map.color.a };
-        glTexImage2D(texFormat2, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, color);
+        glTexImage2D(texFormat2, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &map.color);
       }
 
       glGenerateMipmap(texFormat);
