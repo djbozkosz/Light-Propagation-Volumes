@@ -31,9 +31,10 @@ CWindow::~CWindow()
 //------------------------------------------------------------------------------
 void CWindow::initializeGL()
 {
+  const SEngine *e = CWindow::context->engineGetEngine();
   const SCamera *c = CWindow::context->getCamera()->getCamera();
 
-  if(CWindow::context->engineGetEngine()->flags & NEngine::EFLAG_SHOW_CONSOLE)
+  if(e->flags & NEngine::EFLAG_SHOW_CONSOLE)
   {
 #if defined(_WIN32)
     AllocConsole();
@@ -54,10 +55,16 @@ void CWindow::initializeGL()
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);*/
 
+  if(e->multisampling > 1)
+  {
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, e->multisampling);
+  }
+
   if(!(SDLwindow = SDL_CreateWindow(
     NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED/*1550 - c->width*/, SDL_WINDOWPOS_UNDEFINED/*850 - c->height*/, c->width, c->height,
-    SDL_WINDOW_OPENGL | ((context->engineGetEngine()->flags & NEngine::EFLAG_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN :
-      ((context->engineGetEngine()->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
+    SDL_WINDOW_OPENGL | ((e->flags & NEngine::EFLAG_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN :
+      ((e->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
   )))
     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_WINDOW));
 
@@ -73,6 +80,7 @@ void CWindow::initializeGL()
   /*if(SDL_GL_SetSwapInterval(-1) == -1)
     SDL_GL_SetSwapInterval(1);*/
 
+  glewExperimental = GL_TRUE;
   if(glewInit() != GLEW_OK)
     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GLEW));
 #elif defined(ENV_QT)
@@ -204,7 +212,7 @@ void CWindow::paintGL()
     static_cast<double>(static_cast<float>(static_cast<int32>(c->position.x / 0.01f)) * 0.01f),
     static_cast<double>(static_cast<float>(static_cast<int32>(c->position.y / 0.01f)) * 0.01f),
     static_cast<double>(static_cast<float>(static_cast<int32>(c->position.z / 0.01f)) * 0.01f),
-    CEngineBase::context->engineGetEngine()->drawCalls);
+    e->drawCalls);
 
 #if defined(ENV_QT)
   setWindowTitle(title.c_str());

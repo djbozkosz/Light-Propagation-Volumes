@@ -198,5 +198,35 @@
     <None Include="..\data\shaders\perFragmentNormal.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
+    <None Include="..\data\shaders\perFragmentAlphaShadow.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentAlphaShadowJitter.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormalAlphaShadow.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormalAlphaShadowJitter.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormalShadow.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormalShadowJitter.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentShadow.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentShadowJitter.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentNormalShadow.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\perFragmentShadow.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -76,9 +76,19 @@
     <None Include="..\data\shaders\perFragment.fs" />
     <None Include="..\data\shaders\perFragment.vs" />
     <None Include="..\data\shaders\perFragmentAlpha.fs" />
+    <None Include="..\data\shaders\perFragmentAlphaShadow.fs" />
+    <None Include="..\data\shaders\perFragmentAlphaShadowJitter.fs" />
     <None Include="..\data\shaders\perFragmentNormal.fs" />
     <None Include="..\data\shaders\perFragmentNormal.vs" />
     <None Include="..\data\shaders\perFragmentNormalAlpha.fs" />
+    <None Include="..\data\shaders\perFragmentNormalAlphaShadow.fs" />
+    <None Include="..\data\shaders\perFragmentNormalAlphaShadowJitter.fs" />
+    <None Include="..\data\shaders\perFragmentNormalShadow.fs" />
+    <None Include="..\data\shaders\perFragmentNormalShadow.vs" />
+    <None Include="..\data\shaders\perFragmentNormalShadowJitter.fs" />
+    <None Include="..\data\shaders\perFragmentShadow.fs" />
+    <None Include="..\data\shaders\perFragmentShadow.vs" />
+    <None Include="..\data\shaders\perFragmentShadowJitter.fs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{07C1131B-89B3-4C26-B8BA-F602FC350C57}</ProjectGuid>

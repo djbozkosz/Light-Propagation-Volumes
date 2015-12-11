@@ -21,6 +21,7 @@ CEngine::CEngine(
   context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
   //engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
+  engine.multisampling = 1;
   //engine.maxTextureSize = 256;
   //engine.maxDepthTextureSize = 256;
   engine.defaultScreenWidth = 1024;
@@ -202,7 +203,7 @@ void CEngine::simulationStep()
         sun->setPosition(glm::vec3(sinf(r.z) * cosf(r.y), sinf(r.y), cosf(r.z) * cosf(r.y)) * NScene::SUN_DIR_MUL);
         sun->setRotation(r);
         if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
-          f->setChanged(true);
+          f->setChanged();
         //std::cout << "sun " << o->position.x << " " << o->position.y << " " << o->position.z << ", " << (r.y * NMath::RAD_2_DEG) << " " << (r.z * NMath::RAD_2_DEG) << "\n";
       }
     }
@@ -275,16 +276,18 @@ void CEngine::keyPress(NEngine::EKey key)
     quit();
   else if(key & NEngine::KEY_SHADOW_JITTERING_DOWN)
   {
-    engine.shadowJittering -= 0.2f;
+    engine.shadowJittering -= 1.0f;
     if(engine.shadowJittering < 0.0f)
       engine.shadowJittering = 0.0;
   }
   else if(key & NEngine::KEY_SHADOW_JITTERING_UP)
-    engine.shadowJittering += 0.2f;
+    engine.shadowJittering += 1.0f;
 
   if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
   {
     context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+      f->setChanged();
     window->repaint();
   }
 

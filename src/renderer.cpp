@@ -52,7 +52,7 @@ void CRenderer::dispatch() const
     {
       glDisable(GL_CULL_FACE);
       glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(2.5f, 1.0f);
+      glPolygonOffset(context->engineGetEngine()->shadowJittering * 0.5f + 1.5f, 1.0f);
     }
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       glDisable(GL_DEPTH_TEST);*/

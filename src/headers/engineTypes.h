@@ -24,6 +24,7 @@ namespace NEngine
 
   static const uint32 DEFAULT_SCREEN_WIDTH = 1024;
   static const uint32 DEFAULT_SCREEN_HEIGHT = 600;
+  static const uint32 DEFAULT_MULTISAMPLING = 4;
   static const uint32 MAX_TEXTURE_SIZE = 0;
   static const uint32 MAX_DEPTH_TEXTURE_SIZE = 2048;
   static const uint32 ORTHO_DEPTH_SIZE = 32.0f;
@@ -144,6 +145,7 @@ struct SEngine
   uint32 defaultScreenWidth;
   uint32 defaultScreenHeight;
 
+  uint8 multisampling;
   uint32 maxTextureSize;
   uint32 maxDepthTextureSize;
   float orthoDepthSize;
@@ -169,6 +171,7 @@ struct SEngine
     drawCalls(0),
     defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH),
     defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
+    multisampling(NEngine::DEFAULT_MULTISAMPLING),
     maxTextureSize(NEngine::MAX_TEXTURE_SIZE),
     maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE),
     orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
