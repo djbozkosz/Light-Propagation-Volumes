@@ -30,6 +30,8 @@ class CModel : public CEngineBase
     NModel::EModelState loadTarget(CFile *f, SMesh *mesh);
     NModel::EModelState loadBone(CFile *f, SMesh *mesh);
 
+    static void getTransformedVertices(const SMesh *mesh, uint32 lod, const glm::mat4 &transformation, std::vector<glm::vec3> *vertices);
+
     void update(NModel::EMeshUpdateType type = NModel::UPDATE_ALL);
     void updateSceneObject(SSceneObject *sceneObject, SSceneModel *sceneModel) const;
     void render(const SSceneObject *sceneObject, const SSceneModel *sceneModel) const;

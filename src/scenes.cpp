@@ -35,30 +35,36 @@ void CSceneObject::update(NScene::ESceneUpdateType type)
       model.model->updateSceneObject(&object, &model);
 
       for(auto mesh = model.meshes.begin(); mesh != model.meshes.end(); mesh++)
-        mesh->pickColor = object.pickColor.toVec3();
+      {
+        for(auto lod = mesh->begin(); lod != mesh->end(); lod++)
+          lod->pickColor = object.pickColor.toVec3();
+      }
     }
     if(type & NScene::UPDATE_LIGHTING)
     {
       for(auto mesh = model.meshes.begin(); mesh != model.meshes.end(); mesh++)
       {
-        for(auto so = object.parent->getSceneObjects()->cbegin(); so != object.parent->getSceneObjects()->cend(); so++)
+        for(auto lod = mesh->begin(); lod != mesh->end(); lod++)
         {
-          if(so->second.getObject()->type == NScene::OBJECT_TYPE_LIGHT)
+          for(auto so = object.parent->getSceneObjects()->cbegin(); so != object.parent->getSceneObjects()->cend(); so++)
           {
-            const SSceneLight *light = so->second.getLight();
-            if(light->type == NScene::OBJECT_LIGHT_TYPE_AMBIENT)
-              mesh->lightAmb = light->color;
-            else if(light->type == NScene::OBJECT_LIGHT_TYPE_POINT)
+            if(so->second.getObject()->type == NScene::OBJECT_TYPE_LIGHT)
             {
-              mesh->lightPos = so->second.getObject()->position;
-              mesh->lightRange = light->range;
-              mesh->lightColor = light->color;
-              mesh->lightSpeColor = light->specularColor;
-            }
-            else if(light->type == NScene::OBJECT_LIGHT_TYPE_FOG)
-            {
-              mesh->fogRange = light->range;
-              mesh->fogColor = light->color;
+              const SSceneLight *light = so->second.getLight();
+              if(light->type == NScene::OBJECT_LIGHT_TYPE_AMBIENT)
+                lod->lightAmb = light->color;
+              else if(light->type == NScene::OBJECT_LIGHT_TYPE_POINT)
+              {
+                lod->lightPos = so->second.getObject()->position;
+                lod->lightRange = light->range;
+                lod->lightColor = light->color;
+                lod->lightSpeColor = light->specularColor;
+              }
+              else if(light->type == NScene::OBJECT_LIGHT_TYPE_FOG)
+              {
+                lod->fogRange = light->range;
+                lod->fogColor = light->color;
+              }
             }
           }
         }

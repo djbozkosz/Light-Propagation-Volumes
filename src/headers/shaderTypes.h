@@ -263,14 +263,15 @@ struct SShaderUniforms
 //------------------------------------------------------------------------------
 struct SShaderTechnique
 {
-  glm::mat4 mw;
+  glm::mat4 mw; // trochu špatně modelované -> dupliticní pro lody, ale dejme tomu
   glm::mat3 mwnit;
   mutable glm::mat4 mvp;
-  mutable glm::mat4 mvpdb;
+  mutable glm::mat4 mvpdb; // shadow bias
   mutable glm::vec3 cam;
 
   mutable const SMaterial *material;
 
+  SBoundingBox aabb;
   glm::vec3 pickColor;
   glm::vec3 lightAmb;
   glm::vec3 lightPos;

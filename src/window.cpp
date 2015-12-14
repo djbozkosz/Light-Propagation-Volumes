@@ -136,6 +136,7 @@ void CWindow::paintGL()
   CRenderer *ren = CEngineBase::context->getRenderer();
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CCamera *cam = CEngineBase::context->getCamera();
+  CCulling *cul = CEngineBase::context->getCulling();
   const SCamera *c = cam->getCamera();
   const SEngine *e = CEngineBase::context->engineGetEngine();
   //gl->makeCurrent();
@@ -153,6 +154,7 @@ void CWindow::paintGL()
     // sbybox
     cam->setPosition(glm::vec3());
     cam->setRange(NCamera::CLIP_BACKDROP_NEAR, NCamera::CLIP_BACKDROP_FAR);
+    cul->updateFrustum();
 
     ren->setMode(NRenderer::MODE_BACKDROP);
     s->render();
@@ -181,6 +183,7 @@ void CWindow::paintGL()
       cam->setPosition(sunFloor * orthoScale);
       cam->setRotation(glm::vec3(r.y * NMath::RAD_2_DEG, -r.z * NMath::RAD_2_DEG, 0.0f));
       cam->setScale(c->scale * orthoScale);
+      cul->updateFrustum();
 
       f->setCamera(*c);
       f->bind();
@@ -200,6 +203,7 @@ void CWindow::paintGL()
     cam->setRotation(rot);
     cam->resetScale();
     cam->setRange(clipNear, clipFar);
+    cul->updateFrustum();
 
     ren->setMode(NRenderer::MODE_STANDARD);
     s->render();

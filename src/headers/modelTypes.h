@@ -223,18 +223,41 @@ struct SMaterial
   uint32 animatedUndefined1;
   uint32 animatedUndefined2;
 
-  inline SMaterial() : type(0), program(NULL), opacity(1.0f), environmentMapRatio(0.0f), environmentMapLength(0), environmentMap(NULL), diffuseMapLength(0), diffuseMap(NULL), alphaMapLength(0), alphaMap(NULL), specularMap(NULL), normalMap(NULL), animatedFramesCount(0), animatedUndefined0(0), animatedFramesPeriod(1000), animatedUndefined1(0), animatedUndefined2(0) {}
+  inline SMaterial() :
+    type(0),
+    program(NULL),
+    opacity(1.0f),
+    environmentMapRatio(0.0f),
+    environmentMapLength(0),
+    environmentMap(NULL),
+    diffuseMapLength(0),
+    diffuseMap(NULL),
+    alphaMapLength(0),
+    alphaMap(NULL),
+    specularMap(NULL),
+    normalMap(NULL),
+    animatedFramesCount(0),
+    animatedUndefined0(0),
+    animatedFramesPeriod(1000),
+    animatedUndefined1(0),
+    animatedUndefined2(0) {}
 };
 //------------------------------------------------------------------------------
 struct SBoundingBox
 {
+  bool used;
   glm::vec3 minimum;
   glm::vec3 maximum;
 
-  inline SBoundingBox() {}
-  inline SBoundingBox(const glm::vec3 &min, const glm::vec3 &max) { minimum = min; maximum = max; }
+  inline SBoundingBox() : used(false), minimum(0.0f, 0.0f, 0.0f), maximum(0.0f, 0.0f, 0.0f) {}
+  inline SBoundingBox(const glm::vec3 &min, const glm::vec3 &max) : used(true), minimum(min), maximum(max) {}
+  SBoundingBox(const std::vector<SBoundingBox> &aabb);
+  SBoundingBox(const std::vector<glm::vec3> &vertices);
 
-  inline glm::vec3 getSize() { return maximum - minimum; }
+  void expand(const SBoundingBox &aabb);
+  bool isIn(const glm::vec3 &pos) const;
+
+  inline glm::vec3 getSize() { return glm::vec3(maximum - minimum); }
 };
 //------------------------------------------------------------------------------
 struct SVertex
@@ -500,80 +523,57 @@ struct SModel
   }
 };
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-/*class CShaderProgram;
-class CMap;
-
-struct SMaterial
+inline SBoundingBox::SBoundingBox(const std::vector<SBoundingBox> &aabb)
 {
-  const CShaderProgram *program;
-  const CMap *diffuseTexture;
-  const CMap *alphaTexture;
-  const CMap *specularTexture;
-  const CMap *normalTexture;
-  float opacity;
-  bool mipmap;
-  bool edge;
+  if(!aabb.size())
+    return;
 
-  inline SMaterial() : program(NULL), diffuseTexture(NULL), alphaTexture(NULL), specularTexture(NULL), normalTexture(NULL), opacity(1.0f), mipmap(true), edge(false) {}
-  inline SMaterial(const CShaderProgram *program, const CMap *diffuseTexture, const CMap *alphaTexture, const CMap *specularTexture, const CMap *normalTexture, float opacity, bool mipmap, bool edge) : program(program), diffuseTexture(diffuseTexture), alphaTexture(alphaTexture), specularTexture(specularTexture), normalTexture(normalTexture), opacity(opacity), mipmap(mipmap), edge(edge) {}
-};
+  used = true;
+  minimum = aabb[0].minimum;
+  maximum = aabb[0].maximum;
+
+  for(auto it = aabb.cbegin(); it != aabb.cend(); it++)
+    expand(SBoundingBox(it->minimum, it->maximum));
+}
 //------------------------------------------------------------------------------
-struct SFace
+inline SBoundingBox::SBoundingBox(const std::vector<glm::vec3> &vertices)
 {
-  uint16 vertex0;
-  uint16 vertex1;
-  uint16 vertex2;
+  if(!vertices.size())
+    return;
 
-  inline SFace() : vertex0(0), vertex1(0), vertex2(0) {}
-  inline SFace(uint16 vertex0, uint16 vertex1, uint16 vertex2) : vertex0(vertex0), vertex1(vertex1), vertex2(vertex2) {}
-};
+  used = true;
+  minimum = vertices[0];
+  maximum = vertices[0];
+
+  for(auto it = vertices.cbegin(); it != vertices.cend(); it++)
+    expand(SBoundingBox(*it, *it));
+}
 //------------------------------------------------------------------------------
-struct SFaces
+inline void SBoundingBox::expand(const SBoundingBox &aabb)
 {
-  std::vector<SFace> faces;
-  const SMaterial *material;
+  if(!used)
+  {
+    used = true;
+    minimum = aabb.minimum;
+    maximum = aabb.maximum;
 
-  inline SFaces() : material(NULL) {}
-  inline SFaces(const SMaterial *material) : material(material) {}
-};
+    return;
+  }
+
+  if(aabb.minimum.x < minimum.x) minimum.x = aabb.minimum.x;
+  if(aabb.minimum.y < minimum.y) minimum.y = aabb.minimum.y;
+  if(aabb.minimum.z < minimum.z) minimum.z = aabb.minimum.z;
+  if(aabb.maximum.x > maximum.x) maximum.x = aabb.maximum.x;
+  if(aabb.maximum.y > maximum.y) maximum.y = aabb.maximum.y;
+  if(aabb.maximum.z > maximum.z) maximum.z = aabb.maximum.z;
+}
 //------------------------------------------------------------------------------
-struct SVertex
+inline bool SBoundingBox::isIn(const glm::vec3 &pos) const
 {
-  glm::vec3 position;
-  glm::vec3 normal;
-  glm::vec3 normalTangent;
-  glm::vec3 normalBitangent;
-  glm::vec2 texCoord;
-  glm::vec4 color;
+  if((pos.x >= minimum.x) && (pos.y >= minimum.y) && (pos.z >= minimum.z) && (pos.x <= maximum.x) && (pos.y <= maximum.y) && (pos.z <= maximum.z))
+    return true;
 
-  inline SVertex() : normal(0.0, 1.0, 0.0), normalTangent(1.0, 0.0, 0.0), normalBitangent(0.0, 0.0, 1.0), color(1.0, 1.0, 1.0, 1.0) {}
-  inline SVertex(const glm::vec3 &position, const glm::vec3 &normal, const glm::vec3 &normalTangent, const glm::vec3 &normalBitangent, const glm::vec2 &texCoord, const glm::vec4 &color) : position(position), normal(normal), normalTangent(normalTangent), normalBitangent(normalBitangent), texCoord(texCoord), color(color) {}
-};
-//------------------------------------------------------------------------------
-struct SMesh
-{
-  glm::vec3 position;
-  glm::quat rotation;
-  glm::vec3 scale;
-  glm::mat4 transformation;
-  std::vector<SVertex> vertices;
-  std::vector<SFaces> faces;
-  GLuint vboVertices;
-  GLuint vboIndices;
-
-  inline SMesh() : scale(1.0, 1.0, 1.0), vboVertices(0), vboIndices(0) {}
-};
-//------------------------------------------------------------------------------
-struct SModel
-{
-  std::string name;
-  std::list<SMaterial> materials;
-  std::list<SMesh> meshes;
-
-  inline SModel() {}
-  inline SModel(const std::string &name) : name(name) {}
-};*/
+  return false;
+}
 //------------------------------------------------------------------------------
 #endif // MODELTYPES_H

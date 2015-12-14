@@ -654,6 +654,30 @@ NModel::EModelState CModel::loadBone(CFile *f, SMesh *mesh)
   return NModel::STATE_VALID;
 }
 //------------------------------------------------------------------------------
+void CModel::getTransformedVertices(const SMesh *mesh, uint32 lod, const glm::mat4 &transformation, std::vector<glm::vec3> *vertices)
+{
+  if(!vertices)
+    return;
+
+  if((mesh->type == NModel::MESH_TYPE_STANDARD) &&
+    ((mesh->visualType == NModel::MESH_VISUAL_TYPE_STANDARD) ||
+     (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MESH) ||
+     (mesh->visualType == NModel::MESH_VISUAL_TYPE_SINGLE_MORPH) ||
+     (mesh->visualType == NModel::MESH_VISUAL_TYPE_BILLBOARD) ||
+     (mesh->visualType == NModel::MESH_VISUAL_TYPE_MORPH)))
+  {
+    if(lod >= mesh->standardMesh.lods.size())
+      return;
+
+    auto l = mesh->standardMesh.lods.cbegin();
+    std::advance(l, lod);
+
+    vertices->resize(l->vertices.size());
+    for(uint32 i = 0; i < l->vertices.size(); i++)
+      (*vertices)[i] = glm::vec3(transformation * glm::vec4(l->vertices[i].position, 1.0f));
+  }
+}
+//------------------------------------------------------------------------------
 void CModel::update(NModel::EMeshUpdateType type)
 {
   if(type & NModel::UPDATE_TRANSFORMATION)
@@ -864,22 +888,41 @@ void CModel::update(NModel::EMeshUpdateType type)
 void CModel::updateSceneObject(SSceneObject *sceneObject, SSceneModel *sceneModel) const
 {
   sceneModel->meshes.clear();
+  std::vector<SBoundingBox> aabbs;
 
-  for(auto it = model.meshes.cbegin(); it != model.meshes.cend(); it++)
+  uint32 mi = 1;
+  for(auto m = model.meshes.cbegin(); m != model.meshes.cend(); m++, mi++)
   {
-    const SMesh *mesh = &it->second;
-    sceneModel->meshes.push_back(SShaderTechnique());
-    SShaderTechnique *sceneMesh = &sceneModel->meshes.back();
+    const SMesh *mesh = &m->second;
+    sceneModel->meshes.push_back(std::list<SShaderTechnique>());
+    std::list<SShaderTechnique> *sceneMesh = &sceneModel->meshes.back();
+    std::vector<SBoundingBox> aabbs2(mesh->standardMesh.lods.size());
 
-    sceneMesh->mw = sceneObject->mw * mesh->transformation;
-    sceneMesh->mwnit = glm::mat3(glm::transpose(glm::inverse(sceneMesh->mw)));
+    uint32 lod = 0;
+    for(auto l = mesh->standardMesh.lods.cbegin(); l != mesh->standardMesh.lods.cend(); l++, lod++)
+    {
+      sceneMesh->push_back(SShaderTechnique());
+      SShaderTechnique *sceneLod = &sceneMesh->back();
+
+      sceneLod->mw = sceneObject->mw * mesh->transformation;
+      sceneLod->mwnit = glm::mat3(glm::transpose(glm::inverse(sceneLod->mw)));
+
+      std::vector<glm::vec3> vx;
+      getTransformedVertices(mesh, lod, sceneLod->mw, &vx);
+      sceneLod->aabb = SBoundingBox(vx);
+      aabbs.push_back(sceneLod->aabb);
+    }
   }
+
+  sceneModel->aabb = SBoundingBox(aabbs);
 }
 //------------------------------------------------------------------------------
 void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneModel) const
 {
-  if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()))
+  if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()) || (!context->getCulling()->isAABBInFrustum(sceneModel->aabb)))
     return;
+
+  const SCamera *c = context->getCamera()->getCamera();
 
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
   bool mergedMeshes = ((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH)) ? true : false;
@@ -887,13 +930,18 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
 
   for(auto it = model.meshes.cbegin(); it != model.meshes.cend(); it++, soMesh++)
   {
+    if(!soMesh->size())
+      continue;
+
     const SMesh *mesh = &it->second;
-    const SCamera *c = context->getCamera()->getCamera();
+    const SShaderTechnique *soLod = &soMesh->front(); // todo: lod selection
 
-    soMesh->mvp = c->viewProjection * soMesh->mw;
-    soMesh->mvpdb = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO)->getFrameBuffer()->camera.viewProjection * soMesh->mw;
+    if(!context->getCulling()->isAABBInFrustum(soLod->aabb))
+      continue;
 
-    soMesh->cam = glm::vec3(c->position);
+    soLod->mvp = c->viewProjection * soLod->mw;
+    soLod->mvpdb = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO)->getFrameBuffer()->camera.viewProjection * soLod->mw;
+    soLod->cam = glm::vec3(c->position);
 
     if(mesh->type == NModel::MESH_TYPE_STANDARD)
     {
@@ -903,7 +951,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
          (mesh->visualType == NModel::MESH_VISUAL_TYPE_BILLBOARD) ||
          (mesh->visualType == NModel::MESH_VISUAL_TYPE_MORPH))
       {
-        if(const SStandardMeshLod *lod = getLod(mesh, soMesh->cam))
+        if(const SStandardMeshLod *lod = getLod(mesh, soLod->cam))
         {
           uint32 faceStart = 0;
           auto last = lod->faceGroups.cend();
@@ -917,7 +965,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
                 (mergedMeshes) ? lod->vboSimpleVertices : lod->vboVertices, lod->vboIndices,
                 (mergedMeshes) ? 0 : faceStart,
                 ((mergedMeshes) ? faceStart : 0) + faceGroup->faces.size(),
-                &(*soMesh),
+                &(*soLod),
                 (mergedMeshes) ? NULL : faceGroup->material));
             }
           }
@@ -958,63 +1006,4 @@ CModels::CModels(CContext *context) : CEngineBase(context)
 CModels::~CModels()
 {
 }
-//------------------------------------------------------------------------------
-/*void CModels::createVbo(SMesh *mesh)
-{
-  //COpenGL *gl = context->getOpenGL();
-  std::vector<float> vx(mesh->vertices.size() * NModel::VERTEX_PNTBTC_SIZE);
-  std::vector<uint16> in;
-
-  uint32 i = 0;
-  for(auto v = mesh->vertices.begin(); v != mesh->vertices.end(); v++)
-  {
-    vx[i++] = v->position.x;
-    vx[i++] = v->position.y;
-    vx[i++] = v->position.z;
-    vx[i++] = v->normal.x;
-    vx[i++] = v->normal.y;
-    vx[i++] = v->normal.z;
-    vx[i++] = v->normalTangent.x;
-    vx[i++] = v->normalTangent.y;
-    vx[i++] = v->normalTangent.z;
-    vx[i++] = v->normalBitangent.x;
-    vx[i++] = v->normalBitangent.y;
-    vx[i++] = v->normalBitangent.z;
-    vx[i++] = v->texCoord.x;
-    vx[i++] = v->texCoord.y;
-    vx[i++] = v->color.x;
-    vx[i++] = v->color.y;
-    vx[i++] = v->color.z;
-    vx[i++] = v->color.w;
-  }
-
-  i = 0;
-  for(auto faces = mesh->faces.begin(); faces != mesh->faces.end(); faces++)
-  {
-    in.resize(in.size() + faces->faces.size() * NModel::FACE_SIZE);
-
-    for(auto f = faces->faces.begin(); f != faces->faces.end(); f++)
-    {
-      in[i++] = f->vertex0;
-      in[i++] = f->vertex1;
-      in[i++] = f->vertex2;
-    }
-  }
-
-  if(mesh->vboVertices)
-    glDeleteBuffers(1, &mesh->vboVertices);
-  if(mesh->vboIndices)
-    glDeleteBuffers(1, &mesh->vboIndices);
-
-  glGenBuffers(1, &mesh->vboVertices);
-  glGenBuffers(1, &mesh->vboIndices);
-
-  glBindBuffer(GL_ARRAY_BUFFER, mesh->vboVertices);
-  glBufferData(GL_ARRAY_BUFFER, vx.size() * sizeof(float), &vx[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->vboIndices);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, in.size() * sizeof(uint16), &in[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}*/
 //------------------------------------------------------------------------------
