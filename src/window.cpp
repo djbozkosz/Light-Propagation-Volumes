@@ -122,8 +122,8 @@ void CWindow::initializeGL()
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
     s->addShaderProgram(SShaderProgram(
       static_cast<NShader::EProgram>(i),
-      s->getVertexShader(NShader::STR_PROGRAM_VERTEX_SHADER_LIST[i]),
-      s->getFragmentShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i])));
+      s->getShader(NShader::STR_PROGRAM_VERTEX_SHADER_LIST[i]),
+      s->getShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i])));
 
 #ifdef ENV_QT
   emit onInitializeFinishGL();
@@ -154,7 +154,8 @@ void CWindow::paintGL()
     // sbybox
     cam->setPosition(glm::vec3());
     cam->setRange(NCamera::CLIP_BACKDROP_NEAR, NCamera::CLIP_BACKDROP_FAR);
-    cul->updateFrustum();
+    if(e->updateFrustum)
+      cul->updateFrustum();
 
     ren->setMode(NRenderer::MODE_BACKDROP);
     s->render();
@@ -183,7 +184,8 @@ void CWindow::paintGL()
       cam->setPosition(sunFloor * orthoScale);
       cam->setRotation(glm::vec3(r.y * NMath::RAD_2_DEG, -r.z * NMath::RAD_2_DEG, 0.0f));
       cam->setScale(c->scale * orthoScale);
-      cul->updateFrustum();
+      if(e->updateFrustum)
+        cul->updateFrustum();
 
       f->setCamera(*c);
       f->bind();
@@ -203,7 +205,8 @@ void CWindow::paintGL()
     cam->setRotation(rot);
     cam->resetScale();
     cam->setRange(clipNear, clipFar);
-    cul->updateFrustum();
+    if(e->updateFrustum)
+      cul->updateFrustum();
 
     ren->setMode(NRenderer::MODE_STANDARD);
     s->render();

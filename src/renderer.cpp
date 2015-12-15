@@ -23,7 +23,7 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
     meshes[NShader::PROGRAM_DEPTH].push_back(mesh);
   else if((mesh.material) && (mesh.material->program))
   {
-    NShader::EProgram p = mesh.material->program->getShaderProgram()->name;
+    NShader::EProgram p = mesh.material->program->getProgram()->name;
 
     if(renderer.mode == NRenderer::MODE_BACKDROP)
     {
@@ -33,7 +33,7 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
         meshes[NShader::PROGRAM_BASIC].push_back(mesh);
     }
     else
-      meshes[mesh.material->program->getShaderProgram()->name + ((context->engineGetEngine()->shadowJittering > 0.0f) ? 1 : 0)].push_back(mesh);
+      meshes[mesh.material->program->getProgram()->name + ((context->engineGetEngine()->shadowJittering > 0.0f) ? 1 : 0)].push_back(mesh);
   }
 }
 //------------------------------------------------------------------------------
@@ -57,9 +57,9 @@ void CRenderer::dispatch() const
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       glDisable(GL_DEPTH_TEST);*/
 
-    const CShaderProgram *prog = context->getShaders()->getShaderProgram(static_cast<NShader::EProgram>(i));
+    const CShaderProgram *prog = context->getShaders()->getProgram(static_cast<NShader::EProgram>(i));
 
-    /*if((context->getCamera()->getCamera()->renderMode == NCamera::RENDER_MODE_REFLECTION) && ((prog->getShaderProgram()->name == NShader::PROGRAM_WATER) || (prog->getShaderProgram()->name == NShader::PROGRAM_UNDER_WATER)))
+    /*if((context->getCamera()->getCamera()->renderMode == NCamera::RENDER_MODE_REFLECTION) && ((prog->getProgram()->name == NShader::PROGRAM_WATER) || (prog->getProgram()->name == NShader::PROGRAM_UNDER_WATER)))
     continue;*/
 
     prog->bind();

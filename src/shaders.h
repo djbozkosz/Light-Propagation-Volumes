@@ -49,15 +49,14 @@ class CShaderProgram : public CEngineBase
     void end(const SShaderTechnique *technique) const;
     void unbind() const;
 
-    inline const SShaderProgram *getShaderProgram() const { return &program; }
+    inline const SShaderProgram *getProgram() const { return &program; }
 };
 //------------------------------------------------------------------------------
 class CShaders : public CEngineBase
 {
   private:
-    std::map<std::string, CShader> vertexShaders;
-    std::map<std::string, CShader> fragmentShaders;
-    std::map<NShader::EProgram, CShaderProgram> shaderPrograms;
+    std::map<std::string, CShader> shaders;
+    std::map<NShader::EProgram, CShaderProgram> programs;
 
   public:
     CShaders();
@@ -67,52 +66,33 @@ class CShaders : public CEngineBase
     CShader *addShader(const SShader &shader);
     CShaderProgram *addShaderProgram(const SShaderProgram &shaderProgram);
 
-    inline CShader *getVertexShader(const std::string &file) { auto it = vertexShaders.find(file); if(it == vertexShaders.end()) return NULL; return &it->second; }
-    inline CShader *getFragmentShader(const std::string &file) { auto it = fragmentShaders.find(file); if(it == fragmentShaders.end()) return NULL; return &it->second; }
-    inline CShaderProgram *getShaderProgram(NShader::EProgram name) { auto it = shaderPrograms.find(name); if(it == shaderPrograms.end()) return NULL; return &it->second; }
+    inline CShader *getShader(const std::string &file) { auto it = shaders.find(file); if(it == shaders.end()) return NULL; return &it->second; }
+    inline CShaderProgram *getProgram(NShader::EProgram name) { auto it = programs.find(name); if(it == programs.end()) return NULL; return &it->second; }
 };
 //------------------------------------------------------------------------------
 inline CShader *CShaders::addShader(const SShader &shader)
 {
-  if(shader.type == NShader::TYPE_VERTEX)
-  {
-    CShader *vs = getVertexShader(shader.file);
+  CShader *vs = getShader(shader.file);
 
-    if(vs)
-      return vs;
-
-    vertexShaders[shader.file] = CShader(context, shader);
-    vs = getVertexShader(shader.file);
-    vs->compile();
-
+  if(vs)
     return vs;
-  }
-  else if(shader.type == NShader::TYPE_FRAGMENT)
-  {
-    CShader *fs = getFragmentShader(shader.file);
 
-    if(fs)
-      return fs;
+  shaders[shader.file] = CShader(context, shader);
+  vs = getShader(shader.file);
+  vs->compile();
 
-    fragmentShaders[shader.file] = CShader(context, shader);
-    fs = getFragmentShader(shader.file);
-    fs->compile();
-
-    return fs;
-  }
-
-  return NULL;
+  return vs;
 }
 //------------------------------------------------------------------------------
 inline CShaderProgram *CShaders::addShaderProgram(const SShaderProgram &shaderProgram)
 {
-  CShaderProgram *sp = getShaderProgram(shaderProgram.name);
+  CShaderProgram *sp = getProgram(shaderProgram.name);
 
   if(sp)
     return sp;
 
-  shaderPrograms[shaderProgram.name] = CShaderProgram(context, shaderProgram);
-  sp = getShaderProgram(shaderProgram.name);
+  programs[shaderProgram.name] = CShaderProgram(context, shaderProgram);
+  sp = getProgram(shaderProgram.name);
   sp->link();
   sp->initUniforms();
 

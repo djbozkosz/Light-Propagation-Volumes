@@ -87,7 +87,9 @@ namespace NEngine
     KEY_SHADOW_JITTERING_DOWN = 0x00001000,
     KEY_SHADOW_JITTERING_UP   = 0x00002000,
 
-    KEY_QUIT                  = 0x00004000
+    KEY_FRUSTUM_UPDATE        = 0x00004000,
+
+    KEY_QUIT                  = 0x80000000
   };
 
   enum EMouseButton
@@ -142,6 +144,7 @@ struct SEngine
 
   uint32 drawCalls;
 
+  bool updateFrustum;
   uint32 defaultScreenWidth;
   uint32 defaultScreenHeight;
 
@@ -169,6 +172,7 @@ struct SEngine
     fps(0.0),
     fpsCounter(0),
     drawCalls(0),
+    updateFrustum(true),
     defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH),
     defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
     multisampling(NEngine::DEFAULT_MULTISAMPLING),

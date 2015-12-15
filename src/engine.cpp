@@ -21,6 +21,7 @@ CEngine::CEngine(
   context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
   //engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
+  //engine.flags = NEngine::EFLAG_FULLSCREEN;
   engine.multisampling = 1;
   //engine.maxTextureSize = 256;
   //engine.maxDepthTextureSize = 256;
@@ -63,6 +64,8 @@ CEngine::CEngine(
 
   engine.keysMap[SDLK_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
+
+  engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 #endif
@@ -282,6 +285,13 @@ void CEngine::keyPress(NEngine::EKey key)
   }
   else if(key & NEngine::KEY_SHADOW_JITTERING_UP)
     engine.shadowJittering += 1.0f;
+  else if(key & NEngine::KEY_FRUSTUM_UPDATE)
+  {
+    engine.updateFrustum = !engine.updateFrustum;
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+      f->setChanged();
+    window->repaint();
+  }
 
   if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
   {

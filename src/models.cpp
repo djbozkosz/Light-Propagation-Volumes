@@ -77,7 +77,7 @@ NModel::EModelState CModel::load()
 //------------------------------------------------------------------------------
 NModel::EModelState CModel::loadMaterial(CFile *f, SMaterial *mat)
 {
-  mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_SHADOW);
+  mat->program = context->getShaders()->getProgram(NShader::PROGRAM_PER_FRAGMENT_SHADOW);
 
   f->read(&mat->type, sizeof(uint32));
   f->read(&mat->colorAmbient.x, sizeof(float));
@@ -122,7 +122,7 @@ NModel::EModelState CModel::loadMaterial(CFile *f, SMaterial *mat)
         f->close();
         *additionalMaps[i] = context->getMaps()->addMap(SMap(map, defaultColors[i]));
         if(i == 1)
-          mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW);
+          mat->program = context->getShaders()->getProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW);
       }
     }
   }
@@ -136,16 +136,16 @@ NModel::EModelState CModel::loadMaterial(CFile *f, SMaterial *mat)
 
     if(mat->alphaMap)
     {
-      if(mat->program->getShaderProgram()->name == NShader::PROGRAM_BASIC)
-        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_BASIC_ALPHA);
-      else if(mat->program->getShaderProgram()->name == NShader::PROGRAM_PER_FRAGMENT)
-        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_ALPHA);
-      else if(mat->program->getShaderProgram()->name == NShader::PROGRAM_PER_FRAGMENT_SHADOW)
-        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_ALPHA_SHADOW);
-      else if(mat->program->getShaderProgram()->name == NShader::PROGRAM_PER_FRAGMENT_NORMAL)
-        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA);
-      else if(mat->program->getShaderProgram()->name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW)
-        mat->program = context->getShaders()->getShaderProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW);
+      if(mat->program->getProgram()->name == NShader::PROGRAM_BASIC)
+        mat->program = context->getShaders()->getProgram(NShader::PROGRAM_BASIC_ALPHA);
+      else if(mat->program->getProgram()->name == NShader::PROGRAM_PER_FRAGMENT)
+        mat->program = context->getShaders()->getProgram(NShader::PROGRAM_PER_FRAGMENT_ALPHA);
+      else if(mat->program->getProgram()->name == NShader::PROGRAM_PER_FRAGMENT_SHADOW)
+        mat->program = context->getShaders()->getProgram(NShader::PROGRAM_PER_FRAGMENT_ALPHA_SHADOW);
+      else if(mat->program->getProgram()->name == NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+        mat->program = context->getShaders()->getProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA);
+      else if(mat->program->getProgram()->name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW)
+        mat->program = context->getShaders()->getProgram(NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW);
     }
   }
 
