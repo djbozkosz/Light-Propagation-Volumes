@@ -120,10 +120,12 @@ void CWindow::initializeGL()
     s->addShader(SShader(NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
+  {
     s->addShaderProgram(SShaderProgram(
       static_cast<NShader::EProgram>(i),
       s->getShader(NShader::STR_PROGRAM_VERTEX_SHADER_LIST[i]),
       s->getShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i])));
+  }
 
 #ifdef ENV_QT
   emit onInitializeFinishGL();
