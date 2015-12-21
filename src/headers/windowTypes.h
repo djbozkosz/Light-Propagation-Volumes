@@ -9,6 +9,11 @@ namespace NWindow
 {
   static const char STR_ORTHO_DEPTH_FBO[] = "orthoDepth";
   static const char STR_ORTHO_DEPTH_FBO_MAP[] = "orthoDepth_0";
+  static const char STR_ORTHO_RSM_FBO[] = "orthoRSM";
+  static const char STR_ORTHO_RSM_FBO_POS_MAP[] = "orthoRSM_0";
+  static const char STR_ORTHO_RSM_FBO_NORMAL_MAP[] = "orthoRSM_1";
+  static const char STR_ORTHO_RSM_FBO_AMB_MAP[] = "orthoRSM_2";
+  static const char STR_ORTHO_RSM_FBO_DEPTH_MAP[] = "orthoRSM_3";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
 

@@ -110,9 +110,15 @@ void CWindow::initializeGL()
   CEngineBase::context->getMaps()->loadDefaultMaps();
 
   std::vector<uint8> fboAttachments;
-  const uint32 maxDepthTextureSize = CEngineBase::context->engineGetEngine()->maxDepthTextureSize;
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
-  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, maxDepthTextureSize, maxDepthTextureSize));
+  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, e->maxDepthTextureSize, e->maxDepthTextureSize));
+
+  fboAttachments.clear();
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // pos
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // normal
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // amb
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE); // depth
+  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_RSM_FBO, fboAttachments, NMap::RBO, e->maxRSMTextureSize, e->maxRSMTextureSize));
 
   for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
     s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
