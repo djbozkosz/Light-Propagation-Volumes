@@ -12,7 +12,8 @@ namespace NRenderer
     MODE_STANDARD = 0,
     MODE_BACKDROP,
     MODE_PICK,
-    MODE_DEPTH
+    MODE_DEPTH,
+    MODE_GEOMETRY
   };
 }
 //------------------------------------------------------------------------------

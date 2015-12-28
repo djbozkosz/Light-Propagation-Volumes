@@ -64,8 +64,8 @@ void CWindow::initializeGL()
   if(!(SDLwindow = SDL_CreateWindow(
     NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED/*1550 - c->width*/, SDL_WINDOWPOS_UNDEFINED/*850 - c->height*/, c->width, c->height,
     SDL_WINDOW_OPENGL | ((e->flags & NEngine::EFLAG_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN :
-      ((e->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
-  )))
+                         ((e->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
+    )))
     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_WINDOW));
 
   if(!(SDLcontext = SDL_GL_CreateContext(SDLwindow)))
@@ -73,7 +73,7 @@ void CWindow::initializeGL()
 
   uint32 imgInited = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
   if(!(imgInited & IMG_INIT_JPG))
-     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_JPG));
+    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_JPG));
   if(!(imgInited & IMG_INIT_PNG))
     CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_PNG));
 
@@ -114,22 +114,34 @@ void CWindow::initializeGL()
   CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, e->maxDepthTextureSize, e->maxDepthTextureSize));
 
   fboAttachments.clear();
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // amb
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // pos
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // normal
-  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // amb
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE); // depth
-  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_RSM_FBO, fboAttachments, NMap::RBO, e->maxRSMTextureSize, e->maxRSMTextureSize));
+  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO, fboAttachments, NMap::RBO, e->maxGeometryTextureSize, e->maxGeometryTextureSize));
 
   for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
     s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
+  for(uint32 i = 0; i < NShader::GEOMETRY_SHADERS_COUNT; i++)
+    s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_GEOMETRY_SHADER_LIST[i]));
+  for(uint32 i = 0; i < NShader::TESSELATION_CONTROL_SHADERS_COUNT; i++)
+    s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]));
+  for(uint32 i = 0; i < NShader::TESSELATION_EVALUATION_SHADERS_COUNT; i++)
+    s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::FRAGMENT_SHADERS_COUNT; i++)
     s->addShader(SShader(NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
+  for(uint32 i = 0; i < NShader::COMPUTE_SHADERS_COUNT; i++)
+    s->addShader(SShader(NShader::TYPE_FRAGMENT, NShader::STR_COMPUTE_SHADER_LIST[i]));
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
     s->addShaderProgram(SShaderProgram(
       static_cast<NShader::EProgram>(i),
       s->getShader(NShader::STR_PROGRAM_VERTEX_SHADER_LIST[i]),
-      s->getShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i])));
+      s->getShader(NShader::STR_PROGRAM_GEOMETRY_SHADER_LIST[i]),
+      s->getShader(NShader::STR_PROGRAM_TESSELATION_CONTROL_SHADER_LIST[i]),
+      s->getShader(NShader::STR_PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[i]),
+      s->getShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i]),
+      s->getShader(NShader::STR_PROGRAM_COMPUTE_SHADER_LIST[i])));
 
 #ifdef ENV_QT
   emit onInitializeFinishGL();
@@ -169,19 +181,20 @@ void CWindow::paintGL()
     ren->clearGroups();
 
     // depth map
-    CFramebuffer *f = fbo->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO);
+    CFramebuffer *fboDepth = fbo->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO);
+    CFramebuffer *fboGeo = fbo->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO);
     CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
     const glm::vec3 orthoScale(NCamera::ORTHO_DEPTH_SCALE_X, NCamera::ORTHO_DEPTH_SCALE_Y, NCamera::ORTHO_DEPTH_SCALE_Z);
 
-    if((f) && (sun) &&
-       ((f->getFrameBuffer()->changed) ||
-       (glm::length(glm::vec3(f->getFrameBuffer()->camera.position) * orthoScale - pos) > (e->orthoDepthSize * 0.1f))))
+    if((fboDepth) && (fboGeo) && (sun) &&
+       ((fboDepth->getFrameBuffer()->changed) ||
+       (glm::length(glm::vec3(fboDepth->getFrameBuffer()->camera.position) * orthoScale - pos) > (e->orthoDepthSize * 0.1f))))
     {
       //std::cout << "update " << glm::to_string(glm::vec3(f->getFrameBuffer()->camera.position) * orthoScale) << " | " << glm::to_string(pos) << "\n";
       cam->setRange(-e->orthoDepthDepth, e->orthoDepthDepth, -e->orthoDepthSize, e->orthoDepthSize, e->orthoDepthSize, -e->orthoDepthSize);
 
       const glm::quat r = sun->getObject()->rotation;
-      const float step = (c->clipRight - c->clipLeft) / f->getFrameBuffer()->width;
+      const float step = (c->clipRight - c->clipLeft) / fboDepth->getFrameBuffer()->width;
       const glm::vec3 invSun = glm::vec3(glm::rotate(glm::rotate(glm::mat4(1.0), r.y, glm::vec3(1.0, 0.0, 0.0)), -r.z, glm::vec3(0.0, 1.0, 0.0)) * glm::vec4(pos, 1.0));
       const glm::vec3 invSunFloor(static_cast<float>(static_cast<int32>(invSun.x / step)) * step, static_cast<float>(static_cast<int32>(invSun.y / step)) * step, static_cast<float>(static_cast<int32>(invSun.z / step)) * step);
       const glm::vec3 sunFloor(glm::rotate(glm::rotate(glm::mat4(1.0), r.z, glm::vec3(0.0, 1.0, 0.0)), -r.y, glm::vec3(1.0, 0.0, 0.0)) * glm::vec4(invSunFloor, 1.0));
@@ -193,8 +206,8 @@ void CWindow::paintGL()
       if(e->updateFrustum)
         cul->updateFrustum();
 
-      f->setCamera(*c);
-      f->bind();
+      fboDepth->setCamera(*c);
+      fboDepth->bind();
       glClear(GL_DEPTH_BUFFER_BIT);
 
       ren->setMode(NRenderer::MODE_DEPTH);
@@ -203,7 +216,20 @@ void CWindow::paintGL()
       ren->clearGroups();
 
       fbo->unbind();
-      f->setChanged(false);
+      fboDepth->setChanged(false);
+
+      // geo light
+      fboGeo->setCamera(*c);
+      fboGeo->bind();
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      ren->setMode(NRenderer::MODE_GEOMETRY);
+      s->render();
+      ren->dispatch();
+      ren->clearGroups();
+
+      fbo->unbind();
+      fboGeo->setChanged(false);
     }
     
     // standard
@@ -213,11 +239,33 @@ void CWindow::paintGL()
     cam->setRange(clipNear, clipFar);
     if(e->updateFrustum)
       cul->updateFrustum();
+    
+    // geo camera
+    fboGeo->setCamera(*c);
+    fboGeo->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    ren->setMode(NRenderer::MODE_GEOMETRY);
+    s->render();
+    ren->dispatch();
+    ren->clearGroups();
+
+    fbo->unbind();
+    fboGeo->setChanged(false);
 
     ren->setMode(NRenderer::MODE_STANDARD);
     s->render();
     ren->dispatch();
     ren->clearGroups();
+
+    if(fboGeo)
+    {
+      const float r = c->height / c->width;
+      drawTexture(fboGeo->getFrameBuffer()->attachments[0].map->getMap()->texture, 0.0f, 0.0f, 0.25f * r, 0.25f, true);
+      drawTexture(fboGeo->getFrameBuffer()->attachments[1].map->getMap()->texture, 0.0f, 0.25f, 0.25f * r, 0.25f, true);
+      drawTexture(fboGeo->getFrameBuffer()->attachments[2].map->getMap()->texture, 0.0f, 0.5f, 0.25f * r, 0.25f, true);
+      drawTexture(fboGeo->getFrameBuffer()->attachments[3].map->getMap()->texture, 0.0f, 0.75f, 0.25f * r, 0.25f, true);
+    }
   }
 
   std::string title = CStr(
@@ -262,6 +310,44 @@ bool CWindow::event(QEvent *event)
     ::event(event);
 }
 #endif
+//------------------------------------------------------------------------------
+void CWindow::drawTexture(GLuint texture, float x, float y, float w, float h, bool isShadow)
+{
+  glUseProgram(0);
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  if(isShadow)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_BLEND);
+
+  const float vx[] = { x * 2.0f - 1.0f, -y * 2.0f + 1.0f, (x + w) * 2.0f - 1.0f, (-y - h) * 2.0f + 1.0f };
+
+  glBegin(GL_QUADS);
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(vx[0], vx[1], 1.0f);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(vx[2], vx[1], 1.0f);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(vx[2], vx[3], 1.0f);
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(vx[0], vx[3], 1.0f);
+  glEnd();
+
+  if(isShadow)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_TEXTURE_2D);
+}
 //------------------------------------------------------------------------------
 //test debug, don't panic !
 /*const glm::mat4 rot2_ = glm::rotate(glm::rotate(glm::mat4(1.0), r.z, glm::vec3(0.0, 1.0, 0.0)), -r.y, glm::vec3(1.0, 0.0, 0.0));

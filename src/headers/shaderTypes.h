@@ -8,9 +8,13 @@
 //------------------------------------------------------------------------------
 namespace NShader
 {
-  static const uint32 VERTEX_SHADERS_COUNT = 7;
-  static const uint32 FRAGMENT_SHADERS_COUNT = 16;
-  static const uint32 PROGRAMS_COUNT = 16;
+  static const uint32 VERTEX_SHADERS_COUNT = 8;
+  static const uint32 GEOMETRY_SHADERS_COUNT = 1;
+  static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 1;
+  static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 1;
+  static const uint32 FRAGMENT_SHADERS_COUNT = 17;
+  static const uint32 COMPUTE_SHADERS_COUNT = 1;
+  static const uint32 PROGRAMS_COUNT = 18;
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
@@ -42,6 +46,8 @@ namespace NShader
   static const char STR_UNIFORM_FOG_RANGE[] = "fogRange";
   static const char STR_UNIFORM_FOG_COLOR[] = "fogColor";
 
+  static const char STR_SHADER_UNUSED[] = "";
+
   static const char STR_VERTEX_COLOR[] = "color.vs";
   static const char STR_VERTEX_DEPTH[] = "depth.vs";
   static const char STR_VERTEX_BASIC[] = "basic.vs";
@@ -49,6 +55,7 @@ namespace NShader
   static const char STR_VERTEX_PER_FRAGMENT_SHADOW[] = "perFragmentShadow.vs";
   static const char STR_VERTEX_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.vs";
   static const char STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.vs";
+  static const char STR_VERTEX_GEOMETRY[] = "geometry.vs";
 
   static const char STR_FRAGMENT_COLOR[] = "color.fs";
   static const char STR_FRAGMENT_DEPTH[] = "depth.fs";
@@ -66,11 +73,14 @@ namespace NShader
   static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA[] = "perFragmentNormalAlpha.fs";
   static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW[] = "perFragmentNormalAlphaShadow.fs";
   static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER[] = "perFragmentNormalAlphaShadowJitter.fs";
+  static const char STR_FRAGMENT_GEOMETRY[] = "geometry.fs";
+
+  static const char STR_COMPUTE_LPV_PROPAGATION[] = "lpvPropagation.cs";
 
   static const char STR_ERROR_COMPILE[] = "Shader Compilation Error: \"%s\"!";
   static const char STR_ERROR_LINK[] = "Program Link Error: \"%s\"!";
-  static const char STR_ERROR_VERTEX_ATTACH[] = "No Vertex Shader attached to Program: \"%s\"";
-  static const char STR_ERROR_FRAGMENT_ATTACH[] = "No Fragment Shader attached to Program: \"%s\"";
+  //static const char STR_ERROR_VERTEX_ATTACH[] = "No Vertex Shader attached to Program: \"%s\"";
+  //static const char STR_ERROR_FRAGMENT_ATTACH[] = "No Fragment Shader attached to Program: \"%s\"";
 
   static const char *const STR_PROGRAM_LIST[] =
   {
@@ -89,10 +99,12 @@ namespace NShader
     "Per Fragment Normal Normal Jitter",
     "Per Fragment Normal Alpha",
     "Per Fragment Normal Alpha Normal",
-    "Per Fragment Normal Alpha Normal Jitter"
+    "Per Fragment Normal Alpha Normal Jitter",
+    "Geometry",
+    "LPV Propagation"
   };
 
-  // unique lists
+  // unique lists --------------------------------------------------------------
   static const char *const STR_VERTEX_SHADER_LIST[] =
   {
     STR_VERTEX_COLOR,
@@ -101,7 +113,22 @@ namespace NShader
     STR_VERTEX_PER_FRAGMENT,
     STR_VERTEX_PER_FRAGMENT_SHADOW,
     STR_VERTEX_PER_FRAGMENT_NORMAL,
-    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW
+    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
+    STR_VERTEX_GEOMETRY
+  };
+
+  static const char *const STR_GEOMETRY_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED
+  };
+
+  static const char *const STR_TESSELATION_CONTROL_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED
+  };
+  static const char *const STR_TESSELATION_EVALUATION_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED
   };
 
   static const char *const STR_FRAGMENT_SHADER_LIST[] =
@@ -121,10 +148,16 @@ namespace NShader
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
+    STR_FRAGMENT_GEOMETRY
   };
 
-  // linking lists
+  static const char *const STR_COMPUTE_SHADER_LIST[] =
+  {
+    STR_COMPUTE_LPV_PROPAGATION
+  };
+
+  // linking lists -------------------------------------------------------------
   static const char *const STR_PROGRAM_VERTEX_SHADER_LIST[] =
   {
     STR_VERTEX_COLOR,
@@ -142,7 +175,74 @@ namespace NShader
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
     STR_VERTEX_PER_FRAGMENT_NORMAL,
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW
+    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
+    STR_VERTEX_GEOMETRY,
+    STR_SHADER_UNUSED
+  };
+
+  static const char *const STR_PROGRAM_GEOMETRY_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED
+  };
+
+  static const char *const STR_PROGRAM_TESSELATION_CONTROL_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED
+  };
+  static const char *const STR_PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED
   };
 
   static const char *const STR_PROGRAM_FRAGMENT_SHADER_LIST[] =
@@ -162,7 +262,31 @@ namespace NShader
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER
+    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
+    STR_FRAGMENT_GEOMETRY,
+    STR_SHADER_UNUSED
+  };
+
+  static const char *const STR_PROGRAM_COMPUTE_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_COMPUTE_LPV_PROPAGATION
   };
 
   enum EType
@@ -174,6 +298,17 @@ namespace NShader
     TYPE_TESSELATION_EVALUATION,
     TYPE_FRAGMENT,
     TYPE_COMPUTE
+  };
+
+  static const GLenum TYPE_SHADERS[] =
+  {
+    GL_NONE,
+    GL_VERTEX_SHADER,
+    GL_GEOMETRY_SHADER,
+    GL_TESS_CONTROL_SHADER,
+    GL_TESS_EVALUATION_SHADER, 
+    GL_FRAGMENT_SHADER,
+    GL_COMPUTE_SHADER
   };
 
   enum EProgram
@@ -193,7 +328,9 @@ namespace NShader
     PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA,
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER
+    PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
+    PROGRAM_GEOMETRY,
+    PROGRAM_LPV_PROPAGATION
   };
 
   enum ESampler
@@ -216,7 +353,9 @@ namespace NShader
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH,
+    SAMPLER_GEOMETRY_DIF = 0,
+    SAMPLER_GEOMETRY_NOR,
   };
 }
 //------------------------------------------------------------------------------
@@ -305,12 +444,43 @@ struct SShaderProgram
 {
   NShader::EProgram name;
   CShader *vertexShader;
+  CShader *geometryShader;
+  CShader *tesselationControlShader;
+  CShader *tesselationEvaluationShader;
   CShader *fragmentShader;
+  CShader *computeShader;
   GLuint program;
   SShaderUniforms uniforms;
 
-  inline SShaderProgram() : name(NShader::PROGRAM_BASIC), vertexShader(NULL), fragmentShader(NULL), program(0) {}
-  inline SShaderProgram(NShader::EProgram name, CShader *vertexShader, CShader *fragmentShader, GLuint program = 0, SShaderUniforms uniforms = SShaderUniforms()) : name(name), vertexShader(vertexShader), fragmentShader(fragmentShader), program(program), uniforms(uniforms) {}
+  inline SShaderProgram() :
+    name(NShader::PROGRAM_BASIC),
+    vertexShader(NULL),
+    geometryShader(NULL),
+    tesselationControlShader(NULL),
+    tesselationEvaluationShader(NULL),
+    fragmentShader(NULL),
+    computeShader(NULL),
+    program(0) {}
+
+  inline SShaderProgram(
+    NShader::EProgram name,
+    CShader *vertexShader,
+    CShader *geometryShader,
+    CShader *tesselationControlShader,
+    CShader *tesselationEvaluationShader,
+    CShader *fragmentShader,
+    CShader *computeShader,
+    GLuint program = 0,
+    SShaderUniforms uniforms = SShaderUniforms()) :
+      name(name),
+      vertexShader(vertexShader),
+      geometryShader(geometryShader),
+      tesselationControlShader(tesselationControlShader),
+      tesselationEvaluationShader(tesselationEvaluationShader),
+      fragmentShader(fragmentShader),
+      computeShader(computeShader),
+      program(program),
+      uniforms(uniforms) {}
 };
 //------------------------------------------------------------------------------
 #endif // SHADERSTYPES_H

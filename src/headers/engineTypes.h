@@ -27,7 +27,7 @@ namespace NEngine
   static const uint32 DEFAULT_MULTISAMPLING = 4;
   static const uint32 MAX_TEXTURE_SIZE = 0;
   static const uint32 MAX_DEPTH_TEXTURE_SIZE = 2048;
-  static const uint32 MAX_RSM_TEXTURE_SIZE = 32;
+  static const uint32 MAX_GEOMETRY_TEXTURE_SIZE = 32;
   static const uint32 ORTHO_DEPTH_SIZE = 32.0f;
   static const uint32 ORTHO_DEPTH_DEPTH = 200.0f;
   static const uint32 SHADOW_JITTERING = 2.0f;
@@ -152,7 +152,7 @@ struct SEngine
   uint8 multisampling;
   uint32 maxTextureSize;
   uint32 maxDepthTextureSize;
-  uint32 maxRSMTextureSize;
+  uint32 maxGeometryTextureSize;
   float orthoDepthSize;
   float orthoDepthDepth;
   float shadowJittering;
@@ -180,7 +180,7 @@ struct SEngine
     multisampling(NEngine::DEFAULT_MULTISAMPLING),
     maxTextureSize(NEngine::MAX_TEXTURE_SIZE),
     maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE),
-    maxRSMTextureSize(NEngine::MAX_RSM_TEXTURE_SIZE),
+    maxGeometryTextureSize(NEngine::MAX_GEOMETRY_TEXTURE_SIZE),
     orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
     orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH),
     shadowJittering(NEngine::SHADOW_JITTERING),

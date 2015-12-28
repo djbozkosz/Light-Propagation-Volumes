@@ -16,8 +16,11 @@ CShader::~CShader()
 //------------------------------------------------------------------------------
 void CShader::compile()
 {
+  if(shader.file == NShader::STR_SHADER_UNUSED)
+    return;
+
   //COpenGL *gl = context->getOpenGL();
-  GLenum shaderType = (shader.type == NShader::TYPE_VERTEX) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+  const GLenum shaderType = NShader::TYPE_SHADERS[shader.type];
   GLint status = 0;
   GLint infoLength = 0;
   std::string log;
@@ -116,20 +119,21 @@ void CShaderProgram::link()
   GLint infoLength = 0;
   std::string log;
 
-  if(!program.vertexShader)
-  {
-    context->error(CStr(NShader::STR_ERROR_VERTEX_ATTACH, NShader::STR_PROGRAM_LIST[program.name]));
-    return;
-  }
-  if(!program.fragmentShader)
-  {
-    context->error(CStr(NShader::STR_ERROR_FRAGMENT_ATTACH, NShader::STR_PROGRAM_LIST[program.name]));
-    return;
-  }
-
   program.program = glCreateProgram();
-  glAttachShader(program.program, program.vertexShader->getShader()->shader);
-  glAttachShader(program.program, program.fragmentShader->getShader()->shader);
+
+  if(program.vertexShader->getShader()->file != NShader::STR_SHADER_UNUSED)
+    glAttachShader(program.program, program.vertexShader->getShader()->shader);
+  if(program.geometryShader->getShader()->file != NShader::STR_SHADER_UNUSED)
+    glAttachShader(program.program, program.geometryShader->getShader()->shader);
+  if(program.tesselationControlShader->getShader()->file != NShader::STR_SHADER_UNUSED)
+    glAttachShader(program.program, program.tesselationControlShader->getShader()->shader);
+  if(program.tesselationEvaluationShader->getShader()->file != NShader::STR_SHADER_UNUSED)
+    glAttachShader(program.program, program.tesselationEvaluationShader->getShader()->shader);
+  if(program.fragmentShader->getShader()->file != NShader::STR_SHADER_UNUSED)
+    glAttachShader(program.program, program.fragmentShader->getShader()->shader);
+  if(program.computeShader->getShader()->file != NShader::STR_SHADER_UNUSED)
+    glAttachShader(program.program, program.computeShader->getShader()->shader);
+
   glLinkProgram(program.program);
 
   glGetProgramiv(program.program, GL_LINK_STATUS, &status);
@@ -190,24 +194,24 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
   //COpenGL *gl = context->getOpenGL();
   uint32 stride = sizeof(float) * (((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH)) ? NModel::VERTEX_P_SIZE : NModel::VERTEX_PNTTC_SIZE);
 
-  if(program.name >= NShader::PROGRAM_COLOR)
+  if((program.name >= NShader::PROGRAM_COLOR) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
   {
     glEnableVertexAttribArray(program.uniforms.vertexPosition);
     glVertexAttribPointer(program.uniforms.vertexPosition, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_POSITION));
   }
-  if(program.name >= NShader::PROGRAM_BASIC)
+  if((program.name >= NShader::PROGRAM_BASIC) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
   {
     glEnableVertexAttribArray(program.uniforms.vertexTexCoord);
     glEnableVertexAttribArray(program.uniforms.vertexColor);
     glVertexAttribPointer(program.uniforms.vertexTexCoord, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_TEX_COORD));
     glVertexAttribPointer(program.uniforms.vertexColor, 4, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_COLOR));
   }
-  if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+  if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
   {
     glEnableVertexAttribArray(program.uniforms.vertexNormal);
     glVertexAttribPointer(program.uniforms.vertexNormal, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL));
   }
-  if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+  if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
   {
     glEnableVertexAttribArray(program.uniforms.vertexNormalTangent);
     //glEnableVertexAttribArray(program.uniforms.vertexNormalBitangent);
@@ -280,6 +284,11 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
         setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
     }
+    if(program.name == NShader::PROGRAM_GEOMETRY)
+    {
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_GEOMETRY_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_GEOMETRY_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+    }
 
     glUniform1i(program.uniforms.type, m->type);
     glUniform1f(program.uniforms.opacity, m->opacity);
@@ -292,7 +301,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
   else
     glUniform3f(program.uniforms.lightAmb, technique->lightAmb.x, technique->lightAmb.y, technique->lightAmb.z);
 
-  if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+  if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER))
   {
     const SCamera *cam = context->getCamera()->getCamera();
 
@@ -317,16 +326,16 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
       glDisable(GL_BLEND);
   }
 
-  if(program.name >= NShader::PROGRAM_COLOR)
+  if((program.name >= NShader::PROGRAM_COLOR) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
     glDisableVertexAttribArray(program.uniforms.vertexPosition);
-  if(program.name >= NShader::PROGRAM_BASIC)
+  if((program.name >= NShader::PROGRAM_BASIC) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
   {
     glDisableVertexAttribArray(program.uniforms.vertexTexCoord);
     glDisableVertexAttribArray(program.uniforms.vertexColor);
   }
-  if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+  if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
     glDisableVertexAttribArray(program.uniforms.vertexNormal);
-  if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+  if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL) && (program.name < NShader::PROGRAM_LPV_PROPAGATION))
   {
     glDisableVertexAttribArray(program.uniforms.vertexNormalTangent);
     //glDisableVertexAttribArray(program.uniforms.vertexNormalBitangent);
