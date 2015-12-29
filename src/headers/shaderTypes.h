@@ -35,6 +35,7 @@ namespace NShader
   static const char STR_UNIFORM_NOR_TEX[] = "norTex";
   static const char STR_UNIFORM_ENV_TEX[] = "envTex";
   static const char STR_UNIFORM_DEPTH_TEX[] = "depthTex";
+  static const char STR_UNIFORM_LPV_TEX[] = "lpvTex";
   static const char STR_UNIFORM_TYPE[] = "type";
   static const char STR_UNIFORM_OPACITY[] = "opacity";
   static const char STR_UNIFORM_DEPTH_TEXEL_SIZE[] = "depthTexelSize";
@@ -45,6 +46,8 @@ namespace NShader
   static const char STR_UNIFORM_LIGHT_SPEC_COLOR[] = "lightSpeColor";
   static const char STR_UNIFORM_FOG_RANGE[] = "fogRange";
   static const char STR_UNIFORM_FOG_COLOR[] = "fogColor";
+  static const char STR_UNIFORM_LPV_POS[] = "lpvPos";
+  static const char STR_UNIFORM_LPV_CELL_SIZE[] = "lpvCellSize";
 
   static const char STR_SHADER_UNUSED[] = "";
 
@@ -341,19 +344,23 @@ namespace NShader
     SAMPLER_PER_FRAGMENT_DIF = 0,
     SAMPLER_PER_FRAGMENT_SPE,
     SAMPLER_PER_FRAGMENT_DEPTH,
+    SAMPLER_PER_FRAGMENT_LPV,
     SAMPLER_PER_FRAGMENT_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_ALPHA_SPE,
     SAMPLER_PER_FRAGMENT_ALPHA_DEPTH,
+    SAMPLER_PER_FRAGMENT_ALPHA_LPV,
     SAMPLER_PER_FRAGMENT_NORMAL_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_NOR,
     SAMPLER_PER_FRAGMENT_NORMAL_DEPTH,
+    SAMPLER_PER_FRAGMENT_NORMAL_LPV,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV,
     SAMPLER_GEOMETRY_DIF = 0,
     SAMPLER_GEOMETRY_NOR,
   };
@@ -380,6 +387,7 @@ struct SShaderUniforms
   GLuint norTex;
   GLuint envTex;
   GLuint depthTex;
+  GLuint lpvTex;
 
   GLuint type;
   GLuint opacity;
@@ -394,12 +402,16 @@ struct SShaderUniforms
   GLuint fogRange;
   GLuint fogColor;
 
+  GLuint lpvPos;
+  GLuint lpvCellSize;
+
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), /*vertexNormalBitangent(0),*/ vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), mvpdb(0), cam(0),
-    difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0),
+    difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0), lpvTex(0),
     type(0), opacity(0), depthTexelSize(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
-    fogRange(0), fogColor(0)
+    fogRange(0), fogColor(0),
+    lpvPos(0), lpvCellSize(0)
   {
   }
 };

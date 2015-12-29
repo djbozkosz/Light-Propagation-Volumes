@@ -17,12 +17,14 @@ CMap::~CMap()
 void CMap::load()
 {
   //COpenGL *gl = context->getOpenGL();
-  GLenum texFormat = (map.format & NMap::FORMAT_3D) ? GL_TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-  const GLint internalFormat = (map.format & NMap::FORMAT_DEPTH) ? GL_DEPTH_COMPONENT24 : ((map.format & NMap::FORMAT_STENCIL) ? GL_DEPTH24_STENCIL8 : GL_RGBA);
-  const GLint format = (map.format & NMap::FORMAT_DEPTH) ? GL_DEPTH_COMPONENT : ((map.format & NMap::FORMAT_STENCIL) ? GL_DEPTH_STENCIL : GL_RGBA);
-  const GLint dataType = (map.format & NMap::FORMAT_DEPTH) ? GL_FLOAT : ((map.format & NMap::FORMAT_STENCIL) ? GL_UNSIGNED_INT : GL_UNSIGNED_BYTE);
+  const bool empty = (map.width) || (map.height) || (map.depth);
 
-  if((map.width) || (map.height) || (map.depth))
+  const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? ((empty) ? GL_TEXTURE_3D : GL_TEXTURE_2D) : ((map.format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+  const GLint internalFormat = (map.format & NMap::FORMAT_DEPTH) ? GL_DEPTH_COMPONENT24 : ((map.format & NMap::FORMAT_STENCIL) ? GL_DEPTH24_STENCIL8 : ((empty) ? GL_RGBA32F : GL_RGBA));
+  const GLint format = (map.format & NMap::FORMAT_DEPTH) ? GL_DEPTH_COMPONENT : ((map.format & NMap::FORMAT_STENCIL) ? GL_DEPTH_STENCIL : GL_RGBA);
+  const GLint dataType = (map.format & NMap::FORMAT_DEPTH) ? GL_FLOAT : ((map.format & NMap::FORMAT_STENCIL) ? GL_UNSIGNED_INT : ((empty) ? GL_FLOAT : GL_UNSIGNED_BYTE));
+
+  if(empty)
   { // empty texture
     glGenTextures(1, &map.texture);
     glBindTexture(texFormat, map.texture);
@@ -58,9 +60,6 @@ void CMap::load()
   }
   else
   { // texture from file
-    if(texFormat == GL_TEXTURE_3D)
-      texFormat = GL_TEXTURE_2D;
-
     for(uint32 side = 0; side < ((texFormat != GL_TEXTURE_CUBE_MAP) ? 1 : NMap::CUBE_SIZE); side++)
     {
       bool loaded = false;

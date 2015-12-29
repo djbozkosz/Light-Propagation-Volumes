@@ -56,18 +56,20 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, uint8 format) const
 {
   //COpenGL *gl = context->getOpenGL();
 
-  GLenum texFormat = (map.format & NMap::FORMAT_3D) ? GL_TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+  const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? GL_TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0 + sampler);
   glBindTexture(texFormat, map.texture);
   glTexParameteri(texFormat, GL_TEXTURE_MAG_FILTER, (format & NMap::FORMAT_LINEAR) ? GL_LINEAR : ((format & NMap::FORMAT_MIPMAP) ? GL_LINEAR : GL_NEAREST));
   glTexParameteri(texFormat, GL_TEXTURE_MIN_FILTER, (format & NMap::FORMAT_LINEAR) ? GL_LINEAR : ((format & NMap::FORMAT_MIPMAP) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
   glTexParameteri(texFormat, GL_TEXTURE_WRAP_S, (format & NMap::FORMAT_EDGE) ? GL_CLAMP_TO_EDGE : GL_REPEAT);
   glTexParameteri(texFormat, GL_TEXTURE_WRAP_T, (format & NMap::FORMAT_EDGE) ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-  /*if(format & NMap::FORMAT_DEPTH)
+  if(format & NMap::FORMAT_DEPTH)
   {
     glTexParameteri(texFormat, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
     glTexParameteri(texFormat, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-  }*/
+  }
+  else
+    glTexParameteri(texFormat, GL_TEXTURE_COMPARE_MODE, GL_NONE);
   glUniform1i(uniform, sampler);
 }
 //------------------------------------------------------------------------------

@@ -107,19 +107,34 @@ void CWindow::initializeGL()
 
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-  CEngineBase::context->getMaps()->loadDefaultMaps();
+  // maps
+  CMaps *maps = CEngineBase::context->getMaps();
+  maps->loadDefaultMaps();
+  CMap *lpvMap = maps->addMap(SMap(NWindow::STR_LPV_MAP, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+  maps->addMap(SMap(NWindow::STR_GV_MAP, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
 
+  // lpv test
+  std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
+  for(auto it = lpvData.begin(); it != lpvData.end(); it++)
+    *it = static_cast<float>((rand() % 2000) - 1000) * 0.001f;
+  glBindTexture(GL_TEXTURE_3D, lpvMap->getMap()->texture);
+  glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, GL_RGBA, GL_FLOAT, &lpvData[0]);
+  glBindTexture(GL_TEXTURE_3D, 0);
+
+  // framebuffers
+  CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   std::vector<uint8> fboAttachments;
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
-  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, e->maxDepthTextureSize, e->maxDepthTextureSize));
+  fbo->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, e->depthTextureSize, e->depthTextureSize));
 
   fboAttachments.clear();
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // amb
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // pos
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // normal
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE); // depth
-  CEngineBase::context->getFramebuffers()->addFbo(SFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO, fboAttachments, NMap::RBO, e->maxGeometryTextureSize, e->maxGeometryTextureSize));
+  fbo->addFbo(SFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO, fboAttachments, NMap::RBO, e->geometryTextureSize, e->geometryTextureSize));
 
+  // shaders
   for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
     s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::GEOMETRY_SHADERS_COUNT; i++)

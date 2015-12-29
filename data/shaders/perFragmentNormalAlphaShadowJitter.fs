@@ -14,6 +14,7 @@ uniform sampler2D alpTex;
 uniform sampler2D speTex;
 uniform sampler2D norTex;
 uniform sampler2DShadow depthTex;
+uniform sampler3D lpvTex;
 
 uniform int type;
 uniform float opacity;
@@ -26,6 +27,9 @@ uniform vec3 lightColor;
 uniform vec4 lightSpeColor;
 uniform vec2 fogRange;
 uniform vec3 fogColor;
+
+uniform vec3 lpvPos;
+uniform vec3 lpvCellSize;
 
 out vec4 glFragColor;
 
@@ -54,6 +58,8 @@ void main()
 
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
+
+  vec3 lpvColor = texture(lpvTex, (lpvPos + positionWorld) * lpvCellSize).rgb;
 
   vec3 fragAlp = texture(alpTex, texCoord).rgb;
   vec3 fragSpe = texture(speTex, texCoord).rgb;
@@ -86,5 +92,5 @@ void main()
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
   float alpha = (fragAlp.r + fragAlp.g + fragAlp.b) * 0.3333333334 * color.a * opacity + (colorSpe.r + colorSpe.g + colorSpe.b) * 0.3333333334;
-  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), alpha);
+  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/ + lpvColor, fogColor/* + fogDot * lightColor*/, fogDist), alpha);
 }

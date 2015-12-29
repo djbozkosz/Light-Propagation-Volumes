@@ -172,6 +172,7 @@ void CShaderProgram::initUniforms()
   program.uniforms.norTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_NOR_TEX);
   program.uniforms.envTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_ENV_TEX);
   program.uniforms.depthTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEX);
+  program.uniforms.lpvTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX);
   program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_UNIFORM_TYPE);
   program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_UNIFORM_OPACITY);
   program.uniforms.depthTexelSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEXEL_SIZE);
@@ -182,6 +183,8 @@ void CShaderProgram::initUniforms()
   program.uniforms.lightSpeColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_SPEC_COLOR);
   program.uniforms.fogRange = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FOG_RANGE);
   program.uniforms.fogColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FOG_COLOR);
+  program.uniforms.lpvPos = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_POS);
+  program.uniforms.lpvCellSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_CELL_SIZE);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::bind() const
@@ -231,7 +234,9 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
   if(technique->material)
   {
     const SMaterial *m = technique->material;
+    const SEngine *e = context->engineGetEngine();
     const CMap *depthMap = context->getMaps()->getMap(NWindow::STR_ORTHO_DEPTH_FBO_MAP);
+    const CMap *lpvMap = context->getMaps()->getMap(NWindow::STR_LPV_MAP);
 
     if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
        (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
@@ -257,7 +262,10 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       if(program.name != NShader::PROGRAM_PER_FRAGMENT)
+      {
         setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
+        setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+      }
     }
     else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_ALPHA_SHADOW_JITTER))
     {
@@ -265,7 +273,10 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       setSampler(m->alphaMap, program.uniforms.alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       if(program.name != NShader::PROGRAM_PER_FRAGMENT_ALPHA)
+      {
         setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
+        setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+      }
     }
     else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER))
     {
@@ -273,7 +284,10 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+      {
         setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
+        setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+      }
     }
     else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER))
     {
@@ -282,7 +296,10 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       setSampler(m->specularMap, program.uniforms.speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
+      {
         setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
+        setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+      }
     }
     if(program.name == NShader::PROGRAM_GEOMETRY)
     {
@@ -293,6 +310,11 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     glUniform1i(program.uniforms.type, m->type);
     glUniform1f(program.uniforms.opacity, m->opacity);
     glUniform3f(program.uniforms.depthTexelSize, 0.5f / static_cast<float>(depthMap->getMap()->width), 0.5f / static_cast<float>(depthMap->getMap()->height), context->engineGetEngine()->shadowJittering);
+
+    const glm::vec3 lpvCellSize(e->lpvCellSize / e->lpvTextureSize);
+    const glm::vec3 lpvPos(e->lpvCellSize * e->lpvTextureSize * 0.5f - e->lpvPos);
+    glUniform3f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z);
+    glUniform3f(program.uniforms.lpvCellSize, lpvCellSize.x, lpvCellSize.y, lpvCellSize.z);
     context->getMaps()->finishBind();
   }
 

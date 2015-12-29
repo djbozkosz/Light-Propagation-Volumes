@@ -13,6 +13,7 @@ uniform sampler2D difTex;
 uniform sampler2D speTex;
 uniform sampler2D norTex;
 uniform sampler2DShadow depthTex;
+uniform sampler3D lpvTex;
 
 uniform int type;
 uniform vec3 depthTexelSize;
@@ -24,6 +25,9 @@ uniform vec3 lightColor;
 uniform vec4 lightSpeColor;
 uniform vec2 fogRange;
 uniform vec3 fogColor;
+
+uniform vec3 lpvPos;
+uniform vec3 lpvCellSize;
 
 out vec4 glFragColor;
 
@@ -52,6 +56,8 @@ void main()
 
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
+
+  vec3 lpvColor = texture(lpvTex, (lpvPos + positionWorld) * lpvCellSize).rgb;
 
   vec3 fragSpe = texture(speTex, texCoord).rgb;
 
@@ -82,5 +88,5 @@ void main()
   /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
-  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
+  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/ + lpvColor, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
 }

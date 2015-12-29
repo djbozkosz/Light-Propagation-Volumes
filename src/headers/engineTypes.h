@@ -26,8 +26,17 @@ namespace NEngine
   static const uint32 DEFAULT_SCREEN_HEIGHT = 600;
   static const uint32 DEFAULT_MULTISAMPLING = 4;
   static const uint32 MAX_TEXTURE_SIZE = 0;
-  static const uint32 MAX_DEPTH_TEXTURE_SIZE = 2048;
-  static const uint32 MAX_GEOMETRY_TEXTURE_SIZE = 32;
+  static const uint32 DEPTH_TEXTURE_SIZE = 2048;
+  static const uint32 GEOMETRY_TEXTURE_SIZE = 32;
+  static const float LPV_TEXTURE_SIZE_X = 32.0f;
+  static const float LPV_TEXTURE_SIZE_Y = 32.0f;
+  static const float LPV_TEXTURE_SIZE_Z = 32.0f;
+  static const float LPV_POS_X = 0.0f;
+  static const float LPV_POS_Y = 0.0f;
+  static const float LPV_POS_Z = 0.0f;
+  static const float LPV_CELL_SIZE_X = 1.0f;
+  static const float LPV_CELL_SIZE_Y = 1.0f;
+  static const float LPV_CELL_SIZE_Z = 1.0f;
   static const uint32 ORTHO_DEPTH_SIZE = 32.0f;
   static const uint32 ORTHO_DEPTH_DEPTH = 200.0f;
   static const uint32 SHADOW_JITTERING = 2.0f;
@@ -151,8 +160,11 @@ struct SEngine
 
   uint8 multisampling;
   uint32 maxTextureSize;
-  uint32 maxDepthTextureSize;
-  uint32 maxGeometryTextureSize;
+  uint32 depthTextureSize;
+  uint32 geometryTextureSize;
+  glm::vec3 lpvTextureSize;
+  glm::vec3 lpvPos;
+  glm::vec3 lpvCellSize;
   float orthoDepthSize;
   float orthoDepthDepth;
   float shadowJittering;
@@ -179,8 +191,11 @@ struct SEngine
     defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
     multisampling(NEngine::DEFAULT_MULTISAMPLING),
     maxTextureSize(NEngine::MAX_TEXTURE_SIZE),
-    maxDepthTextureSize(NEngine::MAX_DEPTH_TEXTURE_SIZE),
-    maxGeometryTextureSize(NEngine::MAX_GEOMETRY_TEXTURE_SIZE),
+    depthTextureSize(NEngine::DEPTH_TEXTURE_SIZE),
+    geometryTextureSize(NEngine::GEOMETRY_TEXTURE_SIZE),
+    lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
+    lpvPos(NEngine::LPV_POS_X, NEngine::LPV_POS_Y, NEngine::LPV_POS_Z),
+    lpvCellSize(NEngine::LPV_CELL_SIZE_X, NEngine::LPV_CELL_SIZE_Y, NEngine::LPV_CELL_SIZE_Z),
     orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
     orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH),
     shadowJittering(NEngine::SHADOW_JITTERING),

@@ -15,6 +15,9 @@ namespace NWindow
   static const char STR_ORTHO_GEOMETRY_FBO_AMB_MAP[] = "orthoGeometry_2";
   static const char STR_ORTHO_GEOMETRY_FBO_DEPTH_MAP[] = "orthoGeometry_3";
 
+  static const char STR_LPV_MAP[] = "lpv3D";
+  static const char STR_GV_MAP[] = "gv3D";
+
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
 
   static const char STR_ERROR_INIT_SDL[] = "Unable to init SDL";

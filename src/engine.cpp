@@ -24,8 +24,8 @@ CEngine::CEngine(
   //engine.flags = NEngine::EFLAG_FULLSCREEN;
   engine.multisampling = 1;
   //engine.maxTextureSize = 256;
-  //engine.maxDepthTextureSize = 256;
-  engine.maxGeometryTextureSize = 256;
+  //engine.depthTextureSize = 256;
+  engine.geometryTextureSize = 256;
   engine.defaultScreenWidth = 1024;
   engine.defaultScreenHeight = 600;
   //engine.orthoDepthSize = 64.0f;
