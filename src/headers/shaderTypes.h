@@ -8,13 +8,13 @@
 //------------------------------------------------------------------------------
 namespace NShader
 {
-  static const uint32 VERTEX_SHADERS_COUNT = 8;
+  static const uint32 VERTEX_SHADERS_COUNT = 9;
   static const uint32 GEOMETRY_SHADERS_COUNT = 1;
   static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 1;
   static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 1;
-  static const uint32 FRAGMENT_SHADERS_COUNT = 17;
+  static const uint32 FRAGMENT_SHADERS_COUNT = 18;
   static const uint32 COMPUTE_SHADERS_COUNT = 1;
-  static const uint32 PROGRAMS_COUNT = 18;
+  static const uint32 PROGRAMS_COUNT = 19;
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
@@ -59,6 +59,7 @@ namespace NShader
   static const char STR_VERTEX_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.vs";
   static const char STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.vs";
   static const char STR_VERTEX_GEOMETRY[] = "geometry.vs";
+  static const char STR_VERTEX_LPV_INJECTION[] = "lpvInjection.vs";
 
   static const char STR_FRAGMENT_COLOR[] = "color.fs";
   static const char STR_FRAGMENT_DEPTH[] = "depth.fs";
@@ -77,6 +78,7 @@ namespace NShader
   static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW[] = "perFragmentNormalAlphaShadow.fs";
   static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER[] = "perFragmentNormalAlphaShadowJitter.fs";
   static const char STR_FRAGMENT_GEOMETRY[] = "geometry.fs";
+  static const char STR_FRAGMENT_LPV_INJECTION[] = "lpvInjection.fs";
 
   static const char STR_COMPUTE_LPV_PROPAGATION[] = "lpvPropagation.cs";
 
@@ -104,6 +106,7 @@ namespace NShader
     "Per Fragment Normal Alpha Normal",
     "Per Fragment Normal Alpha Normal Jitter",
     "Geometry",
+    "LPV Injection"
     "LPV Propagation"
   };
 
@@ -117,7 +120,8 @@ namespace NShader
     STR_VERTEX_PER_FRAGMENT_SHADOW,
     STR_VERTEX_PER_FRAGMENT_NORMAL,
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_GEOMETRY
+    STR_VERTEX_GEOMETRY,
+    STR_VERTEX_LPV_INJECTION
   };
 
   static const char *const STR_GEOMETRY_SHADER_LIST[] =
@@ -152,7 +156,8 @@ namespace NShader
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
-    STR_FRAGMENT_GEOMETRY
+    STR_FRAGMENT_GEOMETRY,
+    STR_FRAGMENT_LPV_INJECTION
   };
 
   static const char *const STR_COMPUTE_SHADER_LIST[] =
@@ -180,11 +185,13 @@ namespace NShader
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
     STR_VERTEX_GEOMETRY,
+    STR_VERTEX_LPV_INJECTION,
     STR_SHADER_UNUSED
   };
 
   static const char *const STR_PROGRAM_GEOMETRY_SHADER_LIST[] =
   {
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
@@ -224,10 +231,12 @@ namespace NShader
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
   };
   static const char *const STR_PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[] =
   {
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
@@ -267,11 +276,13 @@ namespace NShader
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
     STR_FRAGMENT_GEOMETRY,
+    STR_FRAGMENT_LPV_INJECTION,
     STR_SHADER_UNUSED
   };
 
   static const char *const STR_PROGRAM_COMPUTE_SHADER_LIST[] =
   {
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
@@ -333,6 +344,7 @@ namespace NShader
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
     PROGRAM_GEOMETRY,
+    PROGRAM_LPV_INJECTION,
     PROGRAM_LPV_PROPAGATION
   };
 
@@ -363,6 +375,8 @@ namespace NShader
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV,
     SAMPLER_GEOMETRY_DIF = 0,
     SAMPLER_GEOMETRY_NOR,
+    SAMPLER_LPV_INJECTION_DIF = 0,
+    SAMPLER_LPV_INJECTION_NOR
   };
 }
 //------------------------------------------------------------------------------

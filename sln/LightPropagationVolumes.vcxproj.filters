@@ -24,6 +24,18 @@
     <Filter Include="Settings Files">
       <UniqueIdentifier>{c95ad156-7e50-456e-a11a-1ffa989fffae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\Tesselation Control">
+      <UniqueIdentifier>{65dc5354-c121-48c2-a092-15e001fc9615}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Tesselation Evaluation">
+      <UniqueIdentifier>{6ede5450-988f-4820-9cc0-6738ddbbabe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Geometry">
+      <UniqueIdentifier>{c97fb403-cf72-462a-bd29-925a13c4e9a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Compute">
+      <UniqueIdentifier>{15ae1b98-911d-4125-844f-89723399050b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\engine.cpp">
@@ -226,6 +238,21 @@
       <Filter>Shader Files\Vertex</Filter>
     </None>
     <None Include="..\data\shaders\perFragmentShadow.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\geometry.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvPropagation.cs">
+      <Filter>Shader Files\Compute</Filter>
+    </None>
+    <None Include="..\data\shaders\geometry.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvInjection.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvInjection.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
   </ItemGroup>

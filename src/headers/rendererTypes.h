@@ -13,7 +13,9 @@ namespace NRenderer
     MODE_BACKDROP,
     MODE_PICK,
     MODE_DEPTH,
-    MODE_GEOMETRY
+    MODE_GEOMETRY,
+    MODE_LPV_INJECTION,
+    MODE_LPV_PROPAGATION
   };
 }
 //------------------------------------------------------------------------------

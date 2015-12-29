@@ -301,10 +301,15 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
       }
     }
-    if(program.name == NShader::PROGRAM_GEOMETRY)
+    else if(program.name == NShader::PROGRAM_GEOMETRY)
     {
       setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_GEOMETRY_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_GEOMETRY_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+    }
+    else if(program.name == NShader::PROGRAM_LPV_INJECTION)
+    {
+      setSampler(m->diffuseMap, program.uniforms.difTex, NShader::SAMPLER_LPV_INJECTION_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+      setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_LPV_INJECTION_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
     }
 
     glUniform1i(program.uniforms.type, m->type);

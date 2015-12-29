@@ -238,7 +238,7 @@ void CWindow::paintGL()
       fboGeo->bind();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      ren->setMode(NRenderer::MODE_GEOMETRY);
+      ren->setMode(NRenderer::MODE_LPV_INJECTION);
       s->render();
       ren->dispatch();
       ren->clearGroups();
@@ -260,7 +260,7 @@ void CWindow::paintGL()
     fboGeo->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ren->setMode(NRenderer::MODE_GEOMETRY);
+    ren->setMode(NRenderer::MODE_LPV_INJECTION);
     s->render();
     ren->dispatch();
     ren->clearGroups();
