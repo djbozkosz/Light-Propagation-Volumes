@@ -28,12 +28,12 @@ namespace NEngine
   static const uint32 MAX_TEXTURE_SIZE = 0;
   static const uint32 DEPTH_TEXTURE_SIZE = 2048;
   static const uint32 GEOMETRY_TEXTURE_SIZE = 32;
-  static const float LPV_TEXTURE_SIZE_X = 32.0f;
-  static const float LPV_TEXTURE_SIZE_Y = 32.0f;
-  static const float LPV_TEXTURE_SIZE_Z = 32.0f;
   static const float LPV_POS_X = 0.0f;
   static const float LPV_POS_Y = 0.0f;
   static const float LPV_POS_Z = 0.0f;
+  static const float LPV_TEXTURE_SIZE_X = 32.0f;
+  static const float LPV_TEXTURE_SIZE_Y = 32.0f;
+  static const float LPV_TEXTURE_SIZE_Z = 32.0f;
   static const float LPV_CELL_SIZE_X = 1.0f;
   static const float LPV_CELL_SIZE_Y = 1.0f;
   static const float LPV_CELL_SIZE_Z = 1.0f;
@@ -162,8 +162,8 @@ struct SEngine
   uint32 maxTextureSize;
   uint32 depthTextureSize;
   uint32 geometryTextureSize;
-  glm::vec3 lpvTextureSize;
   glm::vec3 lpvPos;
+  glm::vec3 lpvTextureSize;
   glm::vec3 lpvCellSize;
   float orthoDepthSize;
   float orthoDepthDepth;
@@ -193,8 +193,8 @@ struct SEngine
     maxTextureSize(NEngine::MAX_TEXTURE_SIZE),
     depthTextureSize(NEngine::DEPTH_TEXTURE_SIZE),
     geometryTextureSize(NEngine::GEOMETRY_TEXTURE_SIZE),
-    lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
     lpvPos(NEngine::LPV_POS_X, NEngine::LPV_POS_Y, NEngine::LPV_POS_Z),
+    lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
     lpvCellSize(NEngine::LPV_CELL_SIZE_X, NEngine::LPV_CELL_SIZE_Y, NEngine::LPV_CELL_SIZE_Z),
     orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
     orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH),

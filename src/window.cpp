@@ -116,14 +116,14 @@ void CWindow::initializeGL()
   // lpv test
   std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
   for(auto it = lpvData.begin(); it != lpvData.end(); it++)
-    *it = static_cast<float>((rand() % 2000) - 1000) * 0.001f;
+    *it = static_cast<float>((rand() % 2000) - 1900) * 0.001f;
   glBindTexture(GL_TEXTURE_3D, lpvMap->getMap()->texture);
   glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, GL_RGBA, GL_FLOAT, &lpvData[0]);
   glBindTexture(GL_TEXTURE_3D, 0);
 
   // framebuffers
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
-  std::vector<uint8> fboAttachments;
+  std::vector<uint32> fboAttachments;
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
   fbo->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, e->depthTextureSize, e->depthTextureSize));
 
@@ -146,7 +146,7 @@ void CWindow::initializeGL()
   for(uint32 i = 0; i < NShader::FRAGMENT_SHADERS_COUNT; i++)
     s->addShader(SShader(NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::COMPUTE_SHADERS_COUNT; i++)
-    s->addShader(SShader(NShader::TYPE_FRAGMENT, NShader::STR_COMPUTE_SHADER_LIST[i]));
+    s->addShader(SShader(NShader::TYPE_COMPUTE, NShader::STR_COMPUTE_SHADER_LIST[i]));
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
     s->addShaderProgram(SShaderProgram(
@@ -167,6 +167,8 @@ void CWindow::paintGL()
 {
   //COpenGL *gl = CEngineBase::context->getOpenGL();
   CRenderer *ren = CEngineBase::context->getRenderer();
+  CShaders *sh = CEngineBase::context->getShaders();
+  //CMaps *maps = CEngineBase::context->getMaps();
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CCamera *cam = CEngineBase::context->getCamera();
   CCulling *cul = CEngineBase::context->getCulling();
@@ -194,6 +196,12 @@ void CWindow::paintGL()
     s->render();
     ren->dispatch();
     ren->clearGroups();
+
+    // clear lpv
+    /*if(CMap *lpvMap = maps->getMap(NWindow::STR_LPV_MAP))
+      lpvMap->clear();
+    if(CMap *gvMap = maps->getMap(NWindow::STR_GV_MAP))
+      gvMap->clear();*/
 
     // depth map
     CFramebuffer *fboDepth = fbo->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO);
@@ -238,13 +246,18 @@ void CWindow::paintGL()
       fboGeo->bind();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      ren->setMode(NRenderer::MODE_LPV_INJECTION);
+      ren->setMode(NRenderer::MODE_GEOMETRY);
       s->render();
       ren->dispatch();
       ren->clearGroups();
 
       fbo->unbind();
       fboGeo->setChanged(false);
+
+      sh->getProgram(NShader::PROGRAM_LPV_CLEAR)->
+        dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR);
+      sh->getProgram(NShader::PROGRAM_LPV_INJECTION)->
+        dispatch(e->geometryTextureSize, e->geometryTextureSize, 1, NRenderer::MODE_LPV_INJECTION);
     }
     
     // standard
@@ -256,7 +269,7 @@ void CWindow::paintGL()
       cul->updateFrustum();
     
     // geo camera
-    fboGeo->setCamera(*c);
+    /*fboGeo->setCamera(*c);
     fboGeo->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -266,8 +279,9 @@ void CWindow::paintGL()
     ren->clearGroups();
 
     fbo->unbind();
-    fboGeo->setChanged(false);
+    fboGeo->setChanged(false);*/
 
+    // standard
     ren->setMode(NRenderer::MODE_STANDARD);
     s->render();
     ren->dispatch();

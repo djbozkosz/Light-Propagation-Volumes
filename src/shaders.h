@@ -34,7 +34,7 @@ class CShaderProgram : public CEngineBase
   private:
     SShaderProgram program;
 
-    void setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint8 format = NMap::FORMAT_MIPMAP) const;
+    void setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint32 format = NMap::FORMAT_MIPMAP) const;
 
   public:
     CShaderProgram();
@@ -48,6 +48,7 @@ class CShaderProgram : public CEngineBase
     void begin(const SShaderTechnique *technique, NRenderer::EMode mode = NRenderer::MODE_STANDARD) const;
     void end(const SShaderTechnique *technique) const;
     void unbind() const;
+    void dispatch(uint32 x, uint32 y, uint32 z, NRenderer::EMode mode, GLbitfield preSync = GL_NONE, GLbitfield postSync = GL_NONE) const;
 
     inline const SShaderProgram *getProgram() const { return &program; }
 };
@@ -99,12 +100,12 @@ inline CShaderProgram *CShaders::addShaderProgram(const SShaderProgram &shaderPr
   return sp;
 }
 //------------------------------------------------------------------------------
-inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint8 format) const
+inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint32 format) const
 {
   if(texture)
     texture->bind(uniform, sampler, format);
   else
-    context->getMaps()->unbind(uniform, sampler);
+    context->getMaps()->unbind(uniform, sampler, format);
 }
 //------------------------------------------------------------------------------
 #endif // SHADERS_H

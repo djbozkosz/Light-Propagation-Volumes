@@ -56,25 +56,28 @@ namespace NMap
 
   enum EPickColorInc
   {
-    PICK_INC_1 = 1,
-    PICK_INC_2 = 2,
-    PICK_INC_4 = 4,
-    PICK_INC_8 = 8,
+    PICK_INC_1  = 1,
+    PICK_INC_2  = 2,
+    PICK_INC_4  = 4,
+    PICK_INC_8  = 8,
     PICK_INC_16 = 16,
     PICK_INC_32 = 32
   };
 
   enum EMapFormat
   {
-    FORMAT = 0x00,
-    FORMAT_2D = 0x01,
-    FORMAT_3D = 0x02,
-    FORMAT_CUBE = 0x04,
-    FORMAT_DEPTH = 0x08,
-    FORMAT_STENCIL = 0x10,
-    FORMAT_LINEAR = 0x20,
-    FORMAT_MIPMAP = 0x40,
-    FORMAT_EDGE = 0x80
+    FORMAT          = 0x0000,
+    FORMAT_2D       = 0x0001,
+    FORMAT_3D       = 0x0002,
+    FORMAT_CUBE     = 0x0004,
+    FORMAT_DEPTH    = 0x0008,
+    FORMAT_STENCIL  = 0x0010,
+    FORMAT_LINEAR   = 0x0020,
+    FORMAT_MIPMAP   = 0x0040,
+    FORMAT_EDGE     = 0x0080,
+    FORMAT_IMAGE_R  = 0x0100,
+    FORMAT_IMAGE_W  = 0x0200,
+    FORMAT_IMAGE_RW = 0x0400
   };
 
   enum ERboFormat
@@ -132,26 +135,26 @@ struct SMap
   std::string file;
   GLuint texture;
   SColor color;
-  uint8 format;
+  uint32 format;
   uint32 width;
   uint32 height;
   uint32 depth;
 
   inline SMap() : texture(0), format(NMap::FORMAT_2D), width(0), height(0), depth(0) {}
   inline SMap(const std::string &file, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), format(NMap::FORMAT_2D), width(0), height(0), depth(0) {}
-  inline SMap(const std::string &file, uint8 format, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), format(format), width(0), height(0), depth(0) {}
-  inline SMap(const std::string &name, uint8 format, uint32 width, uint32 height, uint32 depth = 0) : file(name), texture(0), format(format), width(width), height(height), depth(depth) {}
+  inline SMap(const std::string &file, uint32 format, const SColor &color = SColor(NMap::DEFAULT_MAP_R, NMap::DEFAULT_MAP_G, NMap::DEFAULT_MAP_B, NMap::DEFAULT_MAP_A)) : file(file), texture(0), color(color), format(format), width(0), height(0), depth(0) {}
+  inline SMap(const std::string &name, uint32 format, uint32 width, uint32 height, uint32 depth = 0) : file(name), texture(0), format(format), width(width), height(height), depth(depth) {}
 };
 //-----------------------------------------------------------------------------
 class CMap;
 
 struct SFramebufferAttachment
 {
-  uint8 format;
+  uint32 format;
   const CMap *map;
 
   inline SFramebufferAttachment() : format(NMap::FORMAT_2D), map(NULL) {}
-  inline SFramebufferAttachment(uint8 format, const CMap *map) : format(format), map(map) {}
+  inline SFramebufferAttachment(uint32 format, const CMap *map) : format(format), map(map) {}
 };
 //-----------------------------------------------------------------------------
 struct SFramebuffer
@@ -168,7 +171,7 @@ struct SFramebuffer
   SCamera camera;
 
   inline SFramebuffer() : changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(NMap::RBO_DEPTH), width(1), height(1) {}
-  inline SFramebuffer(const std::string &name, const std::vector<uint8> &attachments, uint8 rboFormat, uint32 width, uint32 height) : name(name), changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height)
+  inline SFramebuffer(const std::string &name, const std::vector<uint32> &attachments, uint8 rboFormat, uint32 width, uint32 height) : name(name), changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height)
   {
     for(auto it = attachments.cbegin(); it != attachments.cend(); it++)
       this->attachments.push_back(SFramebufferAttachment(*it, NULL));

@@ -26,6 +26,7 @@ CEngine::CEngine(
   //engine.maxTextureSize = 256;
   //engine.depthTextureSize = 256;
   engine.geometryTextureSize = 256;
+  engine.lpvCellSize = glm::vec3(1.0f);
   engine.defaultScreenWidth = 1024;
   engine.defaultScreenHeight = 600;
   //engine.orthoDepthSize = 64.0f;

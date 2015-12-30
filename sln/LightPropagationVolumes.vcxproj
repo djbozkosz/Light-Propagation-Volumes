@@ -75,8 +75,8 @@
     <None Include="..\data\shaders\depth.vs" />
     <None Include="..\data\shaders\geometry.fs" />
     <None Include="..\data\shaders\geometry.vs" />
-    <None Include="..\data\shaders\lpvInjection.fs" />
-    <None Include="..\data\shaders\lpvInjection.vs" />
+    <None Include="..\data\shaders\lpvClear.cs" />
+    <None Include="..\data\shaders\lpvInjection.cs" />
     <None Include="..\data\shaders\lpvPropagation.cs" />
     <None Include="..\data\shaders\perFragment.fs" />
     <None Include="..\data\shaders\perFragment.vs" />

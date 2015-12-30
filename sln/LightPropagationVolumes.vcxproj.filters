@@ -249,11 +249,11 @@
     <None Include="..\data\shaders\geometry.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
-    <None Include="..\data\shaders\lpvInjection.fs">
-      <Filter>Shader Files\Fragment</Filter>
+    <None Include="..\data\shaders\lpvInjection.cs">
+      <Filter>Shader Files\Compute</Filter>
     </None>
-    <None Include="..\data\shaders\lpvInjection.vs">
-      <Filter>Shader Files\Vertex</Filter>
+    <None Include="..\data\shaders\lpvClear.cs">
+      <Filter>Shader Files\Compute</Filter>
     </None>
   </ItemGroup>
 </Project>

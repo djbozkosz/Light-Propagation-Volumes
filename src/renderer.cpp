@@ -23,8 +23,6 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
     meshes[NShader::PROGRAM_DEPTH].push_back(mesh);
   else if(renderer.mode == NRenderer::MODE_GEOMETRY)
     meshes[NShader::PROGRAM_GEOMETRY].push_back(mesh);
-  else if(renderer.mode == NRenderer::MODE_LPV_INJECTION)
-    meshes[NShader::PROGRAM_LPV_INJECTION].push_back(mesh);
   else if((mesh.material) && (mesh.material->program))
   {
     NShader::EProgram p = mesh.material->program->getProgram()->name;
@@ -58,7 +56,7 @@ void CRenderer::dispatch() const
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(context->engineGetEngine()->shadowJittering * 0.5f + 1.5f, 1.0f);
     }
-    else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_LPV_INJECTION))
+    else if(p == NShader::PROGRAM_GEOMETRY)
       glDisable(GL_CULL_FACE);
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       glDisable(GL_DEPTH_TEST);*/
@@ -83,7 +81,7 @@ void CRenderer::dispatch() const
 
       if((p != NShader::PROGRAM_COLOR) && (p != NShader::PROGRAM_DEPTH) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
         glDisable(GL_CULL_FACE);
-      else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_LPV_INJECTION))
+      else if(p == NShader::PROGRAM_GEOMETRY)
         glDisable(GL_CULL_FACE);
 
       prog->begin(mesh->technique, renderer.mode);
@@ -94,7 +92,7 @@ void CRenderer::dispatch() const
 
       if((p != NShader::PROGRAM_COLOR) && (p != NShader::PROGRAM_DEPTH) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
         glEnable(GL_CULL_FACE);
-      else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_LPV_INJECTION))
+      else if(p == NShader::PROGRAM_GEOMETRY)
         glEnable(GL_CULL_FACE);
 
       glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -107,7 +105,7 @@ void CRenderer::dispatch() const
       glDisable(GL_POLYGON_OFFSET_FILL);
       glEnable(GL_CULL_FACE);
     }
-    else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_LPV_INJECTION))
+    else if(p == NShader::PROGRAM_GEOMETRY)
       glEnable(GL_CULL_FACE);
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       glEnable(GL_DEPTH_TEST);*/

@@ -8,13 +8,13 @@
 //------------------------------------------------------------------------------
 namespace NShader
 {
-  static const uint32 VERTEX_SHADERS_COUNT = 9;
+  static const uint32 VERTEX_SHADERS_COUNT = 8;
   static const uint32 GEOMETRY_SHADERS_COUNT = 1;
   static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 1;
   static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 1;
-  static const uint32 FRAGMENT_SHADERS_COUNT = 18;
-  static const uint32 COMPUTE_SHADERS_COUNT = 1;
-  static const uint32 PROGRAMS_COUNT = 19;
+  static const uint32 FRAGMENT_SHADERS_COUNT = 17;
+  static const uint32 COMPUTE_SHADERS_COUNT = 3;
+  static const uint32 PROGRAMS_COUNT = 20;
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
@@ -24,11 +24,13 @@ namespace NShader
   //static const char STR_ATTRIB_VERTEX_NORMAL_BITANGENT[] = "vertexNormalBitangent";
   static const char STR_ATTRIB_VERTEX_TEX_COORD[] = "vertexTexCoord";
   static const char STR_ATTRIB_VERTEX_COLOR[] = "vertexColor";
+
   static const char STR_UNIFORM_MW[] = "mw"; // model world (4x4)
   static const char STR_UNIFORM_MWNIT[] = "mwnit"; // model world normal inversed transposed (3x3)
   static const char STR_UNIFORM_MVP[] = "mvp"; // projection * view * model world (4x4)
   static const char STR_UNIFORM_MVPDB[] = "mvpdb"; // mvp depth bias
   static const char STR_UNIFORM_CAM[] = "cam"; // camera world
+
   static const char STR_UNIFORM_DIF_TEX[] = "difTex";
   static const char STR_UNIFORM_ALP_TEX[] = "alpTex";
   static const char STR_UNIFORM_SPE_TEX[] = "speTex";
@@ -36,6 +38,7 @@ namespace NShader
   static const char STR_UNIFORM_ENV_TEX[] = "envTex";
   static const char STR_UNIFORM_DEPTH_TEX[] = "depthTex";
   static const char STR_UNIFORM_LPV_TEX[] = "lpvTex";
+
   static const char STR_UNIFORM_TYPE[] = "type";
   static const char STR_UNIFORM_OPACITY[] = "opacity";
   static const char STR_UNIFORM_DEPTH_TEXEL_SIZE[] = "depthTexelSize";
@@ -46,7 +49,17 @@ namespace NShader
   static const char STR_UNIFORM_LIGHT_SPEC_COLOR[] = "lightSpeColor";
   static const char STR_UNIFORM_FOG_RANGE[] = "fogRange";
   static const char STR_UNIFORM_FOG_COLOR[] = "fogColor";
+
+  static const char STR_UNIFORM_FRAG_COLOR_IMG[] = "fragColor";
+  static const char STR_UNIFORM_FRAG_POS_IMG[] = "fragPos";
+  static const char STR_UNIFORM_FRAG_NORMAL_IMG[] = "fragNormal";
+  static const char STR_UNIFORM_FRAG_DEPTH_IMG[] = "fragDepth";
+  static const char STR_UNIFORM_LPV_IMG[] = "lpvImg";
+  static const char STR_UNIFORM_GV_IMG[] = "gvImg";
+
+  static const char STR_UNIFORM_FRAG_SIZE[] = "fragSize";
   static const char STR_UNIFORM_LPV_POS[] = "lpvPos";
+  static const char STR_UNIFORM_LPV_SIZE[] = "lpvSize";
   static const char STR_UNIFORM_LPV_CELL_SIZE[] = "lpvCellSize";
 
   static const char STR_SHADER_UNUSED[] = "";
@@ -59,7 +72,6 @@ namespace NShader
   static const char STR_VERTEX_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.vs";
   static const char STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.vs";
   static const char STR_VERTEX_GEOMETRY[] = "geometry.vs";
-  static const char STR_VERTEX_LPV_INJECTION[] = "lpvInjection.vs";
 
   static const char STR_FRAGMENT_COLOR[] = "color.fs";
   static const char STR_FRAGMENT_DEPTH[] = "depth.fs";
@@ -78,8 +90,9 @@ namespace NShader
   static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW[] = "perFragmentNormalAlphaShadow.fs";
   static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER[] = "perFragmentNormalAlphaShadowJitter.fs";
   static const char STR_FRAGMENT_GEOMETRY[] = "geometry.fs";
-  static const char STR_FRAGMENT_LPV_INJECTION[] = "lpvInjection.fs";
 
+  static const char STR_COMPUTE_LPV_CLEAR[] = "lpvClear.cs";
+  static const char STR_COMPUTE_LPV_INJECTION[] = "lpvInjection.cs";
   static const char STR_COMPUTE_LPV_PROPAGATION[] = "lpvPropagation.cs";
 
   static const char STR_ERROR_COMPILE[] = "Shader Compilation Error: \"%s\"!";
@@ -106,7 +119,8 @@ namespace NShader
     "Per Fragment Normal Alpha Normal",
     "Per Fragment Normal Alpha Normal Jitter",
     "Geometry",
-    "LPV Injection"
+    "LPV Clear",
+    "LPV Injection",
     "LPV Propagation"
   };
 
@@ -120,8 +134,7 @@ namespace NShader
     STR_VERTEX_PER_FRAGMENT_SHADOW,
     STR_VERTEX_PER_FRAGMENT_NORMAL,
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_GEOMETRY,
-    STR_VERTEX_LPV_INJECTION
+    STR_VERTEX_GEOMETRY
   };
 
   static const char *const STR_GEOMETRY_SHADER_LIST[] =
@@ -156,12 +169,13 @@ namespace NShader
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
-    STR_FRAGMENT_GEOMETRY,
-    STR_FRAGMENT_LPV_INJECTION
+    STR_FRAGMENT_GEOMETRY
   };
 
   static const char *const STR_COMPUTE_SHADER_LIST[] =
   {
+    STR_COMPUTE_LPV_CLEAR,
+    STR_COMPUTE_LPV_INJECTION,
     STR_COMPUTE_LPV_PROPAGATION
   };
 
@@ -185,12 +199,14 @@ namespace NShader
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
     STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
     STR_VERTEX_GEOMETRY,
-    STR_VERTEX_LPV_INJECTION,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
   };
 
   static const char *const STR_PROGRAM_GEOMETRY_SHADER_LIST[] =
   {
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
@@ -232,10 +248,12 @@ namespace NShader
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
   };
   static const char *const STR_PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[] =
   {
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
@@ -276,7 +294,8 @@ namespace NShader
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
     STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
     STR_FRAGMENT_GEOMETRY,
-    STR_FRAGMENT_LPV_INJECTION,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
   };
 
@@ -299,7 +318,8 @@ namespace NShader
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
+    STR_COMPUTE_LPV_CLEAR,
+    STR_COMPUTE_LPV_INJECTION,
     STR_COMPUTE_LPV_PROPAGATION
   };
 
@@ -344,6 +364,7 @@ namespace NShader
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
     PROGRAM_GEOMETRY,
+    PROGRAM_LPV_CLEAR,
     PROGRAM_LPV_INJECTION,
     PROGRAM_LPV_PROPAGATION
   };
@@ -375,8 +396,14 @@ namespace NShader
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV,
     SAMPLER_GEOMETRY_DIF = 0,
     SAMPLER_GEOMETRY_NOR,
-    SAMPLER_LPV_INJECTION_DIF = 0,
-    SAMPLER_LPV_INJECTION_NOR
+    SAMPLER_LPV_CLEAR_LPV_IMG = 0,
+    SAMPLER_LPV_CLEAR_GV_IMG,
+    SAMPLER_LPV_INJECTION_FRAG_COLOR_IMG = 0,
+    SAMPLER_LPV_INJECTION_FRAG_POS_IMG,
+    SAMPLER_LPV_INJECTION_FRAG_NORMAL_IMG,
+    SAMPLER_LPV_INJECTION_FRAG_DEPTH_IMG,
+    SAMPLER_LPV_INJECTION_LPV_IMG,
+    SAMPLER_LPV_INJECTION_GV_IMG
   };
 }
 //------------------------------------------------------------------------------
@@ -416,7 +443,15 @@ struct SShaderUniforms
   GLuint fogRange;
   GLuint fogColor;
 
+  GLuint fragColorImg;
+  GLuint fragPosImg;
+  GLuint fragNormalImg;
+  GLuint fragDepthImg;
+  GLuint lpvImg;
+  GLuint gvImg;
+  GLuint fragSize;
   GLuint lpvPos;
+  GLuint lpvSize;
   GLuint lpvCellSize;
 
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), /*vertexNormalBitangent(0),*/ vertexTexCoord(0), vertexColor(0),
@@ -425,7 +460,7 @@ struct SShaderUniforms
     type(0), opacity(0), depthTexelSize(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
-    lpvPos(0), lpvCellSize(0)
+    fragColorImg(0), fragPosImg(0), fragNormalImg(0), fragDepthImg(0), lpvImg(0), gvImg(0), fragSize(0), lpvPos(0), lpvSize(0), lpvCellSize(0)
   {
   }
 };
