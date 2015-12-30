@@ -107,6 +107,11 @@ void CWindow::initializeGL()
 
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+  GLint p[2];
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &p[0]);
+  glGetIntegerv(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &p[1]);
+  CEngineBase::context->log(CStr("Max Texture Image Units: %d, Compute Image Units: %d", p[0], p[1]));
+
   // maps
   CMaps *maps = CEngineBase::context->getMaps();
   maps->loadDefaultMaps();
