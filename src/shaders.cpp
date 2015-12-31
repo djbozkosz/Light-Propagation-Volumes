@@ -367,7 +367,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     const glm::vec3 lpvCellSize(1.0f / e->lpvCellSize / e->lpvTextureSize);
     const glm::vec3 lpvPos(e->lpvCellSize * e->lpvTextureSize * 0.5f - e->lpvPos);
     glUniform2f(program.uniforms.fragSize, e->geometryTextureSize, e->geometryTextureSize);
-    glUniform4f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z, e->lpvIntensity);
+    glUniform4f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z, e->lpvIntensity * e->showLPV);
     glUniform3f(program.uniforms.lpvSize, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z);
     glUniform3f(program.uniforms.lpvCellSize, lpvCellSize.x, lpvCellSize.y, lpvCellSize.z);
   }

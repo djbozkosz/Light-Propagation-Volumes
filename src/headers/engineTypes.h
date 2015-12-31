@@ -37,7 +37,7 @@ namespace NEngine
   static const float LPV_CELL_SIZE_X = 1.0f;
   static const float LPV_CELL_SIZE_Y = 1.0f;
   static const float LPV_CELL_SIZE_Z = 1.0f;
-  static const uint32 LPV_PROPAGATION_STEPS = 1;
+  static const uint32 LPV_PROPAGATION_STEPS = 5;
   static const float LPV_INTENSITY = 1.0f;
   static const float ORTHO_DEPTH_SIZE = 32.0f;
   static const float ORTHO_DEPTH_DEPTH = 200.0f;
@@ -103,8 +103,9 @@ namespace NEngine
     KEY_SHADOW_JITTERING_DOWN = 0x00010000,
     KEY_SHADOW_JITTERING_UP   = 0x00020000,
 
-    KEY_FRUSTUM_UPDATE        = 0x20000000,
-    KEY_SHOW_GEOMETRY_BUFFER  = 0x40000000,
+    KEY_FRUSTUM_UPDATE        = 0x10000000,
+    KEY_SHOW_GEOMETRY_BUFFER  = 0x20000000,
+    KEY_SHOW_LPV              = 0x40000000,
 
     KEY_QUIT                  = 0x80000000
   };
@@ -163,6 +164,7 @@ struct SEngine
 
   bool updateFrustum;
   bool showGeometryBuffer;
+  bool showLPV;
   uint32 defaultScreenWidth;
   uint32 defaultScreenHeight;
 
@@ -198,6 +200,7 @@ struct SEngine
     drawCalls(0),
     updateFrustum(true),
     showGeometryBuffer(false),
+    showLPV(true),
     defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH),
     defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
     multisampling(NEngine::DEFAULT_MULTISAMPLING),

@@ -35,7 +35,7 @@ void main()
 
   if((x < (s.x * s.y)) && (y < s.z))
   {
-    uvec3 i = uvec3(x / s.x, x % s.x, y);
+    ivec3 i = ivec3(x / s.x, x % s.x, y);
     vec4 shR0 = vec4(0.0);
     vec4 shG0 = vec4(0.0);
     vec4 shB0 = vec4(0.0);
@@ -44,7 +44,7 @@ void main()
     {
       mat3 nMat = nm[n];
       vec3 nVec = nMat * vec3(0.0, 0.0, 1.0);
-      ivec3 p = ivec3(i) - ivec3(nVec);
+      ivec3 p = i - ivec3(nVec);
       vec4 lpvShR0 = imageLoad(lpvImgR0, p);
       vec4 lpvShG0 = imageLoad(lpvImgG0, p);
       vec4 lpvShB0 = imageLoad(lpvImgB0, p);
@@ -70,8 +70,8 @@ void main()
       }
     }
 
-    imageStore(lpvImgR0, ivec3(i.x, i.y, i.z), shR0);
-    imageStore(lpvImgG0, ivec3(i.x, i.y, i.z), shG0);
-    imageStore(lpvImgB0, ivec3(i.x, i.y, i.z), shB0);
+    imageStore(lpvImgR0, i, shR0 + imageLoad(lpvImgR0, i));
+    imageStore(lpvImgG0, i, shG0 + imageLoad(lpvImgG0, i));
+    imageStore(lpvImgB0, i, shB0 + imageLoad(lpvImgB0, i));
   }
 }

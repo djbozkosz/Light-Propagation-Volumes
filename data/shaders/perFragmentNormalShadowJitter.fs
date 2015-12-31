@@ -2,18 +2,22 @@
 precision lowp float;
 
 in vec3 positionWorld;
+in vec3 normal;
 in vec2 texCoord;
 in vec4 color;
 in vec3 depthCoord;
 in mat3 mtbnt;
 
+uniform mat3 mwnit;
 uniform vec3 cam;
 
 uniform sampler2D difTex;
 uniform sampler2D speTex;
 uniform sampler2D norTex;
 uniform sampler2DShadow depthTex;
-uniform sampler3D lpvTex;
+uniform sampler3D lpvTexR0;
+uniform sampler3D lpvTexG0;
+uniform sampler3D lpvTexB0;
 
 uniform int type;
 uniform vec3 depthTexelSize;
@@ -26,7 +30,7 @@ uniform vec4 lightSpeColor;
 uniform vec2 fogRange;
 uniform vec3 fogColor;
 
-uniform vec3 lpvPos;
+uniform vec4 lpvPos;
 uniform vec3 lpvCellSize;
 
 out vec4 glFragColor;
@@ -57,7 +61,15 @@ void main()
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
 
-  vec3 lpvColor = texture(lpvTex, (lpvPos + positionWorld) * lpvCellSize).rgb;
+  vec3 n = normalize(mwnit * normalize(normal));
+  vec4 sh = vec4(0.2821, -0.4886 * -n.y, 0.4886 * -n.z, -0.4886 * -n.x);
+  vec3 p = (lpvPos.xyz + positionWorld) * lpvCellSize;
+  vec4 lpvShR0 = texture(lpvTexR0, p);
+  vec4 lpvShG0 = texture(lpvTexG0, p);
+  vec4 lpvShB0 = texture(lpvTexB0, p);
+  vec3 lpvColor = vec3(dot(sh, lpvShR0), dot(sh, lpvShG0), dot(sh, lpvShB0)) * lpvPos.w;
+  if((lpvColor.x < 0.0) || (lpvColor.y < 0.0) || (lpvColor.z < 0.0))
+    lpvColor = vec3(0.0);
 
   vec3 fragSpe = texture(speTex, texCoord).rgb;
 
@@ -81,12 +93,12 @@ void main()
   lightDir = normalize(mtbnt * normalize(lightPos - positionWorld));
   float lightDot = max(0.0, dot(normalDir, lightDir)) * depthVis;
 
-  vec3 colorDif = lightColor * lightDot * lightDist + lightAmb;
+  vec3 colorDif = lightColor * lightDot * lightDist + lightAmb + lpvColor;
   vec3 colorSpe = lightSpeColor.rgb * pow(max(0.0, dot(viewDir, reflect(-lightDir, normalDir))), lightSpeColor.a) * lightDot * lightDist;
 
   float fogDist = clamp((fragDist - fogRange.x) / (fogRange.y - fogRange.x), 0.0, 1.0);
   /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
-  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/ + lpvColor, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
+  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
 }

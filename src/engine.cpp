@@ -28,8 +28,8 @@ CEngine::CEngine(
   engine.geometryTextureSize = 256;
   engine.lpvTextureSize = glm::vec3(64.0f);
   engine.lpvCellSize = glm::vec3(1.0f);
-  engine.lpvPropagationSteps = 16;
-  engine.lpvIntensity = 100.0f;
+  //engine.lpvPropagationSteps = 4;
+  //engine.lpvIntensity = 1.0f;
   engine.defaultScreenWidth = 1024;
   engine.defaultScreenHeight = 600;
   //engine.orthoDepthSize = 64.0f;
@@ -76,6 +76,7 @@ CEngine::CEngine(
 
   engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
   engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFER;
+  engine.keysMap[SDLK_h] = NEngine::KEY_SHOW_LPV;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 #endif
@@ -121,7 +122,7 @@ void CEngine::initializeFinish()
     const glm::vec3 sunPos = glm::vec3(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y)) * NScene::SUN_DIR_MUL;
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_AMB), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_FOG), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
-    s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_SUN, sunPos, sunRot), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(2.0f, 1.7f, 1.4f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(3.0f, 3.0f, 3.0f, 32.0f)));
+    s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_SUN, sunPos, sunRot), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(1.6f, 1.35f, 1.2f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(3.0f, 3.0f, 3.0f, 32.0f)));
 
     s->addSceneObjectModel(
       SSceneObject("sky", glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
@@ -296,12 +297,12 @@ void CEngine::keyPress(NEngine::EKey key)
     engine.lpvPropagationSteps++;
   else if(key & NEngine::KEY_LPV_INTENSITY_DOWN)
   {
-    engine.lpvIntensity -= 1.0f;
+    engine.lpvIntensity *= 0.5f;
     if(engine.lpvIntensity < 0.0f)
       engine.lpvIntensity = 0.0;
   }
   else if(key & NEngine::KEY_LPV_INTENSITY_UP)
-    engine.lpvIntensity += 1.0f;
+    engine.lpvIntensity *= 2.0f;
   else if(key & NEngine::KEY_SHADOW_JITTERING_DOWN)
   {
     engine.shadowJittering -= 1.0f;
@@ -320,6 +321,11 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFER)
   {
     engine.showGeometryBuffer = !engine.showGeometryBuffer;
+    window->repaint();
+  }
+  else if(key & NEngine::KEY_SHOW_LPV)
+  {
+    engine.showLPV = !engine.showLPV;
     window->repaint();
   }
 
