@@ -77,7 +77,7 @@ void main()
   float fragDist = distance(cam, positionWorld);
   vec3 viewDirCam = normalize(cam - positionWorld);
   vec3 viewDir = normalize(mtbnt * viewDirCam);
-  vec3 normalDir = normalize(texture(norTex, texCoord).rgb * 2.0 - 1.0) * vec3(-1.0, 1.0, 1.0);
+  vec3 normalDir = normalize(texture(norTex, texCoord).rgb * 2.0 - 1.0);
   vec3 lightDir = lightPos - positionWorld;
 
   float lightDist = clamp((length(lightDir) - lightRange.x) / (lightRange.y - lightRange.x) * -1.0 + 1.0, 0.0, 1.0);

@@ -107,24 +107,25 @@ void CWindow::initializeGL()
 
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-  GLint p[2];
+  /*GLint p[2];
   glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &p[0]);
   glGetIntegerv(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &p[1]);
-  CEngineBase::context->log(CStr("Max Texture Image Units: %d, Compute Image Units: %d", p[0], p[1]));
+  CEngineBase::context->log(CStr("Max Texture Image Units: %d, Compute Image Units: %d", p[0], p[1]));*/
 
   // maps
   CMaps *maps = CEngineBase::context->getMaps();
   maps->loadDefaultMaps();
-  CMap *lpvMap = maps->addMap(SMap(NWindow::STR_LPV_MAP, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+  //CMap *lpvMap = 
+  maps->addMap(SMap(NWindow::STR_LPV_MAP, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
   maps->addMap(SMap(NWindow::STR_GV_MAP, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
 
   // lpv test
-  std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
+  /*std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
   for(auto it = lpvData.begin(); it != lpvData.end(); it++)
     *it = static_cast<float>((rand() % 2000) - 1900) * 0.001f;
   glBindTexture(GL_TEXTURE_3D, lpvMap->getMap()->texture);
   glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, GL_RGBA, GL_FLOAT, &lpvData[0]);
-  glBindTexture(GL_TEXTURE_3D, 0);
+  glBindTexture(GL_TEXTURE_3D, 0);*/
 
   // framebuffers
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
@@ -258,6 +259,9 @@ void CWindow::paintGL()
 
       fbo->unbind();
       fboGeo->setChanged(false);
+
+      cam->setPosition(sun->getObject()->position);
+      fboGeo->setCamera(*c);
 
       sh->getProgram(NShader::PROGRAM_LPV_CLEAR)->
         dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR);

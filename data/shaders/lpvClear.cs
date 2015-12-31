@@ -20,5 +20,8 @@ void main()
   const uint sz = uint(lpvSize.z);
 
   if((x < (sx * sy)) && (y < sz))
+  {
     imageStore(lpvImg, ivec3(x / sx, x % sx, y), vec4(0.0, 0.0, 0.0, 0.0));
+    imageStore(lpvGv, ivec3(x / sx, x % sx, y), vec4(0.0, 0.0, 0.0, 0.0));
+  }
 }

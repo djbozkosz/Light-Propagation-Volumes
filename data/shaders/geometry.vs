@@ -9,7 +9,7 @@ in vec2 vertexTexCoord;
 in vec4 vertexColor;
 
 uniform mat4 mw;
-uniform mat3 mwnit;
+//uniform mat3 mwnit;
 uniform mat4 mvp;
 
 out vec3 positionWorld;
@@ -21,7 +21,7 @@ out vec4 color;
 void main()
 {
   positionWorld = vec4(mw * vec4(vertexPosition, 1.0)).xyz;
-  normal = mwnit * vertexNormal;
+  normal = vertexNormal;
   texCoord = vertexTexCoord;
   color = vertexColor;
   //mat3 m = mat3(normalize(vertexNormalTangent), normalize(/*vertexNormalBitangent*/cross(vertexNormal, vertexNormalTangent)), normalize(vertexNormal));

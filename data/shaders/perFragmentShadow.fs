@@ -38,7 +38,10 @@ void main()
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
 
-  vec3 lpvColor = texture(lpvTex, (lpvPos + positionWorld) * lpvCellSize).rgb;
+  vec3 n = normalize(mwnit * normalize(normal));
+  vec4 sh = vec4(0.2821, -0.4886 * -n.y, 0.4886 * -n.z, -0.4886 * -n.x);
+  vec4 lpvSh = texture(lpvTex, (lpvPos + positionWorld) * lpvCellSize);
+  vec3 lpvColor = vec3(dot(sh, lpvSh));
 
   vec3 fragSpe = texture(speTex, texCoord).rgb;
 

@@ -2,11 +2,13 @@
 precision lowp float;
 
 in vec3 positionWorld;
+in vec3 normal;
 in vec2 texCoord;
 in vec4 color;
 in vec3 depthCoord;
 in mat3 mtbnt;
 
+uniform mat3 mwnit;
 uniform vec3 cam;
 
 uniform sampler2D difTex;
@@ -38,7 +40,10 @@ void main()
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
 
-  vec3 lpvColor = texture(lpvTex, (lpvPos + positionWorld) * lpvCellSize).rgb;
+  vec3 n = normalize(mwnit * normalize(normal));
+  vec4 sh = vec4(0.2821, -0.4886 * -n.y, 0.4886 * -n.z, -0.4886 * -n.x);
+  vec4 lpvSh = texture(lpvTex, (lpvPos + positionWorld) * lpvCellSize);
+  vec3 lpvColor = vec3(dot(sh, lpvSh));
 
   vec3 fragSpe = texture(speTex, texCoord).rgb;
 
@@ -47,7 +52,7 @@ void main()
   float fragDist = distance(cam, positionWorld);
   vec3 viewDirCam = normalize(cam - positionWorld);
   vec3 viewDir = normalize(mtbnt * viewDirCam);
-  vec3 normalDir = normalize(texture(norTex, texCoord).rgb * 2.0 - 1.0) * vec3(-1.0, 1.0, 1.0);
+  vec3 normalDir = normalize(texture(norTex, texCoord).rgb * 2.0 - 1.0);
   vec3 lightDir = lightPos - positionWorld;
 
   float lightDist = clamp((length(lightDir) - lightRange.x) / (lightRange.y - lightRange.x) * -1.0 + 1.0, 0.0, 1.0);
