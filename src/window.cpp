@@ -301,7 +301,7 @@ void CWindow::paintGL()
     ren->dispatch();
     ren->clearGroups();
 
-    if(fboGeo)
+    if((fboGeo) && (e->showGeometryBuffer))
     {
       const float r = c->height / c->width;
       drawTexture(fboGeo->getFrameBuffer()->attachments[0].map->getMap()->texture, 0.0f, 0.0f, 0.25f * r, 0.25f, true);

@@ -28,7 +28,8 @@ CEngine::CEngine(
   engine.geometryTextureSize = 256;
   engine.lpvTextureSize = glm::vec3(64.0f);
   engine.lpvCellSize = glm::vec3(1.0f);
-  engine.lpvPropagationSteps = 1;
+  engine.lpvPropagationSteps = 16;
+  engine.lpvIntensity = 100.0f;
   engine.defaultScreenWidth = 1024;
   engine.defaultScreenHeight = 600;
   //engine.orthoDepthSize = 64.0f;
@@ -66,12 +67,15 @@ CEngine::CEngine(
   engine.keysMap[SDLK_u] = NEngine::KEY_SPECIAL_DOWN;
   engine.keysMap[SDLK_o] = NEngine::KEY_SPECIAL_UP;
 
+  engine.keysMap[SDLK_5] = NEngine::KEY_LPV_PROPAGATION_DOWN;
+  engine.keysMap[SDLK_6] = NEngine::KEY_LPV_PROPAGATION_UP;
   engine.keysMap[SDLK_7] = NEngine::KEY_LPV_INTENSITY_DOWN;
   engine.keysMap[SDLK_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[SDLK_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
 
   engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
+  engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFER;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 #endif
@@ -283,6 +287,13 @@ void CEngine::keyPress(NEngine::EKey key)
 {
   if(key & NEngine::KEY_QUIT)
     quit();
+  else if(key & NEngine::KEY_LPV_PROPAGATION_DOWN)
+  {
+    if(engine.lpvPropagationSteps > 0)
+      engine.lpvPropagationSteps--;
+  }
+  else if(key & NEngine::KEY_LPV_PROPAGATION_UP)
+    engine.lpvPropagationSteps++;
   else if(key & NEngine::KEY_LPV_INTENSITY_DOWN)
   {
     engine.lpvIntensity -= 1.0f;
@@ -306,10 +317,15 @@ void CEngine::keyPress(NEngine::EKey key)
       f->setChanged();
     window->repaint();
   }
-
-  if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
+  else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFER)
   {
-    context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
+    engine.showGeometryBuffer = !engine.showGeometryBuffer;
+    window->repaint();
+  }
+
+  if(key & (NEngine::KEY_LPV_PROPAGATION_DOWN | NEngine::KEY_LPV_PROPAGATION_UP))
+  {
+    context.log(CStr("LPV Propagation Steps: %ud", engine.lpvPropagationSteps));
     if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
       f->setChanged();
     window->repaint();
@@ -317,6 +333,13 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & (NEngine::KEY_LPV_INTENSITY_DOWN | NEngine::KEY_LPV_INTENSITY_UP))
   {
     context.log(CStr("LPV Intensity: %f", static_cast<double>(engine.lpvIntensity)));
+    window->repaint();
+  }
+  else if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
+  {
+    context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+      f->setChanged();
     window->repaint();
   }
 

@@ -96,12 +96,15 @@ namespace NEngine
     KEY_SPECIAL_DOWN          = 0x00000400,
     KEY_SPECIAL_UP            = 0x00000800,
 
-    KEY_LPV_INTENSITY_DOWN    = 0x00001000,
-    KEY_LPV_INTENSITY_UP      = 0x00002000,
-    KEY_SHADOW_JITTERING_DOWN = 0x00004000,
-    KEY_SHADOW_JITTERING_UP   = 0x00008000,
+    KEY_LPV_PROPAGATION_DOWN  = 0x00001000,
+    KEY_LPV_PROPAGATION_UP    = 0x00002000,
+    KEY_LPV_INTENSITY_DOWN    = 0x00004000,
+    KEY_LPV_INTENSITY_UP      = 0x00008000,
+    KEY_SHADOW_JITTERING_DOWN = 0x00010000,
+    KEY_SHADOW_JITTERING_UP   = 0x00020000,
 
-    KEY_FRUSTUM_UPDATE        = 0x40000000,
+    KEY_FRUSTUM_UPDATE        = 0x20000000,
+    KEY_SHOW_GEOMETRY_BUFFER  = 0x40000000,
 
     KEY_QUIT                  = 0x80000000
   };
@@ -159,6 +162,7 @@ struct SEngine
   uint32 drawCalls;
 
   bool updateFrustum;
+  bool showGeometryBuffer;
   uint32 defaultScreenWidth;
   uint32 defaultScreenHeight;
 
@@ -193,6 +197,7 @@ struct SEngine
     fpsCounter(0),
     drawCalls(0),
     updateFrustum(true),
+    showGeometryBuffer(false),
     defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH),
     defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
     multisampling(NEngine::DEFAULT_MULTISAMPLING),
