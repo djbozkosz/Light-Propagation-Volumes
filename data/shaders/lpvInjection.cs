@@ -12,11 +12,13 @@ layout(rgba32f) uniform readonly image2D fragPos;
 layout(rgba32f) uniform readonly image2D fragNormal;
 layout(rgba32f) uniform readonly image2D fragDepth;
 
-layout(rgba32f) uniform image3D lpvImg;
-layout(rgba32f) uniform image3D lpvGv;
+layout(rgba32f) uniform image3D lpvImgR0;
+layout(rgba32f) uniform image3D lpvImgG0;
+layout(rgba32f) uniform image3D lpvImgB0;
+layout(rgba32f) uniform image3D gvImgA0;
 
 uniform vec2 fragSize;
-uniform vec3 lpvPos;
+uniform vec4 lpvPos;
 uniform vec3 lpvSize;
 uniform vec3 lpvCellSize;
 
@@ -36,11 +38,13 @@ void main()
       vec3 n = normalize(imageLoad(fragNormal, ivec2(x, y)).xyz);
       pos += /*n * s * 0.5 +*/ lpvSize * 0.5;
       float d = max(0.0, dot(n, normalize(lightPos)));
-      vec3 f = l/* / 3.14*/ * d;
+      vec3 f = l / 3.14 * d;
 
       vec4 shccl = vec4(0.8862, -1.0233 * n.y, 1.0233 * n.z, -1.0233 * n.x);
 
-      imageStore(lpvImg, ivec3(pos), shccl * ((f.r + f.g + f.b) * 0.34));
+      imageStore(lpvImgR0, ivec3(pos), shccl * f.r);
+      imageStore(lpvImgG0, ivec3(pos), shccl * f.g);
+      imageStore(lpvImgB0, ivec3(pos), shccl * f.b);
     }
   }
 }

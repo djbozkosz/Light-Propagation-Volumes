@@ -174,7 +174,9 @@ void CShaderProgram::initUniforms()
   program.uniforms.norTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_NOR_TEX);
   program.uniforms.envTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_ENV_TEX);
   program.uniforms.depthTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEX);
-  program.uniforms.lpvTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX);
+  program.uniforms.lpvTexR0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_R0);
+  program.uniforms.lpvTexG0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_G0);
+  program.uniforms.lpvTexB0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_B0);
 
   program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_UNIFORM_TYPE);
   program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_UNIFORM_OPACITY);
@@ -191,8 +193,10 @@ void CShaderProgram::initUniforms()
   program.uniforms.fragPosImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_POS_IMG);
   program.uniforms.fragNormalImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_NORMAL_IMG);
   program.uniforms.fragDepthImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_DEPTH_IMG);
-  program.uniforms.lpvImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG);
-  program.uniforms.gvImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_GV_IMG);
+  program.uniforms.lpvImgR0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_R0);
+  program.uniforms.lpvImgG0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_G0);
+  program.uniforms.lpvImgB0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_B0);
+  program.uniforms.gvImgA0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_GV_IMG_A0);
   program.uniforms.fragSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_SIZE);
   program.uniforms.lpvPos = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_POS);
   program.uniforms.lpvSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_SIZE);
@@ -239,7 +243,9 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
 
   const SEngine *e = context->engineGetEngine();
   const CMap *depthMap = context->getMaps()->getMap(NWindow::STR_ORTHO_DEPTH_FBO_MAP);
-  const CMap *lpvMap = context->getMaps()->getMap(NWindow::STR_LPV_MAP);
+  const CMap *lpvMapR0 = context->getMaps()->getMap(NWindow::STR_LPV_MAP_R0);
+  const CMap *lpvMapG0 = context->getMaps()->getMap(NWindow::STR_LPV_MAP_G0);
+  const CMap *lpvMapB0 = context->getMaps()->getMap(NWindow::STR_LPV_MAP_B0);
 
   if(technique)
   {
@@ -279,7 +285,9 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         if(program.name != NShader::PROGRAM_PER_FRAGMENT)
         {
           setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
-          setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapR0, program.uniforms.lpvTexR0, NShader::SAMPLER_PER_FRAGMENT_LPV_R0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapG0, program.uniforms.lpvTexG0, NShader::SAMPLER_PER_FRAGMENT_LPV_G0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapB0, program.uniforms.lpvTexB0, NShader::SAMPLER_PER_FRAGMENT_LPV_B0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
         }
       }
       else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_ALPHA_SHADOW_JITTER))
@@ -290,7 +298,9 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         if(program.name != NShader::PROGRAM_PER_FRAGMENT_ALPHA)
         {
           setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
-          setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapR0, program.uniforms.lpvTexR0, NShader::SAMPLER_PER_FRAGMENT_ALPHA_LPV_R0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapG0, program.uniforms.lpvTexG0, NShader::SAMPLER_PER_FRAGMENT_ALPHA_LPV_G0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapB0, program.uniforms.lpvTexB0, NShader::SAMPLER_PER_FRAGMENT_ALPHA_LPV_B0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
         }
       }
       else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER))
@@ -301,7 +311,9 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL)
         {
           setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
-          setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapR0, program.uniforms.lpvTexR0, NShader::SAMPLER_PER_FRAGMENT_NORMAL_LPV_R0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapG0, program.uniforms.lpvTexG0, NShader::SAMPLER_PER_FRAGMENT_NORMAL_LPV_G0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapB0, program.uniforms.lpvTexB0, NShader::SAMPLER_PER_FRAGMENT_NORMAL_LPV_B0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
         }
       }
       else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER))
@@ -313,7 +325,9 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
         {
           setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
-          setSampler(lpvMap, program.uniforms.lpvTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapR0, program.uniforms.lpvTexR0, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_R0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapG0, program.uniforms.lpvTexG0, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_G0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
+          setSampler(lpvMapB0, program.uniforms.lpvTexB0, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_B0, NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE);
         }
       }
       else if(program.name == NShader::PROGRAM_GEOMETRY)
@@ -353,17 +367,19 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     const glm::vec3 lpvCellSize(1.0f / e->lpvCellSize / e->lpvTextureSize);
     const glm::vec3 lpvPos(e->lpvCellSize * e->lpvTextureSize * 0.5f - e->lpvPos);
     glUniform2f(program.uniforms.fragSize, e->geometryTextureSize, e->geometryTextureSize);
-    glUniform3f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z);
+    glUniform4f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z, e->lpvIntensity);
     glUniform3f(program.uniforms.lpvSize, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z);
     glUniform3f(program.uniforms.lpvCellSize, lpvCellSize.x, lpvCellSize.y, lpvCellSize.z);
   }
 
   if(program.name == NShader::PROGRAM_LPV_CLEAR)
   {
-    const CMap *gvMap = context->getMaps()->getMap(NWindow::STR_GV_MAP);
+    const CMap *gvMap = context->getMaps()->getMap(NWindow::STR_GV_MAP_A0);
 
-    setSampler(lpvMap, program.uniforms.lpvImg, NShader::SAMPLER_LPV_CLEAR_LPV_IMG, NMap::FORMAT_IMAGE_W);
-    setSampler(gvMap, program.uniforms.gvImg, NShader::SAMPLER_LPV_CLEAR_GV_IMG, NMap::FORMAT_IMAGE_W);
+    setSampler(lpvMapR0, program.uniforms.lpvImgR0, NShader::SAMPLER_LPV_CLEAR_LPV_IMG_R0, NMap::FORMAT_IMAGE_W);
+    setSampler(lpvMapG0, program.uniforms.lpvImgG0, NShader::SAMPLER_LPV_CLEAR_LPV_IMG_G0, NMap::FORMAT_IMAGE_W);
+    setSampler(lpvMapB0, program.uniforms.lpvImgB0, NShader::SAMPLER_LPV_CLEAR_LPV_IMG_B0, NMap::FORMAT_IMAGE_W);
+    setSampler(gvMap, program.uniforms.gvImgA0, NShader::SAMPLER_LPV_CLEAR_GV_IMG_A0, NMap::FORMAT_IMAGE_W);
   }
   else if(program.name == NShader::PROGRAM_LPV_INJECTION)
   {
@@ -371,7 +387,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     const CMap *fragPos = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_POS_MAP);
     const CMap *fragNormal = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_NORMAL_MAP);
     //const CMap *fragDepth = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_DEPTH_MAP);
-    const CMap *gvMap = context->getMaps()->getMap(NWindow::STR_GV_MAP);
+    const CMap *gvMap = context->getMaps()->getMap(NWindow::STR_GV_MAP_A0);
 
     const glm::vec4 &fboGeoCam = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO)->getFrameBuffer()->camera.position;
     glUniform3f(program.uniforms.lightPos, fboGeoCam.x, fboGeoCam.y, fboGeoCam.z);
@@ -380,8 +396,19 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     setSampler(fragPos, program.uniforms.fragPosImg, NShader::SAMPLER_LPV_INJECTION_FRAG_POS_IMG, NMap::FORMAT_IMAGE_R);
     setSampler(fragNormal, program.uniforms.fragNormalImg, NShader::SAMPLER_LPV_INJECTION_FRAG_NORMAL_IMG, NMap::FORMAT_IMAGE_R);
     //setSampler(fragDepth, program.uniforms.fragDepthImg, NShader::SAMPLER_LPV_INJECTION_FRAG_DEPTH_IMG, NMap::FORMAT_IMAGE_R);
-    setSampler(lpvMap, program.uniforms.lpvImg, NShader::SAMPLER_LPV_INJECTION_LPV_IMG, NMap::FORMAT_IMAGE_RW);
-    setSampler(gvMap, program.uniforms.gvImg, NShader::SAMPLER_LPV_INJECTION_GV_IMG, NMap::FORMAT_IMAGE_RW);
+    setSampler(lpvMapR0, program.uniforms.lpvImgR0, NShader::SAMPLER_LPV_INJECTION_LPV_IMG_R0, NMap::FORMAT_IMAGE_RW);
+    setSampler(lpvMapG0, program.uniforms.lpvImgG0, NShader::SAMPLER_LPV_INJECTION_LPV_IMG_G0, NMap::FORMAT_IMAGE_RW);
+    setSampler(lpvMapB0, program.uniforms.lpvImgB0, NShader::SAMPLER_LPV_INJECTION_LPV_IMG_B0, NMap::FORMAT_IMAGE_RW);
+    setSampler(gvMap, program.uniforms.gvImgA0, NShader::SAMPLER_LPV_INJECTION_GV_IMG_A0, NMap::FORMAT_IMAGE_RW);
+  }
+  else if(program.name == NShader::PROGRAM_LPV_PROPAGATION)
+  {
+    const CMap *gvMap = context->getMaps()->getMap(NWindow::STR_GV_MAP_A0);
+
+    setSampler(lpvMapR0, program.uniforms.lpvImgR0, NShader::SAMPLER_LPV_PROPAGATION_LPV_IMG_R0, NMap::FORMAT_IMAGE_RW);
+    setSampler(lpvMapG0, program.uniforms.lpvImgG0, NShader::SAMPLER_LPV_PROPAGATION_LPV_IMG_G0, NMap::FORMAT_IMAGE_RW);
+    setSampler(lpvMapB0, program.uniforms.lpvImgB0, NShader::SAMPLER_LPV_PROPAGATION_LPV_IMG_B0, NMap::FORMAT_IMAGE_RW);
+    setSampler(gvMap, program.uniforms.gvImgA0, NShader::SAMPLER_LPV_PROPAGATION_GV_IMG_A0, NMap::FORMAT_IMAGE_RW);
   }
 }
 //------------------------------------------------------------------------------
@@ -417,8 +444,10 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
 
   if(program.name == NShader::PROGRAM_LPV_CLEAR)
   {
-    setSampler(NULL, program.uniforms.lpvImg, NShader::SAMPLER_LPV_CLEAR_LPV_IMG, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, program.uniforms.gvImg, NShader::SAMPLER_LPV_CLEAR_GV_IMG, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, program.uniforms.lpvImgR0, NShader::SAMPLER_LPV_CLEAR_LPV_IMG_R0, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, program.uniforms.lpvImgG0, NShader::SAMPLER_LPV_CLEAR_LPV_IMG_G0, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, program.uniforms.lpvImgB0, NShader::SAMPLER_LPV_CLEAR_LPV_IMG_B0, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, program.uniforms.gvImgA0, NShader::SAMPLER_LPV_CLEAR_GV_IMG_A0, NMap::FORMAT_IMAGE_W);
   }
   else if(program.name == NShader::PROGRAM_LPV_INJECTION)
   {
@@ -426,8 +455,17 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
     setSampler(NULL, program.uniforms.fragPosImg, NShader::SAMPLER_LPV_INJECTION_FRAG_POS_IMG, NMap::FORMAT_IMAGE_R);
     setSampler(NULL, program.uniforms.fragNormalImg, NShader::SAMPLER_LPV_INJECTION_FRAG_NORMAL_IMG, NMap::FORMAT_IMAGE_R);
     setSampler(NULL, program.uniforms.fragDepthImg, NShader::SAMPLER_LPV_INJECTION_FRAG_DEPTH_IMG, NMap::FORMAT_IMAGE_R);
-    setSampler(NULL, program.uniforms.lpvImg, NShader::SAMPLER_LPV_INJECTION_LPV_IMG, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, program.uniforms.gvImg, NShader::SAMPLER_LPV_INJECTION_GV_IMG, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, program.uniforms.lpvImgR0, NShader::SAMPLER_LPV_INJECTION_LPV_IMG_R0, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, program.uniforms.lpvImgG0, NShader::SAMPLER_LPV_INJECTION_LPV_IMG_G0, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, program.uniforms.lpvImgB0, NShader::SAMPLER_LPV_INJECTION_LPV_IMG_B0, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, program.uniforms.gvImgA0, NShader::SAMPLER_LPV_INJECTION_GV_IMG_A0, NMap::FORMAT_IMAGE_RW);
+  }
+  else if(program.name == NShader::PROGRAM_LPV_PROPAGATION)
+  {
+    setSampler(NULL, program.uniforms.lpvImgR0, NShader::SAMPLER_LPV_PROPAGATION_LPV_IMG_R0, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, program.uniforms.lpvImgG0, NShader::SAMPLER_LPV_PROPAGATION_LPV_IMG_G0, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, program.uniforms.lpvImgB0, NShader::SAMPLER_LPV_PROPAGATION_LPV_IMG_B0, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, program.uniforms.gvImgA0, NShader::SAMPLER_LPV_PROPAGATION_GV_IMG_A0, NMap::FORMAT_IMAGE_RW);
   }
 }
 //------------------------------------------------------------------------------

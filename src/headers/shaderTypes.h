@@ -37,7 +37,9 @@ namespace NShader
   static const char STR_UNIFORM_NOR_TEX[] = "norTex";
   static const char STR_UNIFORM_ENV_TEX[] = "envTex";
   static const char STR_UNIFORM_DEPTH_TEX[] = "depthTex";
-  static const char STR_UNIFORM_LPV_TEX[] = "lpvTex";
+  static const char STR_UNIFORM_LPV_TEX_R0[] = "lpvTexR0";
+  static const char STR_UNIFORM_LPV_TEX_G0[] = "lpvTexG0";
+  static const char STR_UNIFORM_LPV_TEX_B0[] = "lpvTexB0";
 
   static const char STR_UNIFORM_TYPE[] = "type";
   static const char STR_UNIFORM_OPACITY[] = "opacity";
@@ -54,8 +56,10 @@ namespace NShader
   static const char STR_UNIFORM_FRAG_POS_IMG[] = "fragPos";
   static const char STR_UNIFORM_FRAG_NORMAL_IMG[] = "fragNormal";
   static const char STR_UNIFORM_FRAG_DEPTH_IMG[] = "fragDepth";
-  static const char STR_UNIFORM_LPV_IMG[] = "lpvImg";
-  static const char STR_UNIFORM_GV_IMG[] = "gvImg";
+  static const char STR_UNIFORM_LPV_IMG_R0[] = "lpvImgR0";
+  static const char STR_UNIFORM_LPV_IMG_G0[] = "lpvImgG0";
+  static const char STR_UNIFORM_LPV_IMG_B0[] = "lpvImgB0";
+  static const char STR_UNIFORM_GV_IMG_A0[] = "gvImgA0";
 
   static const char STR_UNIFORM_FRAG_SIZE[] = "fragSize";
   static const char STR_UNIFORM_LPV_POS[] = "lpvPos";
@@ -372,38 +376,63 @@ namespace NShader
   enum ESampler
   {
     SAMPLER_BASIC_DIF = 0,
+
     SAMPLER_BASIC_APLHA_DIF = 0,
     SAMPLER_BASIC_APLHA_ALP,
+
     SAMPLER_PER_FRAGMENT_DIF = 0,
     SAMPLER_PER_FRAGMENT_SPE,
     SAMPLER_PER_FRAGMENT_DEPTH,
-    SAMPLER_PER_FRAGMENT_LPV,
+    SAMPLER_PER_FRAGMENT_LPV_R0,
+    SAMPLER_PER_FRAGMENT_LPV_G0,
+    SAMPLER_PER_FRAGMENT_LPV_B0,
+
     SAMPLER_PER_FRAGMENT_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_ALPHA_SPE,
     SAMPLER_PER_FRAGMENT_ALPHA_DEPTH,
-    SAMPLER_PER_FRAGMENT_ALPHA_LPV,
+    SAMPLER_PER_FRAGMENT_ALPHA_LPV_R0,
+    SAMPLER_PER_FRAGMENT_ALPHA_LPV_G0,
+    SAMPLER_PER_FRAGMENT_ALPHA_LPV_B0,
+
     SAMPLER_PER_FRAGMENT_NORMAL_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_NOR,
     SAMPLER_PER_FRAGMENT_NORMAL_DEPTH,
-    SAMPLER_PER_FRAGMENT_NORMAL_LPV,
+    SAMPLER_PER_FRAGMENT_NORMAL_LPV_R0,
+    SAMPLER_PER_FRAGMENT_NORMAL_LPV_G0,
+    SAMPLER_PER_FRAGMENT_NORMAL_LPV_B0,
+
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_R0,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_G0,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_B0,
+
     SAMPLER_GEOMETRY_DIF = 0,
     SAMPLER_GEOMETRY_NOR,
-    SAMPLER_LPV_CLEAR_LPV_IMG = 0,
-    SAMPLER_LPV_CLEAR_GV_IMG,
+
+    SAMPLER_LPV_CLEAR_LPV_IMG_R0 = 0,
+    SAMPLER_LPV_CLEAR_LPV_IMG_G0,
+    SAMPLER_LPV_CLEAR_LPV_IMG_B0,
+    SAMPLER_LPV_CLEAR_GV_IMG_A0,
+
     SAMPLER_LPV_INJECTION_FRAG_COLOR_IMG = 0,
     SAMPLER_LPV_INJECTION_FRAG_POS_IMG,
     SAMPLER_LPV_INJECTION_FRAG_NORMAL_IMG,
     SAMPLER_LPV_INJECTION_FRAG_DEPTH_IMG,
-    SAMPLER_LPV_INJECTION_LPV_IMG,
-    SAMPLER_LPV_INJECTION_GV_IMG
+    SAMPLER_LPV_INJECTION_LPV_IMG_R0,
+    SAMPLER_LPV_INJECTION_LPV_IMG_G0,
+    SAMPLER_LPV_INJECTION_LPV_IMG_B0,
+    SAMPLER_LPV_INJECTION_GV_IMG_A0,
+
+    SAMPLER_LPV_PROPAGATION_LPV_IMG_R0 = 0,
+    SAMPLER_LPV_PROPAGATION_LPV_IMG_G0,
+    SAMPLER_LPV_PROPAGATION_LPV_IMG_B0,
+    SAMPLER_LPV_PROPAGATION_GV_IMG_A0
   };
 }
 //------------------------------------------------------------------------------
@@ -428,7 +457,9 @@ struct SShaderUniforms
   GLuint norTex;
   GLuint envTex;
   GLuint depthTex;
-  GLuint lpvTex;
+  GLuint lpvTexR0;
+  GLuint lpvTexG0;
+  GLuint lpvTexB0;
 
   GLuint type;
   GLuint opacity;
@@ -447,8 +478,10 @@ struct SShaderUniforms
   GLuint fragPosImg;
   GLuint fragNormalImg;
   GLuint fragDepthImg;
-  GLuint lpvImg;
-  GLuint gvImg;
+  GLuint lpvImgR0;
+  GLuint lpvImgG0;
+  GLuint lpvImgB0;
+  GLuint gvImgA0;
   GLuint fragSize;
   GLuint lpvPos;
   GLuint lpvSize;
@@ -456,11 +489,11 @@ struct SShaderUniforms
 
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), /*vertexNormalBitangent(0),*/ vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), mvpdb(0), cam(0),
-    difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0), lpvTex(0),
+    difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0), lpvTexR0(0), lpvTexG0(0), lpvTexB0(0),
     type(0), opacity(0), depthTexelSize(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
-    fragColorImg(0), fragPosImg(0), fragNormalImg(0), fragDepthImg(0), lpvImg(0), gvImg(0), fragSize(0), lpvPos(0), lpvSize(0), lpvCellSize(0)
+    fragColorImg(0), fragPosImg(0), fragNormalImg(0), fragDepthImg(0), lpvImgR0(0), lpvImgG0(0), lpvImgB0(0), gvImgA0(0), fragSize(0), lpvPos(0), lpvSize(0), lpvCellSize(0)
   {
   }
 };

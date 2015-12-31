@@ -37,9 +37,11 @@ namespace NEngine
   static const float LPV_CELL_SIZE_X = 1.0f;
   static const float LPV_CELL_SIZE_Y = 1.0f;
   static const float LPV_CELL_SIZE_Z = 1.0f;
-  static const uint32 ORTHO_DEPTH_SIZE = 32.0f;
-  static const uint32 ORTHO_DEPTH_DEPTH = 200.0f;
-  static const uint32 SHADOW_JITTERING = 2.0f;
+  static const uint32 LPV_PROPAGATION_STEPS = 1;
+  static const float LPV_INTENSITY = 1.0f;
+  static const float ORTHO_DEPTH_SIZE = 32.0f;
+  static const float ORTHO_DEPTH_DEPTH = 200.0f;
+  static const float SHADOW_JITTERING = 2.0f;
 
   static const char STR_APP_NAME[] = "Light Propagation Volumes";
 
@@ -94,10 +96,12 @@ namespace NEngine
     KEY_SPECIAL_DOWN          = 0x00000400,
     KEY_SPECIAL_UP            = 0x00000800,
 
-    KEY_SHADOW_JITTERING_DOWN = 0x00001000,
-    KEY_SHADOW_JITTERING_UP   = 0x00002000,
+    KEY_LPV_INTENSITY_DOWN    = 0x00001000,
+    KEY_LPV_INTENSITY_UP      = 0x00002000,
+    KEY_SHADOW_JITTERING_DOWN = 0x00004000,
+    KEY_SHADOW_JITTERING_UP   = 0x00008000,
 
-    KEY_FRUSTUM_UPDATE        = 0x00004000,
+    KEY_FRUSTUM_UPDATE        = 0x40000000,
 
     KEY_QUIT                  = 0x80000000
   };
@@ -165,6 +169,8 @@ struct SEngine
   glm::vec3 lpvPos;
   glm::vec3 lpvTextureSize;
   glm::vec3 lpvCellSize;
+  uint32 lpvPropagationSteps;
+  float lpvIntensity;
   float orthoDepthSize;
   float orthoDepthDepth;
   float shadowJittering;
@@ -196,6 +202,8 @@ struct SEngine
     lpvPos(NEngine::LPV_POS_X, NEngine::LPV_POS_Y, NEngine::LPV_POS_Z),
     lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
     lpvCellSize(NEngine::LPV_CELL_SIZE_X, NEngine::LPV_CELL_SIZE_Y, NEngine::LPV_CELL_SIZE_Z),
+    lpvPropagationSteps(NEngine::LPV_PROPAGATION_STEPS),
+    lpvIntensity(NEngine::LPV_INTENSITY),
     orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
     orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH),
     shadowJittering(NEngine::SHADOW_JITTERING),

@@ -28,6 +28,7 @@ CEngine::CEngine(
   engine.geometryTextureSize = 256;
   engine.lpvTextureSize = glm::vec3(64.0f);
   engine.lpvCellSize = glm::vec3(1.0f);
+  engine.lpvPropagationSteps = 1;
   engine.defaultScreenWidth = 1024;
   engine.defaultScreenHeight = 600;
   //engine.orthoDepthSize = 64.0f;
@@ -65,6 +66,8 @@ CEngine::CEngine(
   engine.keysMap[SDLK_u] = NEngine::KEY_SPECIAL_DOWN;
   engine.keysMap[SDLK_o] = NEngine::KEY_SPECIAL_UP;
 
+  engine.keysMap[SDLK_7] = NEngine::KEY_LPV_INTENSITY_DOWN;
+  engine.keysMap[SDLK_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[SDLK_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
 
@@ -280,6 +283,14 @@ void CEngine::keyPress(NEngine::EKey key)
 {
   if(key & NEngine::KEY_QUIT)
     quit();
+  else if(key & NEngine::KEY_LPV_INTENSITY_DOWN)
+  {
+    engine.lpvIntensity -= 1.0f;
+    if(engine.lpvIntensity < 0.0f)
+      engine.lpvIntensity = 0.0;
+  }
+  else if(key & NEngine::KEY_LPV_INTENSITY_UP)
+    engine.lpvIntensity += 1.0f;
   else if(key & NEngine::KEY_SHADOW_JITTERING_DOWN)
   {
     engine.shadowJittering -= 1.0f;
@@ -301,6 +312,11 @@ void CEngine::keyPress(NEngine::EKey key)
     context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
     if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
       f->setChanged();
+    window->repaint();
+  }
+  else if(key & (NEngine::KEY_LPV_INTENSITY_DOWN | NEngine::KEY_LPV_INTENSITY_UP))
+  {
+    context.log(CStr("LPV Intensity: %f", static_cast<double>(engine.lpvIntensity)));
     window->repaint();
   }
 

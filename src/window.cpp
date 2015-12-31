@@ -116,8 +116,10 @@ void CWindow::initializeGL()
   CMaps *maps = CEngineBase::context->getMaps();
   maps->loadDefaultMaps();
   //CMap *lpvMap = 
-  maps->addMap(SMap(NWindow::STR_LPV_MAP, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
-  maps->addMap(SMap(NWindow::STR_GV_MAP, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+  maps->addMap(SMap(NWindow::STR_LPV_MAP_R0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+  maps->addMap(SMap(NWindow::STR_LPV_MAP_G0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+  maps->addMap(SMap(NWindow::STR_LPV_MAP_B0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+  maps->addMap(SMap(NWindow::STR_GV_MAP_A0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
 
   // lpv test
   /*std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
@@ -267,6 +269,9 @@ void CWindow::paintGL()
         dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR);
       sh->getProgram(NShader::PROGRAM_LPV_INJECTION)->
         dispatch(e->geometryTextureSize, e->geometryTextureSize, 1, NRenderer::MODE_LPV_INJECTION);
+      for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
+        sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION)->
+          dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_PROPAGATION);
     }
     
     // standard
