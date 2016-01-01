@@ -24,7 +24,7 @@ CEngine::CEngine(
   //engine.flags = NEngine::EFLAG_FULLSCREEN;
   engine.multisampling = 1;
   //engine.maxTextureSize = 256;
-  //engine.depthTextureSize = 256;
+  engine.depthTextureSize = 4096;
   engine.geometryTextureSize = 256;
   engine.lpvTextureSize = glm::vec3(64.0f);
   engine.lpvCellSize = glm::vec3(1.0f);

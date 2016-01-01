@@ -26,9 +26,6 @@ void main()
   sv[0] = vec2( 1.0, 0.0); sv[1] = vec2( 0.0, 1.0);
   sv[2] = vec2(-1.0, 0.0); sv[3] = vec2(0.0, -1.0);
 
-  vec2 sa = vec2(0.1275, 0.1347);
-  vec2 c = vec2(0.4472, 0.8944);
-
   const uint x = gl_GlobalInvocationID.x;
   const uint y = gl_GlobalInvocationID.y;
   const uvec3 s = uvec3(lpvSize);
@@ -51,22 +48,22 @@ void main()
 
       vec4 shccl = vec4(0.8862, -1.0233 * nVec.y, 1.0233 * nVec.z, -1.0233 * nVec.x);
       vec4 sh = vec4(0.2821, -0.4886 * nVec.y, 0.4886 * nVec.z, -0.4886 * nVec.x);
-      shR0 += sa.x * dot(lpvShR0, sh) * shccl;
-      shG0 += sa.x * dot(lpvShG0, sh) * shccl;
-      shB0 += sa.x * dot(lpvShB0, sh) * shccl;
+      shR0 += 0.1275 * dot(lpvShR0, sh) * shccl;
+      shG0 += 0.1275 * dot(lpvShG0, sh) * shccl;
+      shB0 += 0.1275 * dot(lpvShB0, sh) * shccl;
 
       for(uint w = 0; w < 4; w++)
       {
         vec2 s = sv[w];
-        vec3 rep = nMat * vec3(s.x, s.y, 0.0);
-        vec3 dir = nMat * vec3(s.x * c.x, s.y * c.x, c.y);
+        vec3 rep = nMat * vec3(0.1275, 0.1347, 0.0);
+        vec3 dir = nMat * vec3(0.057, 0.0602, 0.8944);
 
         vec4 repShccl = vec4(0.8862, -1.0233 * rep.y, 1.0233 * rep.z, -1.0233 * rep.x);
         vec4 dirSh = vec4(0.2821, -0.4886 * dir.y, 0.4886 * dir.z, -0.4886 * dir.x);
 
-        shR0 += sa.y * dot(lpvShR0, dirSh) * repShccl;
-        shG0 += sa.y * dot(lpvShG0, dirSh) * repShccl;
-        shB0 += sa.y * dot(lpvShB0, dirSh) * repShccl;
+        shR0 += 0.1347 * dot(lpvShR0, dirSh) * repShccl;
+        shG0 += 0.1347 * dot(lpvShG0, dirSh) * repShccl;
+        shB0 += 0.1347 * dot(lpvShB0, dirSh) * repShccl;
       }
     }
 
