@@ -1,3 +1,4 @@
 ﻿Todo:
 
-revize LPV ...
+kuličky lpv
+zrušení fixed planes
