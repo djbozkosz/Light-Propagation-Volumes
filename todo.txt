@@ -2,3 +2,7 @@
 
 kuličky lpv
 zrušení fixed planes
+cascaded SM
+point SM
+cascaded LPV
+inject GV
