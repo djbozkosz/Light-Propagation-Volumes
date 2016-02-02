@@ -121,7 +121,7 @@ CFile *CFilesystem::open(const SFile &file)
       f.in->exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
       try { f.in->open(i->first+f.path, std::ifstream::binary); }
-      catch(std::ifstream::failure) { delete f.in; continue; }
+      catch(std::exception) { delete f.in; continue; }
 
       opened = true;
       f.prefix = i->first;
@@ -137,7 +137,7 @@ CFile *CFilesystem::open(const SFile &file)
       f.out->exceptions(std::ofstream::failbit | std::ofstream::badbit);
 
       try { f.out->open(i->first+f.path, std::ofstream::binary); }
-      catch(std::ofstream::failure) { delete f.out; continue; }
+      catch(std::exception) { delete f.out; continue; }
 
       opened = true;
       f.prefix = i->first;

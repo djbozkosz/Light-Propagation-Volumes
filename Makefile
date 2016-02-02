@@ -4,12 +4,11 @@ TARGETNAME   = LightPropagationVolumes
 ENVIRONMENT  = -D ENV_SDL
 
 ifeq ($(OS), Windows_NT)
-  CCFLAGS    = -D __NO_INLINE__
-  LDFLAGS    = -static-libgcc -static-libstdc++ -mwindows
+  CCFLAGS    = 
+  LDFLAGS    = -static-libgcc -static-libstdc++ -mwindows -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
   RM         = del /S
   RUN        = 
 else
-  OSVER      = 
   CCFLAGS    = 
   LDFLAGS    = 
   RM         = rm -f
