@@ -12,6 +12,7 @@ CEngine::CEngine(
 #endif
   window(NULL)
 {
+  context.log("engine constr");
   window = new CWindow(&context
 #ifdef ENV_QT
     , this
@@ -20,11 +21,14 @@ CEngine::CEngine(
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
   context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
+#ifdef ENV_SDL
   engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
+#endif
   //engine.flags = NEngine::EFLAG_FULLSCREEN;
+  engine.gpuPlatform = NEngine::GPU_PLATFORM_GL0302;
   engine.multisampling = 1;
   //engine.maxTextureSize = 256;
-  engine.depthTextureSize = 4096;
+  engine.depthTextureSize = 1024;
   engine.geometryTextureSize = 256;
   engine.lpvTextureSize = glm::vec3(64.0f);
   engine.lpvCellSize = glm::vec3(1.0f);
@@ -41,11 +45,42 @@ CEngine::CEngine(
 
   connect(window, SIGNAL(onInitializeGL()), this, SLOT(initialize()));
   connect(window, SIGNAL(onInitializeFinishGL()), this, SLOT(initializeFinish()));
-  connect(window, SIGNAL(onMousePress(NEngine::EMouseButton buttons)), this, SLOT(mousePress(NEngine::EMouseButton buttons)));
-  connect(window, SIGNAL(onMouseRelease(NEngine::EMouseButton buttons)), this, SLOT(mouseRelease(NEngine::EMouseButton buttons)));
-  connect(window, SIGNAL(onMouseMove(int32 x, int32 y)), this, SLOT(mouseMove(int32 x, int32 y)));
-  connect(window, SIGNAL(onKeyPress(NEngine::EKey key)), this, SLOT(keyPress(NEngine::EKey key)));
-  connect(window, SIGNAL(onKeyRelease(NEngine::EKey key)), this, SLOT(keyRelease(NEngine::EKey key)));
+  connect(window, SIGNAL(onMousePress(NEngine::EMouseButton)), this, SLOT(mousePress(NEngine::EMouseButton)));
+  connect(window, SIGNAL(onMouseRelease(NEngine::EMouseButton)), this, SLOT(mouseRelease(NEngine::EMouseButton)));
+  connect(window, SIGNAL(onMouseMove(const SPoint &, NEngine::EMouseButton)), this, SLOT(mouseMove(const SPoint &, NEngine::EMouseButton)));
+  connect(window, SIGNAL(onKeyPress(NEngine::EKey)), this, SLOT(keyPress(NEngine::EKey)));
+  connect(window, SIGNAL(onKeyRelease(NEngine::EKey)), this, SLOT(keyRelease(NEngine::EKey)));
+
+  engine.keysMap[Qt::Key_W] = NEngine::KEY_FRONT;
+  engine.keysMap[Qt::Key_Up] = NEngine::KEY_FRONT;
+  engine.keysMap[Qt::Key_S] = NEngine::KEY_BACK;
+  engine.keysMap[Qt::Key_Down] = NEngine::KEY_BACK;
+  engine.keysMap[Qt::Key_A] = NEngine::KEY_LEFT;
+  engine.keysMap[Qt::Key_Left] = NEngine::KEY_LEFT;
+  engine.keysMap[Qt::Key_D] = NEngine::KEY_RIGHT;
+  engine.keysMap[Qt::Key_Right] = NEngine::KEY_RIGHT;
+  engine.keysMap[Qt::Key_Q] = NEngine::KEY_DOWN;
+  engine.keysMap[Qt::Key_E] = NEngine::KEY_UP;
+
+  engine.keysMap[Qt::Key_I] = NEngine::KEY_SPECIAL_FRONT;
+  engine.keysMap[Qt::Key_K] = NEngine::KEY_SPECIAL_BACK;
+  engine.keysMap[Qt::Key_J] = NEngine::KEY_SPECIAL_LEFT;
+  engine.keysMap[Qt::Key_L] = NEngine::KEY_SPECIAL_RIGHT;
+  engine.keysMap[Qt::Key_U] = NEngine::KEY_SPECIAL_DOWN;
+  engine.keysMap[Qt::Key_O] = NEngine::KEY_SPECIAL_UP;
+
+  engine.keysMap[Qt::Key_5] = NEngine::KEY_LPV_PROPAGATION_DOWN;
+  engine.keysMap[Qt::Key_6] = NEngine::KEY_LPV_PROPAGATION_UP;
+  engine.keysMap[Qt::Key_7] = NEngine::KEY_LPV_INTENSITY_DOWN;
+  engine.keysMap[Qt::Key_8] = NEngine::KEY_LPV_INTENSITY_UP;
+  engine.keysMap[Qt::Key_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
+  engine.keysMap[Qt::Key_0] = NEngine::KEY_SHADOW_JITTERING_UP;
+
+  engine.keysMap[Qt::Key_F] = NEngine::KEY_FRUSTUM_UPDATE;
+  engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFER;
+  engine.keysMap[Qt::Key_H] = NEngine::KEY_SHOW_LPV;
+
+  engine.keysMap[Qt::Key_Escape] = NEngine::KEY_QUIT;
 
   // fill keys move map
 #elif defined(ENV_SDL)
@@ -91,6 +126,7 @@ CEngine::~CEngine()
 //------------------------------------------------------------------------------
 void CEngine::initialize()
 {
+  context.log("engine init");
   scenes = CScenes(&context);
   models = CModels(&context);
   renderer = CRenderer(&context);
@@ -113,6 +149,7 @@ void CEngine::initialize()
 //------------------------------------------------------------------------------
 void CEngine::initializeFinish()
 {
+  context.log("engine init finish");
   camera.setRange(0.1f, 200.0f);
 
   scenes.addScene(SScene("scene"));
@@ -165,15 +202,15 @@ int32 CEngine::event()
     else if(event.type == SDL_QUIT)
       break;
     else if(event.type == SDL_MOUSEBUTTONDOWN)
-      mousePress(getMouseButton(event.button.button));
+      mousePress(window->getMouseButton(event.button.button));
     else if(event.type == SDL_MOUSEBUTTONUP)
-      mouseRelease(getMouseButton(event.button.button));
+      mouseRelease(window->getMouseButton(event.button.button));
     else if(event.type == SDL_MOUSEMOTION)
-      mouseMove(SPoint(event.motion.x, event.motion.y), getMouseButton(event.button.button));
+      mouseMove(SPoint(event.motion.x, event.motion.y), window->getMouseButton(event.button.button));
     else if(event.type == SDL_KEYDOWN)
-      keyPress(getKey(event.key.keysym.sym));
+      keyPress(window->getKey(event.key.keysym.sym));
     else if(event.type == SDL_KEYUP)
-      keyRelease(getKey(event.key.keysym.sym));
+      keyRelease(window->getKey(event.key.keysym.sym));
   }
 
   return 0;
@@ -392,29 +429,6 @@ bool CEngine::isKeyForDelayedRendering() const
     return true;
   
   return false;
-}
-//------------------------------------------------------------------------------
-NEngine::EMouseButton CEngine::getMouseButton(int32 button) const
-{
-#if defined(ENV_QT)
-  return NEngine::MOUSE_BTN_NO;
-#elif defined(ENV_SDL)
-  return static_cast<NEngine::EMouseButton>(
-    (((button == SDL_BUTTON_LEFT) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN) |
-    (((button == SDL_BUTTON_RIGHT) || (button == SDL_BUTTON_X1) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN));
-#endif
-
-  return NEngine::MOUSE_BTN;
-}
-//------------------------------------------------------------------------------
-NEngine::EKey CEngine::getKey(int32 key) const
-{
-  auto it = engine.keysMap.find(key);
-
-  if(it == engine.keysMap.cend())
-    return NEngine::KEY;
-
-  return it->second;
 }
 //------------------------------------------------------------------------------
 void CEngine::updateTicks()

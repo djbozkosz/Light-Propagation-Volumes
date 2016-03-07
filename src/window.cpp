@@ -20,6 +20,7 @@ CWindow::CWindow(CContext *context
   , SDLwindow(NULL)
 #endif
 {
+  CEngineBase::context->log("window constr");
 }
 //------------------------------------------------------------------------------
 CWindow::~CWindow()
@@ -31,8 +32,10 @@ CWindow::~CWindow()
 //------------------------------------------------------------------------------
 void CWindow::initializeGL()
 {
-  const SEngine *e = CWindow::context->engineGetEngine();
-  const SCamera *c = CWindow::context->getCamera()->getCamera();
+  CEngineBase::context->log("window init");
+  const SEngine *e = CEngineBase::context->engineGetEngine();
+  const SCamera *c = CEngineBase::context->getCamera()->getCamera();
+  COpenGL *gl = CEngineBase::context->getOpenGL();
 
   if(e->flags & NEngine::EFLAG_SHOW_CONSOLE)
   {
@@ -48,12 +51,12 @@ void CWindow::initializeGL()
   int32 ret;
 
   if((ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) < -1)
-    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_SDL));
+    CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_SDL));
 
-  /*SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);*/
+  /*SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_MAJOR_VERSION, 3);
+  SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_MINOR_VERSION, 0);
+  SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_PROFILE_MASK, SDL_NOpenGL::CONTEXT_PROFILE_CORE);
+  SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_FLAGS, SDL_NOpenGL::CONTEXT_DEBUG_FLAG);*/
 
   if(e->multisampling > 1)
   {
@@ -66,50 +69,54 @@ void CWindow::initializeGL()
     SDL_WINDOW_OPENGL | ((e->flags & NEngine::EFLAG_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN :
                          ((e->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
     )))
-    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_WINDOW));
+    CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_WINDOW));
 
   if(!(SDLcontext = SDL_GL_CreateContext(SDLwindow)))
-    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GL_CONTEXT));
+    CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GL_CONTEXT));
 
   uint32 imgInited = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
   if(!(imgInited & IMG_INIT_JPG))
-    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_JPG));
+    CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_JPG));
   if(!(imgInited & IMG_INIT_PNG))
-    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_PNG));
+    CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_PNG));
 
-  /*if(SDL_GL_SetSwapInterval(-1) == -1)
-    SDL_GL_SetSwapInterval(1);*/
+  /*if(SDL_NOpenGL::SetSwapInterval(-1) == -1)
+    SDL_NOpenGL::SetSwapInterval(1);*/
 
-  glewExperimental = GL_TRUE;
+  /*glewExperimental = NOpenGL::TRUE;
   if(glewInit() != GLEW_OK)
-    CWindow::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GLEW));
+    CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GLEW));*/
 #elif defined(ENV_QT)
   emit onInitializeGL();
 #endif
+  setGeometry(50, 50, c->width, c->height);
+  move(QApplication::desktop()->screen()->rect().center() - rect().center());
+  show();
 
-  //COpenGL *gl = CEngineBase::context->getOpenGL();
+  gl->makeCurrent();
+  gl->initializeGLFunctions(NEngine::GPU_PLATFORM_MAX);
+
   CShaders *s = CEngineBase::context->getShaders();
-  //gl->makeCurrent();
 
-  CEngineBase::context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(glGetString(GL_VENDOR)));
-  CEngineBase::context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
-  CEngineBase::context->log(std::string("Version: ")+reinterpret_cast<const char *>(glGetString(GL_VERSION)));
-  CEngineBase::context->log(std::string("GLSL Version: ")+reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+  CEngineBase::context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::VENDOR)));
+  CEngineBase::context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::RENDERER)));
+  CEngineBase::context->log(std::string("Version: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::VERSION)));
+  CEngineBase::context->log(std::string("GLSL Version: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::SHADING_LANGUAGE_VERSION)));
 
-  glEnable(GL_DEPTH_TEST);
+  gl->enable(NOpenGL::DEPTH_TEST);
 
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CW);
+  gl->enable(NOpenGL::CULL_FACE);
+  gl->frontFace(NOpenGL::CW);
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glDisable(GL_BLEND);
+  gl->enable(NOpenGL::BLEND);
+  gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA);
+  gl->disable(NOpenGL::BLEND);
 
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  gl->clearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
   /*GLint p[2];
-  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &p[0]);
-  glGetIntegerv(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &p[1]);
+  gl->getIntegerv(NOpenGL::MAX_TEXTURE_IMAGE_UNITS, &p[0]);
+  gl->getIntegerv(NOpenGL::MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &p[1]);
   CEngineBase::context->log(CStr("Max Texture Image Units: %d, Compute Image Units: %d", p[0], p[1]));*/
 
   // maps
@@ -125,9 +132,9 @@ void CWindow::initializeGL()
   /*std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
   for(auto it = lpvData.begin(); it != lpvData.end(); it++)
     *it = static_cast<float>((rand() % 2000) - 1900) * 0.001f;
-  glBindTexture(GL_TEXTURE_3D, lpvMap->getMap()->texture);
-  glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, GL_RGBA, GL_FLOAT, &lpvData[0]);
-  glBindTexture(GL_TEXTURE_3D, 0);*/
+  gl->bindTexture(NOpenGL::TEXTURE_3D, lpvMap->getMap()->texture);
+  gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvData[0]);
+  gl->bindTexture(NOpenGL::TEXTURE_3D, 0);*/
 
   // framebuffers
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
@@ -144,17 +151,17 @@ void CWindow::initializeGL()
 
   // shaders
   for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
-    s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
+    s->addShader(SShader((std::string(NShader::STR_VERTEX_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::GEOMETRY_SHADERS_COUNT; i++)
-    s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_GEOMETRY_SHADER_LIST[i]));
+    s->addShader(SShader((std::string(NShader::STR_GEOMETRY_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_GEOMETRY, NShader::STR_GEOMETRY_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::TESSELATION_CONTROL_SHADERS_COUNT; i++)
-    s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]));
+    s->addShader(SShader((std::string(NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_CONTROL, NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::TESSELATION_EVALUATION_SHADERS_COUNT; i++)
-    s->addShader(SShader(NShader::TYPE_VERTEX, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]));
+    s->addShader(SShader((std::string(NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_EVALUATION, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::FRAGMENT_SHADERS_COUNT; i++)
-    s->addShader(SShader(NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
+    s->addShader(SShader((std::string(NShader::STR_FRAGMENT_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::COMPUTE_SHADERS_COUNT; i++)
-    s->addShader(SShader(NShader::TYPE_COMPUTE, NShader::STR_COMPUTE_SHADER_LIST[i]));
+    s->addShader(SShader((std::string(NShader::STR_COMPUTE_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_COMPUTE, NShader::STR_COMPUTE_SHADER_LIST[i]));
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
     s->addShaderProgram(SShaderProgram(
@@ -173,7 +180,7 @@ void CWindow::initializeGL()
 //------------------------------------------------------------------------------
 void CWindow::paintGL()
 {
-  //COpenGL *gl = CEngineBase::context->getOpenGL();
+  COpenGL *gl = CEngineBase::context->getOpenGL();
   CRenderer *ren = CEngineBase::context->getRenderer();
   CShaders *sh = CEngineBase::context->getShaders();
   //CMaps *maps = CEngineBase::context->getMaps();
@@ -182,9 +189,9 @@ void CWindow::paintGL()
   CCulling *cul = CEngineBase::context->getCulling();
   const SCamera *c = cam->getCamera();
   const SEngine *e = CEngineBase::context->engineGetEngine();
-  //gl->makeCurrent();
+  gl->makeCurrent();
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
   CEngineBase::context->engineClearDrawCalls();
 
   if(CScene *s = CEngineBase::context->getScenes()->getActiveScene())
@@ -239,7 +246,7 @@ void CWindow::paintGL()
 
       fboDepth->setCamera(*c);
       fboDepth->bind();
-      glClear(GL_DEPTH_BUFFER_BIT);
+      gl->clear(NOpenGL::DEPTH_BUFFER_BIT);
 
       ren->setMode(NRenderer::MODE_DEPTH);
       s->render();
@@ -252,7 +259,7 @@ void CWindow::paintGL()
       // geo light
       fboGeo->setCamera(*c);
       fboGeo->bind();
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
 
       ren->setMode(NRenderer::MODE_GEOMETRY);
       s->render();
@@ -265,13 +272,16 @@ void CWindow::paintGL()
       cam->setPosition(sun->getObject()->position);
       fboGeo->setCamera(*c);
 
-      sh->getProgram(NShader::PROGRAM_LPV_CLEAR)->
-        dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR);
-      sh->getProgram(NShader::PROGRAM_LPV_INJECTION)->
-        dispatch(e->geometryTextureSize, e->geometryTextureSize, 1, NRenderer::MODE_LPV_INJECTION);
-      for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
-        sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION)->
+      if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
+      {
+        sh->getProgram(NShader::PROGRAM_LPV_CLEAR)->
+          dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR);
+        sh->getProgram(NShader::PROGRAM_LPV_INJECTION)->
+          dispatch(e->geometryTextureSize, e->geometryTextureSize, 1, NRenderer::MODE_LPV_INJECTION);
+        for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
+          sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION)->
           dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_PROPAGATION);
+      }
     }
     
     // standard
@@ -285,7 +295,7 @@ void CWindow::paintGL()
     // geo camera
     /*fboGeo->setCamera(*c);
     fboGeo->bind();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
 
     ren->setMode(NRenderer::MODE_LPV_INJECTION);
     s->render();
@@ -328,10 +338,10 @@ void CWindow::paintGL()
 //------------------------------------------------------------------------------
 void CWindow::resizeGL(int width, int height)
 {
-  //COpenGL *gl = CEngineBase::context->getOpenGL();
-  //gl->makeCurrent();
+  COpenGL *gl = CEngineBase::context->getOpenGL();
+  gl->makeCurrent();
 
-  glViewport(0, 0, width, height);
+  gl->viewport(0, 0, width, height);
   CEngineBase::context->getCamera()->setSize(static_cast<float>(width), static_cast<float>(height));
 
 #ifdef ENV_SDL
@@ -342,7 +352,32 @@ void CWindow::resizeGL(int width, int height)
 #ifdef ENV_QT
 bool CWindow::event(QEvent *event)
 {
-  // qt mouse and key events
+  if((event->type() == QEvent::MouseButtonPress) || (event->type() == QEvent::MouseButtonRelease) || (event->type() == QEvent::MouseMove))
+  {
+    QMouseEvent *e = static_cast<QMouseEvent *>(event);
+    const NEngine::EMouseButton b = getMouseButton(e->buttons());
+
+    if(event->type() == QEvent::MouseButtonPress)
+      emit onMousePress(b);
+    else if(event->type() == QEvent::MouseButtonRelease)
+      emit onMousePress(b);
+    else if(event->type() == QEvent::MouseMove)
+      emit onMouseMove(SPoint(e->pos().x(), e->pos().y()), b);
+
+    return true;
+  }
+  else if((event->type() == QEvent::KeyPress) || (event->type() == QEvent::KeyRelease))
+  {
+    QKeyEvent *e = static_cast<QKeyEvent *>(event);
+    const uint32 k = e->key();
+
+    if(event->type() == QEvent::KeyPress)
+      emit onKeyPress(getKey(k));
+    else
+      emit onKeyRelease(getKey(k));
+
+    return true;
+  }
 
   return
 #if QT_VERSION < 0x050400
@@ -354,26 +389,54 @@ bool CWindow::event(QEvent *event)
 }
 #endif
 //------------------------------------------------------------------------------
+NEngine::EMouseButton CWindow::getMouseButton(int32 button)
+{
+#if defined(ENV_QT)
+  return static_cast<NEngine::EMouseButton>(
+    ((button & Qt::LeftButton) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN) |
+    ((button & Qt::RightButton) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN));
+#elif defined(ENV_SDL)
+  return static_cast<NEngine::EMouseButton>(
+    (((button == SDL_BUTTON_LEFT) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_LEFT : NEngine::MOUSE_BTN) |
+    (((button == SDL_BUTTON_RIGHT) || (button == SDL_BUTTON_X1) || (button == SDL_BUTTON_X2)) ? NEngine::MOUSE_BTN_RIGHT : NEngine::MOUSE_BTN));
+#endif
+
+  return NEngine::MOUSE_BTN;
+}
+//------------------------------------------------------------------------------
+NEngine::EKey CWindow::getKey(int32 key) const
+{
+  const SEngine *e = CEngineBase::context->engineGetEngine();
+  auto it = e->keysMap.find(key);
+
+  if(it == e->keysMap.cend())
+    return NEngine::KEY;
+
+  return it->second;
+}
+//------------------------------------------------------------------------------
 void CWindow::drawTexture(GLuint texture, float x, float y, float w, float h, bool isShadow)
 {
-  glUseProgram(0);
-  glEnable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE3);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  COpenGL *gl = CEngineBase::context->getOpenGL();
+
+  gl->useProgram(0);
+  glEnable(NOpenGL::TEXTURE_2D);
+  gl->activeTexture(NOpenGL::TEXTURE3);
+  glBindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->activeTexture(NOpenGL::TEXTURE2);
+  glBindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->activeTexture(NOpenGL::TEXTURE1);
+  glBindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->activeTexture(NOpenGL::TEXTURE0);
+  glBindTexture(NOpenGL::TEXTURE_2D, texture);
   if(isShadow)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_BLEND);
+    glTexParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);
+  glDisable(NOpenGL::DEPTH_TEST);
+  glDisable(NOpenGL::BLEND);
 
   const float vx[] = { x * 2.0f - 1.0f, -y * 2.0f + 1.0f, (x + w) * 2.0f - 1.0f, (-y - h) * 2.0f + 1.0f };
 
-  glBegin(GL_QUADS);
+  glBegin(NOpenGL::QUADS);
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
   glTexCoord2f(0.0f, 1.0f);
   glVertex3f(vx[0], vx[1], 1.0f);
@@ -386,26 +449,26 @@ void CWindow::drawTexture(GLuint texture, float x, float y, float w, float h, bo
   glEnd();
 
   if(isShadow)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_TEXTURE_2D);
+    glTexParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);
+  glBindTexture(NOpenGL::TEXTURE_2D, 0);
+  glEnable(NOpenGL::DEPTH_TEST);
+  glDisable(NOpenGL::TEXTURE_2D);
 }
 //------------------------------------------------------------------------------
 //test debug, don't panic !
 /*const glm::mat4 rot2_ = glm::rotate(glm::rotate(glm::mat4(1.0), r.z, glm::vec3(0.0, 1.0, 0.0)), -r.y, glm::vec3(1.0, 0.0, 0.0));
 glUseProgram(0);
-glEnable(GL_BLEND);
-glMatrixMode(GL_PROJECTION);
+glEnable(NOpenGL::BLEND);
+glMatrixMode(NOpenGL::PROJECTION);
 glLoadIdentity();
 glMultMatrixf(glm::value_ptr(c->projection));
-glMatrixMode(GL_MODELVIEW);
+glMatrixMode(NOpenGL::MODELVIEW);
 glLoadIdentity();
 glMultMatrixf(glm::value_ptr(c->view));
 glMultMatrixf(glm::value_ptr(rot2_));
 const float range = 20.0f;
 
-glBegin(GL_LINES);
+glBegin(NOpenGL::LINES);
 glColor4f(0.5f, 0.5f, 1.0f, 0.2f);
 
 for(float y = -step * range; y <= (step * range); y += step)
@@ -423,18 +486,18 @@ for(float y = -step * range; y <= (step * range); y += step)
 glEnd();
 
 glLoadIdentity();
-glMatrixMode(GL_PROJECTION);
+glMatrixMode(NOpenGL::PROJECTION);
 glLoadIdentity();
-glMatrixMode(GL_MODELVIEW);
-glDisable(GL_BLEND);
+glMatrixMode(NOpenGL::MODELVIEW);
+glDisable(NOpenGL::BLEND);
 
-glDisable(GL_DEPTH_TEST);
-glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, CEngineBase::context->getMaps()->getMap(NWindow::STR_ORTHO_DEPTH_FBO_MAP)->getMap()->texture);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+glDisable(NOpenGL::DEPTH_TEST);
+glEnable(NOpenGL::TEXTURE_2D);
+glBindTexture(NOpenGL::TEXTURE_2D, CEngineBase::context->getMaps()->getMap(NWindow::STR_ORTHO_DEPTH_FBO_MAP)->getMap()->texture);
+glTexParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);
 const float fboW = f->getFrameBuffer()->width * 2.0f / c->width * 2.0f;
 const float fboH = f->getFrameBuffer()->height * 2.0f / c->height * 2.0f;
-glBegin(GL_QUADS);
+glBegin(NOpenGL::QUADS);
 glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 glTexCoord2f(1.0f, 1.0f);
 glVertex3f(-1.0f, 1.0f, 1.0f);
@@ -445,7 +508,7 @@ glVertex3f(-1.0f + fboW, 1.0f - fboH, 1.0f);
 glTexCoord2f(1.0f, 0.0f);
 glVertex3f(-1.0f, 1.0f - fboH, 1.0f);
 glEnd();
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-glDisable(GL_TEXTURE_2D);
-glEnable(GL_DEPTH_TEST);*/
+glTexParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_R_TO_TEXTURE);
+glDisable(NOpenGL::TEXTURE_2D);
+glEnable(NOpenGL::DEPTH_TEST);*/
 //------------------------------------------------------------------------------

@@ -99,6 +99,8 @@ namespace NShader
   static const char STR_COMPUTE_LPV_INJECTION[] = "lpvInjection.cs";
   static const char STR_COMPUTE_LPV_PROPAGATION[] = "lpvPropagation.cs";
 
+  static const char STR_ERROR_COMPILE_SKIP[] = "Shader Compilation Skip: \"%s\"!";
+  static const char STR_ERROR_LINK_SKIP[] = "Program Link Skip: \"%s\"!";
   static const char STR_ERROR_COMPILE[] = "Shader Compilation Error: \"%s\"!";
   static const char STR_ERROR_LINK[] = "Program Link Error: \"%s\"!";
   //static const char STR_ERROR_VERTEX_ATTACH[] = "No Vertex Shader attached to Program: \"%s\"";
@@ -340,13 +342,13 @@ namespace NShader
 
   static const GLenum TYPE_SHADERS[] =
   {
-    GL_NONE,
-    GL_VERTEX_SHADER,
-    GL_GEOMETRY_SHADER,
-    GL_TESS_CONTROL_SHADER,
-    GL_TESS_EVALUATION_SHADER, 
-    GL_FRAGMENT_SHADER,
-    GL_COMPUTE_SHADER
+    NOpenGL::NONE,
+    NOpenGL::VERTEX_SHADER,
+    NOpenGL::GEOMETRY_SHADER,
+    NOpenGL::TESS_CONTROL_SHADER,
+    NOpenGL::TESS_EVALUATION_SHADER, 
+    NOpenGL::FRAGMENT_SHADER,
+    NOpenGL::COMPUTE_SHADER
   };
 
   enum EProgram

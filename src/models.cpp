@@ -797,7 +797,7 @@ void CModel::update(NModel::EMeshUpdateType type)
   }
   if(type & NModel::UPDATE_GEOMETRY)
   {
-    //COpenGL *gl = context->getOpenGL();
+    COpenGL *gl = context->getOpenGL();
 
     for(auto it = model.meshes.begin(); it != model.meshes.end(); it++)
     {
@@ -859,25 +859,25 @@ void CModel::update(NModel::EMeshUpdateType type)
             }
 
             if(lod->vboVertices)
-              glDeleteBuffers(1, &lod->vboVertices);
+              gl->deleteBuffers(1, &lod->vboVertices);
             if(lod->vboIndices)
-              glDeleteBuffers(1, &lod->vboIndices);
+              gl->deleteBuffers(1, &lod->vboIndices);
 
-            glGenBuffers(1, &lod->vboVertices);
-            glGenBuffers(1, &lod->vboSimpleVertices);
-            glGenBuffers(1, &lod->vboIndices);
+            gl->genBuffers(1, &lod->vboVertices);
+            gl->genBuffers(1, &lod->vboSimpleVertices);
+            gl->genBuffers(1, &lod->vboIndices);
 
-            glBindBuffer(GL_ARRAY_BUFFER, lod->vboVertices);
-            glBufferData(GL_ARRAY_BUFFER, vx.size() * sizeof(float), &vx[0], GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            gl->bindBuffer(NOpenGL::ARRAY_BUFFER, lod->vboVertices);
+            gl->bufferData(NOpenGL::ARRAY_BUFFER, vx.size() * sizeof(float), &vx[0], NOpenGL::STATIC_DRAW);
+            gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
 
-            glBindBuffer(GL_ARRAY_BUFFER, lod->vboSimpleVertices);
-            glBufferData(GL_ARRAY_BUFFER, vxs.size() * sizeof(float), &vxs[0], GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            gl->bindBuffer(NOpenGL::ARRAY_BUFFER, lod->vboSimpleVertices);
+            gl->bufferData(NOpenGL::ARRAY_BUFFER, vxs.size() * sizeof(float), &vxs[0], NOpenGL::STATIC_DRAW);
+            gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lod->vboIndices);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, in.size() * sizeof(uint16), &in[0], GL_STATIC_DRAW);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+            gl->bindBuffer(NOpenGL::ELEMENT_ARRAY_BUFFER, lod->vboIndices);
+            gl->bufferData(NOpenGL::ELEMENT_ARRAY_BUFFER, in.size() * sizeof(uint16), &in[0], NOpenGL::STATIC_DRAW);
+            gl->bindBuffer(NOpenGL::ELEMENT_ARRAY_BUFFER, 0);
           }
         }
       }

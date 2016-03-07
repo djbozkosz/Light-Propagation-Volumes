@@ -6,17 +6,18 @@ ENVIRONMENT  = -D ENV_SDL
 ifeq ($(OS), Windows_NT)
   CCFLAGS    = 
   LDFLAGS    = -static-libgcc -static-libstdc++ -mwindows -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
+  LIBS       = -lopengl32 -lSDL2 -lSDL2_image
   RM         = del /S
   RUN        = 
 else
   CCFLAGS    = 
   LDFLAGS    = 
+  LIBS       = -lGL -lX11 -lSDL2 -lSDL2_image
   RM         = rm -f
   RUN        = ./
 endif
 
 CFLAGS       = -pedantic -Wall -Wextra -Wdouble-promotion -Wunreachable-code -O3 $(CCVER) $(CCFLAGS) $(ENVIRONMENT) -c
-LIBS         = -lopengl32 -lglew32 -lSDL2 -lSDL2_image
 
 SRC          = main.cpp engine.cpp window.cpp scenes.cpp models.cpp renderer.cpp shaders.cpp framebuffers.cpp maps.cpp filesystem.cpp
 OBJ          = $(SRC:.cpp=.o)

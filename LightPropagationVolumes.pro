@@ -68,12 +68,26 @@ OTHER_FILES += \
     data/shaders/color.vs \
     data/shaders/depth.vs \
     data/shaders/perFragment.vs \
+    data/shaders/perFragmentShadow.vs \
     data/shaders/perFragmentNormal.vs \
+    data/shaders/perFragmentNormalShadow.vs \
     data/shaders/basic.fs \
     data/shaders/basicAlpha.fs \
     data/shaders/color.fs \
     data/shaders/depth.fs \
     data/shaders/perFragment.fs \
+    data/shaders/perFragmentShadow.fs \
+    data/shaders/perFragmentShadowJitter.fs \
     data/shaders/perFragmentAlpha.fs \
+    data/shaders/perFragmentAlphaShadow.fs \
+    data/shaders/perFragmentAlphaShadowJitter.fs \
     data/shaders/perFragmentNormal.fs \
-    data/shaders/perFragmentNormalAlpha.fs
+    data/shaders/perFragmentNormalShadow.fs \
+    data/shaders/perFragmentNormalShadowJitter.fs \
+    data/shaders/perFragmentNormalAlpha.fs \
+    data/shaders/perFragmentNormalAlphaShadow.fs \
+    data/shaders/perFragmentNormalAlphaShadowJitter.fs \
+    data/shaders/geometry.fs \
+    data/shaders/lpvClear.cs \
+    data/shaders/lpvInjection.cs \
+    data/shaders/lpvPropagation.cs

@@ -7,6 +7,10 @@
 #include <list>
 #include <map>
 
+#ifdef ENV_QT
+#include <QDebug>
+#endif
+
 #include "matrix.h"
 #include "headers/engineTypes.h"
 
@@ -169,9 +173,30 @@ class CContext
     inline const SEngine *engineGetEngine() const { if(fncEngineGetEngine) return fncEngineGetEngine(this); return NULL; }
 
     // console
-    inline void log(const std::string &msg) const { std::cout << msg << "\n"; }
-    inline void warning(const std::string &msg) const { std::cout << "WARNING: " << msg << "!\n"; }
-    inline void error(const std::string &msg) const { std::cout << "ERROR: " << msg << "!\n"; }
+    inline void log(const std::string &msg) const
+    {
+#ifdef ENV_QT
+      qDebug() << msg.c_str();
+#else
+      std::cout << msg << "\n";
+#endif
+    }
+    inline void warning(const std::string &msg) const
+    {
+#ifdef ENV_QT
+      qDebug() << "WARNING: " << msg.c_str();
+#else
+      std::cout << "WARNING: " << msg << "!\n";
+#endif
+    }
+    inline void error(const std::string &msg) const
+    {
+#ifdef ENV_QT
+      qDebug() << "ERROR: " << msg.c_str();
+#else
+      std::cout << "ERROR: " << msg << "!\n";
+#endif
+    }
 
     // gets
     inline CEngine *getEngine() { return engine; }

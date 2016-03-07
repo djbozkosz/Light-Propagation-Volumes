@@ -81,8 +81,6 @@ class CEngine
     void showMessage(const std::string &title, const std::string &text, bool modal = true) const;
 
     bool isKeyForDelayedRendering() const;
-    NEngine::EMouseButton getMouseButton(int32 button) const;
-    NEngine::EKey getKey(int32 key) const;
 
     inline void incDrawCalls() { engine.drawCalls++; }
     inline void clearDrawCalls() { engine.drawCalls = 0; }

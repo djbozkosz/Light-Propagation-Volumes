@@ -78,6 +78,33 @@ namespace NEngine
     EFLAG_FULLSCREEN = 0x04,
   };
 
+  enum EGPUPlatform
+  {
+    GPU_PLATFORM_KEEP = 0,
+
+    GPU_PLATFORM_GL0100 = 0100,
+    GPU_PLATFORM_GL0101 = 0101,
+    GPU_PLATFORM_GL0102 = 0102,
+    GPU_PLATFORM_GL0103 = 0103,
+    GPU_PLATFORM_GL0104 = 0104,
+    GPU_PLATFORM_GL0105 = 0105,
+    GPU_PLATFORM_GL0200 = 0200,
+    GPU_PLATFORM_GL0200_ES = 0200,
+    GPU_PLATFORM_GL0201 = 0201,
+    GPU_PLATFORM_GL0300 = 0300,
+    GPU_PLATFORM_GL0301 = 0301,
+    GPU_PLATFORM_GL0302 = 0302,
+    GPU_PLATFORM_GL0303 = 0303,
+    GPU_PLATFORM_GL0400 = 0400,
+    GPU_PLATFORM_GL0401 = 0401,
+    GPU_PLATFORM_GL0402 = 0402,
+    GPU_PLATFORM_GL0403 = 0403,
+    GPU_PLATFORM_GL0404 = 0404,
+    GPU_PLATFORM_GL0405 = 0405,
+
+    GPU_PLATFORM_MAX = 0xffff,
+  };
+
   enum EKey
   {
     KEY                       = 0x00000000,
@@ -147,6 +174,7 @@ struct SEngine
 {
   bool activeRendering;
   uint8 flags;
+  NEngine::EGPUPlatform gpuPlatform;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
@@ -191,6 +219,7 @@ struct SEngine
   inline SEngine() :
     activeRendering(false),
     flags(NEngine::EFLAG_MAXIMIZED),
+    gpuPlatform(NEngine::GPU_PLATFORM_MAX),
     keys(NEngine::KEY),
     tickOld(0),
     tickNew(0),

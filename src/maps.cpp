@@ -16,64 +16,64 @@ CMap::~CMap()
 //------------------------------------------------------------------------------
 void CMap::load()
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
   const bool empty = (map.width) || (map.height) || (map.depth);
 
-  const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? ((empty) ? GL_TEXTURE_3D : GL_TEXTURE_2D) : ((map.format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-  const GLint internalFormat = (map.format & NMap::FORMAT_DEPTH) ? GL_DEPTH_COMPONENT24 : ((map.format & NMap::FORMAT_STENCIL) ? GL_DEPTH24_STENCIL8 : ((empty) ? GL_RGBA32F : GL_RGBA));
-  const GLint format = (map.format & NMap::FORMAT_DEPTH) ? GL_DEPTH_COMPONENT : ((map.format & NMap::FORMAT_STENCIL) ? GL_DEPTH_STENCIL : GL_RGBA);
-  const GLint dataType = (map.format & NMap::FORMAT_DEPTH) ? GL_FLOAT : ((map.format & NMap::FORMAT_STENCIL) ? GL_UNSIGNED_INT : ((empty) ? GL_FLOAT : GL_UNSIGNED_BYTE));
+  const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? ((empty) ? NOpenGL::TEXTURE_3D : NOpenGL::TEXTURE_2D) : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D);
+  const GLint internalFormat = (map.format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_COMPONENT24 : ((map.format & NMap::FORMAT_STENCIL) ? NOpenGL::DEPTH24_STENCIL8 : ((empty) ? NOpenGL::RGBA32F : NOpenGL::RGBA));
+  const GLint format = (map.format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_COMPONENT : ((map.format & NMap::FORMAT_STENCIL) ? NOpenGL::DEPTH_STENCIL : NOpenGL::RGBA);
+  const GLint dataType = (map.format & NMap::FORMAT_DEPTH) ? NOpenGL::FLOAT : ((map.format & NMap::FORMAT_STENCIL) ? NOpenGL::UNSIGNED_INT : ((empty) ? NOpenGL::FLOAT : NOpenGL::UNSIGNED_BYTE));
 
   if(empty)
   { // empty texture
-    glGenTextures(1, &map.texture);
-    glBindTexture(texFormat, map.texture);
+    gl->genTextures(1, &map.texture);
+    gl->bindTexture(texFormat, map.texture);
 
-    if(texFormat != GL_TEXTURE_3D)
+    if(texFormat != NOpenGL::TEXTURE_3D)
     {
-      for(uint32 side = 0; side < ((texFormat != GL_TEXTURE_CUBE_MAP) ? 1 : NMap::CUBE_SIZE); side++)
-        glTexImage2D((texFormat != GL_TEXTURE_CUBE_MAP) ? texFormat : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + side),
+      for(uint32 side = 0; side < ((texFormat != NOpenGL::TEXTURE_CUBE_MAP) ? 1 : NMap::CUBE_SIZE); side++)
+        gl->texImage2D((texFormat != NOpenGL::TEXTURE_CUBE_MAP) ? texFormat : (NOpenGL::TEXTURE_CUBE_MAP_POSITIVE_X + side),
           0, internalFormat, map.width, map.height, 0, format, dataType, NULL);
     }
     else
-      glTexImage3D(texFormat, 0, internalFormat, map.width, map.height, map.depth, 0, format, dataType, NULL);
+      gl->texImage3D(texFormat, 0, internalFormat, map.width, map.height, map.depth, 0, format, dataType, NULL);
 
-    glTexParameteri(texFormat, GL_TEXTURE_MAG_FILTER, (map.format & NMap::FORMAT_LINEAR) ? GL_LINEAR : ((map.format & NMap::FORMAT_MIPMAP) ? GL_LINEAR : GL_NEAREST));
-    glTexParameteri(texFormat, GL_TEXTURE_MIN_FILTER, (map.format & NMap::FORMAT_LINEAR) ? GL_LINEAR : ((map.format & NMap::FORMAT_MIPMAP) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_MAG_FILTER, (map.format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((map.format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR : NOpenGL::NEAREST));
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_MIN_FILTER, (map.format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((map.format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR_MIPMAP_LINEAR : NOpenGL::NEAREST));
     if(map.format & NMap::FORMAT_EDGE)
     {
-      glTexParameteri(texFormat, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(texFormat, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      if(texFormat != GL_TEXTURE_2D)
-        glTexParameteri(texFormat, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_S, NOpenGL::CLAMP_TO_EDGE);
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_T, NOpenGL::CLAMP_TO_EDGE);
+      if(texFormat != NOpenGL::TEXTURE_2D)
+        gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_R, NOpenGL::CLAMP_TO_EDGE);
     }
     if(map.format & NMap::FORMAT_DEPTH)
     {
-      glTexParameteri(texFormat, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-      glTexParameteri(texFormat, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_COMPARE_FUNC, NOpenGL::LEQUAL);
     }
 
     if(map.format & NMap::FORMAT_MIPMAP)
-      glGenerateMipmap(texFormat);
+      gl->generateMipmap(texFormat);
 
-    glBindTexture(texFormat, 0);
+    gl->bindTexture(texFormat, 0);
   }
   else
   { // texture from file
-    for(uint32 side = 0; side < ((texFormat != GL_TEXTURE_CUBE_MAP) ? 1 : NMap::CUBE_SIZE); side++)
+    for(uint32 side = 0; side < ((texFormat != NOpenGL::TEXTURE_CUBE_MAP) ? 1 : NMap::CUBE_SIZE); side++)
     {
       bool loaded = false;
       const std::string file = CStr::extPathFile(map.file);
       const std::string ext = CStr::extExt(map.file);
-      const GLenum texFormat2 = (texFormat != GL_TEXTURE_CUBE_MAP) ? texFormat : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + side);
-      const std::string cubeSuffix = (texFormat != GL_TEXTURE_CUBE_MAP) ? std::string() : NMap::STR_CUBE_MAP_NAMES[side];
+      const GLenum texFormat2 = (texFormat != NOpenGL::TEXTURE_CUBE_MAP) ? texFormat : (NOpenGL::TEXTURE_CUBE_MAP_POSITIVE_X + side);
+      const std::string cubeSuffix = (texFormat != NOpenGL::TEXTURE_CUBE_MAP) ? std::string() : NMap::STR_CUBE_MAP_NAMES[side];
 
       CFile *f = (map.file.length()) ? context->getFilesystem()->open(SFile(std::string(NFile::STR_DATA_MAPS)+(cubeSuffix.length() ? CStr(NMap::STR_MAP_SUFFIX, file.c_str(), cubeSuffix.c_str(), ext.c_str()).str() : map.file))) : NULL;
       std::vector<uint8> data;
       const uint32 maxTextureSize = context->engineGetEngine()->maxTextureSize;
 
-      glGenTextures(1, &map.texture);
-      glBindTexture(texFormat, map.texture);
+      gl->genTextures(1, &map.texture);
+      gl->bindTexture(texFormat, map.texture);
 
       if(f)
       {
@@ -82,13 +82,14 @@ void CMap::load()
 
 #if defined(ENV_QT)
         QImage i;
-        i.loadFromData(&d[0], data.size());
+        i.loadFromData(&data[0], data.size());
 
         if(!i.isNull())
         {
           loaded = true;
 
-          //i = i.convertToFormat(QImage::Format_RGBA8888);
+          if(i.format() != QImage::Format_ARGB32)
+            i = i.convertToFormat(QImage::Format_ARGB32);
           data.resize(i.width() * i.height() * NMap::RGBA_SIZE);
           memcpy(&data[0], i.constBits(), sizeof(uint8) * i.width() * i.height() * NMap::RGBA_SIZE);
           for(int32 j = 0; j < (i.width() * i.height() * 4); j += NMap::RGBA_SIZE)
@@ -102,7 +103,7 @@ void CMap::load()
           setColorKeyIntoAlpha(&data[0], map.width, map.height);
           if(maxTextureSize)
             clampBitmap(&data[0], map.width, map.height, map.width, map.height, maxTextureSize);
-          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, map.width, map.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+          gl->texImage2D(NOpenGL::TEXTURE_2D, 0, NOpenGL::RGBA, map.width, map.height, 0, NOpenGL::RGBA, NOpenGL::UNSIGNED_BYTE, &data[0]);
         }
 #elif defined(ENV_SDL)
         SDL_RWops *rw = SDL_RWFromConstMem(&data[0], data.size());
@@ -124,7 +125,7 @@ void CMap::load()
             setColorKeyIntoAlpha(d, map.width, map.height);
             if(maxTextureSize)
               clampBitmap(d, map.width, map.height, map.width, map.height, maxTextureSize);
-            glTexImage2D(texFormat2, 0, GL_RGBA, map.width, map.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, d);
+            gl->texImage2D(texFormat2, 0, NOpenGL::RGBA, map.width, map.height, 0, NOpenGL::RGBA, NOpenGL::UNSIGNED_BYTE, d);
 
             SDL_FreeSurface(i);
           }
@@ -136,11 +137,11 @@ void CMap::load()
       if(!loaded)
       {
         //context->error(CStr(NMap::STR_ERROR_UNABLE_TO_OPEN, map.file.c_str()));
-        glTexImage2D(texFormat2, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &map.color);
+        gl->texImage2D(texFormat2, 0, NOpenGL::RGBA, 1, 1, 0, NOpenGL::RGBA, NOpenGL::UNSIGNED_BYTE, &map.color);
       }
 
-      glGenerateMipmap(texFormat);
-      glBindTexture(texFormat, 0);
+      gl->generateMipmap(texFormat);
+      gl->bindTexture(texFormat, 0);
     }
   }
 }

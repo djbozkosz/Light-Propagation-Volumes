@@ -17,7 +17,7 @@ CFramebuffer::~CFramebuffer()
 //------------------------------------------------------------------------------
 void CFramebuffer::create()
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
 
   // color textures
   for(uint32 i = 0; i < framebuffer.attachments.size(); i++)
@@ -26,53 +26,53 @@ void CFramebuffer::create()
   // render buffers
   if(framebuffer.rboFormat & NMap::RBO_DEPTH)
   {
-    glGenRenderbuffers(1, &framebuffer.rboDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, framebuffer.rboDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, framebuffer.width, framebuffer.height);
+    gl->genRenderbuffers(1, &framebuffer.rboDepth);
+    gl->bindRenderbuffer(NOpenGL::RENDERBUFFER, framebuffer.rboDepth);
+    gl->renderbufferStorage(NOpenGL::RENDERBUFFER, NOpenGL::DEPTH_COMPONENT24, framebuffer.width, framebuffer.height);
   }
   if(framebuffer.rboFormat & NMap::RBO_STENCIL)
   {
-    glGenRenderbuffers(1, &framebuffer.rboStencil);
-    glBindRenderbuffer(GL_RENDERBUFFER, framebuffer.rboStencil);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebuffer.width, framebuffer.height);
+    gl->genRenderbuffers(1, &framebuffer.rboStencil);
+    gl->bindRenderbuffer(NOpenGL::RENDERBUFFER, framebuffer.rboStencil);
+    gl->renderbufferStorage(NOpenGL::RENDERBUFFER, NOpenGL::DEPTH24_STENCIL8, framebuffer.width, framebuffer.height);
   }
 
   // framebuffer
-  glGenFramebuffers(1, &framebuffer.fbo);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.fbo);
+  gl->genFramebuffers(1, &framebuffer.fbo);
+  gl->bindFramebuffer(NOpenGL::FRAMEBUFFER, framebuffer.fbo);
 
   // attachments
   std::vector<GLenum> colorAttachments;
   for(auto it = framebuffer.attachments.begin(); it != framebuffer.attachments.end(); it++)
   {
     if(it->format & (NMap::FORMAT_DEPTH | NMap::FORMAT_STENCIL))
-      glFramebufferTexture2D(GL_FRAMEBUFFER, (it->format & NMap::FORMAT_DEPTH) ? GL_DEPTH_ATTACHMENT : GL_DEPTH_STENCIL, GL_TEXTURE_2D, it->map->getMap()->texture, 0);
+      gl->framebufferTexture2D(NOpenGL::FRAMEBUFFER, (it->format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_ATTACHMENT : NOpenGL::DEPTH_STENCIL, NOpenGL::TEXTURE_2D, it->map->getMap()->texture, 0);
     else if(it->format & (NMap::FORMAT_2D | NMap::FORMAT_CUBE))
     {
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachments.size(),
-        (it->format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D, it->map->getMap()->texture, 0);
-      colorAttachments.push_back(GL_COLOR_ATTACHMENT0 + colorAttachments.size());
+      gl->framebufferTexture2D(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size(),
+        (it->format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP_POSITIVE_X : NOpenGL::TEXTURE_2D, it->map->getMap()->texture, 0);
+      colorAttachments.push_back(NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size());
     }
   }
 
   // draw buffers
   if(colorAttachments.size())
-    glDrawBuffers(colorAttachments.size(), &colorAttachments[0]);
+    gl->drawBuffers(colorAttachments.size(), &colorAttachments[0]);
   else
-    glDrawBuffer(GL_NONE);
+    gl->drawBuffer(NOpenGL::NONE);
 
   // render buffers links
   if(framebuffer.rboFormat & NMap::RBO_DEPTH)
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebuffer.rboDepth);
+    gl->framebufferRenderbuffer(NOpenGL::FRAMEBUFFER, NOpenGL::DEPTH_ATTACHMENT, NOpenGL::RENDERBUFFER, framebuffer.rboDepth);
   if(framebuffer.rboFormat & NMap::RBO_STENCIL)
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, framebuffer.rboStencil);
+    gl->framebufferRenderbuffer(NOpenGL::FRAMEBUFFER, NOpenGL::STENCIL_ATTACHMENT, NOpenGL::RENDERBUFFER, framebuffer.rboStencil);
 
-  if(GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+  if(GLuint status = gl->checkFramebufferStatus(NOpenGL::FRAMEBUFFER) != NOpenGL::FRAMEBUFFER_COMPLETE)
     context->engineShowMessage(NMap::STR_ERROR_INVALID_FBO, CStr(NMap::STR_ERROR_INVALID_FBO_STATUS, status), false);
 
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  gl->bindRenderbuffer(NOpenGL::RENDERBUFFER, 0);
+  gl->bindFramebuffer(NOpenGL::FRAMEBUFFER, 0);
+  glBindTexture(NOpenGL::TEXTURE_2D, 0);
 }
 //------------------------------------------------------------------------------
 CFramebuffers::CFramebuffers() : CEngineBase()

@@ -47,7 +47,7 @@ class CMaps : public CEngineBase
     CMap *addMap(const SMap &map);
     uint32 removeMap(const std::string &file);
 
-    inline void finishBind() const { /*context->getOpenGL()->*/glActiveTexture(GL_TEXTURE0); }
+    inline void finishBind() const { context->getOpenGL()->activeTexture(NOpenGL::TEXTURE0); }
     void unbind(GLuint uniform = 0, uint8 sampler = 0, uint32 format = 0) const;
 
     inline CMap *getMap(const std::string &file) { auto it = maps.find(file); if(it == maps.end()) return NULL; return &it->second; }
@@ -55,42 +55,44 @@ class CMaps : public CEngineBase
 //------------------------------------------------------------------------------
 inline void CMap::bind(GLuint uniform, uint8 sampler, uint32 format) const
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
   
   if((format & (NMap::FORMAT_IMAGE_R | NMap::FORMAT_IMAGE_W | NMap::FORMAT_IMAGE_RW)))
   {
-    glBindImageTexture(sampler, map.texture, 0, GL_FALSE, 0, (format & NMap::FORMAT_IMAGE_R) ? GL_READ_ONLY : ((format & NMap::FORMAT_IMAGE_W) ? GL_WRITE_ONLY : GL_READ_WRITE), GL_RGBA32F);
-    glUniform1i(uniform, sampler);
+    gl->bindImageTexture(sampler, map.texture, 0, NOpenGL::FALSE, 0, (format & NMap::FORMAT_IMAGE_R) ? NOpenGL::READ_ONLY : ((format & NMap::FORMAT_IMAGE_W) ? NOpenGL::WRITE_ONLY : NOpenGL::READ_WRITE), NOpenGL::RGBA32F);
+    gl->uniform1i(uniform, sampler);
   }
   else
   {
-    const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? GL_TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE0 + sampler);
-    glBindTexture(texFormat, map.texture);
-    glTexParameteri(texFormat, GL_TEXTURE_MAG_FILTER, (format & NMap::FORMAT_LINEAR) ? GL_LINEAR : ((format & NMap::FORMAT_MIPMAP) ? GL_LINEAR : GL_NEAREST));
-    glTexParameteri(texFormat, GL_TEXTURE_MIN_FILTER, (format & NMap::FORMAT_LINEAR) ? GL_LINEAR : ((format & NMap::FORMAT_MIPMAP) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST));
-    glTexParameteri(texFormat, GL_TEXTURE_WRAP_S, (format & NMap::FORMAT_EDGE) ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-    glTexParameteri(texFormat, GL_TEXTURE_WRAP_T, (format & NMap::FORMAT_EDGE) ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+    const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? NOpenGL::TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D);
+    gl->activeTexture(NOpenGL::TEXTURE0 + sampler);
+    gl->bindTexture(texFormat, map.texture);
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_MAG_FILTER, (format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR : NOpenGL::NEAREST));
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_MIN_FILTER, (format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR_MIPMAP_LINEAR : NOpenGL::NEAREST));
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_S, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : NOpenGL::REPEAT);
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_T, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : NOpenGL::REPEAT);
     if(format & NMap::FORMAT_DEPTH)
     {
-      glTexParameteri(texFormat, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-      glTexParameteri(texFormat, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_COMPARE_FUNC, NOpenGL::LEQUAL);
     }
     else
-      glTexParameteri(texFormat, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-    glUniform1i(uniform, sampler);
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);
+    gl->uniform1i(uniform, sampler);
   }
 }
 //------------------------------------------------------------------------------
 inline void CMap::clear()
 {
-  //const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? GL_TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+  COpenGL *gl = context->getOpenGL();
+
+  //const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? NOpenGL::TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D);
   //std::vector<float> lpvData(map.width * map.height * map.depth * NMap::RGBA_SIZE, 0.0f);
 
-  //glBindTexture(texFormat, map.texture);
-  //glTexSubImage3D(texFormat, 0, 0, 0, 0, map.width, map.height, map.depth, GL_RGBA, GL_FLOAT, &lpvData[0]);
-  glClearTexImage(map.texture, 0, GL_RGBA, GL_FLOAT, NULL);
-  //glBindTexture(texFormat, 0);
+  //gl->bindTexture(texFormat, map.texture);
+  //gl->texSubImage3D(texFormat, 0, 0, 0, 0, map.width, map.height, map.depth, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvData[0]);
+  gl->clearTexImage(map.texture, 0, NOpenGL::RGBA, NOpenGL::FLOAT, NULL);
+  //gl->bindTexture(texFormat, 0);
 }
 //------------------------------------------------------------------------------
 inline CMap *CMaps::addMap(const SMap &map)
@@ -109,15 +111,15 @@ inline CMap *CMaps::addMap(const SMap &map)
 //------------------------------------------------------------------------------
 inline uint32 CMaps::removeMap(const std::string &file)
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
 
   if(CMap *m = getMap(file))
   {
     GLuint texture = m->getMap()->texture;
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &texture);
+    gl->bindTexture(NOpenGL::TEXTURE_2D, texture);
+    gl->texImage2D(NOpenGL::TEXTURE_2D, 0, NOpenGL::RGBA, 0, 0, 0, NOpenGL::RGBA, NOpenGL::UNSIGNED_BYTE, NULL);
+    gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
+    gl->deleteTextures(1, &texture);
     return maps.erase(file);
   }
 
@@ -126,18 +128,18 @@ inline uint32 CMaps::removeMap(const std::string &file)
 //------------------------------------------------------------------------------
 inline void CMaps::unbind(GLuint uniform, uint8 sampler, uint32 format) const
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
 
   if((format & (NMap::FORMAT_IMAGE_R | NMap::FORMAT_IMAGE_W | NMap::FORMAT_IMAGE_RW)))
   {
-    glBindImageTexture(sampler, 0, 0, GL_FALSE, 0, (format & NMap::FORMAT_IMAGE_R) ? GL_READ_ONLY : ((format & NMap::FORMAT_IMAGE_W) ? GL_WRITE_ONLY : GL_READ_WRITE), GL_RGBA32F);
-    glUniform1i(uniform, sampler);
+    gl->bindImageTexture(sampler, 0, 0, NOpenGL::FALSE, 0, (format & NMap::FORMAT_IMAGE_R) ? NOpenGL::READ_ONLY : ((format & NMap::FORMAT_IMAGE_W) ? NOpenGL::WRITE_ONLY : NOpenGL::READ_WRITE), NOpenGL::RGBA32F);
+    gl->uniform1i(uniform, sampler);
   }
   else
   {
-    glActiveTexture(GL_TEXTURE0 + sampler);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glUniform1i(uniform, sampler);
+    gl->activeTexture(NOpenGL::TEXTURE0 + sampler);
+    glBindTexture(NOpenGL::TEXTURE_2D, 0);
+    gl->uniform1i(uniform, sampler);
   }
 }
 //------------------------------------------------------------------------------

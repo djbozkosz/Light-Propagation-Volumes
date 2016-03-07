@@ -5,8 +5,10 @@
 #ifdef ENV_QT
 #include <QApplication>
 #include <QCoreApplication>
+#include <QDesktopWidget>
 #include <QEvent>
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QTouchEvent>
 #include <QString>
 #include <QTimer>
@@ -40,6 +42,9 @@ class CWindow : public
     SDL_Window *SDLwindow;
     SDL_GLContext SDLcontext;
 #endif
+
+    static NEngine::EMouseButton getMouseButton(int32 button);
+    NEngine::EKey getKey(int32 key) const;
 
   protected:
     virtual void paintGL();
@@ -75,7 +80,7 @@ class CWindow : public
     void onInitializeFinishGL();
     void onMousePress(NEngine::EMouseButton buttons);
     void onMouseRelease(NEngine::EMouseButton buttons);
-    void onMouseMove(int32 x, int32 y);
+    void onMouseMove(const SPoint &point, NEngine::EMouseButton buttons);
     void onKeyPress(NEngine::EKey key);
     void onKeyRelease(NEngine::EKey key);
 #endif

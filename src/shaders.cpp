@@ -19,11 +19,22 @@ void CShader::compile()
   if(shader.file == NShader::STR_SHADER_UNUSED)
     return;
 
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
   const GLenum shaderType = NShader::TYPE_SHADERS[shader.type];
+  const NEngine::EGPUPlatform platform = context->engineGetEngine()->gpuPlatform;
   GLint status = 0;
   GLint infoLength = 0;
   std::string log;
+
+  if(((shader.type == NShader::TYPE_GEOMETRY) && (platform < NEngine::GPU_PLATFORM_GL0302)) ||
+     ((shader.type == NShader::TYPE_TESSELATION_CONTROL) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+     ((shader.type == NShader::TYPE_TESSELATION_EVALUATION) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+     ((shader.type == NShader::TYPE_COMPUTE) && (platform < NEngine::GPU_PLATFORM_GL0403)))
+  {
+    context->log(CStr(NShader::STR_ERROR_COMPILE_SKIP, shader.file.c_str()));
+    return;
+  }
+
   CFile *f = context->getFilesystem()->open(SFile(std::string(NFile::STR_DATA_SHADERS)+shader.file));
 
   if(!f)
@@ -32,26 +43,25 @@ void CShader::compile()
   std::string data(f->size(), ' ');
   f->read(&data[0], data.length());
 
-#ifdef QT_OPENGL_ES_2
-  data = setES2compatible(data);
-#endif
+  if(context->engineGetEngine()->gpuPlatform == NEngine::GPU_PLATFORM_GL0200_ES)
+    data = setES2compatible(data);
 
   const char *d = data.c_str();
 
   //qDebug(d);
-  shader.shader = glCreateShader(shaderType);
-  glShaderSource(shader.shader, 1, &d, NULL);
-  glCompileShader(shader.shader);
-  glGetShaderiv(shader.shader, GL_COMPILE_STATUS, &status);
-  glGetShaderiv(shader.shader, GL_INFO_LOG_LENGTH, &infoLength);
+  shader.shader = gl->createShader(shaderType);
+  gl->shaderSource(shader.shader, 1, &d, NULL);
+  gl->compileShader(shader.shader);
+  gl->getShaderiv(shader.shader, NOpenGL::COMPILE_STATUS, &status);
+  gl->getShaderiv(shader.shader, NOpenGL::INFO_LOG_LENGTH, &infoLength);
 
   log.resize(infoLength);
   if(infoLength)
-    glGetShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
-  if((&log[0]) && (status == GL_TRUE) && (log.find("warning") != std::string::npos))
+    gl->getShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
+  if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
     context->log(log);
 
-  if(status == GL_FALSE)
+  if(status == NOpenGL::FALSE)
     context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.file.c_str()), &log[0], false);
 
   f->close();
@@ -84,7 +94,7 @@ std::string CShader::setES2compatible(const std::string &data)
   {
     d = CStr::replaceAll(d, "in ", "varying ");
     d = CStr::replaceAll(d, "out vec4 glFragColor;", "");
-    d = CStr::replaceAll(d, "glFragColor", "gl_FragColor");
+    d = CStr::replaceAll(d, "glFragColor", "NOpenGL::FragColor");
     d = CStr::replaceAll(d, "texture(", "texture2D(");
   }
 
@@ -114,130 +124,140 @@ CShaderProgram::~CShaderProgram()
 //------------------------------------------------------------------------------
 void CShaderProgram::link()
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
   GLint status = 0;
   GLint infoLength = 0;
   std::string log;
+  const NEngine::EGPUPlatform platform = context->engineGetEngine()->gpuPlatform;
 
-  program.program = glCreateProgram();
+  program.program = gl->createProgram();
 
-  if(program.vertexShader->getShader()->file != NShader::STR_SHADER_UNUSED)
-    glAttachShader(program.program, program.vertexShader->getShader()->shader);
-  if(program.geometryShader->getShader()->file != NShader::STR_SHADER_UNUSED)
-    glAttachShader(program.program, program.geometryShader->getShader()->shader);
-  if(program.tesselationControlShader->getShader()->file != NShader::STR_SHADER_UNUSED)
-    glAttachShader(program.program, program.tesselationControlShader->getShader()->shader);
-  if(program.tesselationEvaluationShader->getShader()->file != NShader::STR_SHADER_UNUSED)
-    glAttachShader(program.program, program.tesselationEvaluationShader->getShader()->shader);
-  if(program.fragmentShader->getShader()->file != NShader::STR_SHADER_UNUSED)
-    glAttachShader(program.program, program.fragmentShader->getShader()->shader);
-  if(program.computeShader->getShader()->file != NShader::STR_SHADER_UNUSED)
-    glAttachShader(program.program, program.computeShader->getShader()->shader);
+  if(((program.geometryShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0302)) ||
+     ((program.tesselationControlShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+     ((program.tesselationEvaluationShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+     ((program.computeShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0403)))
+  {
+    context->log(CStr(NShader::STR_ERROR_LINK_SKIP, NShader::STR_PROGRAM_LIST[program.name]));
+    return;
+  }
 
-  glLinkProgram(program.program);
+  if(program.vertexShader->getShader()->type != NShader::TYPE_UNDEFINED)
+    gl->attachShader(program.program, program.vertexShader->getShader()->shader);
+  if(program.geometryShader->getShader()->type != NShader::TYPE_UNDEFINED)
+    gl->attachShader(program.program, program.geometryShader->getShader()->shader);
+  if(program.tesselationControlShader->getShader()->type != NShader::TYPE_UNDEFINED)
+    gl->attachShader(program.program, program.tesselationControlShader->getShader()->shader);
+  if(program.tesselationEvaluationShader->getShader()->type != NShader::TYPE_UNDEFINED)
+    gl->attachShader(program.program, program.tesselationEvaluationShader->getShader()->shader);
+  if(program.fragmentShader->getShader()->type != NShader::TYPE_UNDEFINED)
+    gl->attachShader(program.program, program.fragmentShader->getShader()->shader);
+  if(program.computeShader->getShader()->type != NShader::TYPE_UNDEFINED)
+    gl->attachShader(program.program, program.computeShader->getShader()->shader);
 
-  glGetProgramiv(program.program, GL_LINK_STATUS, &status);
-  glGetProgramiv(program.program, GL_INFO_LOG_LENGTH, &infoLength);
+  gl->linkProgram(program.program);
+
+  gl->getProgramiv(program.program, NOpenGL::LINK_STATUS, &status);
+  gl->getProgramiv(program.program, NOpenGL::INFO_LOG_LENGTH, &infoLength);
   log.resize(infoLength);
   if(infoLength)
-    glGetProgramInfoLog(program.program, infoLength, &infoLength, &log[0]);
+    gl->getProgramInfoLog(program.program, infoLength, &infoLength, &log[0]);
 
 #ifndef Q_OS_SYMBIAN
-  if((&log[0]) && (status == GL_TRUE) && (log.find("warning") != std::string::npos))
+  if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
     context->log(log);
 #endif
 
-  if(status == GL_FALSE)
+  if(status == NOpenGL::FALSE)
     context->engineShowMessage(CStr(NShader::STR_ERROR_LINK, NShader::STR_PROGRAM_LIST[program.name]), &log[0], false);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::initUniforms()
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
 
-  program.uniforms.vertexPosition = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_POSITION);
-  program.uniforms.vertexNormal = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL);
-  program.uniforms.vertexNormalTangent = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL_TANGENT);
-  //program.uniforms.vertexNormalBitangent = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL_BITANGENT);
-  program.uniforms.vertexTexCoord = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_TEX_COORD);
-  program.uniforms.vertexColor = glGetAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_COLOR);
+  program.uniforms.vertexPosition = gl->getAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_POSITION);
+  program.uniforms.vertexNormal = gl->getAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL);
+  program.uniforms.vertexNormalTangent = gl->getAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL_TANGENT);
+  //program.uniforms.vertexNormalBitangent = gl->getAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_NORMAL_BITANGENT);
+  program.uniforms.vertexTexCoord = gl->getAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_TEX_COORD);
+  program.uniforms.vertexColor = gl->getAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_COLOR);
 
-  program.uniforms.mw = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MW);
-  program.uniforms.mwnit = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MWNIT);
-  program.uniforms.mvp = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MVP);
-  program.uniforms.mvpdb = glGetUniformLocation(program.program, NShader::STR_UNIFORM_MVPDB);
-  program.uniforms.cam = glGetUniformLocation(program.program, NShader::STR_UNIFORM_CAM);
+  program.uniforms.mw = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_MW);
+  program.uniforms.mwnit = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_MWNIT);
+  program.uniforms.mvp = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_MVP);
+  program.uniforms.mvpdb = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_MVPDB);
+  program.uniforms.cam = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_CAM);
 
-  program.uniforms.difTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DIF_TEX);
-  program.uniforms.alpTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_ALP_TEX);
-  program.uniforms.speTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_SPE_TEX);
-  program.uniforms.norTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_NOR_TEX);
-  program.uniforms.envTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_ENV_TEX);
-  program.uniforms.depthTex = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEX);
-  program.uniforms.lpvTexR0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_R0);
-  program.uniforms.lpvTexG0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_G0);
-  program.uniforms.lpvTexB0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_B0);
+  program.uniforms.difTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_DIF_TEX);
+  program.uniforms.alpTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_ALP_TEX);
+  program.uniforms.speTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SPE_TEX);
+  program.uniforms.norTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_NOR_TEX);
+  program.uniforms.envTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_ENV_TEX);
+  program.uniforms.depthTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEX);
+  program.uniforms.lpvTexR0 = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_R0);
+  program.uniforms.lpvTexG0 = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_G0);
+  program.uniforms.lpvTexB0 = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_B0);
 
-  program.uniforms.type = glGetUniformLocation(program.program, NShader::STR_UNIFORM_TYPE);
-  program.uniforms.opacity = glGetUniformLocation(program.program, NShader::STR_UNIFORM_OPACITY);
-  program.uniforms.depthTexelSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEXEL_SIZE);
-  program.uniforms.lightAmb = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_AMB);
-  program.uniforms.lightPos = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_POS);
-  program.uniforms.lightRange = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_RANGE);
-  program.uniforms.lightColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_COLOR);
-  program.uniforms.lightSpeColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_SPEC_COLOR);
-  program.uniforms.fogRange = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FOG_RANGE);
-  program.uniforms.fogColor = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FOG_COLOR);
+  program.uniforms.type = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_TYPE);
+  program.uniforms.opacity = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_OPACITY);
+  program.uniforms.depthTexelSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_DEPTH_TEXEL_SIZE);
+  program.uniforms.lightAmb = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_AMB);
+  program.uniforms.lightPos = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_POS);
+  program.uniforms.lightRange = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_RANGE);
+  program.uniforms.lightColor = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_COLOR);
+  program.uniforms.lightSpeColor = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_SPEC_COLOR);
+  program.uniforms.fogRange = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_FOG_RANGE);
+  program.uniforms.fogColor = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_FOG_COLOR);
 
-  program.uniforms.fragColorImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_COLOR_IMG);
-  program.uniforms.fragPosImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_POS_IMG);
-  program.uniforms.fragNormalImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_NORMAL_IMG);
-  program.uniforms.fragDepthImg = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_DEPTH_IMG);
-  program.uniforms.lpvImgR0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_R0);
-  program.uniforms.lpvImgG0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_G0);
-  program.uniforms.lpvImgB0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_B0);
-  program.uniforms.gvImgA0 = glGetUniformLocation(program.program, NShader::STR_UNIFORM_GV_IMG_A0);
-  program.uniforms.fragSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_SIZE);
-  program.uniforms.lpvPos = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_POS);
-  program.uniforms.lpvSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_SIZE);
-  program.uniforms.lpvCellSize = glGetUniformLocation(program.program, NShader::STR_UNIFORM_LPV_CELL_SIZE);
+  program.uniforms.fragColorImg = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_COLOR_IMG);
+  program.uniforms.fragPosImg = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_POS_IMG);
+  program.uniforms.fragNormalImg = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_NORMAL_IMG);
+  program.uniforms.fragDepthImg = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_DEPTH_IMG);
+  program.uniforms.lpvImgR0 = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_R0);
+  program.uniforms.lpvImgG0 = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_G0);
+  program.uniforms.lpvImgB0 = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_IMG_B0);
+  program.uniforms.gvImgA0 = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_GV_IMG_A0);
+  program.uniforms.fragSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_FRAG_SIZE);
+  program.uniforms.lpvPos = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_POS);
+  program.uniforms.lpvSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_SIZE);
+  program.uniforms.lpvCellSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_CELL_SIZE);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::bind() const
 {
-  /*context->getOpenGL()->*/glUseProgram(program.program);
+  context->getOpenGL()->useProgram(program.program);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode mode) const
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
   if(program.name < NShader::PROGRAM_LPV_CLEAR)
   {
     uint32 stride = sizeof(float) * (((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH)) ? NModel::VERTEX_P_SIZE : NModel::VERTEX_PNTTC_SIZE);
 
     if(program.name >= NShader::PROGRAM_COLOR)
     {
-      glEnableVertexAttribArray(program.uniforms.vertexPosition);
-      glVertexAttribPointer(program.uniforms.vertexPosition, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_POSITION));
+      gl->enableVertexAttribArray(program.uniforms.vertexPosition);
+      gl->vertexAttribPointer(program.uniforms.vertexPosition, 3, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_POSITION));
     }
     if(program.name >= NShader::PROGRAM_BASIC)
     {
-      glEnableVertexAttribArray(program.uniforms.vertexTexCoord);
-      glEnableVertexAttribArray(program.uniforms.vertexColor);
-      glVertexAttribPointer(program.uniforms.vertexTexCoord, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_TEX_COORD));
-      glVertexAttribPointer(program.uniforms.vertexColor, 4, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_COLOR));
+      gl->enableVertexAttribArray(program.uniforms.vertexTexCoord);
+      gl->enableVertexAttribArray(program.uniforms.vertexColor);
+      gl->vertexAttribPointer(program.uniforms.vertexTexCoord, 2, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_TEX_COORD));
+      gl->vertexAttribPointer(program.uniforms.vertexColor, 4, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_COLOR));
     }
     if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
     {
-      glEnableVertexAttribArray(program.uniforms.vertexNormal);
-      glVertexAttribPointer(program.uniforms.vertexNormal, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL));
+      gl->enableVertexAttribArray(program.uniforms.vertexNormal);
+      gl->vertexAttribPointer(program.uniforms.vertexNormal, 3, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL));
     }
     if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
     {
-      glEnableVertexAttribArray(program.uniforms.vertexNormalTangent);
-      //glEnableVertexAttribArray(program.uniforms.vertexNormalBitangent);
-      glVertexAttribPointer(program.uniforms.vertexNormalTangent, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_TANGENT));
-      //glVertexAttribPointer(program.uniforms.vertexNormalBitangent, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_BITANGENT));
+      gl->enableVertexAttribArray(program.uniforms.vertexNormalTangent);
+      //gl->enableVertexAttribArray(program.uniforms.vertexNormalBitangent);
+      gl->vertexAttribPointer(program.uniforms.vertexNormalTangent, 3, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_TANGENT));
+      //gl->vertexAttribPointer(program.uniforms.vertexNormalBitangent, 3, NOpenGL::FLOAT, NOpenGL::FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_BITANGENT));
     }
   }
 
@@ -249,11 +269,11 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
 
   if(technique)
   {
-    glUniformMatrix4fv(program.uniforms.mw, 1, GL_FALSE, glm::value_ptr(technique->mw));
-    glUniformMatrix3fv(program.uniforms.mwnit, 1, GL_FALSE, glm::value_ptr(technique->mwnit));
-    glUniformMatrix4fv(program.uniforms.mvp, 1, GL_FALSE, glm::value_ptr(technique->mvp));
-    glUniformMatrix4fv(program.uniforms.mvpdb, 1, GL_FALSE, glm::value_ptr(technique->mvpdb));
-    glUniform3f(program.uniforms.cam, technique->cam.x, technique->cam.y, technique->cam.z);
+    gl->uniformMatrix4fv(program.uniforms.mw, 1, NOpenGL::FALSE, glm::value_ptr(technique->mw));
+    gl->uniformMatrix3fv(program.uniforms.mwnit, 1, NOpenGL::FALSE, glm::value_ptr(technique->mwnit));
+    gl->uniformMatrix4fv(program.uniforms.mvp, 1, NOpenGL::FALSE, glm::value_ptr(technique->mvp));
+    gl->uniformMatrix4fv(program.uniforms.mvpdb, 1, NOpenGL::FALSE, glm::value_ptr(technique->mvpdb));
+    gl->uniform3f(program.uniforms.cam, technique->cam.x, technique->cam.y, technique->cam.z);
 
     if(technique->material)
     {
@@ -262,7 +282,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
          (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
          (program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
-        glEnable(GL_BLEND);
+        glEnable(NOpenGL::BLEND);
 
       // použít
       /*const uint8 matFlags = ((m->type & NModel::MAT_MIPMAP) ? NMap::FORMAT_MIPMAP : NMap::FORMAT) |
@@ -336,29 +356,29 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         setSampler(m->normalMap, program.uniforms.norTex, NShader::SAMPLER_GEOMETRY_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       }
 
-      glUniform1i(program.uniforms.type, m->type);
-      glUniform1f(program.uniforms.opacity, m->opacity);
+      gl->uniform1i(program.uniforms.type, m->type);
+      gl->uniform1f(program.uniforms.opacity, m->opacity);
 
       context->getMaps()->finishBind();
     }
 
     if(program.name == NShader::PROGRAM_COLOR)
-      glUniform3f(program.uniforms.lightAmb, technique->pickColor.x, technique->pickColor.y, technique->pickColor.z);
+      gl->uniform3f(program.uniforms.lightAmb, technique->pickColor.x, technique->pickColor.y, technique->pickColor.z);
     else
-      glUniform3f(program.uniforms.lightAmb, technique->lightAmb.x, technique->lightAmb.y, technique->lightAmb.z);
+      gl->uniform3f(program.uniforms.lightAmb, technique->lightAmb.x, technique->lightAmb.y, technique->lightAmb.z);
 
     if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER))
     {
       const SCamera *cam = context->getCamera()->getCamera();
 
-      glUniform3f(program.uniforms.depthTexelSize, 0.5f / static_cast<float>(depthMap->getMap()->width), 0.5f / static_cast<float>(depthMap->getMap()->height), context->engineGetEngine()->shadowJittering);
+      gl->uniform3f(program.uniforms.depthTexelSize, 0.5f / static_cast<float>(depthMap->getMap()->width), 0.5f / static_cast<float>(depthMap->getMap()->height), context->engineGetEngine()->shadowJittering);
 
-      glUniform3f(program.uniforms.lightPos, technique->lightPos.x, technique->lightPos.y, technique->lightPos.z);
-      glUniform2f(program.uniforms.lightRange, technique->lightRange.x, technique->lightRange.y);
-      glUniform3f(program.uniforms.lightColor, technique->lightColor.x, technique->lightColor.y, technique->lightColor.z);
-      glUniform4f(program.uniforms.lightSpeColor, technique->lightSpeColor.x, technique->lightSpeColor.y, technique->lightSpeColor.z, technique->lightSpeColor.w);
-      glUniform2f(program.uniforms.fogRange, technique->fogRange.x * cam->clipFar, technique->fogRange.y * cam->clipFar);
-      glUniform3f(program.uniforms.fogColor, technique->fogColor.x, technique->fogColor.y, technique->fogColor.z);
+      gl->uniform3f(program.uniforms.lightPos, technique->lightPos.x, technique->lightPos.y, technique->lightPos.z);
+      gl->uniform2f(program.uniforms.lightRange, technique->lightRange.x, technique->lightRange.y);
+      gl->uniform3f(program.uniforms.lightColor, technique->lightColor.x, technique->lightColor.y, technique->lightColor.z);
+      gl->uniform4f(program.uniforms.lightSpeColor, technique->lightSpeColor.x, technique->lightSpeColor.y, technique->lightSpeColor.z, technique->lightSpeColor.w);
+      gl->uniform2f(program.uniforms.fogRange, technique->fogRange.x * cam->clipFar, technique->fogRange.y * cam->clipFar);
+      gl->uniform3f(program.uniforms.fogColor, technique->fogColor.x, technique->fogColor.y, technique->fogColor.z);
     }
   }
 
@@ -366,10 +386,10 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
   {
     const glm::vec3 lpvCellSize(1.0f / e->lpvCellSize / e->lpvTextureSize);
     const glm::vec3 lpvPos(e->lpvCellSize * e->lpvTextureSize * 0.5f - e->lpvPos);
-    glUniform2f(program.uniforms.fragSize, e->geometryTextureSize, e->geometryTextureSize);
-    glUniform4f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z, e->lpvIntensity * e->showLPV);
-    glUniform3f(program.uniforms.lpvSize, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z);
-    glUniform3f(program.uniforms.lpvCellSize, lpvCellSize.x, lpvCellSize.y, lpvCellSize.z);
+    gl->uniform2f(program.uniforms.fragSize, e->geometryTextureSize, e->geometryTextureSize);
+    gl->uniform4f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z, e->lpvIntensity * e->showLPV);
+    gl->uniform3f(program.uniforms.lpvSize, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z);
+    gl->uniform3f(program.uniforms.lpvCellSize, lpvCellSize.x, lpvCellSize.y, lpvCellSize.z);
   }
 
   if(program.name == NShader::PROGRAM_LPV_CLEAR)
@@ -390,7 +410,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     const CMap *gvMap = context->getMaps()->getMap(NWindow::STR_GV_MAP_A0);
 
     const glm::vec4 &fboGeoCam = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO)->getFrameBuffer()->camera.position;
-    glUniform3f(program.uniforms.lightPos, fboGeoCam.x, fboGeoCam.y, fboGeoCam.z);
+    gl->uniform3f(program.uniforms.lightPos, fboGeoCam.x, fboGeoCam.y, fboGeoCam.z);
 
     setSampler(fragColor, program.uniforms.fragColorImg, NShader::SAMPLER_LPV_INJECTION_FRAG_COLOR_IMG, NMap::FORMAT_IMAGE_R);
     setSampler(fragPos, program.uniforms.fragPosImg, NShader::SAMPLER_LPV_INJECTION_FRAG_POS_IMG, NMap::FORMAT_IMAGE_R);
@@ -414,31 +434,31 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
 //------------------------------------------------------------------------------
 void CShaderProgram::end(const SShaderTechnique *technique) const
 {
-  //COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = context->getOpenGL();
 
   if((technique) && (technique->material))
   {
     if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
        (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
        (program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
-      glDisable(GL_BLEND);
+      glDisable(NOpenGL::BLEND);
   }
 
   if(program.name < NShader::PROGRAM_LPV_CLEAR)
   {
     if(program.name >= NShader::PROGRAM_COLOR)
-      glDisableVertexAttribArray(program.uniforms.vertexPosition);
+      gl->disableVertexAttribArray(program.uniforms.vertexPosition);
     if(program.name >= NShader::PROGRAM_BASIC)
     {
-      glDisableVertexAttribArray(program.uniforms.vertexTexCoord);
-      glDisableVertexAttribArray(program.uniforms.vertexColor);
+      gl->disableVertexAttribArray(program.uniforms.vertexTexCoord);
+      gl->disableVertexAttribArray(program.uniforms.vertexColor);
     }
     if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
-      glDisableVertexAttribArray(program.uniforms.vertexNormal);
+      gl->disableVertexAttribArray(program.uniforms.vertexNormal);
     if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
     {
-      glDisableVertexAttribArray(program.uniforms.vertexNormalTangent);
-      //glDisableVertexAttribArray(program.uniforms.vertexNormalBitangent);
+      gl->disableVertexAttribArray(program.uniforms.vertexNormalTangent);
+      //gl->disableVertexAttribArray(program.uniforms.vertexNormalBitangent);
     }
   }
 
@@ -471,22 +491,24 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
 //------------------------------------------------------------------------------
 void CShaderProgram::unbind() const
 {
-  /*context->getOpenGL()->*/glUseProgram(0);
+  context->getOpenGL()->useProgram(0);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::dispatch(uint32 x, uint32 y, uint32 z, NRenderer::EMode mode, GLbitfield preSync, GLbitfield postSync) const
 {
+  COpenGL *gl = context->getOpenGL();
+
   if(preSync)
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    gl->memoryBarrier(NOpenGL::ALL_BARRIER_BITS);
 
   bind();
   begin(NULL, mode);
-  glDispatchCompute(x, y, z);
+  gl->dispatchCompute(x, y, z);
   end(NULL);
   unbind();
 
   if(postSync)
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    gl->memoryBarrier(NOpenGL::ALL_BARRIER_BITS);
 }
 //------------------------------------------------------------------------------
 CShaders::CShaders() : CEngineBase()
