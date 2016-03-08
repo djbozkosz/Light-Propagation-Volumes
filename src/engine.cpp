@@ -156,7 +156,8 @@ void CEngine::initializeFinish()
 #if defined(ENV_QT)
   QTimer::singleShot(NEngine::INIT_LOAD_TIMER_MS, this, SLOT(onTimeoutInit()));
 #elif defined(ENV_SDL)
-  SDL_AddTimer(NEngine::INIT_LOAD_TIMER_MS, staticOnTimeoutInit, &context);
+  engine.initSceneEvent = SDL_RegisterEvents(1);
+  engine.initSceneTimer = SDL_AddTimer(NEngine::INIT_LOAD_TIMER_MS, staticOnTimeoutInit, &context);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -164,29 +165,25 @@ void CEngine::onTimeoutInit()
 {
   context.log("engine load scene");
 
+#ifdef ENV_SDL
+  SDL_RemoveTimer(engine.initSceneTimer);
+#endif
+
   camera.setRange(0.1f, 200.0f);
   camera.setSpeed(5.0f);
 
-  context.log("aaa");
   scenes.addScene(SScene("scene"));
-  context.log("aaa");
   if(CScene *s = scenes.setActiveScene("scene"))
   {
-    context.log("aaa");
     const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87f);
     const glm::vec3 sunPos = glm::vec3(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y)) * NScene::SUN_DIR_MUL;
-    context.log("aaa");
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_AMB), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
-    context.log("aaa");
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_FOG), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
-    context.log("aaa");
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_SUN, sunPos, sunRot), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(1.6f, 1.35f, 1.2f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(3.0f, 3.0f, 3.0f, 32.0f)));
-    context.log("aaa");
 
     s->addSceneObjectModel(
       SSceneObject("sky", glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true));
-    context.log("aaa");
     s->addSceneObjectModel(
       SSceneObject("scene"),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
@@ -231,6 +228,8 @@ int32 CEngine::event()
       keyPress(window->getKey(event.key.keysym.sym));
     else if(event.type == SDL_KEYUP)
       keyRelease(window->getKey(event.key.keysym.sym));
+    else if(event.type == engine.initSceneEvent)
+      onTimeoutInit();
   }
 
   return 0;
@@ -291,7 +290,6 @@ void CEngine::onTimeout()
   engine.timers.clear();
 #endif
 
-  context.log("aaa");
   updateTicks();
 
   if((isKeyForDelayedRendering()) || (engine.activeRendering))

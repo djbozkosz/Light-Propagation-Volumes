@@ -215,6 +215,8 @@ struct SEngine
   QElapsedTimer timer;
 #elif defined(ENV_SDL)
   std::vector<SDL_TimerID> timers;
+  SDL_TimerID initSceneTimer;
+  uint32 initSceneEvent;
 #endif
   bool waitForFlushTimers;
 
@@ -246,6 +248,10 @@ struct SEngine
     orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
     orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH),
     shadowJittering(NEngine::SHADOW_JITTERING),
+#ifdef ENV_SDL
+    initSceneTimer(0),
+    initSceneEvent(0),
+#endif
     waitForFlushTimers(false) {}
 };
 //-----------------------------------------------------------------------------

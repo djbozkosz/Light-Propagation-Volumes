@@ -36,8 +36,10 @@ class CEngine
     // static callbacks
     static inline void staticInitialize(CContext *context) { context->getEngine()->initialize(); }
     static inline void staticInitializeFinish(CContext *context) { context->getEngine()->initializeFinish(); }
-    static inline uint32 staticOnTimeoutInit(uint32 interval, void *context) { reinterpret_cast<CContext *>(context)->getEngine()->onTimeoutInit(); return interval; }
+#ifdef ENV_SDL
+    static inline uint32 staticOnTimeoutInit(uint32 interval, void *context) { SDL_Event event; event.type = reinterpret_cast<CContext *>(context)->engineGetEngine()->initSceneEvent; SDL_PushEvent(&event); return interval; }
     static inline uint32 staticOnTimeout(uint32 interval, void *context) { reinterpret_cast<CContext *>(context)->getEngine()->onTimeout(); return interval; }
+#endif
     static inline void staticShowMessage(const CContext *context, const std::string &title, const std::string &text, bool modal = true) { context->getEngine()->showMessage(title, text, modal); }
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
     static inline void staticClearDrawCalls(CContext *context) { context->getEngine()->clearDrawCalls(); }
