@@ -34,6 +34,9 @@ class CEngine
 
   protected:
     // static callbacks
+    static inline void staticInitialize(CContext *context) { context->getEngine()->initialize(); }
+    static inline void staticInitializeFinish(CContext *context) { context->getEngine()->initializeFinish(); }
+    static inline uint32 staticOnTimeoutInit(uint32 interval, void *context) { reinterpret_cast<CContext *>(context)->getEngine()->onTimeoutInit(); return interval; }
     static inline uint32 staticOnTimeout(uint32 interval, void *context) { reinterpret_cast<CContext *>(context)->getEngine()->onTimeout(); return interval; }
     static inline void staticShowMessage(const CContext *context, const std::string &title, const std::string &text, bool modal = true) { context->getEngine()->showMessage(title, text, modal); }
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
@@ -41,13 +44,14 @@ class CEngine
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
     static inline const SEngine *staticGetEngine(const CContext *context) { return context->getEngine()->getEngine(); }
 
+    void initialize();
+    void initializeFinish();
+
 #if defined(ENV_SDL)
     int32 event();
 #elif defined(ENV_QT)
   protected slots:
 #endif
-    void initialize();
-    void initializeFinish();
     void mousePress(NEngine::EMouseButton buttons);
     void mouseRelease(NEngine::EMouseButton buttons);
     void mouseMove(const SPoint &point, NEngine::EMouseButton buttons);
@@ -73,6 +77,7 @@ class CEngine
 #ifdef ENV_QT
   public slots:
 #endif
+    void onTimeoutInit();
     void onTimeout();
 #ifdef ENV_QT
   public:

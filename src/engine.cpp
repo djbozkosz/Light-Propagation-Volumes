@@ -13,13 +13,6 @@ CEngine::CEngine(
   window(NULL)
 {
   context.log("engine constr");
-  window = new CWindow(&context
-#ifdef ENV_QT
-    , this
-#endif
-  );
-  context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
-  context.setEngineCallbacks(&staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
 #ifdef ENV_SDL
   engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
@@ -40,11 +33,20 @@ CEngine::CEngine(
   //engine.orthoDepthDepth = 200.0f;
   engine.shadowJittering = 0.0f;
 
+  context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
+  context.setEngineCallbacks(&staticInitialize, &staticInitializeFinish, &staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
+
+  window = new CWindow(&context
+#ifdef ENV_QT
+    , this
+#endif
+  );
+
 #if defined(ENV_QT)
   engine.timer.start();
 
-  connect(window, SIGNAL(onInitializeGL()), this, SLOT(initialize()));
-  connect(window, SIGNAL(onInitializeFinishGL()), this, SLOT(initializeFinish()));
+  //connect(window, SIGNAL(onInitializeGL()), this, SLOT(initialize()), Qt::DirectConnection);
+  //connect(window, SIGNAL(onInitializeFinishGL()), this, SLOT(initializeFinish()), Qt::DirectConnection);
   connect(window, SIGNAL(onMousePress(NEngine::EMouseButton)), this, SLOT(mousePress(NEngine::EMouseButton)));
   connect(window, SIGNAL(onMouseRelease(NEngine::EMouseButton)), this, SLOT(mouseRelease(NEngine::EMouseButton)));
   connect(window, SIGNAL(onMouseMove(const SPoint &, NEngine::EMouseButton)), this, SLOT(mouseMove(const SPoint &, NEngine::EMouseButton)));
@@ -150,27 +152,47 @@ void CEngine::initialize()
 void CEngine::initializeFinish()
 {
   context.log("engine init finish");
-  camera.setRange(0.1f, 200.0f);
 
+#if defined(ENV_QT)
+  QTimer::singleShot(NEngine::INIT_LOAD_TIMER_MS, this, SLOT(onTimeoutInit()));
+#elif defined(ENV_SDL)
+  SDL_AddTimer(NEngine::INIT_LOAD_TIMER_MS, staticOnTimeoutInit, &context);
+#endif
+}
+//------------------------------------------------------------------------------
+void CEngine::onTimeoutInit()
+{
+  context.log("engine load scene");
+
+  camera.setRange(0.1f, 200.0f);
+  camera.setSpeed(5.0f);
+
+  context.log("aaa");
   scenes.addScene(SScene("scene"));
+  context.log("aaa");
   if(CScene *s = scenes.setActiveScene("scene"))
   {
-    const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87f/*NMath::DIV_PI, 0.0f*/);
+    context.log("aaa");
+    const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87f);
     const glm::vec3 sunPos = glm::vec3(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y)) * NScene::SUN_DIR_MUL;
+    context.log("aaa");
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_AMB), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
+    context.log("aaa");
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_FOG), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
+    context.log("aaa");
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_SUN, sunPos, sunRot), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(1.6f, 1.35f, 1.2f), glm::vec2(9999999.0f, 10000000.0f), glm::vec4(3.0f, 3.0f, 3.0f, 32.0f)));
+    context.log("aaa");
 
     s->addSceneObjectModel(
       SSceneObject("sky", glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true));
-
+    context.log("aaa");
     s->addSceneObjectModel(
       SSceneObject("scene"),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
   }
 
-  camera.setSpeed(5.0f);
+  window->repaint();
 
 #if defined(ENV_QT)
   QTimer::singleShot(NEngine::REDRAW_TIMER_MS, this, SLOT(onTimeout()));
@@ -182,9 +204,7 @@ void CEngine::initializeFinish()
 #ifdef ENV_SDL
 int32 CEngine::event()
 {
-  initialize();
   window->initializeGL();
-  initializeFinish();
 
   SDL_Event event;
 
@@ -271,6 +291,7 @@ void CEngine::onTimeout()
   engine.timers.clear();
 #endif
 
+  context.log("aaa");
   updateTicks();
 
   if((isKeyForDelayedRendering()) || (engine.activeRendering))
@@ -399,7 +420,7 @@ void CEngine::showMessage(const std::string &title, const std::string &text, boo
   context.log(CStr("%s: %s", title.c_str(), text.c_str()));
 
 #if defined(ENV_QT)
-  QMessageBox *msg = new QMessageBox();
+  QMessageBox *msg = new QMessageBox(window);
   msg->setWindowTitle(title.c_str());
   msg->setText(text.c_str());
   msg->setStandardButtons(QMessageBox::Ok);

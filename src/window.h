@@ -43,9 +43,6 @@ class CWindow : public
     SDL_GLContext SDLcontext;
 #endif
 
-    static NEngine::EMouseButton getMouseButton(int32 button);
-    NEngine::EKey getKey(int32 key) const;
-
   protected:
     virtual void paintGL();
     void drawTexture(GLuint texture, float x, float y, float w, float h, bool isShadow = false);
@@ -74,10 +71,13 @@ class CWindow : public
     inline const SDL_GLContext *getSDLContext() const { return &SDLcontext; }
 #endif
 
+    static NEngine::EMouseButton getMouseButton(int32 button);
+    NEngine::EKey getKey(int32 key) const;
+
 #ifdef ENV_QT
   signals:
-    void onInitializeGL();
-    void onInitializeFinishGL();
+    //void onInitializeGL();
+    //void onInitializeFinishGL();
     void onMousePress(NEngine::EMouseButton buttons);
     void onMouseRelease(NEngine::EMouseButton buttons);
     void onMouseMove(const SPoint &point, NEngine::EMouseButton buttons);

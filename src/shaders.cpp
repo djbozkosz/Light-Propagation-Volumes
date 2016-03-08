@@ -59,7 +59,10 @@ void CShader::compile()
   if(infoLength)
     gl->getShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
   if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
+  {
+    context->log("aaa");
     context->log(log);
+  }
 
   if(status == NOpenGL::FALSE)
     context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.file.c_str()), &log[0], false);
@@ -164,7 +167,10 @@ void CShaderProgram::link()
 
 #ifndef Q_OS_SYMBIAN
   if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
+  {
+    context->log("bbb");
     context->log(log);
+  }
 #endif
 
   if(status == NOpenGL::FALSE)

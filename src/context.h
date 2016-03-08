@@ -51,6 +51,8 @@ class CContext
     CExceptions *exceptions;
 
     // callbacks engine static
+    void (*fncInitialize)(CContext *context);
+    void (*fncInitializeFinish)(CContext *context);
     void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal);
     void (*fncEngineIncDrawCalls)(CContext *context);
     void (*fncEngineClearDrawCalls)(CContext *context);
@@ -74,6 +76,8 @@ class CContext
       filesystem(NULL),
       exceptions(NULL),
 
+      fncInitialize(NULL),
+      fncInitializeFinish(NULL),
       fncEngineShowMessage(NULL),
       fncEngineIncDrawCalls(NULL),
       fncEngineClearDrawCalls(NULL),
@@ -110,6 +114,8 @@ class CContext
         filesystem(filesystem),
         exceptions(exceptions),
 
+        fncInitialize(NULL),
+        fncInitializeFinish(NULL),
         fncEngineShowMessage(NULL),
         fncEngineIncDrawCalls(NULL),
         fncEngineClearDrawCalls(NULL),
@@ -151,22 +157,28 @@ class CContext
     }
 //------------------------------------------------------------------------------
     inline void setEngineCallbacks(
+      void (*fncInitialize)(CContext *context),
+      void (*fncInitializeFinish)(CContext *context),
       void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal),
       void (*fncEngineIncDrawCalls)(CContext *context),
       void (*fncEngineClearDrawCalls)(CContext *context),
       std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object),
       const SEngine *(*fncEngineGetEngine)(const CContext *context))
     {
-      if(fncEngineShowMessage)  this->fncEngineShowMessage = fncEngineShowMessage;
-      if(fncEngineIncDrawCalls) this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
+      if(fncInitialize)           this->fncInitialize = fncInitialize;
+      if(fncInitializeFinish)     this->fncInitializeFinish = fncInitializeFinish;
+      if(fncEngineShowMessage)    this->fncEngineShowMessage = fncEngineShowMessage;
+      if(fncEngineIncDrawCalls)   this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
       if(fncEngineClearDrawCalls) this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
-      if(fncEngineGetClassName) this->fncEngineGetClassName = fncEngineGetClassName;
-      if(fncEngineGetEngine)    this->fncEngineGetEngine = fncEngineGetEngine;
+      if(fncEngineGetClassName)   this->fncEngineGetClassName = fncEngineGetClassName;
+      if(fncEngineGetEngine)      this->fncEngineGetEngine = fncEngineGetEngine;
     }
 //------------------------------------------------------------------------------
 
     // callbacks engine
     inline void engineShowMessage(const std::string &title, const std::string &text, bool modal = true) const { if(fncEngineShowMessage) fncEngineShowMessage(this, title, text, modal); }
+    inline void engineInitialize() { if(fncInitialize) fncInitialize(this); }
+    inline void engineInitializeFinish() { if(fncInitializeFinish) fncInitializeFinish(this); }
     inline void engineIncDrawCalls() { if(fncEngineIncDrawCalls) fncEngineIncDrawCalls(this); }
     inline void engineClearDrawCalls() { if(fncEngineClearDrawCalls) fncEngineClearDrawCalls(this); }
     inline std::string engineGetClassName(const CEngineBase *object) { if(fncEngineGetClassName) return fncEngineGetClassName(this, object); return std::string(); }

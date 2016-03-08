@@ -22,6 +22,8 @@ namespace NEngine
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
+  static const uint32 INIT_LOAD_TIMER_MS = 100;
+
   static const uint32 DEFAULT_SCREEN_WIDTH = 1024;
   static const uint32 DEFAULT_SCREEN_HEIGHT = 600;
   static const uint32 DEFAULT_MULTISAMPLING = 4;

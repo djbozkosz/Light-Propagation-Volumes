@@ -21,6 +21,14 @@ CWindow::CWindow(CContext *context
 #endif
 {
   CEngineBase::context->log("window constr");
+
+#if defined(ENV_QT)
+  const SEngine *e = CEngineBase::context->engineGetEngine();
+
+  show();
+  setGeometry(50, 50, e->defaultScreenWidth, e->defaultScreenHeight);
+  move(QApplication::desktop()->screen()->rect().center() - rect().center());
+#endif
 }
 //------------------------------------------------------------------------------
 CWindow::~CWindow()
@@ -34,7 +42,7 @@ void CWindow::initializeGL()
 {
   CEngineBase::context->log("window init");
   const SEngine *e = CEngineBase::context->engineGetEngine();
-  const SCamera *c = CEngineBase::context->getCamera()->getCamera();
+  CShaders *s = CEngineBase::context->getShaders();
   COpenGL *gl = CEngineBase::context->getOpenGL();
 
   if(e->flags & NEngine::EFLAG_SHOW_CONSOLE)
@@ -65,7 +73,7 @@ void CWindow::initializeGL()
   }
 
   if(!(SDLwindow = SDL_CreateWindow(
-    NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED/*1550 - c->width*/, SDL_WINDOWPOS_UNDEFINED/*850 - c->height*/, c->width, c->height,
+    NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED/*1550 - c->width*/, SDL_WINDOWPOS_UNDEFINED/*850 - c->height*/, e->defaultScreenWidth, e->defaultScreenHeight,
     SDL_WINDOW_OPENGL | ((e->flags & NEngine::EFLAG_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN :
                          ((e->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
     )))
@@ -86,17 +94,13 @@ void CWindow::initializeGL()
   /*glewExperimental = NOpenGL::TRUE;
   if(glewInit() != GLEW_OK)
     CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GLEW));*/
-#elif defined(ENV_QT)
-  emit onInitializeGL();
+/*#elif defined(ENV_QT)
+  emit onInitializeGL();*/
 #endif
-  setGeometry(50, 50, c->width, c->height);
-  move(QApplication::desktop()->screen()->rect().center() - rect().center());
-  show();
+  CEngineBase::context->engineInitialize();
 
   gl->makeCurrent();
   gl->initializeGLFunctions(NEngine::GPU_PLATFORM_MAX);
-
-  CShaders *s = CEngineBase::context->getShaders();
 
   CEngineBase::context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::VENDOR)));
   CEngineBase::context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::RENDERER)));
@@ -173,9 +177,10 @@ void CWindow::initializeGL()
       s->getShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i]),
       s->getShader(NShader::STR_PROGRAM_COMPUTE_SHADER_LIST[i])));
 
-#ifdef ENV_QT
+/*#ifdef ENV_QT
   emit onInitializeFinishGL();
-#endif
+#endif*/
+  CEngineBase::context->engineInitializeFinish();
 }
 //------------------------------------------------------------------------------
 void CWindow::paintGL()
