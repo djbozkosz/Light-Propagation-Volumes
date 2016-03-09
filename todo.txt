@@ -6,3 +6,12 @@ cascaded SM
 point SM
 cascaded LPV
 inject GV
+
+gl3:
+  injekce:
+    +blend
+    -depth mask
+    bind fbo - mrt lpv
+    vs: draw points fbo w*h
+    gs: by vertex_id select gl_layer
+    fs: store point in lpv: r, g, b, gv layers

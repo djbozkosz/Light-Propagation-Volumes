@@ -26,6 +26,7 @@ SOURCES += \
     src/shaders.cpp \
     src/framebuffers.cpp \
     src/maps.cpp \
+    src/openGL.cpp \
     src/filesystem.cpp
 
 HEADERS += \
@@ -71,6 +72,7 @@ OTHER_FILES += \
     data/shaders/perFragmentShadow.vs \
     data/shaders/perFragmentNormal.vs \
     data/shaders/perFragmentNormalShadow.vs \
+    data/shaders/geometry.vs \
     data/shaders/basic.fs \
     data/shaders/basicAlpha.fs \
     data/shaders/color.fs \

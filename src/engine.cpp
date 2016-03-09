@@ -12,8 +12,6 @@ CEngine::CEngine(
 #endif
   window(NULL)
 {
-  context.log("engine constr");
-
 #ifdef ENV_SDL
   engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
 #endif
@@ -128,7 +126,6 @@ CEngine::~CEngine()
 //------------------------------------------------------------------------------
 void CEngine::initialize()
 {
-  context.log("engine init");
   scenes = CScenes(&context);
   models = CModels(&context);
   renderer = CRenderer(&context);
@@ -151,8 +148,6 @@ void CEngine::initialize()
 //------------------------------------------------------------------------------
 void CEngine::initializeFinish()
 {
-  context.log("engine init finish");
-
 #if defined(ENV_QT)
   QTimer::singleShot(NEngine::INIT_LOAD_TIMER_MS, this, SLOT(onTimeoutInit()));
 #elif defined(ENV_SDL)
@@ -163,13 +158,13 @@ void CEngine::initializeFinish()
 //------------------------------------------------------------------------------
 void CEngine::onTimeoutInit()
 {
-  context.log("engine load scene");
+  context.log("Loading Scene...");
 
 #ifdef ENV_SDL
   SDL_RemoveTimer(engine.initSceneTimer);
 #endif
 
-  camera.setRange(0.1f, 200.0f);
+  camera.setRange(0.01f, 200.0f);
   camera.setSpeed(5.0f);
 
   scenes.addScene(SScene("scene"));
@@ -196,6 +191,8 @@ void CEngine::onTimeoutInit()
 #elif defined(ENV_SDL)
   engine.timers.push_back(SDL_AddTimer(NEngine::REDRAW_TIMER_MS, staticOnTimeout, &context));
 #endif
+
+  context.log("Done.");
 }
 //------------------------------------------------------------------------------
 #ifdef ENV_SDL

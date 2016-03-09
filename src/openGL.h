@@ -10,633 +10,634 @@ class COpenGL : public CEngineBase
 {
   private:
     // GL_VERSION_1_2
-    NOpenGLProc::TCopyTexSubImage3D glCopyTexSubImage3D;
-    NOpenGLProc::TDrawRangeElements glDrawRangeElements;
-    NOpenGLProc::TTexImage3D glTexImage3D;
-    NOpenGLProc::TTexSubImage3D glTexSubImage3D;
+    NOpenGLProc::TCopyTexSubImage3D glCopyTexSubImage3D; NOpenGLProc::EProcType statusCopyTexSubImage3D;
+    NOpenGLProc::TDrawRangeElements glDrawRangeElements; NOpenGLProc::EProcType statusDrawRangeElements;
+    NOpenGLProc::TTexImage3D glTexImage3D; NOpenGLProc::EProcType statusTexImage3D;
+    NOpenGLProc::TTexSubImage3D glTexSubImage3D; NOpenGLProc::EProcType statusTexSubImage3D;
 
     // GL_VERSION_1_3
-    NOpenGLProc::TActiveTexture glActiveTexture;
-    NOpenGLProc::TCompressedTexImage1D glCompressedTexImage1D;
-    NOpenGLProc::TCompressedTexImage2D glCompressedTexImage2D;
-    NOpenGLProc::TCompressedTexImage3D glCompressedTexImage3D;
-    NOpenGLProc::TCompressedTexSubImage1D glCompressedTexSubImage1D;
-    NOpenGLProc::TCompressedTexSubImage2D glCompressedTexSubImage2D;
-    NOpenGLProc::TCompressedTexSubImage3D glCompressedTexSubImage3D;
-    NOpenGLProc::TGetCompressedTexImage glGetCompressedTexImage;
-    NOpenGLProc::TSampleCoverage glSampleCoverage;
+    NOpenGLProc::TActiveTexture glActiveTexture; NOpenGLProc::EProcType statusActiveTexture;
+    NOpenGLProc::TCompressedTexImage1D glCompressedTexImage1D; NOpenGLProc::EProcType statusCompressedTexImage1D;
+    NOpenGLProc::TCompressedTexImage2D glCompressedTexImage2D; NOpenGLProc::EProcType statusCompressedTexImage2D;
+    NOpenGLProc::TCompressedTexImage3D glCompressedTexImage3D; NOpenGLProc::EProcType statusCompressedTexImage3D;
+    NOpenGLProc::TCompressedTexSubImage1D glCompressedTexSubImage1D; NOpenGLProc::EProcType statusCompressedTexSubImage1D;
+    NOpenGLProc::TCompressedTexSubImage2D glCompressedTexSubImage2D; NOpenGLProc::EProcType statusCompressedTexSubImage2D;
+    NOpenGLProc::TCompressedTexSubImage3D glCompressedTexSubImage3D; NOpenGLProc::EProcType statusCompressedTexSubImage3D;
+    NOpenGLProc::TGetCompressedTexImage glGetCompressedTexImage; NOpenGLProc::EProcType statusGetCompressedTexImage;
+    NOpenGLProc::TSampleCoverage glSampleCoverage; NOpenGLProc::EProcType statusSampleCoverage;
 
     // GL_VERSION_1_4
-    NOpenGLProc::TBlendColor glBlendColor;
-    NOpenGLProc::TBlendEquation glBlendEquation;
-    NOpenGLProc::TBlendFuncSeparate glBlendFuncSeparate;
-    NOpenGLProc::TMultiDrawArrays glMultiDrawArrays;
-    NOpenGLProc::TMultiDrawElements glMultiDrawElements;
-    NOpenGLProc::TPointParameterf glPointParameterf;
-    NOpenGLProc::TPointParameterfv glPointParameterfv;
-    NOpenGLProc::TPointParameteri glPointParameteri;
-    NOpenGLProc::TPointParameteriv glPointParameteriv;
+    NOpenGLProc::TBlendColor glBlendColor; NOpenGLProc::EProcType statusBlendColor;
+    NOpenGLProc::TBlendEquation glBlendEquation; NOpenGLProc::EProcType statusBlendEquation;
+    NOpenGLProc::TBlendFuncSeparate glBlendFuncSeparate; NOpenGLProc::EProcType statusBlendFuncSeparate;
+    NOpenGLProc::TMultiDrawArrays glMultiDrawArrays; NOpenGLProc::EProcType statusMultiDrawArrays;
+    NOpenGLProc::TMultiDrawElements glMultiDrawElements; NOpenGLProc::EProcType statusMultiDrawElements;
+    NOpenGLProc::TPointParameterf glPointParameterf; NOpenGLProc::EProcType statusPointParameterf;
+    NOpenGLProc::TPointParameterfv glPointParameterfv; NOpenGLProc::EProcType statusPointParameterfv;
+    NOpenGLProc::TPointParameteri glPointParameteri; NOpenGLProc::EProcType statusPointParameteri;
+    NOpenGLProc::TPointParameteriv glPointParameteriv; NOpenGLProc::EProcType statusPointParameteriv;
 
     // GL_VERSION_1_5
-    NOpenGLProc::TBeginQuery glBeginQuery;
-    NOpenGLProc::TBindBuffer glBindBuffer;
-    NOpenGLProc::TBufferData glBufferData;
-    NOpenGLProc::TBufferSubData glBufferSubData;
-    NOpenGLProc::TDeleteBuffers glDeleteBuffers;
-    NOpenGLProc::TDeleteQueries glDeleteQueries;
-    NOpenGLProc::TEndQuery glEndQuery;
-    NOpenGLProc::TGenBuffers glGenBuffers;
-    NOpenGLProc::TGenQueries glGenQueries;
-    NOpenGLProc::TGetBufferParameteriv glGetBufferParameteriv;
-    NOpenGLProc::TGetBufferPointerv glGetBufferPointerv;
-    NOpenGLProc::TGetBufferSubData glGetBufferSubData;
-    NOpenGLProc::TGetQueryObjectiv glGetQueryObjectiv;
-    NOpenGLProc::TGetQueryObjectuiv glGetQueryObjectuiv;
-    NOpenGLProc::TGetQueryiv glGetQueryiv;
-    NOpenGLProc::TIsBuffer glIsBuffer;
-    NOpenGLProc::TIsQuery glIsQuery;
-    NOpenGLProc::TMapBuffer glMapBuffer;
-    NOpenGLProc::TUnmapBuffer glUnmapBuffer;
+    NOpenGLProc::TBeginQuery glBeginQuery; NOpenGLProc::EProcType statusBeginQuery;
+    NOpenGLProc::TBindBuffer glBindBuffer; NOpenGLProc::EProcType statusBindBuffer;
+    NOpenGLProc::TBufferData glBufferData; NOpenGLProc::EProcType statusBufferData;
+    NOpenGLProc::TBufferSubData glBufferSubData; NOpenGLProc::EProcType statusBufferSubData;
+    NOpenGLProc::TDeleteBuffers glDeleteBuffers; NOpenGLProc::EProcType statusDeleteBuffers;
+    NOpenGLProc::TDeleteQueries glDeleteQueries; NOpenGLProc::EProcType statusDeleteQueries;
+    NOpenGLProc::TEndQuery glEndQuery; NOpenGLProc::EProcType statusEndQuery;
+    NOpenGLProc::TGenBuffers glGenBuffers; NOpenGLProc::EProcType statusGenBuffers;
+    NOpenGLProc::TGenQueries glGenQueries; NOpenGLProc::EProcType statusGenQueries;
+    NOpenGLProc::TGetBufferParameteriv glGetBufferParameteriv; NOpenGLProc::EProcType statusGetBufferParameteriv;
+    NOpenGLProc::TGetBufferPointerv glGetBufferPointerv; NOpenGLProc::EProcType statusGetBufferPointerv;
+    NOpenGLProc::TGetBufferSubData glGetBufferSubData; NOpenGLProc::EProcType statusGetBufferSubData;
+    NOpenGLProc::TGetQueryObjectiv glGetQueryObjectiv; NOpenGLProc::EProcType statusGetQueryObjectiv;
+    NOpenGLProc::TGetQueryObjectuiv glGetQueryObjectuiv; NOpenGLProc::EProcType statusGetQueryObjectuiv;
+    NOpenGLProc::TGetQueryiv glGetQueryiv; NOpenGLProc::EProcType statusGetQueryiv;
+    NOpenGLProc::TIsBuffer glIsBuffer; NOpenGLProc::EProcType statusIsBuffer;
+    NOpenGLProc::TIsQuery glIsQuery; NOpenGLProc::EProcType statusIsQuery;
+    NOpenGLProc::TMapBuffer glMapBuffer; NOpenGLProc::EProcType statusMapBuffer;
+    NOpenGLProc::TUnmapBuffer glUnmapBuffer; NOpenGLProc::EProcType statusUnmapBuffer;
 
     // GL_VERSION_2_0
-    NOpenGLProc::TAttachShader glAttachShader;
-    NOpenGLProc::TBindAttribLocation glBindAttribLocation;
-    NOpenGLProc::TBlendEquationSeparate glBlendEquationSeparate;
-    NOpenGLProc::TCompileShader glCompileShader;
-    NOpenGLProc::TCreateProgram glCreateProgram;
-    NOpenGLProc::TCreateShader glCreateShader;
-    NOpenGLProc::TDeleteProgram glDeleteProgram;
-    NOpenGLProc::TDeleteShader glDeleteShader;
-    NOpenGLProc::TDetachShader glDetachShader;
-    NOpenGLProc::TDisableVertexAttribArray glDisableVertexAttribArray;
-    NOpenGLProc::TDrawBuffers glDrawBuffers;
-    NOpenGLProc::TEnableVertexAttribArray glEnableVertexAttribArray;
-    NOpenGLProc::TGetActiveAttrib glGetActiveAttrib;
-    NOpenGLProc::TGetActiveUniform glGetActiveUniform;
-    NOpenGLProc::TGetAttachedShaders glGetAttachedShaders;
-    NOpenGLProc::TGetAttribLocation glGetAttribLocation;
-    NOpenGLProc::TGetProgramInfoLog glGetProgramInfoLog;
-    NOpenGLProc::TGetProgramiv glGetProgramiv;
-    NOpenGLProc::TGetShaderInfoLog glGetShaderInfoLog;
-    NOpenGLProc::TGetShaderSource glGetShaderSource;
-    NOpenGLProc::TGetShaderiv glGetShaderiv;
-    NOpenGLProc::TGetUniformLocation glGetUniformLocation;
-    NOpenGLProc::TGetUniformfv glGetUniformfv;
-    NOpenGLProc::TGetUniformiv glGetUniformiv;
-    NOpenGLProc::TGetVertexAttribPointerv glGetVertexAttribPointerv;
-    NOpenGLProc::TGetVertexAttribdv glGetVertexAttribdv;
-    NOpenGLProc::TGetVertexAttribfv glGetVertexAttribfv;
-    NOpenGLProc::TGetVertexAttribiv glGetVertexAttribiv;
-    NOpenGLProc::TIsProgram glIsProgram;
-    NOpenGLProc::TIsShader glIsShader;
-    NOpenGLProc::TLinkProgram glLinkProgram;
-    NOpenGLProc::TShaderSource glShaderSource;
-    NOpenGLProc::TStencilFuncSeparate glStencilFuncSeparate;
-    NOpenGLProc::TStencilMaskSeparate glStencilMaskSeparate;
-    NOpenGLProc::TStencilOpSeparate glStencilOpSeparate;
-    NOpenGLProc::TUniform1f glUniform1f;
-    NOpenGLProc::TUniform1fv glUniform1fv;
-    NOpenGLProc::TUniform1i glUniform1i;
-    NOpenGLProc::TUniform1iv glUniform1iv;
-    NOpenGLProc::TUniform2f glUniform2f;
-    NOpenGLProc::TUniform2fv glUniform2fv;
-    NOpenGLProc::TUniform2i glUniform2i;
-    NOpenGLProc::TUniform2iv glUniform2iv;
-    NOpenGLProc::TUniform3f glUniform3f;
-    NOpenGLProc::TUniform3fv glUniform3fv;
-    NOpenGLProc::TUniform3i glUniform3i;
-    NOpenGLProc::TUniform3iv glUniform3iv;
-    NOpenGLProc::TUniform4f glUniform4f;
-    NOpenGLProc::TUniform4fv glUniform4fv;
-    NOpenGLProc::TUniform4i glUniform4i;
-    NOpenGLProc::TUniform4iv glUniform4iv;
-    NOpenGLProc::TUniformMatrix2fv glUniformMatrix2fv;
-    NOpenGLProc::TUniformMatrix3fv glUniformMatrix3fv;
-    NOpenGLProc::TUniformMatrix4fv glUniformMatrix4fv;
-    NOpenGLProc::TUseProgram glUseProgram;
-    NOpenGLProc::TValidateProgram glValidateProgram;
-    NOpenGLProc::TVertexAttrib1d glVertexAttrib1d;
-    NOpenGLProc::TVertexAttrib1dv glVertexAttrib1dv;
-    NOpenGLProc::TVertexAttrib1f glVertexAttrib1f;
-    NOpenGLProc::TVertexAttrib1fv glVertexAttrib1fv;
-    NOpenGLProc::TVertexAttrib1s glVertexAttrib1s;
-    NOpenGLProc::TVertexAttrib1sv glVertexAttrib1sv;
-    NOpenGLProc::TVertexAttrib2d glVertexAttrib2d;
-    NOpenGLProc::TVertexAttrib2dv glVertexAttrib2dv;
-    NOpenGLProc::TVertexAttrib2f glVertexAttrib2f;
-    NOpenGLProc::TVertexAttrib2fv glVertexAttrib2fv;
-    NOpenGLProc::TVertexAttrib2s glVertexAttrib2s;
-    NOpenGLProc::TVertexAttrib2sv glVertexAttrib2sv;
-    NOpenGLProc::TVertexAttrib3d glVertexAttrib3d;
-    NOpenGLProc::TVertexAttrib3dv glVertexAttrib3dv;
-    NOpenGLProc::TVertexAttrib3f glVertexAttrib3f;
-    NOpenGLProc::TVertexAttrib3fv glVertexAttrib3fv;
-    NOpenGLProc::TVertexAttrib3s glVertexAttrib3s;
-    NOpenGLProc::TVertexAttrib3sv glVertexAttrib3sv;
-    NOpenGLProc::TVertexAttrib4Nbv glVertexAttrib4Nbv;
-    NOpenGLProc::TVertexAttrib4Niv glVertexAttrib4Niv;
-    NOpenGLProc::TVertexAttrib4Nsv glVertexAttrib4Nsv;
-    NOpenGLProc::TVertexAttrib4Nub glVertexAttrib4Nub;
-    NOpenGLProc::TVertexAttrib4Nubv glVertexAttrib4Nubv;
-    NOpenGLProc::TVertexAttrib4Nuiv glVertexAttrib4Nuiv;
-    NOpenGLProc::TVertexAttrib4Nusv glVertexAttrib4Nusv;
-    NOpenGLProc::TVertexAttrib4bv glVertexAttrib4bv;
-    NOpenGLProc::TVertexAttrib4d glVertexAttrib4d;
-    NOpenGLProc::TVertexAttrib4dv glVertexAttrib4dv;
-    NOpenGLProc::TVertexAttrib4f glVertexAttrib4f;
-    NOpenGLProc::TVertexAttrib4fv glVertexAttrib4fv;
-    NOpenGLProc::TVertexAttrib4iv glVertexAttrib4iv;
-    NOpenGLProc::TVertexAttrib4s glVertexAttrib4s;
-    NOpenGLProc::TVertexAttrib4sv glVertexAttrib4sv;
-    NOpenGLProc::TVertexAttrib4ubv glVertexAttrib4ubv;
-    NOpenGLProc::TVertexAttrib4uiv glVertexAttrib4uiv;
-    NOpenGLProc::TVertexAttrib4usv glVertexAttrib4usv;
-    NOpenGLProc::TVertexAttribPointer glVertexAttribPointer;
+    NOpenGLProc::TAttachShader glAttachShader; NOpenGLProc::EProcType statusAttachShader;
+    NOpenGLProc::TBindAttribLocation glBindAttribLocation; NOpenGLProc::EProcType statusBindAttribLocation;
+    NOpenGLProc::TBlendEquationSeparate glBlendEquationSeparate; NOpenGLProc::EProcType statusBlendEquationSeparate;
+    NOpenGLProc::TCompileShader glCompileShader; NOpenGLProc::EProcType statusCompileShader;
+    NOpenGLProc::TCreateProgram glCreateProgram; NOpenGLProc::EProcType statusCreateProgram;
+    NOpenGLProc::TCreateShader glCreateShader; NOpenGLProc::EProcType statusCreateShader;
+    NOpenGLProc::TDeleteProgram glDeleteProgram; NOpenGLProc::EProcType statusDeleteProgram;
+    NOpenGLProc::TDeleteShader glDeleteShader; NOpenGLProc::EProcType statusDeleteShader;
+    NOpenGLProc::TDetachShader glDetachShader; NOpenGLProc::EProcType statusDetachShader;
+    NOpenGLProc::TDisableVertexAttribArray glDisableVertexAttribArray; NOpenGLProc::EProcType statusDisableVertexAttribArray;
+    NOpenGLProc::TDrawBuffers glDrawBuffers; NOpenGLProc::EProcType statusDrawBuffers;
+    NOpenGLProc::TEnableVertexAttribArray glEnableVertexAttribArray; NOpenGLProc::EProcType statusEnableVertexAttribArray;
+    NOpenGLProc::TGetActiveAttrib glGetActiveAttrib; NOpenGLProc::EProcType statusGetActiveAttrib;
+    NOpenGLProc::TGetActiveUniform glGetActiveUniform; NOpenGLProc::EProcType statusGetActiveUniform;
+    NOpenGLProc::TGetAttachedShaders glGetAttachedShaders; NOpenGLProc::EProcType statusGetAttachedShaders;
+    NOpenGLProc::TGetAttribLocation glGetAttribLocation; NOpenGLProc::EProcType statusGetAttribLocation;
+    NOpenGLProc::TGetProgramInfoLog glGetProgramInfoLog; NOpenGLProc::EProcType statusGetProgramInfoLog;
+    NOpenGLProc::TGetProgramiv glGetProgramiv; NOpenGLProc::EProcType statusGetProgramiv;
+    NOpenGLProc::TGetShaderInfoLog glGetShaderInfoLog; NOpenGLProc::EProcType statusGetShaderInfoLog;
+    NOpenGLProc::TGetShaderSource glGetShaderSource; NOpenGLProc::EProcType statusGetShaderSource;
+    NOpenGLProc::TGetShaderiv glGetShaderiv; NOpenGLProc::EProcType statusGetShaderiv;
+    NOpenGLProc::TGetUniformLocation glGetUniformLocation; NOpenGLProc::EProcType statusGetUniformLocation;
+    NOpenGLProc::TGetUniformfv glGetUniformfv; NOpenGLProc::EProcType statusGetUniformfv;
+    NOpenGLProc::TGetUniformiv glGetUniformiv; NOpenGLProc::EProcType statusGetUniformiv;
+    NOpenGLProc::TGetVertexAttribPointerv glGetVertexAttribPointerv; NOpenGLProc::EProcType statusGetVertexAttribPointerv;
+    NOpenGLProc::TGetVertexAttribdv glGetVertexAttribdv; NOpenGLProc::EProcType statusGetVertexAttribdv;
+    NOpenGLProc::TGetVertexAttribfv glGetVertexAttribfv; NOpenGLProc::EProcType statusGetVertexAttribfv;
+    NOpenGLProc::TGetVertexAttribiv glGetVertexAttribiv; NOpenGLProc::EProcType statusGetVertexAttribiv;
+    NOpenGLProc::TIsProgram glIsProgram; NOpenGLProc::EProcType statusIsProgram;
+    NOpenGLProc::TIsShader glIsShader; NOpenGLProc::EProcType statusIsShader;
+    NOpenGLProc::TLinkProgram glLinkProgram; NOpenGLProc::EProcType statusLinkProgram;
+    NOpenGLProc::TShaderSource glShaderSource; NOpenGLProc::EProcType statusShaderSource;
+    NOpenGLProc::TStencilFuncSeparate glStencilFuncSeparate; NOpenGLProc::EProcType statusStencilFuncSeparate;
+    NOpenGLProc::TStencilMaskSeparate glStencilMaskSeparate; NOpenGLProc::EProcType statusStencilMaskSeparate;
+    NOpenGLProc::TStencilOpSeparate glStencilOpSeparate; NOpenGLProc::EProcType statusStencilOpSeparate;
+    NOpenGLProc::TUniform1f glUniform1f; NOpenGLProc::EProcType statusUniform1f;
+    NOpenGLProc::TUniform1fv glUniform1fv; NOpenGLProc::EProcType statusUniform1fv;
+    NOpenGLProc::TUniform1i glUniform1i; NOpenGLProc::EProcType statusUniform1i;
+    NOpenGLProc::TUniform1iv glUniform1iv; NOpenGLProc::EProcType statusUniform1iv;
+    NOpenGLProc::TUniform2f glUniform2f; NOpenGLProc::EProcType statusUniform2f;
+    NOpenGLProc::TUniform2fv glUniform2fv; NOpenGLProc::EProcType statusUniform2fv;
+    NOpenGLProc::TUniform2i glUniform2i; NOpenGLProc::EProcType statusUniform2i;
+    NOpenGLProc::TUniform2iv glUniform2iv; NOpenGLProc::EProcType statusUniform2iv;
+    NOpenGLProc::TUniform3f glUniform3f; NOpenGLProc::EProcType statusUniform3f;
+    NOpenGLProc::TUniform3fv glUniform3fv; NOpenGLProc::EProcType statusUniform3fv;
+    NOpenGLProc::TUniform3i glUniform3i; NOpenGLProc::EProcType statusUniform3i;
+    NOpenGLProc::TUniform3iv glUniform3iv; NOpenGLProc::EProcType statusUniform3iv;
+    NOpenGLProc::TUniform4f glUniform4f; NOpenGLProc::EProcType statusUniform4f;
+    NOpenGLProc::TUniform4fv glUniform4fv; NOpenGLProc::EProcType statusUniform4fv;
+    NOpenGLProc::TUniform4i glUniform4i; NOpenGLProc::EProcType statusUniform4i;
+    NOpenGLProc::TUniform4iv glUniform4iv; NOpenGLProc::EProcType statusUniform4iv;
+    NOpenGLProc::TUniformMatrix2fv glUniformMatrix2fv; NOpenGLProc::EProcType statusUniformMatrix2fv;
+    NOpenGLProc::TUniformMatrix3fv glUniformMatrix3fv; NOpenGLProc::EProcType statusUniformMatrix3fv;
+    NOpenGLProc::TUniformMatrix4fv glUniformMatrix4fv; NOpenGLProc::EProcType statusUniformMatrix4fv;
+    NOpenGLProc::TUseProgram glUseProgram; NOpenGLProc::EProcType statusUseProgram;
+    NOpenGLProc::TValidateProgram glValidateProgram; NOpenGLProc::EProcType statusValidateProgram;
+    NOpenGLProc::TVertexAttrib1d glVertexAttrib1d; NOpenGLProc::EProcType statusVertexAttrib1d;
+    NOpenGLProc::TVertexAttrib1dv glVertexAttrib1dv; NOpenGLProc::EProcType statusVertexAttrib1dv;
+    NOpenGLProc::TVertexAttrib1f glVertexAttrib1f; NOpenGLProc::EProcType statusVertexAttrib1f;
+    NOpenGLProc::TVertexAttrib1fv glVertexAttrib1fv; NOpenGLProc::EProcType statusVertexAttrib1fv;
+    NOpenGLProc::TVertexAttrib1s glVertexAttrib1s; NOpenGLProc::EProcType statusVertexAttrib1s;
+    NOpenGLProc::TVertexAttrib1sv glVertexAttrib1sv; NOpenGLProc::EProcType statusVertexAttrib1sv;
+    NOpenGLProc::TVertexAttrib2d glVertexAttrib2d; NOpenGLProc::EProcType statusVertexAttrib2d;
+    NOpenGLProc::TVertexAttrib2dv glVertexAttrib2dv; NOpenGLProc::EProcType statusVertexAttrib2dv;
+    NOpenGLProc::TVertexAttrib2f glVertexAttrib2f; NOpenGLProc::EProcType statusVertexAttrib2f;
+    NOpenGLProc::TVertexAttrib2fv glVertexAttrib2fv; NOpenGLProc::EProcType statusVertexAttrib2fv;
+    NOpenGLProc::TVertexAttrib2s glVertexAttrib2s; NOpenGLProc::EProcType statusVertexAttrib2s;
+    NOpenGLProc::TVertexAttrib2sv glVertexAttrib2sv; NOpenGLProc::EProcType statusVertexAttrib2sv;
+    NOpenGLProc::TVertexAttrib3d glVertexAttrib3d; NOpenGLProc::EProcType statusVertexAttrib3d;
+    NOpenGLProc::TVertexAttrib3dv glVertexAttrib3dv; NOpenGLProc::EProcType statusVertexAttrib3dv;
+    NOpenGLProc::TVertexAttrib3f glVertexAttrib3f; NOpenGLProc::EProcType statusVertexAttrib3f;
+    NOpenGLProc::TVertexAttrib3fv glVertexAttrib3fv; NOpenGLProc::EProcType statusVertexAttrib3fv;
+    NOpenGLProc::TVertexAttrib3s glVertexAttrib3s; NOpenGLProc::EProcType statusVertexAttrib3s;
+    NOpenGLProc::TVertexAttrib3sv glVertexAttrib3sv; NOpenGLProc::EProcType statusVertexAttrib3sv;
+    NOpenGLProc::TVertexAttrib4Nbv glVertexAttrib4Nbv; NOpenGLProc::EProcType statusVertexAttrib4Nbv;
+    NOpenGLProc::TVertexAttrib4Niv glVertexAttrib4Niv; NOpenGLProc::EProcType statusVertexAttrib4Niv;
+    NOpenGLProc::TVertexAttrib4Nsv glVertexAttrib4Nsv; NOpenGLProc::EProcType statusVertexAttrib4Nsv;
+    NOpenGLProc::TVertexAttrib4Nub glVertexAttrib4Nub; NOpenGLProc::EProcType statusVertexAttrib4Nub;
+    NOpenGLProc::TVertexAttrib4Nubv glVertexAttrib4Nubv; NOpenGLProc::EProcType statusVertexAttrib4Nubv;
+    NOpenGLProc::TVertexAttrib4Nuiv glVertexAttrib4Nuiv; NOpenGLProc::EProcType statusVertexAttrib4Nuiv;
+    NOpenGLProc::TVertexAttrib4Nusv glVertexAttrib4Nusv; NOpenGLProc::EProcType statusVertexAttrib4Nusv;
+    NOpenGLProc::TVertexAttrib4bv glVertexAttrib4bv; NOpenGLProc::EProcType statusVertexAttrib4bv;
+    NOpenGLProc::TVertexAttrib4d glVertexAttrib4d; NOpenGLProc::EProcType statusVertexAttrib4d;
+    NOpenGLProc::TVertexAttrib4dv glVertexAttrib4dv; NOpenGLProc::EProcType statusVertexAttrib4dv;
+    NOpenGLProc::TVertexAttrib4f glVertexAttrib4f; NOpenGLProc::EProcType statusVertexAttrib4f;
+    NOpenGLProc::TVertexAttrib4fv glVertexAttrib4fv; NOpenGLProc::EProcType statusVertexAttrib4fv;
+    NOpenGLProc::TVertexAttrib4iv glVertexAttrib4iv; NOpenGLProc::EProcType statusVertexAttrib4iv;
+    NOpenGLProc::TVertexAttrib4s glVertexAttrib4s; NOpenGLProc::EProcType statusVertexAttrib4s;
+    NOpenGLProc::TVertexAttrib4sv glVertexAttrib4sv; NOpenGLProc::EProcType statusVertexAttrib4sv;
+    NOpenGLProc::TVertexAttrib4ubv glVertexAttrib4ubv; NOpenGLProc::EProcType statusVertexAttrib4ubv;
+    NOpenGLProc::TVertexAttrib4uiv glVertexAttrib4uiv; NOpenGLProc::EProcType statusVertexAttrib4uiv;
+    NOpenGLProc::TVertexAttrib4usv glVertexAttrib4usv; NOpenGLProc::EProcType statusVertexAttrib4usv;
+    NOpenGLProc::TVertexAttribPointer glVertexAttribPointer; NOpenGLProc::EProcType statusVertexAttribPointer;
 
     // GL_VERSION_2_1
-    NOpenGLProc::TUniformMatrix2x3fv glUniformMatrix2x3fv;
-    NOpenGLProc::TUniformMatrix2x4fv glUniformMatrix2x4fv;
-    NOpenGLProc::TUniformMatrix3x2fv glUniformMatrix3x2fv;
-    NOpenGLProc::TUniformMatrix3x4fv glUniformMatrix3x4fv;
-    NOpenGLProc::TUniformMatrix4x2fv glUniformMatrix4x2fv;
-    NOpenGLProc::TUniformMatrix4x3fv glUniformMatrix4x3fv;
+    NOpenGLProc::TUniformMatrix2x3fv glUniformMatrix2x3fv; NOpenGLProc::EProcType statusUniformMatrix2x3fv;
+    NOpenGLProc::TUniformMatrix2x4fv glUniformMatrix2x4fv; NOpenGLProc::EProcType statusUniformMatrix2x4fv;
+    NOpenGLProc::TUniformMatrix3x2fv glUniformMatrix3x2fv; NOpenGLProc::EProcType statusUniformMatrix3x2fv;
+    NOpenGLProc::TUniformMatrix3x4fv glUniformMatrix3x4fv; NOpenGLProc::EProcType statusUniformMatrix3x4fv;
+    NOpenGLProc::TUniformMatrix4x2fv glUniformMatrix4x2fv; NOpenGLProc::EProcType statusUniformMatrix4x2fv;
+    NOpenGLProc::TUniformMatrix4x3fv glUniformMatrix4x3fv; NOpenGLProc::EProcType statusUniformMatrix4x3fv;
 
     // GL_VERSION_3_0
-    NOpenGLProc::TBeginConditionalRender glBeginConditionalRender;
-    NOpenGLProc::TBeginTransformFeedback glBeginTransformFeedback;
-    NOpenGLProc::TBindBufferBase glBindBufferBase;
-    NOpenGLProc::TBindBufferRange glBindBufferRange;
-    NOpenGLProc::TBindFragDataLocation glBindFragDataLocation;
-    NOpenGLProc::TBindFramebuffer glBindFramebuffer;
-    NOpenGLProc::TBindRenderbuffer glBindRenderbuffer;
-    NOpenGLProc::TBindVertexArray glBindVertexArray;
-    NOpenGLProc::TBlitFramebuffer glBlitFramebuffer;
-    NOpenGLProc::TCheckFramebufferStatus glCheckFramebufferStatus;
-    NOpenGLProc::TClampColor glClampColor;
-    NOpenGLProc::TClearBufferfi glClearBufferfi;
-    NOpenGLProc::TClearBufferfv glClearBufferfv;
-    NOpenGLProc::TClearBufferiv glClearBufferiv;
-    NOpenGLProc::TClearBufferuiv glClearBufferuiv;
-    NOpenGLProc::TColorMaski glColorMaski;
-    NOpenGLProc::TDeleteFramebuffers glDeleteFramebuffers;
-    NOpenGLProc::TDeleteRenderbuffers glDeleteRenderbuffers;
-    NOpenGLProc::TDeleteVertexArrays glDeleteVertexArrays;
-    NOpenGLProc::TDisablei glDisablei;
-    NOpenGLProc::TEnablei glEnablei;
-    NOpenGLProc::TEndConditionalRender glEndConditionalRender;
-    NOpenGLProc::TEndTransformFeedback glEndTransformFeedback;
-    NOpenGLProc::TFlushMappedBufferRange glFlushMappedBufferRange;
-    NOpenGLProc::TFramebufferRenderbuffer glFramebufferRenderbuffer;
-    NOpenGLProc::TFramebufferTexture1D glFramebufferTexture1D;
-    NOpenGLProc::TFramebufferTexture2D glFramebufferTexture2D;
-    NOpenGLProc::TFramebufferTexture3D glFramebufferTexture3D;
-    NOpenGLProc::TFramebufferTextureLayer glFramebufferTextureLayer;
-    NOpenGLProc::TGenFramebuffers glGenFramebuffers;
-    NOpenGLProc::TGenRenderbuffers glGenRenderbuffers;
-    NOpenGLProc::TGenVertexArrays glGenVertexArrays;
-    NOpenGLProc::TGenerateMipmap glGenerateMipmap;
-    NOpenGLProc::TGetBooleani_v glGetBooleani_v;
-    NOpenGLProc::TGetFragDataLocation glGetFragDataLocation;
-    NOpenGLProc::TGetFramebufferAttachmentParameteriv glGetFramebufferAttachmentParameteriv;
-    NOpenGLProc::TGetIntegeri_v glGetIntegeri_v;
-    NOpenGLProc::TGetRenderbufferParameteriv glGetRenderbufferParameteriv;
-    NOpenGLProc::TGetStringi glGetStringi;
-    NOpenGLProc::TGetTexParameterIiv glGetTexParameterIiv;
-    NOpenGLProc::TGetTexParameterIuiv glGetTexParameterIuiv;
-    NOpenGLProc::TGetTransformFeedbackVarying glGetTransformFeedbackVarying;
-    NOpenGLProc::TGetUniformuiv glGetUniformuiv;
-    NOpenGLProc::TGetVertexAttribIiv glGetVertexAttribIiv;
-    NOpenGLProc::TGetVertexAttribIuiv glGetVertexAttribIuiv;
-    NOpenGLProc::TIsEnabledi glIsEnabledi;
-    NOpenGLProc::TIsFramebuffer glIsFramebuffer;
-    NOpenGLProc::TIsRenderbuffer glIsRenderbuffer;
-    NOpenGLProc::TIsVertexArray glIsVertexArray;
-    NOpenGLProc::TMapBufferRange glMapBufferRange;
-    NOpenGLProc::TRenderbufferStorage glRenderbufferStorage;
-    NOpenGLProc::TRenderbufferStorageMultisample glRenderbufferStorageMultisample;
-    NOpenGLProc::TTexParameterIiv glTexParameterIiv;
-    NOpenGLProc::TTexParameterIuiv glTexParameterIuiv;
-    NOpenGLProc::TTransformFeedbackVaryings glTransformFeedbackVaryings;
-    NOpenGLProc::TUniform1ui glUniform1ui;
-    NOpenGLProc::TUniform1uiv glUniform1uiv;
-    NOpenGLProc::TUniform2ui glUniform2ui;
-    NOpenGLProc::TUniform2uiv glUniform2uiv;
-    NOpenGLProc::TUniform3ui glUniform3ui;
-    NOpenGLProc::TUniform3uiv glUniform3uiv;
-    NOpenGLProc::TUniform4ui glUniform4ui;
-    NOpenGLProc::TUniform4uiv glUniform4uiv;
-    NOpenGLProc::TVertexAttribI1i glVertexAttribI1i;
-    NOpenGLProc::TVertexAttribI1iv glVertexAttribI1iv;
-    NOpenGLProc::TVertexAttribI1ui glVertexAttribI1ui;
-    NOpenGLProc::TVertexAttribI1uiv glVertexAttribI1uiv;
-    NOpenGLProc::TVertexAttribI2i glVertexAttribI2i;
-    NOpenGLProc::TVertexAttribI2iv glVertexAttribI2iv;
-    NOpenGLProc::TVertexAttribI2ui glVertexAttribI2ui;
-    NOpenGLProc::TVertexAttribI2uiv glVertexAttribI2uiv;
-    NOpenGLProc::TVertexAttribI3i glVertexAttribI3i;
-    NOpenGLProc::TVertexAttribI3iv glVertexAttribI3iv;
-    NOpenGLProc::TVertexAttribI3ui glVertexAttribI3ui;
-    NOpenGLProc::TVertexAttribI3uiv glVertexAttribI3uiv;
-    NOpenGLProc::TVertexAttribI4bv glVertexAttribI4bv;
-    NOpenGLProc::TVertexAttribI4i glVertexAttribI4i;
-    NOpenGLProc::TVertexAttribI4iv glVertexAttribI4iv;
-    NOpenGLProc::TVertexAttribI4sv glVertexAttribI4sv;
-    NOpenGLProc::TVertexAttribI4ubv glVertexAttribI4ubv;
-    NOpenGLProc::TVertexAttribI4ui glVertexAttribI4ui;
-    NOpenGLProc::TVertexAttribI4uiv glVertexAttribI4uiv;
-    NOpenGLProc::TVertexAttribI4usv glVertexAttribI4usv;
-    NOpenGLProc::TVertexAttribIPointer glVertexAttribIPointer;
+    NOpenGLProc::TBeginConditionalRender glBeginConditionalRender; NOpenGLProc::EProcType statusBeginConditionalRender;
+    NOpenGLProc::TBeginTransformFeedback glBeginTransformFeedback; NOpenGLProc::EProcType statusBeginTransformFeedback;
+    NOpenGLProc::TBindBufferBase glBindBufferBase; NOpenGLProc::EProcType statusBindBufferBase;
+    NOpenGLProc::TBindBufferRange glBindBufferRange; NOpenGLProc::EProcType statusBindBufferRange;
+    NOpenGLProc::TBindFragDataLocation glBindFragDataLocation; NOpenGLProc::EProcType statusBindFragDataLocation;
+    NOpenGLProc::TBindFramebuffer glBindFramebuffer; NOpenGLProc::EProcType statusBindFramebuffer;
+    NOpenGLProc::TBindRenderbuffer glBindRenderbuffer; NOpenGLProc::EProcType statusBindRenderbuffer;
+    NOpenGLProc::TBindVertexArray glBindVertexArray; NOpenGLProc::EProcType statusBindVertexArray;
+    NOpenGLProc::TBlitFramebuffer glBlitFramebuffer; NOpenGLProc::EProcType statusBlitFramebuffer;
+    NOpenGLProc::TCheckFramebufferStatus glCheckFramebufferStatus; NOpenGLProc::EProcType statusCheckFramebufferStatus;
+    NOpenGLProc::TClampColor glClampColor; NOpenGLProc::EProcType statusClampColor;
+    NOpenGLProc::TClearBufferfi glClearBufferfi; NOpenGLProc::EProcType statusClearBufferfi;
+    NOpenGLProc::TClearBufferfv glClearBufferfv; NOpenGLProc::EProcType statusClearBufferfv;
+    NOpenGLProc::TClearBufferiv glClearBufferiv; NOpenGLProc::EProcType statusClearBufferiv;
+    NOpenGLProc::TClearBufferuiv glClearBufferuiv; NOpenGLProc::EProcType statusClearBufferuiv;
+    NOpenGLProc::TColorMaski glColorMaski; NOpenGLProc::EProcType statusColorMaski;
+    NOpenGLProc::TDeleteFramebuffers glDeleteFramebuffers; NOpenGLProc::EProcType statusDeleteFramebuffers;
+    NOpenGLProc::TDeleteRenderbuffers glDeleteRenderbuffers; NOpenGLProc::EProcType statusDeleteRenderbuffers;
+    NOpenGLProc::TDeleteVertexArrays glDeleteVertexArrays; NOpenGLProc::EProcType statusDeleteVertexArrays;
+    NOpenGLProc::TDisablei glDisablei; NOpenGLProc::EProcType statusDisablei;
+    NOpenGLProc::TEnablei glEnablei; NOpenGLProc::EProcType statusEnablei;
+    NOpenGLProc::TEndConditionalRender glEndConditionalRender; NOpenGLProc::EProcType statusEndConditionalRender;
+    NOpenGLProc::TEndTransformFeedback glEndTransformFeedback; NOpenGLProc::EProcType statusEndTransformFeedback;
+    NOpenGLProc::TFlushMappedBufferRange glFlushMappedBufferRange; NOpenGLProc::EProcType statusFlushMappedBufferRange;
+    NOpenGLProc::TFramebufferRenderbuffer glFramebufferRenderbuffer; NOpenGLProc::EProcType statusFramebufferRenderbuffer;
+    NOpenGLProc::TFramebufferTexture1D glFramebufferTexture1D; NOpenGLProc::EProcType statusFramebufferTexture1D;
+    NOpenGLProc::TFramebufferTexture2D glFramebufferTexture2D; NOpenGLProc::EProcType statusFramebufferTexture2D;
+    NOpenGLProc::TFramebufferTexture3D glFramebufferTexture3D; NOpenGLProc::EProcType statusFramebufferTexture3D;
+    NOpenGLProc::TFramebufferTextureLayer glFramebufferTextureLayer; NOpenGLProc::EProcType statusFramebufferTextureLayer;
+    NOpenGLProc::TGenFramebuffers glGenFramebuffers; NOpenGLProc::EProcType statusGenFramebuffers;
+    NOpenGLProc::TGenRenderbuffers glGenRenderbuffers; NOpenGLProc::EProcType statusGenRenderbuffers;
+    NOpenGLProc::TGenVertexArrays glGenVertexArrays; NOpenGLProc::EProcType statusGenVertexArrays;
+    NOpenGLProc::TGenerateMipmap glGenerateMipmap; NOpenGLProc::EProcType statusGenerateMipmap;
+    NOpenGLProc::TGetBooleani_v glGetBooleani_v; NOpenGLProc::EProcType statusGetBooleani_v;
+    NOpenGLProc::TGetFragDataLocation glGetFragDataLocation; NOpenGLProc::EProcType statusGetFragDataLocation;
+    NOpenGLProc::TGetFramebufferAttachmentParameteriv glGetFramebufferAttachmentParameteriv; NOpenGLProc::EProcType statusGetFramebufferAttachmentParameteriv;
+    NOpenGLProc::TGetIntegeri_v glGetIntegeri_v; NOpenGLProc::EProcType statusGetIntegeri_v;
+    NOpenGLProc::TGetRenderbufferParameteriv glGetRenderbufferParameteriv; NOpenGLProc::EProcType statusGetRenderbufferParameteriv;
+    NOpenGLProc::TGetStringi glGetStringi; NOpenGLProc::EProcType statusGetStringi;
+    NOpenGLProc::TGetTexParameterIiv glGetTexParameterIiv; NOpenGLProc::EProcType statusGetTexParameterIiv;
+    NOpenGLProc::TGetTexParameterIuiv glGetTexParameterIuiv; NOpenGLProc::EProcType statusGetTexParameterIuiv;
+    NOpenGLProc::TGetTransformFeedbackVarying glGetTransformFeedbackVarying; NOpenGLProc::EProcType statusGetTransformFeedbackVarying;
+    NOpenGLProc::TGetUniformuiv glGetUniformuiv; NOpenGLProc::EProcType statusGetUniformuiv;
+    NOpenGLProc::TGetVertexAttribIiv glGetVertexAttribIiv; NOpenGLProc::EProcType statusGetVertexAttribIiv;
+    NOpenGLProc::TGetVertexAttribIuiv glGetVertexAttribIuiv; NOpenGLProc::EProcType statusGetVertexAttribIuiv;
+    NOpenGLProc::TIsEnabledi glIsEnabledi; NOpenGLProc::EProcType statusIsEnabledi;
+    NOpenGLProc::TIsFramebuffer glIsFramebuffer; NOpenGLProc::EProcType statusIsFramebuffer;
+    NOpenGLProc::TIsRenderbuffer glIsRenderbuffer; NOpenGLProc::EProcType statusIsRenderbuffer;
+    NOpenGLProc::TIsVertexArray glIsVertexArray; NOpenGLProc::EProcType statusIsVertexArray;
+    NOpenGLProc::TMapBufferRange glMapBufferRange; NOpenGLProc::EProcType statusMapBufferRange;
+    NOpenGLProc::TRenderbufferStorage glRenderbufferStorage; NOpenGLProc::EProcType statusRenderbufferStorage;
+    NOpenGLProc::TRenderbufferStorageMultisample glRenderbufferStorageMultisample; NOpenGLProc::EProcType statusRenderbufferStorageMultisample;
+    NOpenGLProc::TTexParameterIiv glTexParameterIiv; NOpenGLProc::EProcType statusTexParameterIiv;
+    NOpenGLProc::TTexParameterIuiv glTexParameterIuiv; NOpenGLProc::EProcType statusTexParameterIuiv;
+    NOpenGLProc::TTransformFeedbackVaryings glTransformFeedbackVaryings; NOpenGLProc::EProcType statusTransformFeedbackVaryings;
+    NOpenGLProc::TUniform1ui glUniform1ui; NOpenGLProc::EProcType statusUniform1ui;
+    NOpenGLProc::TUniform1uiv glUniform1uiv; NOpenGLProc::EProcType statusUniform1uiv;
+    NOpenGLProc::TUniform2ui glUniform2ui; NOpenGLProc::EProcType statusUniform2ui;
+    NOpenGLProc::TUniform2uiv glUniform2uiv; NOpenGLProc::EProcType statusUniform2uiv;
+    NOpenGLProc::TUniform3ui glUniform3ui; NOpenGLProc::EProcType statusUniform3ui;
+    NOpenGLProc::TUniform3uiv glUniform3uiv; NOpenGLProc::EProcType statusUniform3uiv;
+    NOpenGLProc::TUniform4ui glUniform4ui; NOpenGLProc::EProcType statusUniform4ui;
+    NOpenGLProc::TUniform4uiv glUniform4uiv; NOpenGLProc::EProcType statusUniform4uiv;
+    NOpenGLProc::TVertexAttribI1i glVertexAttribI1i; NOpenGLProc::EProcType statusVertexAttribI1i;
+    NOpenGLProc::TVertexAttribI1iv glVertexAttribI1iv; NOpenGLProc::EProcType statusVertexAttribI1iv;
+    NOpenGLProc::TVertexAttribI1ui glVertexAttribI1ui; NOpenGLProc::EProcType statusVertexAttribI1ui;
+    NOpenGLProc::TVertexAttribI1uiv glVertexAttribI1uiv; NOpenGLProc::EProcType statusVertexAttribI1uiv;
+    NOpenGLProc::TVertexAttribI2i glVertexAttribI2i; NOpenGLProc::EProcType statusVertexAttribI2i;
+    NOpenGLProc::TVertexAttribI2iv glVertexAttribI2iv; NOpenGLProc::EProcType statusVertexAttribI2iv;
+    NOpenGLProc::TVertexAttribI2ui glVertexAttribI2ui; NOpenGLProc::EProcType statusVertexAttribI2ui;
+    NOpenGLProc::TVertexAttribI2uiv glVertexAttribI2uiv; NOpenGLProc::EProcType statusVertexAttribI2uiv;
+    NOpenGLProc::TVertexAttribI3i glVertexAttribI3i; NOpenGLProc::EProcType statusVertexAttribI3i;
+    NOpenGLProc::TVertexAttribI3iv glVertexAttribI3iv; NOpenGLProc::EProcType statusVertexAttribI3iv;
+    NOpenGLProc::TVertexAttribI3ui glVertexAttribI3ui; NOpenGLProc::EProcType statusVertexAttribI3ui;
+    NOpenGLProc::TVertexAttribI3uiv glVertexAttribI3uiv; NOpenGLProc::EProcType statusVertexAttribI3uiv;
+    NOpenGLProc::TVertexAttribI4bv glVertexAttribI4bv; NOpenGLProc::EProcType statusVertexAttribI4bv;
+    NOpenGLProc::TVertexAttribI4i glVertexAttribI4i; NOpenGLProc::EProcType statusVertexAttribI4i;
+    NOpenGLProc::TVertexAttribI4iv glVertexAttribI4iv; NOpenGLProc::EProcType statusVertexAttribI4iv;
+    NOpenGLProc::TVertexAttribI4sv glVertexAttribI4sv; NOpenGLProc::EProcType statusVertexAttribI4sv;
+    NOpenGLProc::TVertexAttribI4ubv glVertexAttribI4ubv; NOpenGLProc::EProcType statusVertexAttribI4ubv;
+    NOpenGLProc::TVertexAttribI4ui glVertexAttribI4ui; NOpenGLProc::EProcType statusVertexAttribI4ui;
+    NOpenGLProc::TVertexAttribI4uiv glVertexAttribI4uiv; NOpenGLProc::EProcType statusVertexAttribI4uiv;
+    NOpenGLProc::TVertexAttribI4usv glVertexAttribI4usv; NOpenGLProc::EProcType statusVertexAttribI4usv;
+    NOpenGLProc::TVertexAttribIPointer glVertexAttribIPointer; NOpenGLProc::EProcType statusVertexAttribIPointer;
 
     // GL_VERSION_3_1
-    NOpenGLProc::TCopyBufferSubData glCopyBufferSubData;
-    NOpenGLProc::TDrawArraysInstanced glDrawArraysInstanced;
-    NOpenGLProc::TDrawElementsInstanced glDrawElementsInstanced;
-    NOpenGLProc::TGetActiveUniformBlockName glGetActiveUniformBlockName;
-    NOpenGLProc::TGetActiveUniformBlockiv glGetActiveUniformBlockiv;
-    NOpenGLProc::TGetActiveUniformName glGetActiveUniformName;
-    NOpenGLProc::TGetActiveUniformsiv glGetActiveUniformsiv;
-    NOpenGLProc::TGetUniformBlockIndex glGetUniformBlockIndex;
-    NOpenGLProc::TGetUniformIndices glGetUniformIndices;
-    NOpenGLProc::TPrimitiveRestartIndex glPrimitiveRestartIndex;
-    NOpenGLProc::TTexBuffer glTexBuffer;
-    NOpenGLProc::TUniformBlockBinding glUniformBlockBinding;
+    NOpenGLProc::TCopyBufferSubData glCopyBufferSubData; NOpenGLProc::EProcType statusCopyBufferSubData;
+    NOpenGLProc::TDrawArraysInstanced glDrawArraysInstanced; NOpenGLProc::EProcType statusDrawArraysInstanced;
+    NOpenGLProc::TDrawElementsInstanced glDrawElementsInstanced; NOpenGLProc::EProcType statusDrawElementsInstanced;
+    NOpenGLProc::TGetActiveUniformBlockName glGetActiveUniformBlockName; NOpenGLProc::EProcType statusGetActiveUniformBlockName;
+    NOpenGLProc::TGetActiveUniformBlockiv glGetActiveUniformBlockiv; NOpenGLProc::EProcType statusGetActiveUniformBlockiv;
+    NOpenGLProc::TGetActiveUniformName glGetActiveUniformName; NOpenGLProc::EProcType statusGetActiveUniformName;
+    NOpenGLProc::TGetActiveUniformsiv glGetActiveUniformsiv; NOpenGLProc::EProcType statusGetActiveUniformsiv;
+    NOpenGLProc::TGetUniformBlockIndex glGetUniformBlockIndex; NOpenGLProc::EProcType statusGetUniformBlockIndex;
+    NOpenGLProc::TGetUniformIndices glGetUniformIndices; NOpenGLProc::EProcType statusGetUniformIndices;
+    NOpenGLProc::TPrimitiveRestartIndex glPrimitiveRestartIndex; NOpenGLProc::EProcType statusPrimitiveRestartIndex;
+    NOpenGLProc::TTexBuffer glTexBuffer; NOpenGLProc::EProcType statusTexBuffer;
+    NOpenGLProc::TUniformBlockBinding glUniformBlockBinding; NOpenGLProc::EProcType statusUniformBlockBinding;
 
     // GL_VERSION_3_2
-    NOpenGLProc::TClientWaitSync glClientWaitSync;
-    NOpenGLProc::TDeleteSync glDeleteSync;
-    NOpenGLProc::TDrawElementsBaseVertex glDrawElementsBaseVertex;
-    NOpenGLProc::TDrawElementsInstancedBaseVertex glDrawElementsInstancedBaseVertex;
-    NOpenGLProc::TDrawRangeElementsBaseVertex glDrawRangeElementsBaseVertex;
-    NOpenGLProc::TFenceSync glFenceSync;
-    NOpenGLProc::TFramebufferTexture glFramebufferTexture;
-    NOpenGLProc::TGetBufferParameteri64v glGetBufferParameteri64v;
-    NOpenGLProc::TGetInteger64i_v glGetInteger64i_v;
-    NOpenGLProc::TGetInteger64v glGetInteger64v;
-    NOpenGLProc::TGetMultisamplefv glGetMultisamplefv;
-    NOpenGLProc::TGetSynciv glGetSynciv;
-    NOpenGLProc::TIsSync glIsSync;
-    NOpenGLProc::TMultiDrawElementsBaseVertex glMultiDrawElementsBaseVertex;
-    NOpenGLProc::TProvokingVertex glProvokingVertex;
-    NOpenGLProc::TSampleMaski glSampleMaski;
-    NOpenGLProc::TTexImage2DMultisample glTexImage2DMultisample;
-    NOpenGLProc::TTexImage3DMultisample glTexImage3DMultisample;
-    NOpenGLProc::TWaitSync glWaitSync;
+    NOpenGLProc::TClientWaitSync glClientWaitSync; NOpenGLProc::EProcType statusClientWaitSync;
+    NOpenGLProc::TDeleteSync glDeleteSync; NOpenGLProc::EProcType statusDeleteSync;
+    NOpenGLProc::TDrawElementsBaseVertex glDrawElementsBaseVertex; NOpenGLProc::EProcType statusDrawElementsBaseVertex;
+    NOpenGLProc::TDrawElementsInstancedBaseVertex glDrawElementsInstancedBaseVertex; NOpenGLProc::EProcType statusDrawElementsInstancedBaseVertex;
+    NOpenGLProc::TDrawRangeElementsBaseVertex glDrawRangeElementsBaseVertex; NOpenGLProc::EProcType statusDrawRangeElementsBaseVertex;
+    NOpenGLProc::TFenceSync glFenceSync; NOpenGLProc::EProcType statusFenceSync;
+    NOpenGLProc::TFramebufferTexture glFramebufferTexture; NOpenGLProc::EProcType statusFramebufferTexture;
+    NOpenGLProc::TGetBufferParameteri64v glGetBufferParameteri64v; NOpenGLProc::EProcType statusGetBufferParameteri64v;
+    NOpenGLProc::TGetInteger64i_v glGetInteger64i_v; NOpenGLProc::EProcType statusGetInteger64i_v;
+    NOpenGLProc::TGetInteger64v glGetInteger64v; NOpenGLProc::EProcType statusGetInteger64v;
+    NOpenGLProc::TGetMultisamplefv glGetMultisamplefv; NOpenGLProc::EProcType statusGetMultisamplefv;
+    NOpenGLProc::TGetSynciv glGetSynciv; NOpenGLProc::EProcType statusGetSynciv;
+    NOpenGLProc::TIsSync glIsSync; NOpenGLProc::EProcType statusIsSync;
+    NOpenGLProc::TMultiDrawElementsBaseVertex glMultiDrawElementsBaseVertex; NOpenGLProc::EProcType statusMultiDrawElementsBaseVertex;
+    NOpenGLProc::TProvokingVertex glProvokingVertex; NOpenGLProc::EProcType statusProvokingVertex;
+    NOpenGLProc::TSampleMaski glSampleMaski; NOpenGLProc::EProcType statusSampleMaski;
+    NOpenGLProc::TTexImage2DMultisample glTexImage2DMultisample; NOpenGLProc::EProcType statusTexImage2DMultisample;
+    NOpenGLProc::TTexImage3DMultisample glTexImage3DMultisample; NOpenGLProc::EProcType statusTexImage3DMultisample;
+    NOpenGLProc::TWaitSync glWaitSync; NOpenGLProc::EProcType statusWaitSync;
 
     // GL_VERSION_3_3
-    NOpenGLProc::TBindFragDataLocationIndexed glBindFragDataLocationIndexed;
-    NOpenGLProc::TBindSampler glBindSampler;
-    NOpenGLProc::TDeleteSamplers glDeleteSamplers;
-    NOpenGLProc::TGenSamplers glGenSamplers;
-    NOpenGLProc::TGetFragDataIndex glGetFragDataIndex;
-    NOpenGLProc::TGetQueryObjecti64v glGetQueryObjecti64v;
-    NOpenGLProc::TGetQueryObjectui64v glGetQueryObjectui64v;
-    NOpenGLProc::TGetSamplerParameterIiv glGetSamplerParameterIiv;
-    NOpenGLProc::TGetSamplerParameterIuiv glGetSamplerParameterIuiv;
-    NOpenGLProc::TGetSamplerParameterfv glGetSamplerParameterfv;
-    NOpenGLProc::TGetSamplerParameteriv glGetSamplerParameteriv;
-    NOpenGLProc::TIsSampler glIsSampler;
-    NOpenGLProc::TQueryCounter glQueryCounter;
-    NOpenGLProc::TSamplerParameterIiv glSamplerParameterIiv;
-    NOpenGLProc::TSamplerParameterIuiv glSamplerParameterIuiv;
-    NOpenGLProc::TSamplerParameterf glSamplerParameterf;
-    NOpenGLProc::TSamplerParameterfv glSamplerParameterfv;
-    NOpenGLProc::TSamplerParameteri glSamplerParameteri;
-    NOpenGLProc::TSamplerParameteriv glSamplerParameteriv;
-    NOpenGLProc::TVertexAttribDivisor glVertexAttribDivisor;
-    NOpenGLProc::TVertexAttribP1ui glVertexAttribP1ui;
-    NOpenGLProc::TVertexAttribP1uiv glVertexAttribP1uiv;
-    NOpenGLProc::TVertexAttribP2ui glVertexAttribP2ui;
-    NOpenGLProc::TVertexAttribP2uiv glVertexAttribP2uiv;
-    NOpenGLProc::TVertexAttribP3ui glVertexAttribP3ui;
-    NOpenGLProc::TVertexAttribP3uiv glVertexAttribP3uiv;
-    NOpenGLProc::TVertexAttribP4ui glVertexAttribP4ui;
-    NOpenGLProc::TVertexAttribP4uiv glVertexAttribP4uiv;
+    NOpenGLProc::TBindFragDataLocationIndexed glBindFragDataLocationIndexed; NOpenGLProc::EProcType statusBindFragDataLocationIndexed;
+    NOpenGLProc::TBindSampler glBindSampler; NOpenGLProc::EProcType statusBindSampler;
+    NOpenGLProc::TDeleteSamplers glDeleteSamplers; NOpenGLProc::EProcType statusDeleteSamplers;
+    NOpenGLProc::TGenSamplers glGenSamplers; NOpenGLProc::EProcType statusGenSamplers;
+    NOpenGLProc::TGetFragDataIndex glGetFragDataIndex; NOpenGLProc::EProcType statusGetFragDataIndex;
+    NOpenGLProc::TGetQueryObjecti64v glGetQueryObjecti64v; NOpenGLProc::EProcType statusGetQueryObjecti64v;
+    NOpenGLProc::TGetQueryObjectui64v glGetQueryObjectui64v; NOpenGLProc::EProcType statusGetQueryObjectui64v;
+    NOpenGLProc::TGetSamplerParameterIiv glGetSamplerParameterIiv; NOpenGLProc::EProcType statusGetSamplerParameterIiv;
+    NOpenGLProc::TGetSamplerParameterIuiv glGetSamplerParameterIuiv; NOpenGLProc::EProcType statusGetSamplerParameterIuiv;
+    NOpenGLProc::TGetSamplerParameterfv glGetSamplerParameterfv; NOpenGLProc::EProcType statusGetSamplerParameterfv;
+    NOpenGLProc::TGetSamplerParameteriv glGetSamplerParameteriv; NOpenGLProc::EProcType statusGetSamplerParameteriv;
+    NOpenGLProc::TIsSampler glIsSampler; NOpenGLProc::EProcType statusIsSampler;
+    NOpenGLProc::TQueryCounter glQueryCounter; NOpenGLProc::EProcType statusQueryCounter;
+    NOpenGLProc::TSamplerParameterIiv glSamplerParameterIiv; NOpenGLProc::EProcType statusSamplerParameterIiv;
+    NOpenGLProc::TSamplerParameterIuiv glSamplerParameterIuiv; NOpenGLProc::EProcType statusSamplerParameterIuiv;
+    NOpenGLProc::TSamplerParameterf glSamplerParameterf; NOpenGLProc::EProcType statusSamplerParameterf;
+    NOpenGLProc::TSamplerParameterfv glSamplerParameterfv; NOpenGLProc::EProcType statusSamplerParameterfv;
+    NOpenGLProc::TSamplerParameteri glSamplerParameteri; NOpenGLProc::EProcType statusSamplerParameteri;
+    NOpenGLProc::TSamplerParameteriv glSamplerParameteriv; NOpenGLProc::EProcType statusSamplerParameteriv;
+    NOpenGLProc::TVertexAttribDivisor glVertexAttribDivisor; NOpenGLProc::EProcType statusVertexAttribDivisor;
+    NOpenGLProc::TVertexAttribP1ui glVertexAttribP1ui; NOpenGLProc::EProcType statusVertexAttribP1ui;
+    NOpenGLProc::TVertexAttribP1uiv glVertexAttribP1uiv; NOpenGLProc::EProcType statusVertexAttribP1uiv;
+    NOpenGLProc::TVertexAttribP2ui glVertexAttribP2ui; NOpenGLProc::EProcType statusVertexAttribP2ui;
+    NOpenGLProc::TVertexAttribP2uiv glVertexAttribP2uiv; NOpenGLProc::EProcType statusVertexAttribP2uiv;
+    NOpenGLProc::TVertexAttribP3ui glVertexAttribP3ui; NOpenGLProc::EProcType statusVertexAttribP3ui;
+    NOpenGLProc::TVertexAttribP3uiv glVertexAttribP3uiv; NOpenGLProc::EProcType statusVertexAttribP3uiv;
+    NOpenGLProc::TVertexAttribP4ui glVertexAttribP4ui; NOpenGLProc::EProcType statusVertexAttribP4ui;
+    NOpenGLProc::TVertexAttribP4uiv glVertexAttribP4uiv; NOpenGLProc::EProcType statusVertexAttribP4uiv;
 
     // GL_VERSION_4_0
-    NOpenGLProc::TBeginQueryIndexed glBeginQueryIndexed;
-    NOpenGLProc::TBindTransformFeedback glBindTransformFeedback;
-    NOpenGLProc::TBlendEquationSeparatei glBlendEquationSeparatei;
-    NOpenGLProc::TBlendEquationi glBlendEquationi;
-    NOpenGLProc::TBlendFuncSeparatei glBlendFuncSeparatei;
-    NOpenGLProc::TBlendFunci glBlendFunci;
-    NOpenGLProc::TDeleteTransformFeedbacks glDeleteTransformFeedbacks;
-    NOpenGLProc::TDrawArraysIndirect glDrawArraysIndirect;
-    NOpenGLProc::TDrawElementsIndirect glDrawElementsIndirect;
-    NOpenGLProc::TDrawTransformFeedback glDrawTransformFeedback;
-    NOpenGLProc::TDrawTransformFeedbackStream glDrawTransformFeedbackStream;
-    NOpenGLProc::TEndQueryIndexed glEndQueryIndexed;
-    NOpenGLProc::TGenTransformFeedbacks glGenTransformFeedbacks;
-    NOpenGLProc::TGetActiveSubroutineName glGetActiveSubroutineName;
-    NOpenGLProc::TGetActiveSubroutineUniformName glGetActiveSubroutineUniformName;
-    NOpenGLProc::TGetActiveSubroutineUniformiv glGetActiveSubroutineUniformiv;
-    NOpenGLProc::TGetProgramStageiv glGetProgramStageiv;
-    NOpenGLProc::TGetQueryIndexediv glGetQueryIndexediv;
-    NOpenGLProc::TGetSubroutineIndex glGetSubroutineIndex;
-    NOpenGLProc::TGetSubroutineUniformLocation glGetSubroutineUniformLocation;
-    NOpenGLProc::TGetUniformSubroutineuiv glGetUniformSubroutineuiv;
-    NOpenGLProc::TGetUniformdv glGetUniformdv;
-    NOpenGLProc::TIsTransformFeedback glIsTransformFeedback;
-    NOpenGLProc::TMinSampleShading glMinSampleShading;
-    NOpenGLProc::TPatchParameterfv glPatchParameterfv;
-    NOpenGLProc::TPatchParameteri glPatchParameteri;
-    NOpenGLProc::TPauseTransformFeedback glPauseTransformFeedback;
-    NOpenGLProc::TResumeTransformFeedback glResumeTransformFeedback;
-    NOpenGLProc::TUniform1d glUniform1d;
-    NOpenGLProc::TUniform1dv glUniform1dv;
-    NOpenGLProc::TUniform2d glUniform2d;
-    NOpenGLProc::TUniform2dv glUniform2dv;
-    NOpenGLProc::TUniform3d glUniform3d;
-    NOpenGLProc::TUniform3dv glUniform3dv;
-    NOpenGLProc::TUniform4d glUniform4d;
-    NOpenGLProc::TUniform4dv glUniform4dv;
-    NOpenGLProc::TUniformMatrix2dv glUniformMatrix2dv;
-    NOpenGLProc::TUniformMatrix2x3dv glUniformMatrix2x3dv;
-    NOpenGLProc::TUniformMatrix2x4dv glUniformMatrix2x4dv;
-    NOpenGLProc::TUniformMatrix3dv glUniformMatrix3dv;
-    NOpenGLProc::TUniformMatrix3x2dv glUniformMatrix3x2dv;
-    NOpenGLProc::TUniformMatrix3x4dv glUniformMatrix3x4dv;
-    NOpenGLProc::TUniformMatrix4dv glUniformMatrix4dv;
-    NOpenGLProc::TUniformMatrix4x2dv glUniformMatrix4x2dv;
-    NOpenGLProc::TUniformMatrix4x3dv glUniformMatrix4x3dv;
-    NOpenGLProc::TUniformSubroutinesuiv glUniformSubroutinesuiv;
+    NOpenGLProc::TBeginQueryIndexed glBeginQueryIndexed; NOpenGLProc::EProcType statusBeginQueryIndexed;
+    NOpenGLProc::TBindTransformFeedback glBindTransformFeedback; NOpenGLProc::EProcType statusBindTransformFeedback;
+    NOpenGLProc::TBlendEquationSeparatei glBlendEquationSeparatei; NOpenGLProc::EProcType statusBlendEquationSeparatei;
+    NOpenGLProc::TBlendEquationi glBlendEquationi; NOpenGLProc::EProcType statusBlendEquationi;
+    NOpenGLProc::TBlendFuncSeparatei glBlendFuncSeparatei; NOpenGLProc::EProcType statusBlendFuncSeparatei;
+    NOpenGLProc::TBlendFunci glBlendFunci; NOpenGLProc::EProcType statusBlendFunci;
+    NOpenGLProc::TDeleteTransformFeedbacks glDeleteTransformFeedbacks; NOpenGLProc::EProcType statusDeleteTransformFeedbacks;
+    NOpenGLProc::TDrawArraysIndirect glDrawArraysIndirect; NOpenGLProc::EProcType statusDrawArraysIndirect;
+    NOpenGLProc::TDrawElementsIndirect glDrawElementsIndirect; NOpenGLProc::EProcType statusDrawElementsIndirect;
+    NOpenGLProc::TDrawTransformFeedback glDrawTransformFeedback; NOpenGLProc::EProcType statusDrawTransformFeedback;
+    NOpenGLProc::TDrawTransformFeedbackStream glDrawTransformFeedbackStream; NOpenGLProc::EProcType statusDrawTransformFeedbackStream;
+    NOpenGLProc::TEndQueryIndexed glEndQueryIndexed; NOpenGLProc::EProcType statusEndQueryIndexed;
+    NOpenGLProc::TGenTransformFeedbacks glGenTransformFeedbacks; NOpenGLProc::EProcType statusGenTransformFeedbacks;
+    NOpenGLProc::TGetActiveSubroutineName glGetActiveSubroutineName; NOpenGLProc::EProcType statusGetActiveSubroutineName;
+    NOpenGLProc::TGetActiveSubroutineUniformName glGetActiveSubroutineUniformName; NOpenGLProc::EProcType statusGetActiveSubroutineUniformName;
+    NOpenGLProc::TGetActiveSubroutineUniformiv glGetActiveSubroutineUniformiv; NOpenGLProc::EProcType statusGetActiveSubroutineUniformiv;
+    NOpenGLProc::TGetProgramStageiv glGetProgramStageiv; NOpenGLProc::EProcType statusGetProgramStageiv;
+    NOpenGLProc::TGetQueryIndexediv glGetQueryIndexediv; NOpenGLProc::EProcType statusGetQueryIndexediv;
+    NOpenGLProc::TGetSubroutineIndex glGetSubroutineIndex; NOpenGLProc::EProcType statusGetSubroutineIndex;
+    NOpenGLProc::TGetSubroutineUniformLocation glGetSubroutineUniformLocation; NOpenGLProc::EProcType statusGetSubroutineUniformLocation;
+    NOpenGLProc::TGetUniformSubroutineuiv glGetUniformSubroutineuiv; NOpenGLProc::EProcType statusGetUniformSubroutineuiv;
+    NOpenGLProc::TGetUniformdv glGetUniformdv; NOpenGLProc::EProcType statusGetUniformdv;
+    NOpenGLProc::TIsTransformFeedback glIsTransformFeedback; NOpenGLProc::EProcType statusIsTransformFeedback;
+    NOpenGLProc::TMinSampleShading glMinSampleShading; NOpenGLProc::EProcType statusMinSampleShading;
+    NOpenGLProc::TPatchParameterfv glPatchParameterfv; NOpenGLProc::EProcType statusPatchParameterfv;
+    NOpenGLProc::TPatchParameteri glPatchParameteri; NOpenGLProc::EProcType statusPatchParameteri;
+    NOpenGLProc::TPauseTransformFeedback glPauseTransformFeedback; NOpenGLProc::EProcType statusPauseTransformFeedback;
+    NOpenGLProc::TResumeTransformFeedback glResumeTransformFeedback; NOpenGLProc::EProcType statusResumeTransformFeedback;
+    NOpenGLProc::TUniform1d glUniform1d; NOpenGLProc::EProcType statusUniform1d;
+    NOpenGLProc::TUniform1dv glUniform1dv; NOpenGLProc::EProcType statusUniform1dv;
+    NOpenGLProc::TUniform2d glUniform2d; NOpenGLProc::EProcType statusUniform2d;
+    NOpenGLProc::TUniform2dv glUniform2dv; NOpenGLProc::EProcType statusUniform2dv;
+    NOpenGLProc::TUniform3d glUniform3d; NOpenGLProc::EProcType statusUniform3d;
+    NOpenGLProc::TUniform3dv glUniform3dv; NOpenGLProc::EProcType statusUniform3dv;
+    NOpenGLProc::TUniform4d glUniform4d; NOpenGLProc::EProcType statusUniform4d;
+    NOpenGLProc::TUniform4dv glUniform4dv; NOpenGLProc::EProcType statusUniform4dv;
+    NOpenGLProc::TUniformMatrix2dv glUniformMatrix2dv; NOpenGLProc::EProcType statusUniformMatrix2dv;
+    NOpenGLProc::TUniformMatrix2x3dv glUniformMatrix2x3dv; NOpenGLProc::EProcType statusUniformMatrix2x3dv;
+    NOpenGLProc::TUniformMatrix2x4dv glUniformMatrix2x4dv; NOpenGLProc::EProcType statusUniformMatrix2x4dv;
+    NOpenGLProc::TUniformMatrix3dv glUniformMatrix3dv; NOpenGLProc::EProcType statusUniformMatrix3dv;
+    NOpenGLProc::TUniformMatrix3x2dv glUniformMatrix3x2dv; NOpenGLProc::EProcType statusUniformMatrix3x2dv;
+    NOpenGLProc::TUniformMatrix3x4dv glUniformMatrix3x4dv; NOpenGLProc::EProcType statusUniformMatrix3x4dv;
+    NOpenGLProc::TUniformMatrix4dv glUniformMatrix4dv; NOpenGLProc::EProcType statusUniformMatrix4dv;
+    NOpenGLProc::TUniformMatrix4x2dv glUniformMatrix4x2dv; NOpenGLProc::EProcType statusUniformMatrix4x2dv;
+    NOpenGLProc::TUniformMatrix4x3dv glUniformMatrix4x3dv; NOpenGLProc::EProcType statusUniformMatrix4x3dv;
+    NOpenGLProc::TUniformSubroutinesuiv glUniformSubroutinesuiv; NOpenGLProc::EProcType statusUniformSubroutinesuiv;
 
     // GL_VERSION_4_1
-    NOpenGLProc::TActiveShaderProgram glActiveShaderProgram;
-    NOpenGLProc::TBindProgramPipeline glBindProgramPipeline;
-    NOpenGLProc::TClearDepthf glClearDepthf;
-    NOpenGLProc::TCreateShaderProgramv glCreateShaderProgramv;
-    NOpenGLProc::TDeleteProgramPipelines glDeleteProgramPipelines;
-    NOpenGLProc::TDepthRangeArrayv glDepthRangeArrayv;
-    NOpenGLProc::TDepthRangeIndexed glDepthRangeIndexed;
-    NOpenGLProc::TDepthRangef glDepthRangef;
-    NOpenGLProc::TGenProgramPipelines glGenProgramPipelines;
-    NOpenGLProc::TGetDoublei_v glGetDoublei_v;
-    NOpenGLProc::TGetFloati_v glGetFloati_v;
-    NOpenGLProc::TGetProgramBinary glGetProgramBinary;
-    NOpenGLProc::TGetProgramPipelineInfoLog glGetProgramPipelineInfoLog;
-    NOpenGLProc::TGetProgramPipelineiv glGetProgramPipelineiv;
-    NOpenGLProc::TGetShaderPrecisionFormat glGetShaderPrecisionFormat;
-    NOpenGLProc::TGetVertexAttribLdv glGetVertexAttribLdv;
-    NOpenGLProc::TIsProgramPipeline glIsProgramPipeline;
-    NOpenGLProc::TProgramBinary glProgramBinary;
-    NOpenGLProc::TProgramParameteri glProgramParameteri;
-    NOpenGLProc::TProgramUniform1d glProgramUniform1d;
-    NOpenGLProc::TProgramUniform1dv glProgramUniform1dv;
-    NOpenGLProc::TProgramUniform1f glProgramUniform1f;
-    NOpenGLProc::TProgramUniform1fv glProgramUniform1fv;
-    NOpenGLProc::TProgramUniform1i glProgramUniform1i;
-    NOpenGLProc::TProgramUniform1iv glProgramUniform1iv;
-    NOpenGLProc::TProgramUniform1ui glProgramUniform1ui;
-    NOpenGLProc::TProgramUniform1uiv glProgramUniform1uiv;
-    NOpenGLProc::TProgramUniform2d glProgramUniform2d;
-    NOpenGLProc::TProgramUniform2dv glProgramUniform2dv;
-    NOpenGLProc::TProgramUniform2f glProgramUniform2f;
-    NOpenGLProc::TProgramUniform2fv glProgramUniform2fv;
-    NOpenGLProc::TProgramUniform2i glProgramUniform2i;
-    NOpenGLProc::TProgramUniform2iv glProgramUniform2iv;
-    NOpenGLProc::TProgramUniform2ui glProgramUniform2ui;
-    NOpenGLProc::TProgramUniform2uiv glProgramUniform2uiv;
-    NOpenGLProc::TProgramUniform3d glProgramUniform3d;
-    NOpenGLProc::TProgramUniform3dv glProgramUniform3dv;
-    NOpenGLProc::TProgramUniform3f glProgramUniform3f;
-    NOpenGLProc::TProgramUniform3fv glProgramUniform3fv;
-    NOpenGLProc::TProgramUniform3i glProgramUniform3i;
-    NOpenGLProc::TProgramUniform3iv glProgramUniform3iv;
-    NOpenGLProc::TProgramUniform3ui glProgramUniform3ui;
-    NOpenGLProc::TProgramUniform3uiv glProgramUniform3uiv;
-    NOpenGLProc::TProgramUniform4d glProgramUniform4d;
-    NOpenGLProc::TProgramUniform4dv glProgramUniform4dv;
-    NOpenGLProc::TProgramUniform4f glProgramUniform4f;
-    NOpenGLProc::TProgramUniform4fv glProgramUniform4fv;
-    NOpenGLProc::TProgramUniform4i glProgramUniform4i;
-    NOpenGLProc::TProgramUniform4iv glProgramUniform4iv;
-    NOpenGLProc::TProgramUniform4ui glProgramUniform4ui;
-    NOpenGLProc::TProgramUniform4uiv glProgramUniform4uiv;
-    NOpenGLProc::TProgramUniformMatrix2dv glProgramUniformMatrix2dv;
-    NOpenGLProc::TProgramUniformMatrix2fv glProgramUniformMatrix2fv;
-    NOpenGLProc::TProgramUniformMatrix2x3dv glProgramUniformMatrix2x3dv;
-    NOpenGLProc::TProgramUniformMatrix2x3fv glProgramUniformMatrix2x3fv;
-    NOpenGLProc::TProgramUniformMatrix2x4dv glProgramUniformMatrix2x4dv;
-    NOpenGLProc::TProgramUniformMatrix2x4fv glProgramUniformMatrix2x4fv;
-    NOpenGLProc::TProgramUniformMatrix3dv glProgramUniformMatrix3dv;
-    NOpenGLProc::TProgramUniformMatrix3fv glProgramUniformMatrix3fv;
-    NOpenGLProc::TProgramUniformMatrix3x2dv glProgramUniformMatrix3x2dv;
-    NOpenGLProc::TProgramUniformMatrix3x2fv glProgramUniformMatrix3x2fv;
-    NOpenGLProc::TProgramUniformMatrix3x4dv glProgramUniformMatrix3x4dv;
-    NOpenGLProc::TProgramUniformMatrix3x4fv glProgramUniformMatrix3x4fv;
-    NOpenGLProc::TProgramUniformMatrix4dv glProgramUniformMatrix4dv;
-    NOpenGLProc::TProgramUniformMatrix4fv glProgramUniformMatrix4fv;
-    NOpenGLProc::TProgramUniformMatrix4x2dv glProgramUniformMatrix4x2dv;
-    NOpenGLProc::TProgramUniformMatrix4x2fv glProgramUniformMatrix4x2fv;
-    NOpenGLProc::TProgramUniformMatrix4x3dv glProgramUniformMatrix4x3dv;
-    NOpenGLProc::TProgramUniformMatrix4x3fv glProgramUniformMatrix4x3fv;
-    NOpenGLProc::TReleaseShaderCompiler glReleaseShaderCompiler;
-    NOpenGLProc::TScissorArrayv glScissorArrayv;
-    NOpenGLProc::TScissorIndexed glScissorIndexed;
-    NOpenGLProc::TScissorIndexedv glScissorIndexedv;
-    NOpenGLProc::TShaderBinary glShaderBinary;
-    NOpenGLProc::TUseProgramStages glUseProgramStages;
-    NOpenGLProc::TValidateProgramPipeline glValidateProgramPipeline;
-    NOpenGLProc::TVertexAttribL1d glVertexAttribL1d;
-    NOpenGLProc::TVertexAttribL1dv glVertexAttribL1dv;
-    NOpenGLProc::TVertexAttribL2d glVertexAttribL2d;
-    NOpenGLProc::TVertexAttribL2dv glVertexAttribL2dv;
-    NOpenGLProc::TVertexAttribL3d glVertexAttribL3d;
-    NOpenGLProc::TVertexAttribL3dv glVertexAttribL3dv;
-    NOpenGLProc::TVertexAttribL4d glVertexAttribL4d;
-    NOpenGLProc::TVertexAttribL4dv glVertexAttribL4dv;
-    NOpenGLProc::TVertexAttribLPointer glVertexAttribLPointer;
-    NOpenGLProc::TViewportArrayv glViewportArrayv;
-    NOpenGLProc::TViewportIndexedf glViewportIndexedf;
-    NOpenGLProc::TViewportIndexedfv glViewportIndexedfv;
+    NOpenGLProc::TActiveShaderProgram glActiveShaderProgram; NOpenGLProc::EProcType statusActiveShaderProgram;
+    NOpenGLProc::TBindProgramPipeline glBindProgramPipeline; NOpenGLProc::EProcType statusBindProgramPipeline;
+    NOpenGLProc::TClearDepthf glClearDepthf; NOpenGLProc::EProcType statusClearDepthf;
+    NOpenGLProc::TCreateShaderProgramv glCreateShaderProgramv; NOpenGLProc::EProcType statusCreateShaderProgramv;
+    NOpenGLProc::TDeleteProgramPipelines glDeleteProgramPipelines; NOpenGLProc::EProcType statusDeleteProgramPipelines;
+    NOpenGLProc::TDepthRangeArrayv glDepthRangeArrayv; NOpenGLProc::EProcType statusDepthRangeArrayv;
+    NOpenGLProc::TDepthRangeIndexed glDepthRangeIndexed; NOpenGLProc::EProcType statusDepthRangeIndexed;
+    NOpenGLProc::TDepthRangef glDepthRangef; NOpenGLProc::EProcType statusDepthRangef;
+    NOpenGLProc::TGenProgramPipelines glGenProgramPipelines; NOpenGLProc::EProcType statusGenProgramPipelines;
+    NOpenGLProc::TGetDoublei_v glGetDoublei_v; NOpenGLProc::EProcType statusGetDoublei_v;
+    NOpenGLProc::TGetFloati_v glGetFloati_v; NOpenGLProc::EProcType statusGetFloati_v;
+    NOpenGLProc::TGetProgramBinary glGetProgramBinary; NOpenGLProc::EProcType statusGetProgramBinary;
+    NOpenGLProc::TGetProgramPipelineInfoLog glGetProgramPipelineInfoLog; NOpenGLProc::EProcType statusGetProgramPipelineInfoLog;
+    NOpenGLProc::TGetProgramPipelineiv glGetProgramPipelineiv; NOpenGLProc::EProcType statusGetProgramPipelineiv;
+    NOpenGLProc::TGetShaderPrecisionFormat glGetShaderPrecisionFormat; NOpenGLProc::EProcType statusGetShaderPrecisionFormat;
+    NOpenGLProc::TGetVertexAttribLdv glGetVertexAttribLdv; NOpenGLProc::EProcType statusGetVertexAttribLdv;
+    NOpenGLProc::TIsProgramPipeline glIsProgramPipeline; NOpenGLProc::EProcType statusIsProgramPipeline;
+    NOpenGLProc::TProgramBinary glProgramBinary; NOpenGLProc::EProcType statusProgramBinary;
+    NOpenGLProc::TProgramParameteri glProgramParameteri; NOpenGLProc::EProcType statusProgramParameteri;
+    NOpenGLProc::TProgramUniform1d glProgramUniform1d; NOpenGLProc::EProcType statusProgramUniform1d;
+    NOpenGLProc::TProgramUniform1dv glProgramUniform1dv; NOpenGLProc::EProcType statusProgramUniform1dv;
+    NOpenGLProc::TProgramUniform1f glProgramUniform1f; NOpenGLProc::EProcType statusProgramUniform1f;
+    NOpenGLProc::TProgramUniform1fv glProgramUniform1fv; NOpenGLProc::EProcType statusProgramUniform1fv;
+    NOpenGLProc::TProgramUniform1i glProgramUniform1i; NOpenGLProc::EProcType statusProgramUniform1i;
+    NOpenGLProc::TProgramUniform1iv glProgramUniform1iv; NOpenGLProc::EProcType statusProgramUniform1iv;
+    NOpenGLProc::TProgramUniform1ui glProgramUniform1ui; NOpenGLProc::EProcType statusProgramUniform1ui;
+    NOpenGLProc::TProgramUniform1uiv glProgramUniform1uiv; NOpenGLProc::EProcType statusProgramUniform1uiv;
+    NOpenGLProc::TProgramUniform2d glProgramUniform2d; NOpenGLProc::EProcType statusProgramUniform2d;
+    NOpenGLProc::TProgramUniform2dv glProgramUniform2dv; NOpenGLProc::EProcType statusProgramUniform2dv;
+    NOpenGLProc::TProgramUniform2f glProgramUniform2f; NOpenGLProc::EProcType statusProgramUniform2f;
+    NOpenGLProc::TProgramUniform2fv glProgramUniform2fv; NOpenGLProc::EProcType statusProgramUniform2fv;
+    NOpenGLProc::TProgramUniform2i glProgramUniform2i; NOpenGLProc::EProcType statusProgramUniform2i;
+    NOpenGLProc::TProgramUniform2iv glProgramUniform2iv; NOpenGLProc::EProcType statusProgramUniform2iv;
+    NOpenGLProc::TProgramUniform2ui glProgramUniform2ui; NOpenGLProc::EProcType statusProgramUniform2ui;
+    NOpenGLProc::TProgramUniform2uiv glProgramUniform2uiv; NOpenGLProc::EProcType statusProgramUniform2uiv;
+    NOpenGLProc::TProgramUniform3d glProgramUniform3d; NOpenGLProc::EProcType statusProgramUniform3d;
+    NOpenGLProc::TProgramUniform3dv glProgramUniform3dv; NOpenGLProc::EProcType statusProgramUniform3dv;
+    NOpenGLProc::TProgramUniform3f glProgramUniform3f; NOpenGLProc::EProcType statusProgramUniform3f;
+    NOpenGLProc::TProgramUniform3fv glProgramUniform3fv; NOpenGLProc::EProcType statusProgramUniform3fv;
+    NOpenGLProc::TProgramUniform3i glProgramUniform3i; NOpenGLProc::EProcType statusProgramUniform3i;
+    NOpenGLProc::TProgramUniform3iv glProgramUniform3iv; NOpenGLProc::EProcType statusProgramUniform3iv;
+    NOpenGLProc::TProgramUniform3ui glProgramUniform3ui; NOpenGLProc::EProcType statusProgramUniform3ui;
+    NOpenGLProc::TProgramUniform3uiv glProgramUniform3uiv; NOpenGLProc::EProcType statusProgramUniform3uiv;
+    NOpenGLProc::TProgramUniform4d glProgramUniform4d; NOpenGLProc::EProcType statusProgramUniform4d;
+    NOpenGLProc::TProgramUniform4dv glProgramUniform4dv; NOpenGLProc::EProcType statusProgramUniform4dv;
+    NOpenGLProc::TProgramUniform4f glProgramUniform4f; NOpenGLProc::EProcType statusProgramUniform4f;
+    NOpenGLProc::TProgramUniform4fv glProgramUniform4fv; NOpenGLProc::EProcType statusProgramUniform4fv;
+    NOpenGLProc::TProgramUniform4i glProgramUniform4i; NOpenGLProc::EProcType statusProgramUniform4i;
+    NOpenGLProc::TProgramUniform4iv glProgramUniform4iv; NOpenGLProc::EProcType statusProgramUniform4iv;
+    NOpenGLProc::TProgramUniform4ui glProgramUniform4ui; NOpenGLProc::EProcType statusProgramUniform4ui;
+    NOpenGLProc::TProgramUniform4uiv glProgramUniform4uiv; NOpenGLProc::EProcType statusProgramUniform4uiv;
+    NOpenGLProc::TProgramUniformMatrix2dv glProgramUniformMatrix2dv; NOpenGLProc::EProcType statusProgramUniformMatrix2dv;
+    NOpenGLProc::TProgramUniformMatrix2fv glProgramUniformMatrix2fv; NOpenGLProc::EProcType statusProgramUniformMatrix2fv;
+    NOpenGLProc::TProgramUniformMatrix2x3dv glProgramUniformMatrix2x3dv; NOpenGLProc::EProcType statusProgramUniformMatrix2x3dv;
+    NOpenGLProc::TProgramUniformMatrix2x3fv glProgramUniformMatrix2x3fv; NOpenGLProc::EProcType statusProgramUniformMatrix2x3fv;
+    NOpenGLProc::TProgramUniformMatrix2x4dv glProgramUniformMatrix2x4dv; NOpenGLProc::EProcType statusProgramUniformMatrix2x4dv;
+    NOpenGLProc::TProgramUniformMatrix2x4fv glProgramUniformMatrix2x4fv; NOpenGLProc::EProcType statusProgramUniformMatrix2x4fv;
+    NOpenGLProc::TProgramUniformMatrix3dv glProgramUniformMatrix3dv; NOpenGLProc::EProcType statusProgramUniformMatrix3dv;
+    NOpenGLProc::TProgramUniformMatrix3fv glProgramUniformMatrix3fv; NOpenGLProc::EProcType statusProgramUniformMatrix3fv;
+    NOpenGLProc::TProgramUniformMatrix3x2dv glProgramUniformMatrix3x2dv; NOpenGLProc::EProcType statusProgramUniformMatrix3x2dv;
+    NOpenGLProc::TProgramUniformMatrix3x2fv glProgramUniformMatrix3x2fv; NOpenGLProc::EProcType statusProgramUniformMatrix3x2fv;
+    NOpenGLProc::TProgramUniformMatrix3x4dv glProgramUniformMatrix3x4dv; NOpenGLProc::EProcType statusProgramUniformMatrix3x4dv;
+    NOpenGLProc::TProgramUniformMatrix3x4fv glProgramUniformMatrix3x4fv; NOpenGLProc::EProcType statusProgramUniformMatrix3x4fv;
+    NOpenGLProc::TProgramUniformMatrix4dv glProgramUniformMatrix4dv; NOpenGLProc::EProcType statusProgramUniformMatrix4dv;
+    NOpenGLProc::TProgramUniformMatrix4fv glProgramUniformMatrix4fv; NOpenGLProc::EProcType statusProgramUniformMatrix4fv;
+    NOpenGLProc::TProgramUniformMatrix4x2dv glProgramUniformMatrix4x2dv; NOpenGLProc::EProcType statusProgramUniformMatrix4x2dv;
+    NOpenGLProc::TProgramUniformMatrix4x2fv glProgramUniformMatrix4x2fv; NOpenGLProc::EProcType statusProgramUniformMatrix4x2fv;
+    NOpenGLProc::TProgramUniformMatrix4x3dv glProgramUniformMatrix4x3dv; NOpenGLProc::EProcType statusProgramUniformMatrix4x3dv;
+    NOpenGLProc::TProgramUniformMatrix4x3fv glProgramUniformMatrix4x3fv; NOpenGLProc::EProcType statusProgramUniformMatrix4x3fv;
+    NOpenGLProc::TReleaseShaderCompiler glReleaseShaderCompiler; NOpenGLProc::EProcType statusReleaseShaderCompiler;
+    NOpenGLProc::TScissorArrayv glScissorArrayv; NOpenGLProc::EProcType statusScissorArrayv;
+    NOpenGLProc::TScissorIndexed glScissorIndexed; NOpenGLProc::EProcType statusScissorIndexed;
+    NOpenGLProc::TScissorIndexedv glScissorIndexedv; NOpenGLProc::EProcType statusScissorIndexedv;
+    NOpenGLProc::TShaderBinary glShaderBinary; NOpenGLProc::EProcType statusShaderBinary;
+    NOpenGLProc::TUseProgramStages glUseProgramStages; NOpenGLProc::EProcType statusUseProgramStages;
+    NOpenGLProc::TValidateProgramPipeline glValidateProgramPipeline; NOpenGLProc::EProcType statusValidateProgramPipeline;
+    NOpenGLProc::TVertexAttribL1d glVertexAttribL1d; NOpenGLProc::EProcType statusVertexAttribL1d;
+    NOpenGLProc::TVertexAttribL1dv glVertexAttribL1dv; NOpenGLProc::EProcType statusVertexAttribL1dv;
+    NOpenGLProc::TVertexAttribL2d glVertexAttribL2d; NOpenGLProc::EProcType statusVertexAttribL2d;
+    NOpenGLProc::TVertexAttribL2dv glVertexAttribL2dv; NOpenGLProc::EProcType statusVertexAttribL2dv;
+    NOpenGLProc::TVertexAttribL3d glVertexAttribL3d; NOpenGLProc::EProcType statusVertexAttribL3d;
+    NOpenGLProc::TVertexAttribL3dv glVertexAttribL3dv; NOpenGLProc::EProcType statusVertexAttribL3dv;
+    NOpenGLProc::TVertexAttribL4d glVertexAttribL4d; NOpenGLProc::EProcType statusVertexAttribL4d;
+    NOpenGLProc::TVertexAttribL4dv glVertexAttribL4dv; NOpenGLProc::EProcType statusVertexAttribL4dv;
+    NOpenGLProc::TVertexAttribLPointer glVertexAttribLPointer; NOpenGLProc::EProcType statusVertexAttribLPointer;
+    NOpenGLProc::TViewportArrayv glViewportArrayv; NOpenGLProc::EProcType statusViewportArrayv;
+    NOpenGLProc::TViewportIndexedf glViewportIndexedf; NOpenGLProc::EProcType statusViewportIndexedf;
+    NOpenGLProc::TViewportIndexedfv glViewportIndexedfv; NOpenGLProc::EProcType statusViewportIndexedfv;
 
     // GL_VERSION_4_2
-    NOpenGLProc::TBindImageTexture glBindImageTexture;
-    NOpenGLProc::TDrawArraysInstancedBaseInstance glDrawArraysInstancedBaseInstance;
-    NOpenGLProc::TDrawElementsInstancedBaseInstance glDrawElementsInstancedBaseInstance;
-    NOpenGLProc::TDrawElementsInstancedBaseVertexBaseInstance glDrawElementsInstancedBaseVertexBaseInstance;
-    NOpenGLProc::TDrawTransformFeedbackInstanced glDrawTransformFeedbackInstanced;
-    NOpenGLProc::TDrawTransformFeedbackStreamInstanced glDrawTransformFeedbackStreamInstanced;
-    NOpenGLProc::TGetActiveAtomicCounterBufferiv glGetActiveAtomicCounterBufferiv;
-    NOpenGLProc::TGetInternalformativ glGetInternalformativ;
-    NOpenGLProc::TMemoryBarrier glMemoryBarrier;
-    NOpenGLProc::TTexStorage1D glTexStorage1D;
-    NOpenGLProc::TTexStorage2D glTexStorage2D;
-    NOpenGLProc::TTexStorage3D glTexStorage3D;
+    NOpenGLProc::TBindImageTexture glBindImageTexture; NOpenGLProc::EProcType statusBindImageTexture;
+    NOpenGLProc::TDrawArraysInstancedBaseInstance glDrawArraysInstancedBaseInstance; NOpenGLProc::EProcType statusDrawArraysInstancedBaseInstance;
+    NOpenGLProc::TDrawElementsInstancedBaseInstance glDrawElementsInstancedBaseInstance; NOpenGLProc::EProcType statusDrawElementsInstancedBaseInstance;
+    NOpenGLProc::TDrawElementsInstancedBaseVertexBaseInstance glDrawElementsInstancedBaseVertexBaseInstance; NOpenGLProc::EProcType statusDrawElementsInstancedBaseVertexBaseInstance;
+    NOpenGLProc::TDrawTransformFeedbackInstanced glDrawTransformFeedbackInstanced; NOpenGLProc::EProcType statusDrawTransformFeedbackInstanced;
+    NOpenGLProc::TDrawTransformFeedbackStreamInstanced glDrawTransformFeedbackStreamInstanced; NOpenGLProc::EProcType statusDrawTransformFeedbackStreamInstanced;
+    NOpenGLProc::TGetActiveAtomicCounterBufferiv glGetActiveAtomicCounterBufferiv; NOpenGLProc::EProcType statusGetActiveAtomicCounterBufferiv;
+    NOpenGLProc::TGetInternalformativ glGetInternalformativ; NOpenGLProc::EProcType statusGetInternalformativ;
+    NOpenGLProc::TMemoryBarrier glMemoryBarrier; NOpenGLProc::EProcType statusMemoryBarrier;
+    NOpenGLProc::TTexStorage1D glTexStorage1D; NOpenGLProc::EProcType statusTexStorage1D;
+    NOpenGLProc::TTexStorage2D glTexStorage2D; NOpenGLProc::EProcType statusTexStorage2D;
+    NOpenGLProc::TTexStorage3D glTexStorage3D; NOpenGLProc::EProcType statusTexStorage3D;
 
     // GL_VERSION_4_3
-    NOpenGLProc::TBindVertexBuffer glBindVertexBuffer;
-    NOpenGLProc::TClearBufferData glClearBufferData;
-    NOpenGLProc::TClearBufferSubData glClearBufferSubData;
-    NOpenGLProc::TCopyImageSubData glCopyImageSubData;
-    NOpenGLProc::TDebugMessageCallback glDebugMessageCallback;
-    NOpenGLProc::TDebugMessageControl glDebugMessageControl;
-    NOpenGLProc::TDebugMessageInsert glDebugMessageInsert;
-    NOpenGLProc::TDispatchCompute glDispatchCompute;
-    NOpenGLProc::TDispatchComputeIndirect glDispatchComputeIndirect;
-    NOpenGLProc::TFramebufferParameteri glFramebufferParameteri;
-    NOpenGLProc::TGetDebugMessageLog glGetDebugMessageLog;
-    NOpenGLProc::TGetFramebufferParameteriv glGetFramebufferParameteriv;
-    NOpenGLProc::TGetInternalformati64v glGetInternalformati64v;
-    NOpenGLProc::TGetObjectLabel glGetObjectLabel;
-    NOpenGLProc::TGetObjectPtrLabel glGetObjectPtrLabel;
-    NOpenGLProc::TGetProgramInterfaceiv glGetProgramInterfaceiv;
-    NOpenGLProc::TGetProgramResourceIndex glGetProgramResourceIndex;
-    NOpenGLProc::TGetProgramResourceLocation glGetProgramResourceLocation;
-    NOpenGLProc::TGetProgramResourceLocationIndex glGetProgramResourceLocationIndex;
-    NOpenGLProc::TGetProgramResourceName glGetProgramResourceName;
-    NOpenGLProc::TGetProgramResourceiv glGetProgramResourceiv;
-    NOpenGLProc::TInvalidateBufferData glInvalidateBufferData;
-    NOpenGLProc::TInvalidateBufferSubData glInvalidateBufferSubData;
-    NOpenGLProc::TInvalidateFramebuffer glInvalidateFramebuffer;
-    NOpenGLProc::TInvalidateSubFramebuffer glInvalidateSubFramebuffer;
-    NOpenGLProc::TInvalidateTexImage glInvalidateTexImage;
-    NOpenGLProc::TInvalidateTexSubImage glInvalidateTexSubImage;
-    NOpenGLProc::TMultiDrawArraysIndirect glMultiDrawArraysIndirect;
-    NOpenGLProc::TMultiDrawElementsIndirect glMultiDrawElementsIndirect;
-    NOpenGLProc::TObjectLabel glObjectLabel;
-    NOpenGLProc::TObjectPtrLabel glObjectPtrLabel;
-    NOpenGLProc::TPopDebugGroup glPopDebugGroup;
-    NOpenGLProc::TPushDebugGroup glPushDebugGroup;
-    NOpenGLProc::TShaderStorageBlockBinding glShaderStorageBlockBinding;
-    NOpenGLProc::TTexBufferRange glTexBufferRange;
-    NOpenGLProc::TTexStorage2DMultisample glTexStorage2DMultisample;
-    NOpenGLProc::TTexStorage3DMultisample glTexStorage3DMultisample;
-    NOpenGLProc::TTextureView glTextureView;
-    NOpenGLProc::TVertexAttribBinding glVertexAttribBinding;
-    NOpenGLProc::TVertexAttribFormat glVertexAttribFormat;
-    NOpenGLProc::TVertexAttribIFormat glVertexAttribIFormat;
-    NOpenGLProc::TVertexAttribLFormat glVertexAttribLFormat;
-    NOpenGLProc::TVertexBindingDivisor glVertexBindingDivisor;
+    NOpenGLProc::TBindVertexBuffer glBindVertexBuffer; NOpenGLProc::EProcType statusBindVertexBuffer;
+    NOpenGLProc::TClearBufferData glClearBufferData; NOpenGLProc::EProcType statusClearBufferData;
+    NOpenGLProc::TClearBufferSubData glClearBufferSubData; NOpenGLProc::EProcType statusClearBufferSubData;
+    NOpenGLProc::TCopyImageSubData glCopyImageSubData; NOpenGLProc::EProcType statusCopyImageSubData;
+    NOpenGLProc::TDebugMessageCallback glDebugMessageCallback; NOpenGLProc::EProcType statusDebugMessageCallback;
+    NOpenGLProc::TDebugMessageControl glDebugMessageControl; NOpenGLProc::EProcType statusDebugMessageControl;
+    NOpenGLProc::TDebugMessageInsert glDebugMessageInsert; NOpenGLProc::EProcType statusDebugMessageInsert;
+    NOpenGLProc::TDispatchCompute glDispatchCompute; NOpenGLProc::EProcType statusDispatchCompute;
+    NOpenGLProc::TDispatchComputeIndirect glDispatchComputeIndirect; NOpenGLProc::EProcType statusDispatchComputeIndirect;
+    NOpenGLProc::TFramebufferParameteri glFramebufferParameteri; NOpenGLProc::EProcType statusFramebufferParameteri;
+    NOpenGLProc::TGetDebugMessageLog glGetDebugMessageLog; NOpenGLProc::EProcType statusGetDebugMessageLog;
+    NOpenGLProc::TGetFramebufferParameteriv glGetFramebufferParameteriv; NOpenGLProc::EProcType statusGetFramebufferParameteriv;
+    NOpenGLProc::TGetInternalformati64v glGetInternalformati64v; NOpenGLProc::EProcType statusGetInternalformati64v;
+    NOpenGLProc::TGetObjectLabel glGetObjectLabel; NOpenGLProc::EProcType statusGetObjectLabel;
+    NOpenGLProc::TGetObjectPtrLabel glGetObjectPtrLabel; NOpenGLProc::EProcType statusGetObjectPtrLabel;
+    NOpenGLProc::TGetProgramInterfaceiv glGetProgramInterfaceiv; NOpenGLProc::EProcType statusGetProgramInterfaceiv;
+    NOpenGLProc::TGetProgramResourceIndex glGetProgramResourceIndex; NOpenGLProc::EProcType statusGetProgramResourceIndex;
+    NOpenGLProc::TGetProgramResourceLocation glGetProgramResourceLocation; NOpenGLProc::EProcType statusGetProgramResourceLocation;
+    NOpenGLProc::TGetProgramResourceLocationIndex glGetProgramResourceLocationIndex; NOpenGLProc::EProcType statusGetProgramResourceLocationIndex;
+    NOpenGLProc::TGetProgramResourceName glGetProgramResourceName; NOpenGLProc::EProcType statusGetProgramResourceName;
+    NOpenGLProc::TGetProgramResourceiv glGetProgramResourceiv; NOpenGLProc::EProcType statusGetProgramResourceiv;
+    NOpenGLProc::TInvalidateBufferData glInvalidateBufferData; NOpenGLProc::EProcType statusInvalidateBufferData;
+    NOpenGLProc::TInvalidateBufferSubData glInvalidateBufferSubData; NOpenGLProc::EProcType statusInvalidateBufferSubData;
+    NOpenGLProc::TInvalidateFramebuffer glInvalidateFramebuffer; NOpenGLProc::EProcType statusInvalidateFramebuffer;
+    NOpenGLProc::TInvalidateSubFramebuffer glInvalidateSubFramebuffer; NOpenGLProc::EProcType statusInvalidateSubFramebuffer;
+    NOpenGLProc::TInvalidateTexImage glInvalidateTexImage; NOpenGLProc::EProcType statusInvalidateTexImage;
+    NOpenGLProc::TInvalidateTexSubImage glInvalidateTexSubImage; NOpenGLProc::EProcType statusInvalidateTexSubImage;
+    NOpenGLProc::TMultiDrawArraysIndirect glMultiDrawArraysIndirect; NOpenGLProc::EProcType statusMultiDrawArraysIndirect;
+    NOpenGLProc::TMultiDrawElementsIndirect glMultiDrawElementsIndirect; NOpenGLProc::EProcType statusMultiDrawElementsIndirect;
+    NOpenGLProc::TObjectLabel glObjectLabel; NOpenGLProc::EProcType statusObjectLabel;
+    NOpenGLProc::TObjectPtrLabel glObjectPtrLabel; NOpenGLProc::EProcType statusObjectPtrLabel;
+    NOpenGLProc::TPopDebugGroup glPopDebugGroup; NOpenGLProc::EProcType statusPopDebugGroup;
+    NOpenGLProc::TPushDebugGroup glPushDebugGroup; NOpenGLProc::EProcType statusPushDebugGroup;
+    NOpenGLProc::TShaderStorageBlockBinding glShaderStorageBlockBinding; NOpenGLProc::EProcType statusShaderStorageBlockBinding;
+    NOpenGLProc::TTexBufferRange glTexBufferRange; NOpenGLProc::EProcType statusTexBufferRange;
+    NOpenGLProc::TTexStorage2DMultisample glTexStorage2DMultisample; NOpenGLProc::EProcType statusTexStorage2DMultisample;
+    NOpenGLProc::TTexStorage3DMultisample glTexStorage3DMultisample; NOpenGLProc::EProcType statusTexStorage3DMultisample;
+    NOpenGLProc::TTextureView glTextureView; NOpenGLProc::EProcType statusTextureView;
+    NOpenGLProc::TVertexAttribBinding glVertexAttribBinding; NOpenGLProc::EProcType statusVertexAttribBinding;
+    NOpenGLProc::TVertexAttribFormat glVertexAttribFormat; NOpenGLProc::EProcType statusVertexAttribFormat;
+    NOpenGLProc::TVertexAttribIFormat glVertexAttribIFormat; NOpenGLProc::EProcType statusVertexAttribIFormat;
+    NOpenGLProc::TVertexAttribLFormat glVertexAttribLFormat; NOpenGLProc::EProcType statusVertexAttribLFormat;
+    NOpenGLProc::TVertexBindingDivisor glVertexBindingDivisor; NOpenGLProc::EProcType statusVertexBindingDivisor;
 
     // GL_VERSION_4_4
-    NOpenGLProc::TBindBuffersBase glBindBuffersBase;
-    NOpenGLProc::TBindBuffersRange glBindBuffersRange;
-    NOpenGLProc::TBindImageTextures glBindImageTextures;
-    NOpenGLProc::TBindSamplers glBindSamplers;
-    NOpenGLProc::TBindTextures glBindTextures;
-    NOpenGLProc::TBindVertexBuffers glBindVertexBuffers;
-    NOpenGLProc::TBufferStorage glBufferStorage;
-    NOpenGLProc::TClearTexImage glClearTexImage;
-    NOpenGLProc::TClearTexSubImage glClearTexSubImage;
+    NOpenGLProc::TBindBuffersBase glBindBuffersBase; NOpenGLProc::EProcType statusBindBuffersBase;
+    NOpenGLProc::TBindBuffersRange glBindBuffersRange; NOpenGLProc::EProcType statusBindBuffersRange;
+    NOpenGLProc::TBindImageTextures glBindImageTextures; NOpenGLProc::EProcType statusBindImageTextures;
+    NOpenGLProc::TBindSamplers glBindSamplers; NOpenGLProc::EProcType statusBindSamplers;
+    NOpenGLProc::TBindTextures glBindTextures; NOpenGLProc::EProcType statusBindTextures;
+    NOpenGLProc::TBindVertexBuffers glBindVertexBuffers; NOpenGLProc::EProcType statusBindVertexBuffers;
+    NOpenGLProc::TBufferStorage glBufferStorage; NOpenGLProc::EProcType statusBufferStorage;
+    NOpenGLProc::TClearTexImage glClearTexImage; NOpenGLProc::EProcType statusClearTexImage;
+    NOpenGLProc::TClearTexSubImage glClearTexSubImage; NOpenGLProc::EProcType statusClearTexSubImage;
 
     // GL_VERSION_4_5
-    NOpenGLProc::TBindTextureUnit glBindTextureUnit;
-    NOpenGLProc::TBlitNamedFramebuffer glBlitNamedFramebuffer;
-    NOpenGLProc::TCheckNamedFramebufferStatus glCheckNamedFramebufferStatus;
-    NOpenGLProc::TClearNamedBufferData glClearNamedBufferData;
-    NOpenGLProc::TClearNamedBufferSubData glClearNamedBufferSubData;
-    NOpenGLProc::TClearNamedFramebufferfi glClearNamedFramebufferfi;
-    NOpenGLProc::TClearNamedFramebufferfv glClearNamedFramebufferfv;
-    NOpenGLProc::TClearNamedFramebufferiv glClearNamedFramebufferiv;
-    NOpenGLProc::TClearNamedFramebufferuiv glClearNamedFramebufferuiv;
-    NOpenGLProc::TClipControl glClipControl;
-    NOpenGLProc::TCompressedTextureSubImage1D glCompressedTextureSubImage1D;
-    NOpenGLProc::TCompressedTextureSubImage2D glCompressedTextureSubImage2D;
-    NOpenGLProc::TCompressedTextureSubImage3D glCompressedTextureSubImage3D;
-    NOpenGLProc::TCopyNamedBufferSubData glCopyNamedBufferSubData;
-    NOpenGLProc::TCopyTextureSubImage1D glCopyTextureSubImage1D;
-    NOpenGLProc::TCopyTextureSubImage2D glCopyTextureSubImage2D;
-    NOpenGLProc::TCopyTextureSubImage3D glCopyTextureSubImage3D;
-    NOpenGLProc::TCreateBuffers glCreateBuffers;
-    NOpenGLProc::TCreateFramebuffers glCreateFramebuffers;
-    NOpenGLProc::TCreateProgramPipelines glCreateProgramPipelines;
-    NOpenGLProc::TCreateQueries glCreateQueries;
-    NOpenGLProc::TCreateRenderbuffers glCreateRenderbuffers;
-    NOpenGLProc::TCreateSamplers glCreateSamplers;
-    NOpenGLProc::TCreateTextures glCreateTextures;
-    NOpenGLProc::TCreateTransformFeedbacks glCreateTransformFeedbacks;
-    NOpenGLProc::TCreateVertexArrays glCreateVertexArrays;
-    NOpenGLProc::TDisableVertexArrayAttrib glDisableVertexArrayAttrib;
-    NOpenGLProc::TEnableVertexArrayAttrib glEnableVertexArrayAttrib;
-    NOpenGLProc::TFlushMappedNamedBufferRange glFlushMappedNamedBufferRange;
-    NOpenGLProc::TGenerateTextureMipmap glGenerateTextureMipmap;
-    NOpenGLProc::TGetCompressedTextureImage glGetCompressedTextureImage;
-    NOpenGLProc::TGetCompressedTextureSubImage glGetCompressedTextureSubImage;
-    NOpenGLProc::TGetGraphicsResetStatus glGetGraphicsResetStatus;
-    NOpenGLProc::TGetNamedBufferParameteri64v glGetNamedBufferParameteri64v;
-    NOpenGLProc::TGetNamedBufferParameteriv glGetNamedBufferParameteriv;
-    NOpenGLProc::TGetNamedBufferPointerv glGetNamedBufferPointerv;
-    NOpenGLProc::TGetNamedBufferSubData glGetNamedBufferSubData;
-    NOpenGLProc::TGetNamedFramebufferAttachmentParameteriv glGetNamedFramebufferAttachmentParameteriv;
-    NOpenGLProc::TGetNamedFramebufferParameteriv glGetNamedFramebufferParameteriv;
-    NOpenGLProc::TGetNamedRenderbufferParameteriv glGetNamedRenderbufferParameteriv;
-    NOpenGLProc::TGetQueryBufferObjecti64v glGetQueryBufferObjecti64v;
-    NOpenGLProc::TGetQueryBufferObjectiv glGetQueryBufferObjectiv;
-    NOpenGLProc::TGetQueryBufferObjectui64v glGetQueryBufferObjectui64v;
-    NOpenGLProc::TGetQueryBufferObjectuiv glGetQueryBufferObjectuiv;
-    NOpenGLProc::TGetTextureImage glGetTextureImage;
-    NOpenGLProc::TGetTextureLevelParameterfv glGetTextureLevelParameterfv;
-    NOpenGLProc::TGetTextureLevelParameteriv glGetTextureLevelParameteriv;
-    NOpenGLProc::TGetTextureParameterIiv glGetTextureParameterIiv;
-    NOpenGLProc::TGetTextureParameterIuiv glGetTextureParameterIuiv;
-    NOpenGLProc::TGetTextureParameterfv glGetTextureParameterfv;
-    NOpenGLProc::TGetTextureParameteriv glGetTextureParameteriv;
-    NOpenGLProc::TGetTextureSubImage glGetTextureSubImage;
-    NOpenGLProc::TGetTransformFeedbacki64_v glGetTransformFeedbacki64_v;
-    NOpenGLProc::TGetTransformFeedbacki_v glGetTransformFeedbacki_v;
-    NOpenGLProc::TGetTransformFeedbackiv glGetTransformFeedbackiv;
-    NOpenGLProc::TGetVertexArrayIndexed64iv glGetVertexArrayIndexed64iv;
-    NOpenGLProc::TGetVertexArrayIndexediv glGetVertexArrayIndexediv;
-    NOpenGLProc::TGetVertexArrayiv glGetVertexArrayiv;
-    NOpenGLProc::TGetnCompressedTexImage glGetnCompressedTexImage;
-    NOpenGLProc::TGetnTexImage glGetnTexImage;
-    NOpenGLProc::TGetnUniformdv glGetnUniformdv;
-    NOpenGLProc::TGetnUniformfv glGetnUniformfv;
-    NOpenGLProc::TGetnUniformiv glGetnUniformiv;
-    NOpenGLProc::TGetnUniformuiv glGetnUniformuiv;
-    NOpenGLProc::TInvalidateNamedFramebufferData glInvalidateNamedFramebufferData;
-    NOpenGLProc::TInvalidateNamedFramebufferSubData glInvalidateNamedFramebufferSubData;
-    NOpenGLProc::TMapNamedBuffer glMapNamedBuffer;
-    NOpenGLProc::TMapNamedBufferRange glMapNamedBufferRange;
-    NOpenGLProc::TMemoryBarrierByRegion glMemoryBarrierByRegion;
-    NOpenGLProc::TNamedBufferData glNamedBufferData;
-    NOpenGLProc::TNamedBufferStorage glNamedBufferStorage;
-    NOpenGLProc::TNamedBufferSubData glNamedBufferSubData;
-    NOpenGLProc::TNamedFramebufferDrawBuffer glNamedFramebufferDrawBuffer;
-    NOpenGLProc::TNamedFramebufferDrawBuffers glNamedFramebufferDrawBuffers;
-    NOpenGLProc::TNamedFramebufferParameteri glNamedFramebufferParameteri;
-    NOpenGLProc::TNamedFramebufferReadBuffer glNamedFramebufferReadBuffer;
-    NOpenGLProc::TNamedFramebufferRenderbuffer glNamedFramebufferRenderbuffer;
-    NOpenGLProc::TNamedFramebufferTexture glNamedFramebufferTexture;
-    NOpenGLProc::TNamedFramebufferTextureLayer glNamedFramebufferTextureLayer;
-    NOpenGLProc::TNamedRenderbufferStorage glNamedRenderbufferStorage;
-    NOpenGLProc::TNamedRenderbufferStorageMultisample glNamedRenderbufferStorageMultisample;
-    NOpenGLProc::TReadnPixels glReadnPixels;
-    NOpenGLProc::TTextureBarrier glTextureBarrier;
-    NOpenGLProc::TTextureBuffer glTextureBuffer;
-    NOpenGLProc::TTextureBufferRange glTextureBufferRange;
-    NOpenGLProc::TTextureParameterIiv glTextureParameterIiv;
-    NOpenGLProc::TTextureParameterIuiv glTextureParameterIuiv;
-    NOpenGLProc::TTextureParameterf glTextureParameterf;
-    NOpenGLProc::TTextureParameterfv glTextureParameterfv;
-    NOpenGLProc::TTextureParameteri glTextureParameteri;
-    NOpenGLProc::TTextureParameteriv glTextureParameteriv;
-    NOpenGLProc::TTextureStorage1D glTextureStorage1D;
-    NOpenGLProc::TTextureStorage2D glTextureStorage2D;
-    NOpenGLProc::TTextureStorage2DMultisample glTextureStorage2DMultisample;
-    NOpenGLProc::TTextureStorage3D glTextureStorage3D;
-    NOpenGLProc::TTextureStorage3DMultisample glTextureStorage3DMultisample;
-    NOpenGLProc::TTextureSubImage1D glTextureSubImage1D;
-    NOpenGLProc::TTextureSubImage2D glTextureSubImage2D;
-    NOpenGLProc::TTextureSubImage3D glTextureSubImage3D;
-    NOpenGLProc::TTransformFeedbackBufferBase glTransformFeedbackBufferBase;
-    NOpenGLProc::TTransformFeedbackBufferRange glTransformFeedbackBufferRange;
-    NOpenGLProc::TUnmapNamedBuffer glUnmapNamedBuffer;
-    NOpenGLProc::TVertexArrayAttribBinding glVertexArrayAttribBinding;
-    NOpenGLProc::TVertexArrayAttribFormat glVertexArrayAttribFormat;
-    NOpenGLProc::TVertexArrayAttribIFormat glVertexArrayAttribIFormat;
-    NOpenGLProc::TVertexArrayAttribLFormat glVertexArrayAttribLFormat;
-    NOpenGLProc::TVertexArrayBindingDivisor glVertexArrayBindingDivisor;
-    NOpenGLProc::TVertexArrayElementBuffer glVertexArrayElementBuffer;
-    NOpenGLProc::TVertexArrayVertexBuffer glVertexArrayVertexBuffer;
-    NOpenGLProc::TVertexArrayVertexBuffers glVertexArrayVertexBuffers;
+    NOpenGLProc::TBindTextureUnit glBindTextureUnit; NOpenGLProc::EProcType statusBindTextureUnit;
+    NOpenGLProc::TBlitNamedFramebuffer glBlitNamedFramebuffer; NOpenGLProc::EProcType statusBlitNamedFramebuffer;
+    NOpenGLProc::TCheckNamedFramebufferStatus glCheckNamedFramebufferStatus; NOpenGLProc::EProcType statusCheckNamedFramebufferStatus;
+    NOpenGLProc::TClearNamedBufferData glClearNamedBufferData; NOpenGLProc::EProcType statusClearNamedBufferData;
+    NOpenGLProc::TClearNamedBufferSubData glClearNamedBufferSubData; NOpenGLProc::EProcType statusClearNamedBufferSubData;
+    NOpenGLProc::TClearNamedFramebufferfi glClearNamedFramebufferfi; NOpenGLProc::EProcType statusClearNamedFramebufferfi;
+    NOpenGLProc::TClearNamedFramebufferfv glClearNamedFramebufferfv; NOpenGLProc::EProcType statusClearNamedFramebufferfv;
+    NOpenGLProc::TClearNamedFramebufferiv glClearNamedFramebufferiv; NOpenGLProc::EProcType statusClearNamedFramebufferiv;
+    NOpenGLProc::TClearNamedFramebufferuiv glClearNamedFramebufferuiv; NOpenGLProc::EProcType statusClearNamedFramebufferuiv;
+    NOpenGLProc::TClipControl glClipControl; NOpenGLProc::EProcType statusClipControl;
+    NOpenGLProc::TCompressedTextureSubImage1D glCompressedTextureSubImage1D; NOpenGLProc::EProcType statusCompressedTextureSubImage1D;
+    NOpenGLProc::TCompressedTextureSubImage2D glCompressedTextureSubImage2D; NOpenGLProc::EProcType statusCompressedTextureSubImage2D;
+    NOpenGLProc::TCompressedTextureSubImage3D glCompressedTextureSubImage3D; NOpenGLProc::EProcType statusCompressedTextureSubImage3D;
+    NOpenGLProc::TCopyNamedBufferSubData glCopyNamedBufferSubData; NOpenGLProc::EProcType statusCopyNamedBufferSubData;
+    NOpenGLProc::TCopyTextureSubImage1D glCopyTextureSubImage1D; NOpenGLProc::EProcType statusCopyTextureSubImage1D;
+    NOpenGLProc::TCopyTextureSubImage2D glCopyTextureSubImage2D; NOpenGLProc::EProcType statusCopyTextureSubImage2D;
+    NOpenGLProc::TCopyTextureSubImage3D glCopyTextureSubImage3D; NOpenGLProc::EProcType statusCopyTextureSubImage3D;
+    NOpenGLProc::TCreateBuffers glCreateBuffers; NOpenGLProc::EProcType statusCreateBuffers;
+    NOpenGLProc::TCreateFramebuffers glCreateFramebuffers; NOpenGLProc::EProcType statusCreateFramebuffers;
+    NOpenGLProc::TCreateProgramPipelines glCreateProgramPipelines; NOpenGLProc::EProcType statusCreateProgramPipelines;
+    NOpenGLProc::TCreateQueries glCreateQueries; NOpenGLProc::EProcType statusCreateQueries;
+    NOpenGLProc::TCreateRenderbuffers glCreateRenderbuffers; NOpenGLProc::EProcType statusCreateRenderbuffers;
+    NOpenGLProc::TCreateSamplers glCreateSamplers; NOpenGLProc::EProcType statusCreateSamplers;
+    NOpenGLProc::TCreateTextures glCreateTextures; NOpenGLProc::EProcType statusCreateTextures;
+    NOpenGLProc::TCreateTransformFeedbacks glCreateTransformFeedbacks; NOpenGLProc::EProcType statusCreateTransformFeedbacks;
+    NOpenGLProc::TCreateVertexArrays glCreateVertexArrays; NOpenGLProc::EProcType statusCreateVertexArrays;
+    NOpenGLProc::TDisableVertexArrayAttrib glDisableVertexArrayAttrib; NOpenGLProc::EProcType statusDisableVertexArrayAttrib;
+    NOpenGLProc::TEnableVertexArrayAttrib glEnableVertexArrayAttrib; NOpenGLProc::EProcType statusEnableVertexArrayAttrib;
+    NOpenGLProc::TFlushMappedNamedBufferRange glFlushMappedNamedBufferRange; NOpenGLProc::EProcType statusFlushMappedNamedBufferRange;
+    NOpenGLProc::TGenerateTextureMipmap glGenerateTextureMipmap; NOpenGLProc::EProcType statusGenerateTextureMipmap;
+    NOpenGLProc::TGetCompressedTextureImage glGetCompressedTextureImage; NOpenGLProc::EProcType statusGetCompressedTextureImage;
+    NOpenGLProc::TGetCompressedTextureSubImage glGetCompressedTextureSubImage; NOpenGLProc::EProcType statusGetCompressedTextureSubImage;
+    NOpenGLProc::TGetGraphicsResetStatus glGetGraphicsResetStatus; NOpenGLProc::EProcType statusGetGraphicsResetStatus;
+    NOpenGLProc::TGetNamedBufferParameteri64v glGetNamedBufferParameteri64v; NOpenGLProc::EProcType statusGetNamedBufferParameteri64v;
+    NOpenGLProc::TGetNamedBufferParameteriv glGetNamedBufferParameteriv; NOpenGLProc::EProcType statusGetNamedBufferParameteriv;
+    NOpenGLProc::TGetNamedBufferPointerv glGetNamedBufferPointerv; NOpenGLProc::EProcType statusGetNamedBufferPointerv;
+    NOpenGLProc::TGetNamedBufferSubData glGetNamedBufferSubData; NOpenGLProc::EProcType statusGetNamedBufferSubData;
+    NOpenGLProc::TGetNamedFramebufferAttachmentParameteriv glGetNamedFramebufferAttachmentParameteriv; NOpenGLProc::EProcType statusGetNamedFramebufferAttachmentParameteriv;
+    NOpenGLProc::TGetNamedFramebufferParameteriv glGetNamedFramebufferParameteriv; NOpenGLProc::EProcType statusGetNamedFramebufferParameteriv;
+    NOpenGLProc::TGetNamedRenderbufferParameteriv glGetNamedRenderbufferParameteriv; NOpenGLProc::EProcType statusGetNamedRenderbufferParameteriv;
+    NOpenGLProc::TGetQueryBufferObjecti64v glGetQueryBufferObjecti64v; NOpenGLProc::EProcType statusGetQueryBufferObjecti64v;
+    NOpenGLProc::TGetQueryBufferObjectiv glGetQueryBufferObjectiv; NOpenGLProc::EProcType statusGetQueryBufferObjectiv;
+    NOpenGLProc::TGetQueryBufferObjectui64v glGetQueryBufferObjectui64v; NOpenGLProc::EProcType statusGetQueryBufferObjectui64v;
+    NOpenGLProc::TGetQueryBufferObjectuiv glGetQueryBufferObjectuiv; NOpenGLProc::EProcType statusGetQueryBufferObjectuiv;
+    NOpenGLProc::TGetTextureImage glGetTextureImage; NOpenGLProc::EProcType statusGetTextureImage;
+    NOpenGLProc::TGetTextureLevelParameterfv glGetTextureLevelParameterfv; NOpenGLProc::EProcType statusGetTextureLevelParameterfv;
+    NOpenGLProc::TGetTextureLevelParameteriv glGetTextureLevelParameteriv; NOpenGLProc::EProcType statusGetTextureLevelParameteriv;
+    NOpenGLProc::TGetTextureParameterIiv glGetTextureParameterIiv; NOpenGLProc::EProcType statusGetTextureParameterIiv;
+    NOpenGLProc::TGetTextureParameterIuiv glGetTextureParameterIuiv; NOpenGLProc::EProcType statusGetTextureParameterIuiv;
+    NOpenGLProc::TGetTextureParameterfv glGetTextureParameterfv; NOpenGLProc::EProcType statusGetTextureParameterfv;
+    NOpenGLProc::TGetTextureParameteriv glGetTextureParameteriv; NOpenGLProc::EProcType statusGetTextureParameteriv;
+    NOpenGLProc::TGetTextureSubImage glGetTextureSubImage; NOpenGLProc::EProcType statusGetTextureSubImage;
+    NOpenGLProc::TGetTransformFeedbacki64_v glGetTransformFeedbacki64_v; NOpenGLProc::EProcType statusGetTransformFeedbacki64_v;
+    NOpenGLProc::TGetTransformFeedbacki_v glGetTransformFeedbacki_v; NOpenGLProc::EProcType statusGetTransformFeedbacki_v;
+    NOpenGLProc::TGetTransformFeedbackiv glGetTransformFeedbackiv; NOpenGLProc::EProcType statusGetTransformFeedbackiv;
+    NOpenGLProc::TGetVertexArrayIndexed64iv glGetVertexArrayIndexed64iv; NOpenGLProc::EProcType statusGetVertexArrayIndexed64iv;
+    NOpenGLProc::TGetVertexArrayIndexediv glGetVertexArrayIndexediv; NOpenGLProc::EProcType statusGetVertexArrayIndexediv;
+    NOpenGLProc::TGetVertexArrayiv glGetVertexArrayiv; NOpenGLProc::EProcType statusGetVertexArrayiv;
+    NOpenGLProc::TGetnCompressedTexImage glGetnCompressedTexImage; NOpenGLProc::EProcType statusGetnCompressedTexImage;
+    NOpenGLProc::TGetnTexImage glGetnTexImage; NOpenGLProc::EProcType statusGetnTexImage;
+    NOpenGLProc::TGetnUniformdv glGetnUniformdv; NOpenGLProc::EProcType statusGetnUniformdv;
+    NOpenGLProc::TGetnUniformfv glGetnUniformfv; NOpenGLProc::EProcType statusGetnUniformfv;
+    NOpenGLProc::TGetnUniformiv glGetnUniformiv; NOpenGLProc::EProcType statusGetnUniformiv;
+    NOpenGLProc::TGetnUniformuiv glGetnUniformuiv; NOpenGLProc::EProcType statusGetnUniformuiv;
+    NOpenGLProc::TInvalidateNamedFramebufferData glInvalidateNamedFramebufferData; NOpenGLProc::EProcType statusInvalidateNamedFramebufferData;
+    NOpenGLProc::TInvalidateNamedFramebufferSubData glInvalidateNamedFramebufferSubData; NOpenGLProc::EProcType statusInvalidateNamedFramebufferSubData;
+    NOpenGLProc::TMapNamedBuffer glMapNamedBuffer; NOpenGLProc::EProcType statusMapNamedBuffer;
+    NOpenGLProc::TMapNamedBufferRange glMapNamedBufferRange; NOpenGLProc::EProcType statusMapNamedBufferRange;
+    NOpenGLProc::TMemoryBarrierByRegion glMemoryBarrierByRegion; NOpenGLProc::EProcType statusMemoryBarrierByRegion;
+    NOpenGLProc::TNamedBufferData glNamedBufferData; NOpenGLProc::EProcType statusNamedBufferData;
+    NOpenGLProc::TNamedBufferStorage glNamedBufferStorage; NOpenGLProc::EProcType statusNamedBufferStorage;
+    NOpenGLProc::TNamedBufferSubData glNamedBufferSubData; NOpenGLProc::EProcType statusNamedBufferSubData;
+    NOpenGLProc::TNamedFramebufferDrawBuffer glNamedFramebufferDrawBuffer; NOpenGLProc::EProcType statusNamedFramebufferDrawBuffer;
+    NOpenGLProc::TNamedFramebufferDrawBuffers glNamedFramebufferDrawBuffers; NOpenGLProc::EProcType statusNamedFramebufferDrawBuffers;
+    NOpenGLProc::TNamedFramebufferParameteri glNamedFramebufferParameteri; NOpenGLProc::EProcType statusNamedFramebufferParameteri;
+    NOpenGLProc::TNamedFramebufferReadBuffer glNamedFramebufferReadBuffer; NOpenGLProc::EProcType statusNamedFramebufferReadBuffer;
+    NOpenGLProc::TNamedFramebufferRenderbuffer glNamedFramebufferRenderbuffer; NOpenGLProc::EProcType statusNamedFramebufferRenderbuffer;
+    NOpenGLProc::TNamedFramebufferTexture glNamedFramebufferTexture; NOpenGLProc::EProcType statusNamedFramebufferTexture;
+    NOpenGLProc::TNamedFramebufferTextureLayer glNamedFramebufferTextureLayer; NOpenGLProc::EProcType statusNamedFramebufferTextureLayer;
+    NOpenGLProc::TNamedRenderbufferStorage glNamedRenderbufferStorage; NOpenGLProc::EProcType statusNamedRenderbufferStorage;
+    NOpenGLProc::TNamedRenderbufferStorageMultisample glNamedRenderbufferStorageMultisample; NOpenGLProc::EProcType statusNamedRenderbufferStorageMultisample;
+    NOpenGLProc::TReadnPixels glReadnPixels; NOpenGLProc::EProcType statusReadnPixels;
+    NOpenGLProc::TTextureBarrier glTextureBarrier; NOpenGLProc::EProcType statusTextureBarrier;
+    NOpenGLProc::TTextureBuffer glTextureBuffer; NOpenGLProc::EProcType statusTextureBuffer;
+    NOpenGLProc::TTextureBufferRange glTextureBufferRange; NOpenGLProc::EProcType statusTextureBufferRange;
+    NOpenGLProc::TTextureParameterIiv glTextureParameterIiv; NOpenGLProc::EProcType statusTextureParameterIiv;
+    NOpenGLProc::TTextureParameterIuiv glTextureParameterIuiv; NOpenGLProc::EProcType statusTextureParameterIuiv;
+    NOpenGLProc::TTextureParameterf glTextureParameterf; NOpenGLProc::EProcType statusTextureParameterf;
+    NOpenGLProc::TTextureParameterfv glTextureParameterfv; NOpenGLProc::EProcType statusTextureParameterfv;
+    NOpenGLProc::TTextureParameteri glTextureParameteri; NOpenGLProc::EProcType statusTextureParameteri;
+    NOpenGLProc::TTextureParameteriv glTextureParameteriv; NOpenGLProc::EProcType statusTextureParameteriv;
+    NOpenGLProc::TTextureStorage1D glTextureStorage1D; NOpenGLProc::EProcType statusTextureStorage1D;
+    NOpenGLProc::TTextureStorage2D glTextureStorage2D; NOpenGLProc::EProcType statusTextureStorage2D;
+    NOpenGLProc::TTextureStorage2DMultisample glTextureStorage2DMultisample; NOpenGLProc::EProcType statusTextureStorage2DMultisample;
+    NOpenGLProc::TTextureStorage3D glTextureStorage3D; NOpenGLProc::EProcType statusTextureStorage3D;
+    NOpenGLProc::TTextureStorage3DMultisample glTextureStorage3DMultisample; NOpenGLProc::EProcType statusTextureStorage3DMultisample;
+    NOpenGLProc::TTextureSubImage1D glTextureSubImage1D; NOpenGLProc::EProcType statusTextureSubImage1D;
+    NOpenGLProc::TTextureSubImage2D glTextureSubImage2D; NOpenGLProc::EProcType statusTextureSubImage2D;
+    NOpenGLProc::TTextureSubImage3D glTextureSubImage3D; NOpenGLProc::EProcType statusTextureSubImage3D;
+    NOpenGLProc::TTransformFeedbackBufferBase glTransformFeedbackBufferBase; NOpenGLProc::EProcType statusTransformFeedbackBufferBase;
+    NOpenGLProc::TTransformFeedbackBufferRange glTransformFeedbackBufferRange; NOpenGLProc::EProcType statusTransformFeedbackBufferRange;
+    NOpenGLProc::TUnmapNamedBuffer glUnmapNamedBuffer; NOpenGLProc::EProcType statusUnmapNamedBuffer;
+    NOpenGLProc::TVertexArrayAttribBinding glVertexArrayAttribBinding; NOpenGLProc::EProcType statusVertexArrayAttribBinding;
+    NOpenGLProc::TVertexArrayAttribFormat glVertexArrayAttribFormat; NOpenGLProc::EProcType statusVertexArrayAttribFormat;
+    NOpenGLProc::TVertexArrayAttribIFormat glVertexArrayAttribIFormat; NOpenGLProc::EProcType statusVertexArrayAttribIFormat;
+    NOpenGLProc::TVertexArrayAttribLFormat glVertexArrayAttribLFormat; NOpenGLProc::EProcType statusVertexArrayAttribLFormat;
+    NOpenGLProc::TVertexArrayBindingDivisor glVertexArrayBindingDivisor; NOpenGLProc::EProcType statusVertexArrayBindingDivisor;
+    NOpenGLProc::TVertexArrayElementBuffer glVertexArrayElementBuffer; NOpenGLProc::EProcType statusVertexArrayElementBuffer;
+    NOpenGLProc::TVertexArrayVertexBuffer glVertexArrayVertexBuffer; NOpenGLProc::EProcType statusVertexArrayVertexBuffer;
+    NOpenGLProc::TVertexArrayVertexBuffers glVertexArrayVertexBuffers; NOpenGLProc::EProcType statusVertexArrayVertexBuffers;
 
   public:
     COpenGL(CContext *context = NULL);
     ~COpenGL();
     void initializeGLFunctions(NEngine::EGPUPlatform explicitPlatofrm = NEngine::GPU_PLATFORM_KEEP);
     void makeCurrent();
+    std::string getStatus() const;
 
     // GL_VERSION_1_0
     inline void blendFunc(GLenum sfactor, GLenum dfactor) { glBlendFunc(sfactor, dfactor); }
@@ -1328,1318 +1329,8 @@ class COpenGL : public CEngineBase
     inline void vertexArrayVertexBuffers(GLuint vaobj, GLuint first, GLsizei count, const GLuint *buffers, const GLintptr *offsets, const GLsizei *strides) { glVertexArrayVertexBuffers(vaobj, first, count, buffers, offsets, strides); }
 };
 //------------------------------------------------------------------------------
-inline COpenGL::COpenGL(CContext *context) : CEngineBase(context),
-  // GL_VERSION_1_2
-  glCopyTexSubImage3D(NULL),
-  glDrawRangeElements(NULL),
-  glTexImage3D(NULL),
-  glTexSubImage3D(NULL),
-
-  // GL_VERSION_1_3
-  glActiveTexture(NULL),
-  glCompressedTexImage1D(NULL),
-  glCompressedTexImage2D(NULL),
-  glCompressedTexImage3D(NULL),
-  glCompressedTexSubImage1D(NULL),
-  glCompressedTexSubImage2D(NULL),
-  glCompressedTexSubImage3D(NULL),
-  glGetCompressedTexImage(NULL),
-  glSampleCoverage(NULL),
-
-  // GL_VERSION_1_4
-  glBlendColor(NULL),
-  glBlendEquation(NULL),
-  glBlendFuncSeparate(NULL),
-  glMultiDrawArrays(NULL),
-  glMultiDrawElements(NULL),
-  glPointParameterf(NULL),
-  glPointParameterfv(NULL),
-  glPointParameteri(NULL),
-  glPointParameteriv(NULL),
-
-  // GL_VERSION_1_5
-  glBeginQuery(NULL),
-  glBindBuffer(NULL),
-  glBufferData(NULL),
-  glBufferSubData(NULL),
-  glDeleteBuffers(NULL),
-  glDeleteQueries(NULL),
-  glEndQuery(NULL),
-  glGenBuffers(NULL),
-  glGenQueries(NULL),
-  glGetBufferParameteriv(NULL),
-  glGetBufferPointerv(NULL),
-  glGetBufferSubData(NULL),
-  glGetQueryObjectiv(NULL),
-  glGetQueryObjectuiv(NULL),
-  glGetQueryiv(NULL),
-  glIsBuffer(NULL),
-  glIsQuery(NULL),
-  glMapBuffer(NULL),
-  glUnmapBuffer(NULL),
-
-  // GL_VERSION_2_0
-  glAttachShader(NULL),
-  glBindAttribLocation(NULL),
-  glBlendEquationSeparate(NULL),
-  glCompileShader(NULL),
-  glCreateProgram(NULL),
-  glCreateShader(NULL),
-  glDeleteProgram(NULL),
-  glDeleteShader(NULL),
-  glDetachShader(NULL),
-  glDisableVertexAttribArray(NULL),
-  glDrawBuffers(NULL),
-  glEnableVertexAttribArray(NULL),
-  glGetActiveAttrib(NULL),
-  glGetActiveUniform(NULL),
-  glGetAttachedShaders(NULL),
-  glGetAttribLocation(NULL),
-  glGetProgramInfoLog(NULL),
-  glGetProgramiv(NULL),
-  glGetShaderInfoLog(NULL),
-  glGetShaderSource(NULL),
-  glGetShaderiv(NULL),
-  glGetUniformLocation(NULL),
-  glGetUniformfv(NULL),
-  glGetUniformiv(NULL),
-  glGetVertexAttribPointerv(NULL),
-  glGetVertexAttribdv(NULL),
-  glGetVertexAttribfv(NULL),
-  glGetVertexAttribiv(NULL),
-  glIsProgram(NULL),
-  glIsShader(NULL),
-  glLinkProgram(NULL),
-  glShaderSource(NULL),
-  glStencilFuncSeparate(NULL),
-  glStencilMaskSeparate(NULL),
-  glStencilOpSeparate(NULL),
-  glUniform1f(NULL),
-  glUniform1fv(NULL),
-  glUniform1i(NULL),
-  glUniform1iv(NULL),
-  glUniform2f(NULL),
-  glUniform2fv(NULL),
-  glUniform2i(NULL),
-  glUniform2iv(NULL),
-  glUniform3f(NULL),
-  glUniform3fv(NULL),
-  glUniform3i(NULL),
-  glUniform3iv(NULL),
-  glUniform4f(NULL),
-  glUniform4fv(NULL),
-  glUniform4i(NULL),
-  glUniform4iv(NULL),
-  glUniformMatrix2fv(NULL),
-  glUniformMatrix3fv(NULL),
-  glUniformMatrix4fv(NULL),
-  glUseProgram(NULL),
-  glValidateProgram(NULL),
-  glVertexAttrib1d(NULL),
-  glVertexAttrib1dv(NULL),
-  glVertexAttrib1f(NULL),
-  glVertexAttrib1fv(NULL),
-  glVertexAttrib1s(NULL),
-  glVertexAttrib1sv(NULL),
-  glVertexAttrib2d(NULL),
-  glVertexAttrib2dv(NULL),
-  glVertexAttrib2f(NULL),
-  glVertexAttrib2fv(NULL),
-  glVertexAttrib2s(NULL),
-  glVertexAttrib2sv(NULL),
-  glVertexAttrib3d(NULL),
-  glVertexAttrib3dv(NULL),
-  glVertexAttrib3f(NULL),
-  glVertexAttrib3fv(NULL),
-  glVertexAttrib3s(NULL),
-  glVertexAttrib3sv(NULL),
-  glVertexAttrib4Nbv(NULL),
-  glVertexAttrib4Niv(NULL),
-  glVertexAttrib4Nsv(NULL),
-  glVertexAttrib4Nub(NULL),
-  glVertexAttrib4Nubv(NULL),
-  glVertexAttrib4Nuiv(NULL),
-  glVertexAttrib4Nusv(NULL),
-  glVertexAttrib4bv(NULL),
-  glVertexAttrib4d(NULL),
-  glVertexAttrib4dv(NULL),
-  glVertexAttrib4f(NULL),
-  glVertexAttrib4fv(NULL),
-  glVertexAttrib4iv(NULL),
-  glVertexAttrib4s(NULL),
-  glVertexAttrib4sv(NULL),
-  glVertexAttrib4ubv(NULL),
-  glVertexAttrib4uiv(NULL),
-  glVertexAttrib4usv(NULL),
-  glVertexAttribPointer(NULL),
-
-  // GL_VERSION_2_1
-  glUniformMatrix2x3fv(NULL),
-  glUniformMatrix2x4fv(NULL),
-  glUniformMatrix3x2fv(NULL),
-  glUniformMatrix3x4fv(NULL),
-  glUniformMatrix4x2fv(NULL),
-  glUniformMatrix4x3fv(NULL),
-
-  // GL_VERSION_3_0
-  glBeginConditionalRender(NULL),
-  glBeginTransformFeedback(NULL),
-  glBindBufferBase(NULL),
-  glBindBufferRange(NULL),
-  glBindFragDataLocation(NULL),
-  glBindFramebuffer(NULL),
-  glBindRenderbuffer(NULL),
-  glBindVertexArray(NULL),
-  glBlitFramebuffer(NULL),
-  glCheckFramebufferStatus(NULL),
-  glClampColor(NULL),
-  glClearBufferfi(NULL),
-  glClearBufferfv(NULL),
-  glClearBufferiv(NULL),
-  glClearBufferuiv(NULL),
-  glColorMaski(NULL),
-  glDeleteFramebuffers(NULL),
-  glDeleteRenderbuffers(NULL),
-  glDeleteVertexArrays(NULL),
-  glDisablei(NULL),
-  glEnablei(NULL),
-  glEndConditionalRender(NULL),
-  glEndTransformFeedback(NULL),
-  glFlushMappedBufferRange(NULL),
-  glFramebufferRenderbuffer(NULL),
-  glFramebufferTexture1D(NULL),
-  glFramebufferTexture2D(NULL),
-  glFramebufferTexture3D(NULL),
-  glFramebufferTextureLayer(NULL),
-  glGenFramebuffers(NULL),
-  glGenRenderbuffers(NULL),
-  glGenVertexArrays(NULL),
-  glGenerateMipmap(NULL),
-  glGetBooleani_v(NULL),
-  glGetFragDataLocation(NULL),
-  glGetFramebufferAttachmentParameteriv(NULL),
-  glGetIntegeri_v(NULL),
-  glGetRenderbufferParameteriv(NULL),
-  glGetStringi(NULL),
-  glGetTexParameterIiv(NULL),
-  glGetTexParameterIuiv(NULL),
-  glGetTransformFeedbackVarying(NULL),
-  glGetUniformuiv(NULL),
-  glGetVertexAttribIiv(NULL),
-  glGetVertexAttribIuiv(NULL),
-  glIsEnabledi(NULL),
-  glIsFramebuffer(NULL),
-  glIsRenderbuffer(NULL),
-  glIsVertexArray(NULL),
-  glMapBufferRange(NULL),
-  glRenderbufferStorage(NULL),
-  glRenderbufferStorageMultisample(NULL),
-  glTexParameterIiv(NULL),
-  glTexParameterIuiv(NULL),
-  glTransformFeedbackVaryings(NULL),
-  glUniform1ui(NULL),
-  glUniform1uiv(NULL),
-  glUniform2ui(NULL),
-  glUniform2uiv(NULL),
-  glUniform3ui(NULL),
-  glUniform3uiv(NULL),
-  glUniform4ui(NULL),
-  glUniform4uiv(NULL),
-  glVertexAttribI1i(NULL),
-  glVertexAttribI1iv(NULL),
-  glVertexAttribI1ui(NULL),
-  glVertexAttribI1uiv(NULL),
-  glVertexAttribI2i(NULL),
-  glVertexAttribI2iv(NULL),
-  glVertexAttribI2ui(NULL),
-  glVertexAttribI2uiv(NULL),
-  glVertexAttribI3i(NULL),
-  glVertexAttribI3iv(NULL),
-  glVertexAttribI3ui(NULL),
-  glVertexAttribI3uiv(NULL),
-  glVertexAttribI4bv(NULL),
-  glVertexAttribI4i(NULL),
-  glVertexAttribI4iv(NULL),
-  glVertexAttribI4sv(NULL),
-  glVertexAttribI4ubv(NULL),
-  glVertexAttribI4ui(NULL),
-  glVertexAttribI4uiv(NULL),
-  glVertexAttribI4usv(NULL),
-  glVertexAttribIPointer(NULL),
-
-  // GL_VERSION_3_1
-  glCopyBufferSubData(NULL),
-  glDrawArraysInstanced(NULL),
-  glDrawElementsInstanced(NULL),
-  glGetActiveUniformBlockName(NULL),
-  glGetActiveUniformBlockiv(NULL),
-  glGetActiveUniformName(NULL),
-  glGetActiveUniformsiv(NULL),
-  glGetUniformBlockIndex(NULL),
-  glGetUniformIndices(NULL),
-  glPrimitiveRestartIndex(NULL),
-  glTexBuffer(NULL),
-  glUniformBlockBinding(NULL),
-
-  // GL_VERSION_3_2
-  glClientWaitSync(NULL),
-  glDeleteSync(NULL),
-  glDrawElementsBaseVertex(NULL),
-  glDrawElementsInstancedBaseVertex(NULL),
-  glDrawRangeElementsBaseVertex(NULL),
-  glFenceSync(NULL),
-  glFramebufferTexture(NULL),
-  glGetBufferParameteri64v(NULL),
-  glGetInteger64i_v(NULL),
-  glGetInteger64v(NULL),
-  glGetMultisamplefv(NULL),
-  glGetSynciv(NULL),
-  glIsSync(NULL),
-  glMultiDrawElementsBaseVertex(NULL),
-  glProvokingVertex(NULL),
-  glSampleMaski(NULL),
-  glTexImage2DMultisample(NULL),
-  glTexImage3DMultisample(NULL),
-  glWaitSync(NULL),
-
-  // GL_VERSION_3_3
-  glBindFragDataLocationIndexed(NULL),
-  glBindSampler(NULL),
-  glDeleteSamplers(NULL),
-  glGenSamplers(NULL),
-  glGetFragDataIndex(NULL),
-  glGetQueryObjecti64v(NULL),
-  glGetQueryObjectui64v(NULL),
-  glGetSamplerParameterIiv(NULL),
-  glGetSamplerParameterIuiv(NULL),
-  glGetSamplerParameterfv(NULL),
-  glGetSamplerParameteriv(NULL),
-  glIsSampler(NULL),
-  glQueryCounter(NULL),
-  glSamplerParameterIiv(NULL),
-  glSamplerParameterIuiv(NULL),
-  glSamplerParameterf(NULL),
-  glSamplerParameterfv(NULL),
-  glSamplerParameteri(NULL),
-  glSamplerParameteriv(NULL),
-  glVertexAttribDivisor(NULL),
-  glVertexAttribP1ui(NULL),
-  glVertexAttribP1uiv(NULL),
-  glVertexAttribP2ui(NULL),
-  glVertexAttribP2uiv(NULL),
-  glVertexAttribP3ui(NULL),
-  glVertexAttribP3uiv(NULL),
-  glVertexAttribP4ui(NULL),
-  glVertexAttribP4uiv(NULL),
-
-  // GL_VERSION_4_0
-  glBeginQueryIndexed(NULL),
-  glBindTransformFeedback(NULL),
-  glBlendEquationSeparatei(NULL),
-  glBlendEquationi(NULL),
-  glBlendFuncSeparatei(NULL),
-  glBlendFunci(NULL),
-  glDeleteTransformFeedbacks(NULL),
-  glDrawArraysIndirect(NULL),
-  glDrawElementsIndirect(NULL),
-  glDrawTransformFeedback(NULL),
-  glDrawTransformFeedbackStream(NULL),
-  glEndQueryIndexed(NULL),
-  glGenTransformFeedbacks(NULL),
-  glGetActiveSubroutineName(NULL),
-  glGetActiveSubroutineUniformName(NULL),
-  glGetActiveSubroutineUniformiv(NULL),
-  glGetProgramStageiv(NULL),
-  glGetQueryIndexediv(NULL),
-  glGetSubroutineIndex(NULL),
-  glGetSubroutineUniformLocation(NULL),
-  glGetUniformSubroutineuiv(NULL),
-  glGetUniformdv(NULL),
-  glIsTransformFeedback(NULL),
-  glMinSampleShading(NULL),
-  glPatchParameterfv(NULL),
-  glPatchParameteri(NULL),
-  glPauseTransformFeedback(NULL),
-  glResumeTransformFeedback(NULL),
-  glUniform1d(NULL),
-  glUniform1dv(NULL),
-  glUniform2d(NULL),
-  glUniform2dv(NULL),
-  glUniform3d(NULL),
-  glUniform3dv(NULL),
-  glUniform4d(NULL),
-  glUniform4dv(NULL),
-  glUniformMatrix2dv(NULL),
-  glUniformMatrix2x3dv(NULL),
-  glUniformMatrix2x4dv(NULL),
-  glUniformMatrix3dv(NULL),
-  glUniformMatrix3x2dv(NULL),
-  glUniformMatrix3x4dv(NULL),
-  glUniformMatrix4dv(NULL),
-  glUniformMatrix4x2dv(NULL),
-  glUniformMatrix4x3dv(NULL),
-  glUniformSubroutinesuiv(NULL),
-
-  // GL_VERSION_4_1
-  glActiveShaderProgram(NULL),
-  glBindProgramPipeline(NULL),
-  glClearDepthf(NULL),
-  glCreateShaderProgramv(NULL),
-  glDeleteProgramPipelines(NULL),
-  glDepthRangeArrayv(NULL),
-  glDepthRangeIndexed(NULL),
-  glDepthRangef(NULL),
-  glGenProgramPipelines(NULL),
-  glGetDoublei_v(NULL),
-  glGetFloati_v(NULL),
-  glGetProgramBinary(NULL),
-  glGetProgramPipelineInfoLog(NULL),
-  glGetProgramPipelineiv(NULL),
-  glGetShaderPrecisionFormat(NULL),
-  glGetVertexAttribLdv(NULL),
-  glIsProgramPipeline(NULL),
-  glProgramBinary(NULL),
-  glProgramParameteri(NULL),
-  glProgramUniform1d(NULL),
-  glProgramUniform1dv(NULL),
-  glProgramUniform1f(NULL),
-  glProgramUniform1fv(NULL),
-  glProgramUniform1i(NULL),
-  glProgramUniform1iv(NULL),
-  glProgramUniform1ui(NULL),
-  glProgramUniform1uiv(NULL),
-  glProgramUniform2d(NULL),
-  glProgramUniform2dv(NULL),
-  glProgramUniform2f(NULL),
-  glProgramUniform2fv(NULL),
-  glProgramUniform2i(NULL),
-  glProgramUniform2iv(NULL),
-  glProgramUniform2ui(NULL),
-  glProgramUniform2uiv(NULL),
-  glProgramUniform3d(NULL),
-  glProgramUniform3dv(NULL),
-  glProgramUniform3f(NULL),
-  glProgramUniform3fv(NULL),
-  glProgramUniform3i(NULL),
-  glProgramUniform3iv(NULL),
-  glProgramUniform3ui(NULL),
-  glProgramUniform3uiv(NULL),
-  glProgramUniform4d(NULL),
-  glProgramUniform4dv(NULL),
-  glProgramUniform4f(NULL),
-  glProgramUniform4fv(NULL),
-  glProgramUniform4i(NULL),
-  glProgramUniform4iv(NULL),
-  glProgramUniform4ui(NULL),
-  glProgramUniform4uiv(NULL),
-  glProgramUniformMatrix2dv(NULL),
-  glProgramUniformMatrix2fv(NULL),
-  glProgramUniformMatrix2x3dv(NULL),
-  glProgramUniformMatrix2x3fv(NULL),
-  glProgramUniformMatrix2x4dv(NULL),
-  glProgramUniformMatrix2x4fv(NULL),
-  glProgramUniformMatrix3dv(NULL),
-  glProgramUniformMatrix3fv(NULL),
-  glProgramUniformMatrix3x2dv(NULL),
-  glProgramUniformMatrix3x2fv(NULL),
-  glProgramUniformMatrix3x4dv(NULL),
-  glProgramUniformMatrix3x4fv(NULL),
-  glProgramUniformMatrix4dv(NULL),
-  glProgramUniformMatrix4fv(NULL),
-  glProgramUniformMatrix4x2dv(NULL),
-  glProgramUniformMatrix4x2fv(NULL),
-  glProgramUniformMatrix4x3dv(NULL),
-  glProgramUniformMatrix4x3fv(NULL),
-  glReleaseShaderCompiler(NULL),
-  glScissorArrayv(NULL),
-  glScissorIndexed(NULL),
-  glScissorIndexedv(NULL),
-  glShaderBinary(NULL),
-  glUseProgramStages(NULL),
-  glValidateProgramPipeline(NULL),
-  glVertexAttribL1d(NULL),
-  glVertexAttribL1dv(NULL),
-  glVertexAttribL2d(NULL),
-  glVertexAttribL2dv(NULL),
-  glVertexAttribL3d(NULL),
-  glVertexAttribL3dv(NULL),
-  glVertexAttribL4d(NULL),
-  glVertexAttribL4dv(NULL),
-  glVertexAttribLPointer(NULL),
-  glViewportArrayv(NULL),
-  glViewportIndexedf(NULL),
-  glViewportIndexedfv(NULL),
-
-  // GL_VERSION_4_2
-  glBindImageTexture(NULL),
-  glDrawArraysInstancedBaseInstance(NULL),
-  glDrawElementsInstancedBaseInstance(NULL),
-  glDrawElementsInstancedBaseVertexBaseInstance(NULL),
-  glDrawTransformFeedbackInstanced(NULL),
-  glDrawTransformFeedbackStreamInstanced(NULL),
-  glGetActiveAtomicCounterBufferiv(NULL),
-  glGetInternalformativ(NULL),
-  glMemoryBarrier(NULL),
-  glTexStorage1D(NULL),
-  glTexStorage2D(NULL),
-  glTexStorage3D(NULL),
-
-  // GL_VERSION_4_3
-  glBindVertexBuffer(NULL),
-  glClearBufferData(NULL),
-  glClearBufferSubData(NULL),
-  glCopyImageSubData(NULL),
-  glDebugMessageCallback(NULL),
-  glDebugMessageControl(NULL),
-  glDebugMessageInsert(NULL),
-  glDispatchCompute(NULL),
-  glDispatchComputeIndirect(NULL),
-  glFramebufferParameteri(NULL),
-  glGetDebugMessageLog(NULL),
-  glGetFramebufferParameteriv(NULL),
-  glGetInternalformati64v(NULL),
-  glGetObjectLabel(NULL),
-  glGetObjectPtrLabel(NULL),
-  glGetProgramInterfaceiv(NULL),
-  glGetProgramResourceIndex(NULL),
-  glGetProgramResourceLocation(NULL),
-  glGetProgramResourceLocationIndex(NULL),
-  glGetProgramResourceName(NULL),
-  glGetProgramResourceiv(NULL),
-  glInvalidateBufferData(NULL),
-  glInvalidateBufferSubData(NULL),
-  glInvalidateFramebuffer(NULL),
-  glInvalidateSubFramebuffer(NULL),
-  glInvalidateTexImage(NULL),
-  glInvalidateTexSubImage(NULL),
-  glMultiDrawArraysIndirect(NULL),
-  glMultiDrawElementsIndirect(NULL),
-  glObjectLabel(NULL),
-  glObjectPtrLabel(NULL),
-  glPopDebugGroup(NULL),
-  glPushDebugGroup(NULL),
-  glShaderStorageBlockBinding(NULL),
-  glTexBufferRange(NULL),
-  glTexStorage2DMultisample(NULL),
-  glTexStorage3DMultisample(NULL),
-  glTextureView(NULL),
-  glVertexAttribBinding(NULL),
-  glVertexAttribFormat(NULL),
-  glVertexAttribIFormat(NULL),
-  glVertexAttribLFormat(NULL),
-  glVertexBindingDivisor(NULL),
-
-  // GL_VERSION_4_4
-  glBindBuffersBase(NULL),
-  glBindBuffersRange(NULL),
-  glBindImageTextures(NULL),
-  glBindSamplers(NULL),
-  glBindTextures(NULL),
-  glBindVertexBuffers(NULL),
-  glBufferStorage(NULL),
-  glClearTexImage(NULL),
-  glClearTexSubImage(NULL),
-
-  // GL_VERSION_4_5
-  glBindTextureUnit(NULL),
-  glBlitNamedFramebuffer(NULL),
-  glCheckNamedFramebufferStatus(NULL),
-  glClearNamedBufferData(NULL),
-  glClearNamedBufferSubData(NULL),
-  glClearNamedFramebufferfi(NULL),
-  glClearNamedFramebufferfv(NULL),
-  glClearNamedFramebufferiv(NULL),
-  glClearNamedFramebufferuiv(NULL),
-  glClipControl(NULL),
-  glCompressedTextureSubImage1D(NULL),
-  glCompressedTextureSubImage2D(NULL),
-  glCompressedTextureSubImage3D(NULL),
-  glCopyNamedBufferSubData(NULL),
-  glCopyTextureSubImage1D(NULL),
-  glCopyTextureSubImage2D(NULL),
-  glCopyTextureSubImage3D(NULL),
-  glCreateBuffers(NULL),
-  glCreateFramebuffers(NULL),
-  glCreateProgramPipelines(NULL),
-  glCreateQueries(NULL),
-  glCreateRenderbuffers(NULL),
-  glCreateSamplers(NULL),
-  glCreateTextures(NULL),
-  glCreateTransformFeedbacks(NULL),
-  glCreateVertexArrays(NULL),
-  glDisableVertexArrayAttrib(NULL),
-  glEnableVertexArrayAttrib(NULL),
-  glFlushMappedNamedBufferRange(NULL),
-  glGenerateTextureMipmap(NULL),
-  glGetCompressedTextureImage(NULL),
-  glGetCompressedTextureSubImage(NULL),
-  glGetGraphicsResetStatus(NULL),
-  glGetNamedBufferParameteri64v(NULL),
-  glGetNamedBufferParameteriv(NULL),
-  glGetNamedBufferPointerv(NULL),
-  glGetNamedBufferSubData(NULL),
-  glGetNamedFramebufferAttachmentParameteriv(NULL),
-  glGetNamedFramebufferParameteriv(NULL),
-  glGetNamedRenderbufferParameteriv(NULL),
-  glGetQueryBufferObjecti64v(NULL),
-  glGetQueryBufferObjectiv(NULL),
-  glGetQueryBufferObjectui64v(NULL),
-  glGetQueryBufferObjectuiv(NULL),
-  glGetTextureImage(NULL),
-  glGetTextureLevelParameterfv(NULL),
-  glGetTextureLevelParameteriv(NULL),
-  glGetTextureParameterIiv(NULL),
-  glGetTextureParameterIuiv(NULL),
-  glGetTextureParameterfv(NULL),
-  glGetTextureParameteriv(NULL),
-  glGetTextureSubImage(NULL),
-  glGetTransformFeedbacki64_v(NULL),
-  glGetTransformFeedbacki_v(NULL),
-  glGetTransformFeedbackiv(NULL),
-  glGetVertexArrayIndexed64iv(NULL),
-  glGetVertexArrayIndexediv(NULL),
-  glGetVertexArrayiv(NULL),
-  glGetnCompressedTexImage(NULL),
-  glGetnTexImage(NULL),
-  glGetnUniformdv(NULL),
-  glGetnUniformfv(NULL),
-  glGetnUniformiv(NULL),
-  glGetnUniformuiv(NULL),
-  glInvalidateNamedFramebufferData(NULL),
-  glInvalidateNamedFramebufferSubData(NULL),
-  glMapNamedBuffer(NULL),
-  glMapNamedBufferRange(NULL),
-  glMemoryBarrierByRegion(NULL),
-  glNamedBufferData(NULL),
-  glNamedBufferStorage(NULL),
-  glNamedBufferSubData(NULL),
-  glNamedFramebufferDrawBuffer(NULL),
-  glNamedFramebufferDrawBuffers(NULL),
-  glNamedFramebufferParameteri(NULL),
-  glNamedFramebufferReadBuffer(NULL),
-  glNamedFramebufferRenderbuffer(NULL),
-  glNamedFramebufferTexture(NULL),
-  glNamedFramebufferTextureLayer(NULL),
-  glNamedRenderbufferStorage(NULL),
-  glNamedRenderbufferStorageMultisample(NULL),
-  glReadnPixels(NULL),
-  glTextureBarrier(NULL),
-  glTextureBuffer(NULL),
-  glTextureBufferRange(NULL),
-  glTextureParameterIiv(NULL),
-  glTextureParameterIuiv(NULL),
-  glTextureParameterf(NULL),
-  glTextureParameterfv(NULL),
-  glTextureParameteri(NULL),
-  glTextureParameteriv(NULL),
-  glTextureStorage1D(NULL),
-  glTextureStorage2D(NULL),
-  glTextureStorage2DMultisample(NULL),
-  glTextureStorage3D(NULL),
-  glTextureStorage3DMultisample(NULL),
-  glTextureSubImage1D(NULL),
-  glTextureSubImage2D(NULL),
-  glTextureSubImage3D(NULL),
-  glTransformFeedbackBufferBase(NULL),
-  glTransformFeedbackBufferRange(NULL),
-  glUnmapNamedBuffer(NULL),
-  glVertexArrayAttribBinding(NULL),
-  glVertexArrayAttribFormat(NULL),
-  glVertexArrayAttribIFormat(NULL),
-  glVertexArrayAttribLFormat(NULL),
-  glVertexArrayBindingDivisor(NULL),
-  glVertexArrayElementBuffer(NULL),
-  glVertexArrayVertexBuffer(NULL),
-  glVertexArrayVertexBuffers(NULL)
-{
-}
-//------------------------------------------------------------------------------
-inline void COpenGL::initializeGLFunctions(NEngine::EGPUPlatform explicitPlatofrm)
-{
-  const NEngine::EGPUPlatform platform = (explicitPlatofrm == NEngine::GPU_PLATFORM_KEEP) ? context->engineGetEngine()->gpuPlatform : explicitPlatofrm;
-
-  context->log("Loading OpenGL Functions...");
-
-  // GL_VERSION_1_2
-  if(platform >= NEngine::GPU_PLATFORM_GL0102)
-  {
-    glCopyTexSubImage3D = reinterpret_cast<NOpenGLProc::TCopyTexSubImage3D>(GL_GET_EXTENSION("glCopyTexSubImage3D"));
-    glDrawRangeElements = reinterpret_cast<NOpenGLProc::TDrawRangeElements>(GL_GET_EXTENSION("glDrawRangeElements"));
-    glTexImage3D = reinterpret_cast<NOpenGLProc::TTexImage3D>(GL_GET_EXTENSION("glTexImage3D"));
-    glTexSubImage3D = reinterpret_cast<NOpenGLProc::TTexSubImage3D>(GL_GET_EXTENSION("glTexSubImage3D"));
-  }
-
-  // GL_VERSION_1_3
-  if(platform >= NEngine::GPU_PLATFORM_GL0103)
-  {
-    glActiveTexture = reinterpret_cast<NOpenGLProc::TActiveTexture>(GL_GET_EXTENSION("glActiveTexture"));
-    glCompressedTexImage1D = reinterpret_cast<NOpenGLProc::TCompressedTexImage1D>(GL_GET_EXTENSION("glCompressedTexImage1D"));
-    glCompressedTexImage2D = reinterpret_cast<NOpenGLProc::TCompressedTexImage2D>(GL_GET_EXTENSION("glCompressedTexImage2D"));
-    glCompressedTexImage3D = reinterpret_cast<NOpenGLProc::TCompressedTexImage3D>(GL_GET_EXTENSION("glCompressedTexImage3D"));
-    glCompressedTexSubImage1D = reinterpret_cast<NOpenGLProc::TCompressedTexSubImage1D>(GL_GET_EXTENSION("glCompressedTexSubImage1D"));
-    glCompressedTexSubImage2D = reinterpret_cast<NOpenGLProc::TCompressedTexSubImage2D>(GL_GET_EXTENSION("glCompressedTexSubImage2D"));
-    glCompressedTexSubImage3D = reinterpret_cast<NOpenGLProc::TCompressedTexSubImage3D>(GL_GET_EXTENSION("glCompressedTexSubImage3D"));
-    glGetCompressedTexImage = reinterpret_cast<NOpenGLProc::TGetCompressedTexImage>(GL_GET_EXTENSION("glGetCompressedTexImage"));
-    glSampleCoverage = reinterpret_cast<NOpenGLProc::TSampleCoverage>(GL_GET_EXTENSION("glSampleCoverage"));
-  }
-
-  // GL_VERSION_1_4
-  if(platform >= NEngine::GPU_PLATFORM_GL0104)
-  {
-    glBlendColor = reinterpret_cast<NOpenGLProc::TBlendColor>(GL_GET_EXTENSION("glBlendColor"));
-    glBlendEquation = reinterpret_cast<NOpenGLProc::TBlendEquation>(GL_GET_EXTENSION("glBlendEquation"));
-    glBlendFuncSeparate = reinterpret_cast<NOpenGLProc::TBlendFuncSeparate>(GL_GET_EXTENSION("glBlendFuncSeparate"));
-    glMultiDrawArrays = reinterpret_cast<NOpenGLProc::TMultiDrawArrays>(GL_GET_EXTENSION("glMultiDrawArrays"));
-    glMultiDrawElements = reinterpret_cast<NOpenGLProc::TMultiDrawElements>(GL_GET_EXTENSION("glMultiDrawElements"));
-    glPointParameterf = reinterpret_cast<NOpenGLProc::TPointParameterf>(GL_GET_EXTENSION("glPointParameterf"));
-    glPointParameterfv = reinterpret_cast<NOpenGLProc::TPointParameterfv>(GL_GET_EXTENSION("glPointParameterfv"));
-    glPointParameteri = reinterpret_cast<NOpenGLProc::TPointParameteri>(GL_GET_EXTENSION("glPointParameteri"));
-    glPointParameteriv = reinterpret_cast<NOpenGLProc::TPointParameteriv>(GL_GET_EXTENSION("glPointParameteriv"));
-  }
-
-  // GL_VERSION_1_5
-  if(platform >= NEngine::GPU_PLATFORM_GL0105)
-  {
-    glBeginQuery = reinterpret_cast<NOpenGLProc::TBeginQuery>(GL_GET_EXTENSION("glBeginQuery"));
-    glBindBuffer = reinterpret_cast<NOpenGLProc::TBindBuffer>(GL_GET_EXTENSION("glBindBuffer"));
-    glBufferData = reinterpret_cast<NOpenGLProc::TBufferData>(GL_GET_EXTENSION("glBufferData"));
-    glBufferSubData = reinterpret_cast<NOpenGLProc::TBufferSubData>(GL_GET_EXTENSION("glBufferSubData"));
-    glDeleteBuffers = reinterpret_cast<NOpenGLProc::TDeleteBuffers>(GL_GET_EXTENSION("glDeleteBuffers"));
-    glDeleteQueries = reinterpret_cast<NOpenGLProc::TDeleteQueries>(GL_GET_EXTENSION("glDeleteQueries"));
-    glEndQuery = reinterpret_cast<NOpenGLProc::TEndQuery>(GL_GET_EXTENSION("glEndQuery"));
-    glGenBuffers = reinterpret_cast<NOpenGLProc::TGenBuffers>(GL_GET_EXTENSION("glGenBuffers"));
-    glGenQueries = reinterpret_cast<NOpenGLProc::TGenQueries>(GL_GET_EXTENSION("glGenQueries"));
-    glGetBufferParameteriv = reinterpret_cast<NOpenGLProc::TGetBufferParameteriv>(GL_GET_EXTENSION("glGetBufferParameteriv"));
-    glGetBufferPointerv = reinterpret_cast<NOpenGLProc::TGetBufferPointerv>(GL_GET_EXTENSION("glGetBufferPointerv"));
-    glGetBufferSubData = reinterpret_cast<NOpenGLProc::TGetBufferSubData>(GL_GET_EXTENSION("glGetBufferSubData"));
-    glGetQueryObjectiv = reinterpret_cast<NOpenGLProc::TGetQueryObjectiv>(GL_GET_EXTENSION("glGetQueryObjectiv"));
-    glGetQueryObjectuiv = reinterpret_cast<NOpenGLProc::TGetQueryObjectuiv>(GL_GET_EXTENSION("glGetQueryObjectuiv"));
-    glGetQueryiv = reinterpret_cast<NOpenGLProc::TGetQueryiv>(GL_GET_EXTENSION("glGetQueryiv"));
-    glIsBuffer = reinterpret_cast<NOpenGLProc::TIsBuffer>(GL_GET_EXTENSION("glIsBuffer"));
-    glIsQuery = reinterpret_cast<NOpenGLProc::TIsQuery>(GL_GET_EXTENSION("glIsQuery"));
-    glMapBuffer = reinterpret_cast<NOpenGLProc::TMapBuffer>(GL_GET_EXTENSION("glMapBuffer"));
-    glUnmapBuffer = reinterpret_cast<NOpenGLProc::TUnmapBuffer>(GL_GET_EXTENSION("glUnmapBuffer"));
-  }
-
-  // GL_VERSION_2_0
-  if(platform >= NEngine::GPU_PLATFORM_GL0200)
-  {
-    glAttachShader = reinterpret_cast<NOpenGLProc::TAttachShader>(GL_GET_EXTENSION("glAttachShader"));
-    glBindAttribLocation = reinterpret_cast<NOpenGLProc::TBindAttribLocation>(GL_GET_EXTENSION("glBindAttribLocation"));
-    glBlendEquationSeparate = reinterpret_cast<NOpenGLProc::TBlendEquationSeparate>(GL_GET_EXTENSION("glBlendEquationSeparate"));
-    glCompileShader = reinterpret_cast<NOpenGLProc::TCompileShader>(GL_GET_EXTENSION("glCompileShader"));
-    glCreateProgram = reinterpret_cast<NOpenGLProc::TCreateProgram>(GL_GET_EXTENSION("glCreateProgram"));
-    glCreateShader = reinterpret_cast<NOpenGLProc::TCreateShader>(GL_GET_EXTENSION("glCreateShader"));
-    glDeleteProgram = reinterpret_cast<NOpenGLProc::TDeleteProgram>(GL_GET_EXTENSION("glDeleteProgram"));
-    glDeleteShader = reinterpret_cast<NOpenGLProc::TDeleteShader>(GL_GET_EXTENSION("glDeleteShader"));
-    glDetachShader = reinterpret_cast<NOpenGLProc::TDetachShader>(GL_GET_EXTENSION("glDetachShader"));
-    glDisableVertexAttribArray = reinterpret_cast<NOpenGLProc::TDisableVertexAttribArray>(GL_GET_EXTENSION("glDisableVertexAttribArray"));
-    glDrawBuffers = reinterpret_cast<NOpenGLProc::TDrawBuffers>(GL_GET_EXTENSION("glDrawBuffers"));
-    glEnableVertexAttribArray = reinterpret_cast<NOpenGLProc::TEnableVertexAttribArray>(GL_GET_EXTENSION("glEnableVertexAttribArray"));
-    glGetActiveAttrib = reinterpret_cast<NOpenGLProc::TGetActiveAttrib>(GL_GET_EXTENSION("glGetActiveAttrib"));
-    glGetActiveUniform = reinterpret_cast<NOpenGLProc::TGetActiveUniform>(GL_GET_EXTENSION("glGetActiveUniform"));
-    glGetAttachedShaders = reinterpret_cast<NOpenGLProc::TGetAttachedShaders>(GL_GET_EXTENSION("glGetAttachedShaders"));
-    glGetAttribLocation = reinterpret_cast<NOpenGLProc::TGetAttribLocation>(GL_GET_EXTENSION("glGetAttribLocation"));
-    glGetProgramInfoLog = reinterpret_cast<NOpenGLProc::TGetProgramInfoLog>(GL_GET_EXTENSION("glGetProgramInfoLog"));
-    glGetProgramiv = reinterpret_cast<NOpenGLProc::TGetProgramiv>(GL_GET_EXTENSION("glGetProgramiv"));
-    glGetShaderInfoLog = reinterpret_cast<NOpenGLProc::TGetShaderInfoLog>(GL_GET_EXTENSION("glGetShaderInfoLog"));
-    glGetShaderSource = reinterpret_cast<NOpenGLProc::TGetShaderSource>(GL_GET_EXTENSION("glGetShaderSource"));
-    glGetShaderiv = reinterpret_cast<NOpenGLProc::TGetShaderiv>(GL_GET_EXTENSION("glGetShaderiv"));
-    glGetUniformLocation = reinterpret_cast<NOpenGLProc::TGetUniformLocation>(GL_GET_EXTENSION("glGetUniformLocation"));
-    glGetUniformfv = reinterpret_cast<NOpenGLProc::TGetUniformfv>(GL_GET_EXTENSION("glGetUniformfv"));
-    glGetUniformiv = reinterpret_cast<NOpenGLProc::TGetUniformiv>(GL_GET_EXTENSION("glGetUniformiv"));
-    glGetVertexAttribPointerv = reinterpret_cast<NOpenGLProc::TGetVertexAttribPointerv>(GL_GET_EXTENSION("glGetVertexAttribPointerv"));
-    glGetVertexAttribdv = reinterpret_cast<NOpenGLProc::TGetVertexAttribdv>(GL_GET_EXTENSION("glGetVertexAttribdv"));
-    glGetVertexAttribfv = reinterpret_cast<NOpenGLProc::TGetVertexAttribfv>(GL_GET_EXTENSION("glGetVertexAttribfv"));
-    glGetVertexAttribiv = reinterpret_cast<NOpenGLProc::TGetVertexAttribiv>(GL_GET_EXTENSION("glGetVertexAttribiv"));
-    glIsProgram = reinterpret_cast<NOpenGLProc::TIsProgram>(GL_GET_EXTENSION("glIsProgram"));
-    glIsShader = reinterpret_cast<NOpenGLProc::TIsShader>(GL_GET_EXTENSION("glIsShader"));
-    glLinkProgram = reinterpret_cast<NOpenGLProc::TLinkProgram>(GL_GET_EXTENSION("glLinkProgram"));
-    glShaderSource = reinterpret_cast<NOpenGLProc::TShaderSource>(GL_GET_EXTENSION("glShaderSource"));
-    glStencilFuncSeparate = reinterpret_cast<NOpenGLProc::TStencilFuncSeparate>(GL_GET_EXTENSION("glStencilFuncSeparate"));
-    glStencilMaskSeparate = reinterpret_cast<NOpenGLProc::TStencilMaskSeparate>(GL_GET_EXTENSION("glStencilMaskSeparate"));
-    glStencilOpSeparate = reinterpret_cast<NOpenGLProc::TStencilOpSeparate>(GL_GET_EXTENSION("glStencilOpSeparate"));
-    glUniform1f = reinterpret_cast<NOpenGLProc::TUniform1f>(GL_GET_EXTENSION("glUniform1f"));
-    glUniform1fv = reinterpret_cast<NOpenGLProc::TUniform1fv>(GL_GET_EXTENSION("glUniform1fv"));
-    glUniform1i = reinterpret_cast<NOpenGLProc::TUniform1i>(GL_GET_EXTENSION("glUniform1i"));
-    glUniform1iv = reinterpret_cast<NOpenGLProc::TUniform1iv>(GL_GET_EXTENSION("glUniform1iv"));
-    glUniform2f = reinterpret_cast<NOpenGLProc::TUniform2f>(GL_GET_EXTENSION("glUniform2f"));
-    glUniform2fv = reinterpret_cast<NOpenGLProc::TUniform2fv>(GL_GET_EXTENSION("glUniform2fv"));
-    glUniform2i = reinterpret_cast<NOpenGLProc::TUniform2i>(GL_GET_EXTENSION("glUniform2i"));
-    glUniform2iv = reinterpret_cast<NOpenGLProc::TUniform2iv>(GL_GET_EXTENSION("glUniform2iv"));
-    glUniform3f = reinterpret_cast<NOpenGLProc::TUniform3f>(GL_GET_EXTENSION("glUniform3f"));
-    glUniform3fv = reinterpret_cast<NOpenGLProc::TUniform3fv>(GL_GET_EXTENSION("glUniform3fv"));
-    glUniform3i = reinterpret_cast<NOpenGLProc::TUniform3i>(GL_GET_EXTENSION("glUniform3i"));
-    glUniform3iv = reinterpret_cast<NOpenGLProc::TUniform3iv>(GL_GET_EXTENSION("glUniform3iv"));
-    glUniform4f = reinterpret_cast<NOpenGLProc::TUniform4f>(GL_GET_EXTENSION("glUniform4f"));
-    glUniform4fv = reinterpret_cast<NOpenGLProc::TUniform4fv>(GL_GET_EXTENSION("glUniform4fv"));
-    glUniform4i = reinterpret_cast<NOpenGLProc::TUniform4i>(GL_GET_EXTENSION("glUniform4i"));
-    glUniform4iv = reinterpret_cast<NOpenGLProc::TUniform4iv>(GL_GET_EXTENSION("glUniform4iv"));
-    glUniformMatrix2fv = reinterpret_cast<NOpenGLProc::TUniformMatrix2fv>(GL_GET_EXTENSION("glUniformMatrix2fv"));
-    glUniformMatrix3fv = reinterpret_cast<NOpenGLProc::TUniformMatrix3fv>(GL_GET_EXTENSION("glUniformMatrix3fv"));
-    glUniformMatrix4fv = reinterpret_cast<NOpenGLProc::TUniformMatrix4fv>(GL_GET_EXTENSION("glUniformMatrix4fv"));
-    glUseProgram = reinterpret_cast<NOpenGLProc::TUseProgram>(GL_GET_EXTENSION("glUseProgram"));
-    glValidateProgram = reinterpret_cast<NOpenGLProc::TValidateProgram>(GL_GET_EXTENSION("glValidateProgram"));
-    glVertexAttrib1d = reinterpret_cast<NOpenGLProc::TVertexAttrib1d>(GL_GET_EXTENSION("glVertexAttrib1d"));
-    glVertexAttrib1dv = reinterpret_cast<NOpenGLProc::TVertexAttrib1dv>(GL_GET_EXTENSION("glVertexAttrib1dv"));
-    glVertexAttrib1f = reinterpret_cast<NOpenGLProc::TVertexAttrib1f>(GL_GET_EXTENSION("glVertexAttrib1f"));
-    glVertexAttrib1fv = reinterpret_cast<NOpenGLProc::TVertexAttrib1fv>(GL_GET_EXTENSION("glVertexAttrib1fv"));
-    glVertexAttrib1s = reinterpret_cast<NOpenGLProc::TVertexAttrib1s>(GL_GET_EXTENSION("glVertexAttrib1s"));
-    glVertexAttrib1sv = reinterpret_cast<NOpenGLProc::TVertexAttrib1sv>(GL_GET_EXTENSION("glVertexAttrib1sv"));
-    glVertexAttrib2d = reinterpret_cast<NOpenGLProc::TVertexAttrib2d>(GL_GET_EXTENSION("glVertexAttrib2d"));
-    glVertexAttrib2dv = reinterpret_cast<NOpenGLProc::TVertexAttrib2dv>(GL_GET_EXTENSION("glVertexAttrib2dv"));
-    glVertexAttrib2f = reinterpret_cast<NOpenGLProc::TVertexAttrib2f>(GL_GET_EXTENSION("glVertexAttrib2f"));
-    glVertexAttrib2fv = reinterpret_cast<NOpenGLProc::TVertexAttrib2fv>(GL_GET_EXTENSION("glVertexAttrib2fv"));
-    glVertexAttrib2s = reinterpret_cast<NOpenGLProc::TVertexAttrib2s>(GL_GET_EXTENSION("glVertexAttrib2s"));
-    glVertexAttrib2sv = reinterpret_cast<NOpenGLProc::TVertexAttrib2sv>(GL_GET_EXTENSION("glVertexAttrib2sv"));
-    glVertexAttrib3d = reinterpret_cast<NOpenGLProc::TVertexAttrib3d>(GL_GET_EXTENSION("glVertexAttrib3d"));
-    glVertexAttrib3dv = reinterpret_cast<NOpenGLProc::TVertexAttrib3dv>(GL_GET_EXTENSION("glVertexAttrib3dv"));
-    glVertexAttrib3f = reinterpret_cast<NOpenGLProc::TVertexAttrib3f>(GL_GET_EXTENSION("glVertexAttrib3f"));
-    glVertexAttrib3fv = reinterpret_cast<NOpenGLProc::TVertexAttrib3fv>(GL_GET_EXTENSION("glVertexAttrib3fv"));
-    glVertexAttrib3s = reinterpret_cast<NOpenGLProc::TVertexAttrib3s>(GL_GET_EXTENSION("glVertexAttrib3s"));
-    glVertexAttrib3sv = reinterpret_cast<NOpenGLProc::TVertexAttrib3sv>(GL_GET_EXTENSION("glVertexAttrib3sv"));
-    glVertexAttrib4Nbv = reinterpret_cast<NOpenGLProc::TVertexAttrib4Nbv>(GL_GET_EXTENSION("glVertexAttrib4Nbv"));
-    glVertexAttrib4Niv = reinterpret_cast<NOpenGLProc::TVertexAttrib4Niv>(GL_GET_EXTENSION("glVertexAttrib4Niv"));
-    glVertexAttrib4Nsv = reinterpret_cast<NOpenGLProc::TVertexAttrib4Nsv>(GL_GET_EXTENSION("glVertexAttrib4Nsv"));
-    glVertexAttrib4Nub = reinterpret_cast<NOpenGLProc::TVertexAttrib4Nub>(GL_GET_EXTENSION("glVertexAttrib4Nub"));
-    glVertexAttrib4Nubv = reinterpret_cast<NOpenGLProc::TVertexAttrib4Nubv>(GL_GET_EXTENSION("glVertexAttrib4Nubv"));
-    glVertexAttrib4Nuiv = reinterpret_cast<NOpenGLProc::TVertexAttrib4Nuiv>(GL_GET_EXTENSION("glVertexAttrib4Nuiv"));
-    glVertexAttrib4Nusv = reinterpret_cast<NOpenGLProc::TVertexAttrib4Nusv>(GL_GET_EXTENSION("glVertexAttrib4Nusv"));
-    glVertexAttrib4bv = reinterpret_cast<NOpenGLProc::TVertexAttrib4bv>(GL_GET_EXTENSION("glVertexAttrib4bv"));
-    glVertexAttrib4d = reinterpret_cast<NOpenGLProc::TVertexAttrib4d>(GL_GET_EXTENSION("glVertexAttrib4d"));
-    glVertexAttrib4dv = reinterpret_cast<NOpenGLProc::TVertexAttrib4dv>(GL_GET_EXTENSION("glVertexAttrib4dv"));
-    glVertexAttrib4f = reinterpret_cast<NOpenGLProc::TVertexAttrib4f>(GL_GET_EXTENSION("glVertexAttrib4f"));
-    glVertexAttrib4fv = reinterpret_cast<NOpenGLProc::TVertexAttrib4fv>(GL_GET_EXTENSION("glVertexAttrib4fv"));
-    glVertexAttrib4iv = reinterpret_cast<NOpenGLProc::TVertexAttrib4iv>(GL_GET_EXTENSION("glVertexAttrib4iv"));
-    glVertexAttrib4s = reinterpret_cast<NOpenGLProc::TVertexAttrib4s>(GL_GET_EXTENSION("glVertexAttrib4s"));
-    glVertexAttrib4sv = reinterpret_cast<NOpenGLProc::TVertexAttrib4sv>(GL_GET_EXTENSION("glVertexAttrib4sv"));
-    glVertexAttrib4ubv = reinterpret_cast<NOpenGLProc::TVertexAttrib4ubv>(GL_GET_EXTENSION("glVertexAttrib4ubv"));
-    glVertexAttrib4uiv = reinterpret_cast<NOpenGLProc::TVertexAttrib4uiv>(GL_GET_EXTENSION("glVertexAttrib4uiv"));
-    glVertexAttrib4usv = reinterpret_cast<NOpenGLProc::TVertexAttrib4usv>(GL_GET_EXTENSION("glVertexAttrib4usv"));
-    glVertexAttribPointer = reinterpret_cast<NOpenGLProc::TVertexAttribPointer>(GL_GET_EXTENSION("glVertexAttribPointer"));
-  }
-
-  // GL_VERSION_2_1
-  if(platform >= NEngine::GPU_PLATFORM_GL0201)
-  {
-    glUniformMatrix2x3fv = reinterpret_cast<NOpenGLProc::TUniformMatrix2x3fv>(GL_GET_EXTENSION("glUniformMatrix2x3fv"));
-    glUniformMatrix2x4fv = reinterpret_cast<NOpenGLProc::TUniformMatrix2x4fv>(GL_GET_EXTENSION("glUniformMatrix2x4fv"));
-    glUniformMatrix3x2fv = reinterpret_cast<NOpenGLProc::TUniformMatrix3x2fv>(GL_GET_EXTENSION("glUniformMatrix3x2fv"));
-    glUniformMatrix3x4fv = reinterpret_cast<NOpenGLProc::TUniformMatrix3x4fv>(GL_GET_EXTENSION("glUniformMatrix3x4fv"));
-    glUniformMatrix4x2fv = reinterpret_cast<NOpenGLProc::TUniformMatrix4x2fv>(GL_GET_EXTENSION("glUniformMatrix4x2fv"));
-    glUniformMatrix4x3fv = reinterpret_cast<NOpenGLProc::TUniformMatrix4x3fv>(GL_GET_EXTENSION("glUniformMatrix4x3fv"));
-  }
-
-  // GL_VERSION_3_0
-  if(platform >= NEngine::GPU_PLATFORM_GL0300)
-  {
-    glBeginConditionalRender = reinterpret_cast<NOpenGLProc::TBeginConditionalRender>(GL_GET_EXTENSION("glBeginConditionalRender"));
-    glBeginTransformFeedback = reinterpret_cast<NOpenGLProc::TBeginTransformFeedback>(GL_GET_EXTENSION("glBeginTransformFeedback"));
-    glBindBufferBase = reinterpret_cast<NOpenGLProc::TBindBufferBase>(GL_GET_EXTENSION("glBindBufferBase"));
-    glBindBufferRange = reinterpret_cast<NOpenGLProc::TBindBufferRange>(GL_GET_EXTENSION("glBindBufferRange"));
-    glBindFragDataLocation = reinterpret_cast<NOpenGLProc::TBindFragDataLocation>(GL_GET_EXTENSION("glBindFragDataLocation"));
-    glBindFramebuffer = reinterpret_cast<NOpenGLProc::TBindFramebuffer>(GL_GET_EXTENSION("glBindFramebuffer"));
-    glBindRenderbuffer = reinterpret_cast<NOpenGLProc::TBindRenderbuffer>(GL_GET_EXTENSION("glBindRenderbuffer"));
-    glBindVertexArray = reinterpret_cast<NOpenGLProc::TBindVertexArray>(GL_GET_EXTENSION("glBindVertexArray"));
-    glBlitFramebuffer = reinterpret_cast<NOpenGLProc::TBlitFramebuffer>(GL_GET_EXTENSION("glBlitFramebuffer"));
-    glCheckFramebufferStatus = reinterpret_cast<NOpenGLProc::TCheckFramebufferStatus>(GL_GET_EXTENSION("glCheckFramebufferStatus"));
-    glClampColor = reinterpret_cast<NOpenGLProc::TClampColor>(GL_GET_EXTENSION("glClampColor"));
-    glClearBufferfi = reinterpret_cast<NOpenGLProc::TClearBufferfi>(GL_GET_EXTENSION("glClearBufferfi"));
-    glClearBufferfv = reinterpret_cast<NOpenGLProc::TClearBufferfv>(GL_GET_EXTENSION("glClearBufferfv"));
-    glClearBufferiv = reinterpret_cast<NOpenGLProc::TClearBufferiv>(GL_GET_EXTENSION("glClearBufferiv"));
-    glClearBufferuiv = reinterpret_cast<NOpenGLProc::TClearBufferuiv>(GL_GET_EXTENSION("glClearBufferuiv"));
-    glColorMaski = reinterpret_cast<NOpenGLProc::TColorMaski>(GL_GET_EXTENSION("glColorMaski"));
-    glDeleteFramebuffers = reinterpret_cast<NOpenGLProc::TDeleteFramebuffers>(GL_GET_EXTENSION("glDeleteFramebuffers"));
-    glDeleteRenderbuffers = reinterpret_cast<NOpenGLProc::TDeleteRenderbuffers>(GL_GET_EXTENSION("glDeleteRenderbuffers"));
-    glDeleteVertexArrays = reinterpret_cast<NOpenGLProc::TDeleteVertexArrays>(GL_GET_EXTENSION("glDeleteVertexArrays"));
-    glDisablei = reinterpret_cast<NOpenGLProc::TDisablei>(GL_GET_EXTENSION("glDisablei"));
-    glEnablei = reinterpret_cast<NOpenGLProc::TEnablei>(GL_GET_EXTENSION("glEnablei"));
-    glEndConditionalRender = reinterpret_cast<NOpenGLProc::TEndConditionalRender>(GL_GET_EXTENSION("glEndConditionalRender"));
-    glEndTransformFeedback = reinterpret_cast<NOpenGLProc::TEndTransformFeedback>(GL_GET_EXTENSION("glEndTransformFeedback"));
-    glFlushMappedBufferRange = reinterpret_cast<NOpenGLProc::TFlushMappedBufferRange>(GL_GET_EXTENSION("glFlushMappedBufferRange"));
-    glFramebufferRenderbuffer = reinterpret_cast<NOpenGLProc::TFramebufferRenderbuffer>(GL_GET_EXTENSION("glFramebufferRenderbuffer"));
-    glFramebufferTexture1D = reinterpret_cast<NOpenGLProc::TFramebufferTexture1D>(GL_GET_EXTENSION("glFramebufferTexture1D"));
-    glFramebufferTexture2D = reinterpret_cast<NOpenGLProc::TFramebufferTexture2D>(GL_GET_EXTENSION("glFramebufferTexture2D"));
-    glFramebufferTexture3D = reinterpret_cast<NOpenGLProc::TFramebufferTexture3D>(GL_GET_EXTENSION("glFramebufferTexture3D"));
-    glFramebufferTextureLayer = reinterpret_cast<NOpenGLProc::TFramebufferTextureLayer>(GL_GET_EXTENSION("glFramebufferTextureLayer"));
-    glGenFramebuffers = reinterpret_cast<NOpenGLProc::TGenFramebuffers>(GL_GET_EXTENSION("glGenFramebuffers"));
-    glGenRenderbuffers = reinterpret_cast<NOpenGLProc::TGenRenderbuffers>(GL_GET_EXTENSION("glGenRenderbuffers"));
-    glGenVertexArrays = reinterpret_cast<NOpenGLProc::TGenVertexArrays>(GL_GET_EXTENSION("glGenVertexArrays"));
-    glGenerateMipmap = reinterpret_cast<NOpenGLProc::TGenerateMipmap>(GL_GET_EXTENSION("glGenerateMipmap"));
-    glGetBooleani_v = reinterpret_cast<NOpenGLProc::TGetBooleani_v>(GL_GET_EXTENSION("glGetBooleani_v"));
-    glGetFragDataLocation = reinterpret_cast<NOpenGLProc::TGetFragDataLocation>(GL_GET_EXTENSION("glGetFragDataLocation"));
-    glGetFramebufferAttachmentParameteriv = reinterpret_cast<NOpenGLProc::TGetFramebufferAttachmentParameteriv>(GL_GET_EXTENSION("glGetFramebufferAttachmentParameteriv"));
-    glGetIntegeri_v = reinterpret_cast<NOpenGLProc::TGetIntegeri_v>(GL_GET_EXTENSION("glGetIntegeri_v"));
-    glGetRenderbufferParameteriv = reinterpret_cast<NOpenGLProc::TGetRenderbufferParameteriv>(GL_GET_EXTENSION("glGetRenderbufferParameteriv"));
-    glGetStringi = reinterpret_cast<NOpenGLProc::TGetStringi>(GL_GET_EXTENSION("glGetStringi"));
-    glGetTexParameterIiv = reinterpret_cast<NOpenGLProc::TGetTexParameterIiv>(GL_GET_EXTENSION("glGetTexParameterIiv"));
-    glGetTexParameterIuiv = reinterpret_cast<NOpenGLProc::TGetTexParameterIuiv>(GL_GET_EXTENSION("glGetTexParameterIuiv"));
-    glGetTransformFeedbackVarying = reinterpret_cast<NOpenGLProc::TGetTransformFeedbackVarying>(GL_GET_EXTENSION("glGetTransformFeedbackVarying"));
-    glGetUniformuiv = reinterpret_cast<NOpenGLProc::TGetUniformuiv>(GL_GET_EXTENSION("glGetUniformuiv"));
-    glGetVertexAttribIiv = reinterpret_cast<NOpenGLProc::TGetVertexAttribIiv>(GL_GET_EXTENSION("glGetVertexAttribIiv"));
-    glGetVertexAttribIuiv = reinterpret_cast<NOpenGLProc::TGetVertexAttribIuiv>(GL_GET_EXTENSION("glGetVertexAttribIuiv"));
-    glIsEnabledi = reinterpret_cast<NOpenGLProc::TIsEnabledi>(GL_GET_EXTENSION("glIsEnabledi"));
-    glIsFramebuffer = reinterpret_cast<NOpenGLProc::TIsFramebuffer>(GL_GET_EXTENSION("glIsFramebuffer"));
-    glIsRenderbuffer = reinterpret_cast<NOpenGLProc::TIsRenderbuffer>(GL_GET_EXTENSION("glIsRenderbuffer"));
-    glIsVertexArray = reinterpret_cast<NOpenGLProc::TIsVertexArray>(GL_GET_EXTENSION("glIsVertexArray"));
-    glMapBufferRange = reinterpret_cast<NOpenGLProc::TMapBufferRange>(GL_GET_EXTENSION("glMapBufferRange"));
-    glRenderbufferStorage = reinterpret_cast<NOpenGLProc::TRenderbufferStorage>(GL_GET_EXTENSION("glRenderbufferStorage"));
-    glRenderbufferStorageMultisample = reinterpret_cast<NOpenGLProc::TRenderbufferStorageMultisample>(GL_GET_EXTENSION("glRenderbufferStorageMultisample"));
-    glTexParameterIiv = reinterpret_cast<NOpenGLProc::TTexParameterIiv>(GL_GET_EXTENSION("glTexParameterIiv"));
-    glTexParameterIuiv = reinterpret_cast<NOpenGLProc::TTexParameterIuiv>(GL_GET_EXTENSION("glTexParameterIuiv"));
-    glTransformFeedbackVaryings = reinterpret_cast<NOpenGLProc::TTransformFeedbackVaryings>(GL_GET_EXTENSION("glTransformFeedbackVaryings"));
-    glUniform1ui = reinterpret_cast<NOpenGLProc::TUniform1ui>(GL_GET_EXTENSION("glUniform1ui"));
-    glUniform1uiv = reinterpret_cast<NOpenGLProc::TUniform1uiv>(GL_GET_EXTENSION("glUniform1uiv"));
-    glUniform2ui = reinterpret_cast<NOpenGLProc::TUniform2ui>(GL_GET_EXTENSION("glUniform2ui"));
-    glUniform2uiv = reinterpret_cast<NOpenGLProc::TUniform2uiv>(GL_GET_EXTENSION("glUniform2uiv"));
-    glUniform3ui = reinterpret_cast<NOpenGLProc::TUniform3ui>(GL_GET_EXTENSION("glUniform3ui"));
-    glUniform3uiv = reinterpret_cast<NOpenGLProc::TUniform3uiv>(GL_GET_EXTENSION("glUniform3uiv"));
-    glUniform4ui = reinterpret_cast<NOpenGLProc::TUniform4ui>(GL_GET_EXTENSION("glUniform4ui"));
-    glUniform4uiv = reinterpret_cast<NOpenGLProc::TUniform4uiv>(GL_GET_EXTENSION("glUniform4uiv"));
-    glVertexAttribI1i = reinterpret_cast<NOpenGLProc::TVertexAttribI1i>(GL_GET_EXTENSION("glVertexAttribI1i"));
-    glVertexAttribI1iv = reinterpret_cast<NOpenGLProc::TVertexAttribI1iv>(GL_GET_EXTENSION("glVertexAttribI1iv"));
-    glVertexAttribI1ui = reinterpret_cast<NOpenGLProc::TVertexAttribI1ui>(GL_GET_EXTENSION("glVertexAttribI1ui"));
-    glVertexAttribI1uiv = reinterpret_cast<NOpenGLProc::TVertexAttribI1uiv>(GL_GET_EXTENSION("glVertexAttribI1uiv"));
-    glVertexAttribI2i = reinterpret_cast<NOpenGLProc::TVertexAttribI2i>(GL_GET_EXTENSION("glVertexAttribI2i"));
-    glVertexAttribI2iv = reinterpret_cast<NOpenGLProc::TVertexAttribI2iv>(GL_GET_EXTENSION("glVertexAttribI2iv"));
-    glVertexAttribI2ui = reinterpret_cast<NOpenGLProc::TVertexAttribI2ui>(GL_GET_EXTENSION("glVertexAttribI2ui"));
-    glVertexAttribI2uiv = reinterpret_cast<NOpenGLProc::TVertexAttribI2uiv>(GL_GET_EXTENSION("glVertexAttribI2uiv"));
-    glVertexAttribI3i = reinterpret_cast<NOpenGLProc::TVertexAttribI3i>(GL_GET_EXTENSION("glVertexAttribI3i"));
-    glVertexAttribI3iv = reinterpret_cast<NOpenGLProc::TVertexAttribI3iv>(GL_GET_EXTENSION("glVertexAttribI3iv"));
-    glVertexAttribI3ui = reinterpret_cast<NOpenGLProc::TVertexAttribI3ui>(GL_GET_EXTENSION("glVertexAttribI3ui"));
-    glVertexAttribI3uiv = reinterpret_cast<NOpenGLProc::TVertexAttribI3uiv>(GL_GET_EXTENSION("glVertexAttribI3uiv"));
-    glVertexAttribI4bv = reinterpret_cast<NOpenGLProc::TVertexAttribI4bv>(GL_GET_EXTENSION("glVertexAttribI4bv"));
-    glVertexAttribI4i = reinterpret_cast<NOpenGLProc::TVertexAttribI4i>(GL_GET_EXTENSION("glVertexAttribI4i"));
-    glVertexAttribI4iv = reinterpret_cast<NOpenGLProc::TVertexAttribI4iv>(GL_GET_EXTENSION("glVertexAttribI4iv"));
-    glVertexAttribI4sv = reinterpret_cast<NOpenGLProc::TVertexAttribI4sv>(GL_GET_EXTENSION("glVertexAttribI4sv"));
-    glVertexAttribI4ubv = reinterpret_cast<NOpenGLProc::TVertexAttribI4ubv>(GL_GET_EXTENSION("glVertexAttribI4ubv"));
-    glVertexAttribI4ui = reinterpret_cast<NOpenGLProc::TVertexAttribI4ui>(GL_GET_EXTENSION("glVertexAttribI4ui"));
-    glVertexAttribI4uiv = reinterpret_cast<NOpenGLProc::TVertexAttribI4uiv>(GL_GET_EXTENSION("glVertexAttribI4uiv"));
-    glVertexAttribI4usv = reinterpret_cast<NOpenGLProc::TVertexAttribI4usv>(GL_GET_EXTENSION("glVertexAttribI4usv"));
-    glVertexAttribIPointer = reinterpret_cast<NOpenGLProc::TVertexAttribIPointer>(GL_GET_EXTENSION("glVertexAttribIPointer"));
-  }
-
-  // GL_VERSION_3_1
-  if(platform >= NEngine::GPU_PLATFORM_GL0301)
-  {
-    glCopyBufferSubData = reinterpret_cast<NOpenGLProc::TCopyBufferSubData>(GL_GET_EXTENSION("glCopyBufferSubData"));
-    glDrawArraysInstanced = reinterpret_cast<NOpenGLProc::TDrawArraysInstanced>(GL_GET_EXTENSION("glDrawArraysInstanced"));
-    glDrawElementsInstanced = reinterpret_cast<NOpenGLProc::TDrawElementsInstanced>(GL_GET_EXTENSION("glDrawElementsInstanced"));
-    glGetActiveUniformBlockName = reinterpret_cast<NOpenGLProc::TGetActiveUniformBlockName>(GL_GET_EXTENSION("glGetActiveUniformBlockName"));
-    glGetActiveUniformBlockiv = reinterpret_cast<NOpenGLProc::TGetActiveUniformBlockiv>(GL_GET_EXTENSION("glGetActiveUniformBlockiv"));
-    glGetActiveUniformName = reinterpret_cast<NOpenGLProc::TGetActiveUniformName>(GL_GET_EXTENSION("glGetActiveUniformName"));
-    glGetActiveUniformsiv = reinterpret_cast<NOpenGLProc::TGetActiveUniformsiv>(GL_GET_EXTENSION("glGetActiveUniformsiv"));
-    glGetUniformBlockIndex = reinterpret_cast<NOpenGLProc::TGetUniformBlockIndex>(GL_GET_EXTENSION("glGetUniformBlockIndex"));
-    glGetUniformIndices = reinterpret_cast<NOpenGLProc::TGetUniformIndices>(GL_GET_EXTENSION("glGetUniformIndices"));
-    glPrimitiveRestartIndex = reinterpret_cast<NOpenGLProc::TPrimitiveRestartIndex>(GL_GET_EXTENSION("glPrimitiveRestartIndex"));
-    glTexBuffer = reinterpret_cast<NOpenGLProc::TTexBuffer>(GL_GET_EXTENSION("glTexBuffer"));
-    glUniformBlockBinding = reinterpret_cast<NOpenGLProc::TUniformBlockBinding>(GL_GET_EXTENSION("glUniformBlockBinding"));
-  }
-
-  // GL_VERSION_3_2
-  if(platform >= NEngine::GPU_PLATFORM_GL0302)
-  {
-    glClientWaitSync = reinterpret_cast<NOpenGLProc::TClientWaitSync>(GL_GET_EXTENSION("glClientWaitSync"));
-    glDeleteSync = reinterpret_cast<NOpenGLProc::TDeleteSync>(GL_GET_EXTENSION("glDeleteSync"));
-    glDrawElementsBaseVertex = reinterpret_cast<NOpenGLProc::TDrawElementsBaseVertex>(GL_GET_EXTENSION("glDrawElementsBaseVertex"));
-    glDrawElementsInstancedBaseVertex = reinterpret_cast<NOpenGLProc::TDrawElementsInstancedBaseVertex>(GL_GET_EXTENSION("glDrawElementsInstancedBaseVertex"));
-    glDrawRangeElementsBaseVertex = reinterpret_cast<NOpenGLProc::TDrawRangeElementsBaseVertex>(GL_GET_EXTENSION("glDrawRangeElementsBaseVertex"));
-    glFenceSync = reinterpret_cast<NOpenGLProc::TFenceSync>(GL_GET_EXTENSION("glFenceSync"));
-    glFramebufferTexture = reinterpret_cast<NOpenGLProc::TFramebufferTexture>(GL_GET_EXTENSION("glFramebufferTexture"));
-    glGetBufferParameteri64v = reinterpret_cast<NOpenGLProc::TGetBufferParameteri64v>(GL_GET_EXTENSION("glGetBufferParameteri64v"));
-    glGetInteger64i_v = reinterpret_cast<NOpenGLProc::TGetInteger64i_v>(GL_GET_EXTENSION("glGetInteger64i_v"));
-    glGetInteger64v = reinterpret_cast<NOpenGLProc::TGetInteger64v>(GL_GET_EXTENSION("glGetInteger64v"));
-    glGetMultisamplefv = reinterpret_cast<NOpenGLProc::TGetMultisamplefv>(GL_GET_EXTENSION("glGetMultisamplefv"));
-    glGetSynciv = reinterpret_cast<NOpenGLProc::TGetSynciv>(GL_GET_EXTENSION("glGetSynciv"));
-    glIsSync = reinterpret_cast<NOpenGLProc::TIsSync>(GL_GET_EXTENSION("glIsSync"));
-    glMultiDrawElementsBaseVertex = reinterpret_cast<NOpenGLProc::TMultiDrawElementsBaseVertex>(GL_GET_EXTENSION("glMultiDrawElementsBaseVertex"));
-    glProvokingVertex = reinterpret_cast<NOpenGLProc::TProvokingVertex>(GL_GET_EXTENSION("glProvokingVertex"));
-    glSampleMaski = reinterpret_cast<NOpenGLProc::TSampleMaski>(GL_GET_EXTENSION("glSampleMaski"));
-    glTexImage2DMultisample = reinterpret_cast<NOpenGLProc::TTexImage2DMultisample>(GL_GET_EXTENSION("glTexImage2DMultisample"));
-    glTexImage3DMultisample = reinterpret_cast<NOpenGLProc::TTexImage3DMultisample>(GL_GET_EXTENSION("glTexImage3DMultisample"));
-    glWaitSync = reinterpret_cast<NOpenGLProc::TWaitSync>(GL_GET_EXTENSION("glWaitSync"));
-  }
-
-  // GL_VERSION_3_3
-  if(platform >= NEngine::GPU_PLATFORM_GL0303)
-  {
-    glBindFragDataLocationIndexed = reinterpret_cast<NOpenGLProc::TBindFragDataLocationIndexed>(GL_GET_EXTENSION("glBindFragDataLocationIndexed"));
-    glBindSampler = reinterpret_cast<NOpenGLProc::TBindSampler>(GL_GET_EXTENSION("glBindSampler"));
-    glDeleteSamplers = reinterpret_cast<NOpenGLProc::TDeleteSamplers>(GL_GET_EXTENSION("glDeleteSamplers"));
-    glGenSamplers = reinterpret_cast<NOpenGLProc::TGenSamplers>(GL_GET_EXTENSION("glGenSamplers"));
-    glGetFragDataIndex = reinterpret_cast<NOpenGLProc::TGetFragDataIndex>(GL_GET_EXTENSION("glGetFragDataIndex"));
-    glGetQueryObjecti64v = reinterpret_cast<NOpenGLProc::TGetQueryObjecti64v>(GL_GET_EXTENSION("glGetQueryObjecti64v"));
-    glGetQueryObjectui64v = reinterpret_cast<NOpenGLProc::TGetQueryObjectui64v>(GL_GET_EXTENSION("glGetQueryObjectui64v"));
-    glGetSamplerParameterIiv = reinterpret_cast<NOpenGLProc::TGetSamplerParameterIiv>(GL_GET_EXTENSION("glGetSamplerParameterIiv"));
-    glGetSamplerParameterIuiv = reinterpret_cast<NOpenGLProc::TGetSamplerParameterIuiv>(GL_GET_EXTENSION("glGetSamplerParameterIuiv"));
-    glGetSamplerParameterfv = reinterpret_cast<NOpenGLProc::TGetSamplerParameterfv>(GL_GET_EXTENSION("glGetSamplerParameterfv"));
-    glGetSamplerParameteriv = reinterpret_cast<NOpenGLProc::TGetSamplerParameteriv>(GL_GET_EXTENSION("glGetSamplerParameteriv"));
-    glIsSampler = reinterpret_cast<NOpenGLProc::TIsSampler>(GL_GET_EXTENSION("glIsSampler"));
-    glQueryCounter = reinterpret_cast<NOpenGLProc::TQueryCounter>(GL_GET_EXTENSION("glQueryCounter"));
-    glSamplerParameterIiv = reinterpret_cast<NOpenGLProc::TSamplerParameterIiv>(GL_GET_EXTENSION("glSamplerParameterIiv"));
-    glSamplerParameterIuiv = reinterpret_cast<NOpenGLProc::TSamplerParameterIuiv>(GL_GET_EXTENSION("glSamplerParameterIuiv"));
-    glSamplerParameterf = reinterpret_cast<NOpenGLProc::TSamplerParameterf>(GL_GET_EXTENSION("glSamplerParameterf"));
-    glSamplerParameterfv = reinterpret_cast<NOpenGLProc::TSamplerParameterfv>(GL_GET_EXTENSION("glSamplerParameterfv"));
-    glSamplerParameteri = reinterpret_cast<NOpenGLProc::TSamplerParameteri>(GL_GET_EXTENSION("glSamplerParameteri"));
-    glSamplerParameteriv = reinterpret_cast<NOpenGLProc::TSamplerParameteriv>(GL_GET_EXTENSION("glSamplerParameteriv"));
-    glVertexAttribDivisor = reinterpret_cast<NOpenGLProc::TVertexAttribDivisor>(GL_GET_EXTENSION("glVertexAttribDivisor"));
-    glVertexAttribP1ui = reinterpret_cast<NOpenGLProc::TVertexAttribP1ui>(GL_GET_EXTENSION("glVertexAttribP1ui"));
-    glVertexAttribP1uiv = reinterpret_cast<NOpenGLProc::TVertexAttribP1uiv>(GL_GET_EXTENSION("glVertexAttribP1uiv"));
-    glVertexAttribP2ui = reinterpret_cast<NOpenGLProc::TVertexAttribP2ui>(GL_GET_EXTENSION("glVertexAttribP2ui"));
-    glVertexAttribP2uiv = reinterpret_cast<NOpenGLProc::TVertexAttribP2uiv>(GL_GET_EXTENSION("glVertexAttribP2uiv"));
-    glVertexAttribP3ui = reinterpret_cast<NOpenGLProc::TVertexAttribP3ui>(GL_GET_EXTENSION("glVertexAttribP3ui"));
-    glVertexAttribP3uiv = reinterpret_cast<NOpenGLProc::TVertexAttribP3uiv>(GL_GET_EXTENSION("glVertexAttribP3uiv"));
-    glVertexAttribP4ui = reinterpret_cast<NOpenGLProc::TVertexAttribP4ui>(GL_GET_EXTENSION("glVertexAttribP4ui"));
-    glVertexAttribP4uiv = reinterpret_cast<NOpenGLProc::TVertexAttribP4uiv>(GL_GET_EXTENSION("glVertexAttribP4uiv"));
-  }
-
-  // GL_VERSION_4_0
-  if(platform >= NEngine::GPU_PLATFORM_GL0400)
-  {
-    glBeginQueryIndexed = reinterpret_cast<NOpenGLProc::TBeginQueryIndexed>(GL_GET_EXTENSION("glBeginQueryIndexed"));
-    glBindTransformFeedback = reinterpret_cast<NOpenGLProc::TBindTransformFeedback>(GL_GET_EXTENSION("glBindTransformFeedback"));
-    glBlendEquationSeparatei = reinterpret_cast<NOpenGLProc::TBlendEquationSeparatei>(GL_GET_EXTENSION("glBlendEquationSeparatei"));
-    glBlendEquationi = reinterpret_cast<NOpenGLProc::TBlendEquationi>(GL_GET_EXTENSION("glBlendEquationi"));
-    glBlendFuncSeparatei = reinterpret_cast<NOpenGLProc::TBlendFuncSeparatei>(GL_GET_EXTENSION("glBlendFuncSeparatei"));
-    glBlendFunci = reinterpret_cast<NOpenGLProc::TBlendFunci>(GL_GET_EXTENSION("glBlendFunci"));
-    glDeleteTransformFeedbacks = reinterpret_cast<NOpenGLProc::TDeleteTransformFeedbacks>(GL_GET_EXTENSION("glDeleteTransformFeedbacks"));
-    glDrawArraysIndirect = reinterpret_cast<NOpenGLProc::TDrawArraysIndirect>(GL_GET_EXTENSION("glDrawArraysIndirect"));
-    glDrawElementsIndirect = reinterpret_cast<NOpenGLProc::TDrawElementsIndirect>(GL_GET_EXTENSION("glDrawElementsIndirect"));
-    glDrawTransformFeedback = reinterpret_cast<NOpenGLProc::TDrawTransformFeedback>(GL_GET_EXTENSION("glDrawTransformFeedback"));
-    glDrawTransformFeedbackStream = reinterpret_cast<NOpenGLProc::TDrawTransformFeedbackStream>(GL_GET_EXTENSION("glDrawTransformFeedbackStream"));
-    glEndQueryIndexed = reinterpret_cast<NOpenGLProc::TEndQueryIndexed>(GL_GET_EXTENSION("glEndQueryIndexed"));
-    glGenTransformFeedbacks = reinterpret_cast<NOpenGLProc::TGenTransformFeedbacks>(GL_GET_EXTENSION("glGenTransformFeedbacks"));
-    glGetActiveSubroutineName = reinterpret_cast<NOpenGLProc::TGetActiveSubroutineName>(GL_GET_EXTENSION("glGetActiveSubroutineName"));
-    glGetActiveSubroutineUniformName = reinterpret_cast<NOpenGLProc::TGetActiveSubroutineUniformName>(GL_GET_EXTENSION("glGetActiveSubroutineUniformName"));
-    glGetActiveSubroutineUniformiv = reinterpret_cast<NOpenGLProc::TGetActiveSubroutineUniformiv>(GL_GET_EXTENSION("glGetActiveSubroutineUniformiv"));
-    glGetProgramStageiv = reinterpret_cast<NOpenGLProc::TGetProgramStageiv>(GL_GET_EXTENSION("glGetProgramStageiv"));
-    glGetQueryIndexediv = reinterpret_cast<NOpenGLProc::TGetQueryIndexediv>(GL_GET_EXTENSION("glGetQueryIndexediv"));
-    glGetSubroutineIndex = reinterpret_cast<NOpenGLProc::TGetSubroutineIndex>(GL_GET_EXTENSION("glGetSubroutineIndex"));
-    glGetSubroutineUniformLocation = reinterpret_cast<NOpenGLProc::TGetSubroutineUniformLocation>(GL_GET_EXTENSION("glGetSubroutineUniformLocation"));
-    glGetUniformSubroutineuiv = reinterpret_cast<NOpenGLProc::TGetUniformSubroutineuiv>(GL_GET_EXTENSION("glGetUniformSubroutineuiv"));
-    glGetUniformdv = reinterpret_cast<NOpenGLProc::TGetUniformdv>(GL_GET_EXTENSION("glGetUniformdv"));
-    glIsTransformFeedback = reinterpret_cast<NOpenGLProc::TIsTransformFeedback>(GL_GET_EXTENSION("glIsTransformFeedback"));
-    glMinSampleShading = reinterpret_cast<NOpenGLProc::TMinSampleShading>(GL_GET_EXTENSION("glMinSampleShading"));
-    glPatchParameterfv = reinterpret_cast<NOpenGLProc::TPatchParameterfv>(GL_GET_EXTENSION("glPatchParameterfv"));
-    glPatchParameteri = reinterpret_cast<NOpenGLProc::TPatchParameteri>(GL_GET_EXTENSION("glPatchParameteri"));
-    glPauseTransformFeedback = reinterpret_cast<NOpenGLProc::TPauseTransformFeedback>(GL_GET_EXTENSION("glPauseTransformFeedback"));
-    glResumeTransformFeedback = reinterpret_cast<NOpenGLProc::TResumeTransformFeedback>(GL_GET_EXTENSION("glResumeTransformFeedback"));
-    glUniform1d = reinterpret_cast<NOpenGLProc::TUniform1d>(GL_GET_EXTENSION("glUniform1d"));
-    glUniform1dv = reinterpret_cast<NOpenGLProc::TUniform1dv>(GL_GET_EXTENSION("glUniform1dv"));
-    glUniform2d = reinterpret_cast<NOpenGLProc::TUniform2d>(GL_GET_EXTENSION("glUniform2d"));
-    glUniform2dv = reinterpret_cast<NOpenGLProc::TUniform2dv>(GL_GET_EXTENSION("glUniform2dv"));
-    glUniform3d = reinterpret_cast<NOpenGLProc::TUniform3d>(GL_GET_EXTENSION("glUniform3d"));
-    glUniform3dv = reinterpret_cast<NOpenGLProc::TUniform3dv>(GL_GET_EXTENSION("glUniform3dv"));
-    glUniform4d = reinterpret_cast<NOpenGLProc::TUniform4d>(GL_GET_EXTENSION("glUniform4d"));
-    glUniform4dv = reinterpret_cast<NOpenGLProc::TUniform4dv>(GL_GET_EXTENSION("glUniform4dv"));
-    glUniformMatrix2dv = reinterpret_cast<NOpenGLProc::TUniformMatrix2dv>(GL_GET_EXTENSION("glUniformMatrix2dv"));
-    glUniformMatrix2x3dv = reinterpret_cast<NOpenGLProc::TUniformMatrix2x3dv>(GL_GET_EXTENSION("glUniformMatrix2x3dv"));
-    glUniformMatrix2x4dv = reinterpret_cast<NOpenGLProc::TUniformMatrix2x4dv>(GL_GET_EXTENSION("glUniformMatrix2x4dv"));
-    glUniformMatrix3dv = reinterpret_cast<NOpenGLProc::TUniformMatrix3dv>(GL_GET_EXTENSION("glUniformMatrix3dv"));
-    glUniformMatrix3x2dv = reinterpret_cast<NOpenGLProc::TUniformMatrix3x2dv>(GL_GET_EXTENSION("glUniformMatrix3x2dv"));
-    glUniformMatrix3x4dv = reinterpret_cast<NOpenGLProc::TUniformMatrix3x4dv>(GL_GET_EXTENSION("glUniformMatrix3x4dv"));
-    glUniformMatrix4dv = reinterpret_cast<NOpenGLProc::TUniformMatrix4dv>(GL_GET_EXTENSION("glUniformMatrix4dv"));
-    glUniformMatrix4x2dv = reinterpret_cast<NOpenGLProc::TUniformMatrix4x2dv>(GL_GET_EXTENSION("glUniformMatrix4x2dv"));
-    glUniformMatrix4x3dv = reinterpret_cast<NOpenGLProc::TUniformMatrix4x3dv>(GL_GET_EXTENSION("glUniformMatrix4x3dv"));
-    glUniformSubroutinesuiv = reinterpret_cast<NOpenGLProc::TUniformSubroutinesuiv>(GL_GET_EXTENSION("glUniformSubroutinesuiv"));
-  }
-
-  // GL_VERSION_4_1
-  if(platform >= NEngine::GPU_PLATFORM_GL0401)
-  {
-    glActiveShaderProgram = reinterpret_cast<NOpenGLProc::TActiveShaderProgram>(GL_GET_EXTENSION("glActiveShaderProgram"));
-    glBindProgramPipeline = reinterpret_cast<NOpenGLProc::TBindProgramPipeline>(GL_GET_EXTENSION("glBindProgramPipeline"));
-    glClearDepthf = reinterpret_cast<NOpenGLProc::TClearDepthf>(GL_GET_EXTENSION("glClearDepthf"));
-    glCreateShaderProgramv = reinterpret_cast<NOpenGLProc::TCreateShaderProgramv>(GL_GET_EXTENSION("glCreateShaderProgramv"));
-    glDeleteProgramPipelines = reinterpret_cast<NOpenGLProc::TDeleteProgramPipelines>(GL_GET_EXTENSION("glDeleteProgramPipelines"));
-    glDepthRangeArrayv = reinterpret_cast<NOpenGLProc::TDepthRangeArrayv>(GL_GET_EXTENSION("glDepthRangeArrayv"));
-    glDepthRangeIndexed = reinterpret_cast<NOpenGLProc::TDepthRangeIndexed>(GL_GET_EXTENSION("glDepthRangeIndexed"));
-    glDepthRangef = reinterpret_cast<NOpenGLProc::TDepthRangef>(GL_GET_EXTENSION("glDepthRangef"));
-    glGenProgramPipelines = reinterpret_cast<NOpenGLProc::TGenProgramPipelines>(GL_GET_EXTENSION("glGenProgramPipelines"));
-    glGetDoublei_v = reinterpret_cast<NOpenGLProc::TGetDoublei_v>(GL_GET_EXTENSION("glGetDoublei_v"));
-    glGetFloati_v = reinterpret_cast<NOpenGLProc::TGetFloati_v>(GL_GET_EXTENSION("glGetFloati_v"));
-    glGetProgramBinary = reinterpret_cast<NOpenGLProc::TGetProgramBinary>(GL_GET_EXTENSION("glGetProgramBinary"));
-    glGetProgramPipelineInfoLog = reinterpret_cast<NOpenGLProc::TGetProgramPipelineInfoLog>(GL_GET_EXTENSION("glGetProgramPipelineInfoLog"));
-    glGetProgramPipelineiv = reinterpret_cast<NOpenGLProc::TGetProgramPipelineiv>(GL_GET_EXTENSION("glGetProgramPipelineiv"));
-    glGetShaderPrecisionFormat = reinterpret_cast<NOpenGLProc::TGetShaderPrecisionFormat>(GL_GET_EXTENSION("glGetShaderPrecisionFormat"));
-    glGetVertexAttribLdv = reinterpret_cast<NOpenGLProc::TGetVertexAttribLdv>(GL_GET_EXTENSION("glGetVertexAttribLdv"));
-    glIsProgramPipeline = reinterpret_cast<NOpenGLProc::TIsProgramPipeline>(GL_GET_EXTENSION("glIsProgramPipeline"));
-    glProgramBinary = reinterpret_cast<NOpenGLProc::TProgramBinary>(GL_GET_EXTENSION("glProgramBinary"));
-    glProgramParameteri = reinterpret_cast<NOpenGLProc::TProgramParameteri>(GL_GET_EXTENSION("glProgramParameteri"));
-    glProgramUniform1d = reinterpret_cast<NOpenGLProc::TProgramUniform1d>(GL_GET_EXTENSION("glProgramUniform1d"));
-    glProgramUniform1dv = reinterpret_cast<NOpenGLProc::TProgramUniform1dv>(GL_GET_EXTENSION("glProgramUniform1dv"));
-    glProgramUniform1f = reinterpret_cast<NOpenGLProc::TProgramUniform1f>(GL_GET_EXTENSION("glProgramUniform1f"));
-    glProgramUniform1fv = reinterpret_cast<NOpenGLProc::TProgramUniform1fv>(GL_GET_EXTENSION("glProgramUniform1fv"));
-    glProgramUniform1i = reinterpret_cast<NOpenGLProc::TProgramUniform1i>(GL_GET_EXTENSION("glProgramUniform1i"));
-    glProgramUniform1iv = reinterpret_cast<NOpenGLProc::TProgramUniform1iv>(GL_GET_EXTENSION("glProgramUniform1iv"));
-    glProgramUniform1ui = reinterpret_cast<NOpenGLProc::TProgramUniform1ui>(GL_GET_EXTENSION("glProgramUniform1ui"));
-    glProgramUniform1uiv = reinterpret_cast<NOpenGLProc::TProgramUniform1uiv>(GL_GET_EXTENSION("glProgramUniform1uiv"));
-    glProgramUniform2d = reinterpret_cast<NOpenGLProc::TProgramUniform2d>(GL_GET_EXTENSION("glProgramUniform2d"));
-    glProgramUniform2dv = reinterpret_cast<NOpenGLProc::TProgramUniform2dv>(GL_GET_EXTENSION("glProgramUniform2dv"));
-    glProgramUniform2f = reinterpret_cast<NOpenGLProc::TProgramUniform2f>(GL_GET_EXTENSION("glProgramUniform2f"));
-    glProgramUniform2fv = reinterpret_cast<NOpenGLProc::TProgramUniform2fv>(GL_GET_EXTENSION("glProgramUniform2fv"));
-    glProgramUniform2i = reinterpret_cast<NOpenGLProc::TProgramUniform2i>(GL_GET_EXTENSION("glProgramUniform2i"));
-    glProgramUniform2iv = reinterpret_cast<NOpenGLProc::TProgramUniform2iv>(GL_GET_EXTENSION("glProgramUniform2iv"));
-    glProgramUniform2ui = reinterpret_cast<NOpenGLProc::TProgramUniform2ui>(GL_GET_EXTENSION("glProgramUniform2ui"));
-    glProgramUniform2uiv = reinterpret_cast<NOpenGLProc::TProgramUniform2uiv>(GL_GET_EXTENSION("glProgramUniform2uiv"));
-    glProgramUniform3d = reinterpret_cast<NOpenGLProc::TProgramUniform3d>(GL_GET_EXTENSION("glProgramUniform3d"));
-    glProgramUniform3dv = reinterpret_cast<NOpenGLProc::TProgramUniform3dv>(GL_GET_EXTENSION("glProgramUniform3dv"));
-    glProgramUniform3f = reinterpret_cast<NOpenGLProc::TProgramUniform3f>(GL_GET_EXTENSION("glProgramUniform3f"));
-    glProgramUniform3fv = reinterpret_cast<NOpenGLProc::TProgramUniform3fv>(GL_GET_EXTENSION("glProgramUniform3fv"));
-    glProgramUniform3i = reinterpret_cast<NOpenGLProc::TProgramUniform3i>(GL_GET_EXTENSION("glProgramUniform3i"));
-    glProgramUniform3iv = reinterpret_cast<NOpenGLProc::TProgramUniform3iv>(GL_GET_EXTENSION("glProgramUniform3iv"));
-    glProgramUniform3ui = reinterpret_cast<NOpenGLProc::TProgramUniform3ui>(GL_GET_EXTENSION("glProgramUniform3ui"));
-    glProgramUniform3uiv = reinterpret_cast<NOpenGLProc::TProgramUniform3uiv>(GL_GET_EXTENSION("glProgramUniform3uiv"));
-    glProgramUniform4d = reinterpret_cast<NOpenGLProc::TProgramUniform4d>(GL_GET_EXTENSION("glProgramUniform4d"));
-    glProgramUniform4dv = reinterpret_cast<NOpenGLProc::TProgramUniform4dv>(GL_GET_EXTENSION("glProgramUniform4dv"));
-    glProgramUniform4f = reinterpret_cast<NOpenGLProc::TProgramUniform4f>(GL_GET_EXTENSION("glProgramUniform4f"));
-    glProgramUniform4fv = reinterpret_cast<NOpenGLProc::TProgramUniform4fv>(GL_GET_EXTENSION("glProgramUniform4fv"));
-    glProgramUniform4i = reinterpret_cast<NOpenGLProc::TProgramUniform4i>(GL_GET_EXTENSION("glProgramUniform4i"));
-    glProgramUniform4iv = reinterpret_cast<NOpenGLProc::TProgramUniform4iv>(GL_GET_EXTENSION("glProgramUniform4iv"));
-    glProgramUniform4ui = reinterpret_cast<NOpenGLProc::TProgramUniform4ui>(GL_GET_EXTENSION("glProgramUniform4ui"));
-    glProgramUniform4uiv = reinterpret_cast<NOpenGLProc::TProgramUniform4uiv>(GL_GET_EXTENSION("glProgramUniform4uiv"));
-    glProgramUniformMatrix2dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix2dv>(GL_GET_EXTENSION("glProgramUniformMatrix2dv"));
-    glProgramUniformMatrix2fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix2fv>(GL_GET_EXTENSION("glProgramUniformMatrix2fv"));
-    glProgramUniformMatrix2x3dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix2x3dv>(GL_GET_EXTENSION("glProgramUniformMatrix2x3dv"));
-    glProgramUniformMatrix2x3fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix2x3fv>(GL_GET_EXTENSION("glProgramUniformMatrix2x3fv"));
-    glProgramUniformMatrix2x4dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix2x4dv>(GL_GET_EXTENSION("glProgramUniformMatrix2x4dv"));
-    glProgramUniformMatrix2x4fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix2x4fv>(GL_GET_EXTENSION("glProgramUniformMatrix2x4fv"));
-    glProgramUniformMatrix3dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix3dv>(GL_GET_EXTENSION("glProgramUniformMatrix3dv"));
-    glProgramUniformMatrix3fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix3fv>(GL_GET_EXTENSION("glProgramUniformMatrix3fv"));
-    glProgramUniformMatrix3x2dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix3x2dv>(GL_GET_EXTENSION("glProgramUniformMatrix3x2dv"));
-    glProgramUniformMatrix3x2fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix3x2fv>(GL_GET_EXTENSION("glProgramUniformMatrix3x2fv"));
-    glProgramUniformMatrix3x4dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix3x4dv>(GL_GET_EXTENSION("glProgramUniformMatrix3x4dv"));
-    glProgramUniformMatrix3x4fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix3x4fv>(GL_GET_EXTENSION("glProgramUniformMatrix3x4fv"));
-    glProgramUniformMatrix4dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix4dv>(GL_GET_EXTENSION("glProgramUniformMatrix4dv"));
-    glProgramUniformMatrix4fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix4fv>(GL_GET_EXTENSION("glProgramUniformMatrix4fv"));
-    glProgramUniformMatrix4x2dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix4x2dv>(GL_GET_EXTENSION("glProgramUniformMatrix4x2dv"));
-    glProgramUniformMatrix4x2fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix4x2fv>(GL_GET_EXTENSION("glProgramUniformMatrix4x2fv"));
-    glProgramUniformMatrix4x3dv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix4x3dv>(GL_GET_EXTENSION("glProgramUniformMatrix4x3dv"));
-    glProgramUniformMatrix4x3fv = reinterpret_cast<NOpenGLProc::TProgramUniformMatrix4x3fv>(GL_GET_EXTENSION("glProgramUniformMatrix4x3fv"));
-    glReleaseShaderCompiler = reinterpret_cast<NOpenGLProc::TReleaseShaderCompiler>(GL_GET_EXTENSION("glReleaseShaderCompiler"));
-    glScissorArrayv = reinterpret_cast<NOpenGLProc::TScissorArrayv>(GL_GET_EXTENSION("glScissorArrayv"));
-    glScissorIndexed = reinterpret_cast<NOpenGLProc::TScissorIndexed>(GL_GET_EXTENSION("glScissorIndexed"));
-    glScissorIndexedv = reinterpret_cast<NOpenGLProc::TScissorIndexedv>(GL_GET_EXTENSION("glScissorIndexedv"));
-    glShaderBinary = reinterpret_cast<NOpenGLProc::TShaderBinary>(GL_GET_EXTENSION("glShaderBinary"));
-    glUseProgramStages = reinterpret_cast<NOpenGLProc::TUseProgramStages>(GL_GET_EXTENSION("glUseProgramStages"));
-    glValidateProgramPipeline = reinterpret_cast<NOpenGLProc::TValidateProgramPipeline>(GL_GET_EXTENSION("glValidateProgramPipeline"));
-    glVertexAttribL1d = reinterpret_cast<NOpenGLProc::TVertexAttribL1d>(GL_GET_EXTENSION("glVertexAttribL1d"));
-    glVertexAttribL1dv = reinterpret_cast<NOpenGLProc::TVertexAttribL1dv>(GL_GET_EXTENSION("glVertexAttribL1dv"));
-    glVertexAttribL2d = reinterpret_cast<NOpenGLProc::TVertexAttribL2d>(GL_GET_EXTENSION("glVertexAttribL2d"));
-    glVertexAttribL2dv = reinterpret_cast<NOpenGLProc::TVertexAttribL2dv>(GL_GET_EXTENSION("glVertexAttribL2dv"));
-    glVertexAttribL3d = reinterpret_cast<NOpenGLProc::TVertexAttribL3d>(GL_GET_EXTENSION("glVertexAttribL3d"));
-    glVertexAttribL3dv = reinterpret_cast<NOpenGLProc::TVertexAttribL3dv>(GL_GET_EXTENSION("glVertexAttribL3dv"));
-    glVertexAttribL4d = reinterpret_cast<NOpenGLProc::TVertexAttribL4d>(GL_GET_EXTENSION("glVertexAttribL4d"));
-    glVertexAttribL4dv = reinterpret_cast<NOpenGLProc::TVertexAttribL4dv>(GL_GET_EXTENSION("glVertexAttribL4dv"));
-    glVertexAttribLPointer = reinterpret_cast<NOpenGLProc::TVertexAttribLPointer>(GL_GET_EXTENSION("glVertexAttribLPointer"));
-    glViewportArrayv = reinterpret_cast<NOpenGLProc::TViewportArrayv>(GL_GET_EXTENSION("glViewportArrayv"));
-    glViewportIndexedf = reinterpret_cast<NOpenGLProc::TViewportIndexedf>(GL_GET_EXTENSION("glViewportIndexedf"));
-    glViewportIndexedfv = reinterpret_cast<NOpenGLProc::TViewportIndexedfv>(GL_GET_EXTENSION("glViewportIndexedfv"));
-  }
-
-  // GL_VERSION_4_2
-  if(platform >= NEngine::GPU_PLATFORM_GL0402)
-  {
-    glBindImageTexture = reinterpret_cast<NOpenGLProc::TBindImageTexture>(GL_GET_EXTENSION("glBindImageTexture"));
-    glDrawArraysInstancedBaseInstance = reinterpret_cast<NOpenGLProc::TDrawArraysInstancedBaseInstance>(GL_GET_EXTENSION("glDrawArraysInstancedBaseInstance"));
-    glDrawElementsInstancedBaseInstance = reinterpret_cast<NOpenGLProc::TDrawElementsInstancedBaseInstance>(GL_GET_EXTENSION("glDrawElementsInstancedBaseInstance"));
-    glDrawElementsInstancedBaseVertexBaseInstance = reinterpret_cast<NOpenGLProc::TDrawElementsInstancedBaseVertexBaseInstance>(GL_GET_EXTENSION("glDrawElementsInstancedBaseVertexBaseInstance"));
-    glDrawTransformFeedbackInstanced = reinterpret_cast<NOpenGLProc::TDrawTransformFeedbackInstanced>(GL_GET_EXTENSION("glDrawTransformFeedbackInstanced"));
-    glDrawTransformFeedbackStreamInstanced = reinterpret_cast<NOpenGLProc::TDrawTransformFeedbackStreamInstanced>(GL_GET_EXTENSION("glDrawTransformFeedbackStreamInstanced"));
-    glGetActiveAtomicCounterBufferiv = reinterpret_cast<NOpenGLProc::TGetActiveAtomicCounterBufferiv>(GL_GET_EXTENSION("glGetActiveAtomicCounterBufferiv"));
-    glGetInternalformativ = reinterpret_cast<NOpenGLProc::TGetInternalformativ>(GL_GET_EXTENSION("glGetInternalformativ"));
-    glMemoryBarrier = reinterpret_cast<NOpenGLProc::TMemoryBarrier>(GL_GET_EXTENSION("glMemoryBarrier"));
-    glTexStorage1D = reinterpret_cast<NOpenGLProc::TTexStorage1D>(GL_GET_EXTENSION("glTexStorage1D"));
-    glTexStorage2D = reinterpret_cast<NOpenGLProc::TTexStorage2D>(GL_GET_EXTENSION("glTexStorage2D"));
-    glTexStorage3D = reinterpret_cast<NOpenGLProc::TTexStorage3D>(GL_GET_EXTENSION("glTexStorage3D"));
-  }
-
-  // GL_VERSION_4_3
-  if(platform >= NEngine::GPU_PLATFORM_GL0403)
-  {
-    glBindVertexBuffer = reinterpret_cast<NOpenGLProc::TBindVertexBuffer>(GL_GET_EXTENSION("glBindVertexBuffer"));
-    glClearBufferData = reinterpret_cast<NOpenGLProc::TClearBufferData>(GL_GET_EXTENSION("glClearBufferData"));
-    glClearBufferSubData = reinterpret_cast<NOpenGLProc::TClearBufferSubData>(GL_GET_EXTENSION("glClearBufferSubData"));
-    glCopyImageSubData = reinterpret_cast<NOpenGLProc::TCopyImageSubData>(GL_GET_EXTENSION("glCopyImageSubData"));
-    glDebugMessageCallback = reinterpret_cast<NOpenGLProc::TDebugMessageCallback>(GL_GET_EXTENSION("glDebugMessageCallback"));
-    glDebugMessageControl = reinterpret_cast<NOpenGLProc::TDebugMessageControl>(GL_GET_EXTENSION("glDebugMessageControl"));
-    glDebugMessageInsert = reinterpret_cast<NOpenGLProc::TDebugMessageInsert>(GL_GET_EXTENSION("glDebugMessageInsert"));
-    glDispatchCompute = reinterpret_cast<NOpenGLProc::TDispatchCompute>(GL_GET_EXTENSION("glDispatchCompute"));
-    glDispatchComputeIndirect = reinterpret_cast<NOpenGLProc::TDispatchComputeIndirect>(GL_GET_EXTENSION("glDispatchComputeIndirect"));
-    glFramebufferParameteri = reinterpret_cast<NOpenGLProc::TFramebufferParameteri>(GL_GET_EXTENSION("glFramebufferParameteri"));
-    glGetDebugMessageLog = reinterpret_cast<NOpenGLProc::TGetDebugMessageLog>(GL_GET_EXTENSION("glGetDebugMessageLog"));
-    glGetFramebufferParameteriv = reinterpret_cast<NOpenGLProc::TGetFramebufferParameteriv>(GL_GET_EXTENSION("glGetFramebufferParameteriv"));
-    glGetInternalformati64v = reinterpret_cast<NOpenGLProc::TGetInternalformati64v>(GL_GET_EXTENSION("glGetInternalformati64v"));
-    glGetObjectLabel = reinterpret_cast<NOpenGLProc::TGetObjectLabel>(GL_GET_EXTENSION("glGetObjectLabel"));
-    glGetObjectPtrLabel = reinterpret_cast<NOpenGLProc::TGetObjectPtrLabel>(GL_GET_EXTENSION("glGetObjectPtrLabel"));
-    glGetProgramInterfaceiv = reinterpret_cast<NOpenGLProc::TGetProgramInterfaceiv>(GL_GET_EXTENSION("glGetProgramInterfaceiv"));
-    glGetProgramResourceIndex = reinterpret_cast<NOpenGLProc::TGetProgramResourceIndex>(GL_GET_EXTENSION("glGetProgramResourceIndex"));
-    glGetProgramResourceLocation = reinterpret_cast<NOpenGLProc::TGetProgramResourceLocation>(GL_GET_EXTENSION("glGetProgramResourceLocation"));
-    glGetProgramResourceLocationIndex = reinterpret_cast<NOpenGLProc::TGetProgramResourceLocationIndex>(GL_GET_EXTENSION("glGetProgramResourceLocationIndex"));
-    glGetProgramResourceName = reinterpret_cast<NOpenGLProc::TGetProgramResourceName>(GL_GET_EXTENSION("glGetProgramResourceName"));
-    glGetProgramResourceiv = reinterpret_cast<NOpenGLProc::TGetProgramResourceiv>(GL_GET_EXTENSION("glGetProgramResourceiv"));
-    glInvalidateBufferData = reinterpret_cast<NOpenGLProc::TInvalidateBufferData>(GL_GET_EXTENSION("glInvalidateBufferData"));
-    glInvalidateBufferSubData = reinterpret_cast<NOpenGLProc::TInvalidateBufferSubData>(GL_GET_EXTENSION("glInvalidateBufferSubData"));
-    glInvalidateFramebuffer = reinterpret_cast<NOpenGLProc::TInvalidateFramebuffer>(GL_GET_EXTENSION("glInvalidateFramebuffer"));
-    glInvalidateSubFramebuffer = reinterpret_cast<NOpenGLProc::TInvalidateSubFramebuffer>(GL_GET_EXTENSION("glInvalidateSubFramebuffer"));
-    glInvalidateTexImage = reinterpret_cast<NOpenGLProc::TInvalidateTexImage>(GL_GET_EXTENSION("glInvalidateTexImage"));
-    glInvalidateTexSubImage = reinterpret_cast<NOpenGLProc::TInvalidateTexSubImage>(GL_GET_EXTENSION("glInvalidateTexSubImage"));
-    glMultiDrawArraysIndirect = reinterpret_cast<NOpenGLProc::TMultiDrawArraysIndirect>(GL_GET_EXTENSION("glMultiDrawArraysIndirect"));
-    glMultiDrawElementsIndirect = reinterpret_cast<NOpenGLProc::TMultiDrawElementsIndirect>(GL_GET_EXTENSION("glMultiDrawElementsIndirect"));
-    glObjectLabel = reinterpret_cast<NOpenGLProc::TObjectLabel>(GL_GET_EXTENSION("glObjectLabel"));
-    glObjectPtrLabel = reinterpret_cast<NOpenGLProc::TObjectPtrLabel>(GL_GET_EXTENSION("glObjectPtrLabel"));
-    glPopDebugGroup = reinterpret_cast<NOpenGLProc::TPopDebugGroup>(GL_GET_EXTENSION("glPopDebugGroup"));
-    glPushDebugGroup = reinterpret_cast<NOpenGLProc::TPushDebugGroup>(GL_GET_EXTENSION("glPushDebugGroup"));
-    glShaderStorageBlockBinding = reinterpret_cast<NOpenGLProc::TShaderStorageBlockBinding>(GL_GET_EXTENSION("glShaderStorageBlockBinding"));
-    glTexBufferRange = reinterpret_cast<NOpenGLProc::TTexBufferRange>(GL_GET_EXTENSION("glTexBufferRange"));
-    glTexStorage2DMultisample = reinterpret_cast<NOpenGLProc::TTexStorage2DMultisample>(GL_GET_EXTENSION("glTexStorage2DMultisample"));
-    glTexStorage3DMultisample = reinterpret_cast<NOpenGLProc::TTexStorage3DMultisample>(GL_GET_EXTENSION("glTexStorage3DMultisample"));
-    glTextureView = reinterpret_cast<NOpenGLProc::TTextureView>(GL_GET_EXTENSION("glTextureView"));
-    glVertexAttribBinding = reinterpret_cast<NOpenGLProc::TVertexAttribBinding>(GL_GET_EXTENSION("glVertexAttribBinding"));
-    glVertexAttribFormat = reinterpret_cast<NOpenGLProc::TVertexAttribFormat>(GL_GET_EXTENSION("glVertexAttribFormat"));
-    glVertexAttribIFormat = reinterpret_cast<NOpenGLProc::TVertexAttribIFormat>(GL_GET_EXTENSION("glVertexAttribIFormat"));
-    glVertexAttribLFormat = reinterpret_cast<NOpenGLProc::TVertexAttribLFormat>(GL_GET_EXTENSION("glVertexAttribLFormat"));
-    glVertexBindingDivisor = reinterpret_cast<NOpenGLProc::TVertexBindingDivisor>(GL_GET_EXTENSION("glVertexBindingDivisor"));
-  }
-
-  // GL_VERSION_4_4
-  if(platform >= NEngine::GPU_PLATFORM_GL0404)
-  {
-    glBindBuffersBase = reinterpret_cast<NOpenGLProc::TBindBuffersBase>(GL_GET_EXTENSION("glBindBuffersBase"));
-    glBindBuffersRange = reinterpret_cast<NOpenGLProc::TBindBuffersRange>(GL_GET_EXTENSION("glBindBuffersRange"));
-    glBindImageTextures = reinterpret_cast<NOpenGLProc::TBindImageTextures>(GL_GET_EXTENSION("glBindImageTextures"));
-    glBindSamplers = reinterpret_cast<NOpenGLProc::TBindSamplers>(GL_GET_EXTENSION("glBindSamplers"));
-    glBindTextures = reinterpret_cast<NOpenGLProc::TBindTextures>(GL_GET_EXTENSION("glBindTextures"));
-    glBindVertexBuffers = reinterpret_cast<NOpenGLProc::TBindVertexBuffers>(GL_GET_EXTENSION("glBindVertexBuffers"));
-    glBufferStorage = reinterpret_cast<NOpenGLProc::TBufferStorage>(GL_GET_EXTENSION("glBufferStorage"));
-    glClearTexImage = reinterpret_cast<NOpenGLProc::TClearTexImage>(GL_GET_EXTENSION("glClearTexImage"));
-    glClearTexSubImage = reinterpret_cast<NOpenGLProc::TClearTexSubImage>(GL_GET_EXTENSION("glClearTexSubImage"));
-  }
-
-  // GL_VERSION_4_5
-  if(platform >= NEngine::GPU_PLATFORM_GL0405)
-  {
-    glBindTextureUnit = reinterpret_cast<NOpenGLProc::TBindTextureUnit>(GL_GET_EXTENSION("glBindTextureUnit"));
-    glBlitNamedFramebuffer = reinterpret_cast<NOpenGLProc::TBlitNamedFramebuffer>(GL_GET_EXTENSION("glBlitNamedFramebuffer"));
-    glCheckNamedFramebufferStatus = reinterpret_cast<NOpenGLProc::TCheckNamedFramebufferStatus>(GL_GET_EXTENSION("glCheckNamedFramebufferStatus"));
-    glClearNamedBufferData = reinterpret_cast<NOpenGLProc::TClearNamedBufferData>(GL_GET_EXTENSION("glClearNamedBufferData"));
-    glClearNamedBufferSubData = reinterpret_cast<NOpenGLProc::TClearNamedBufferSubData>(GL_GET_EXTENSION("glClearNamedBufferSubData"));
-    glClearNamedFramebufferfi = reinterpret_cast<NOpenGLProc::TClearNamedFramebufferfi>(GL_GET_EXTENSION("glClearNamedFramebufferfi"));
-    glClearNamedFramebufferfv = reinterpret_cast<NOpenGLProc::TClearNamedFramebufferfv>(GL_GET_EXTENSION("glClearNamedFramebufferfv"));
-    glClearNamedFramebufferiv = reinterpret_cast<NOpenGLProc::TClearNamedFramebufferiv>(GL_GET_EXTENSION("glClearNamedFramebufferiv"));
-    glClearNamedFramebufferuiv = reinterpret_cast<NOpenGLProc::TClearNamedFramebufferuiv>(GL_GET_EXTENSION("glClearNamedFramebufferuiv"));
-    glClipControl = reinterpret_cast<NOpenGLProc::TClipControl>(GL_GET_EXTENSION("glClipControl"));
-    glCompressedTextureSubImage1D = reinterpret_cast<NOpenGLProc::TCompressedTextureSubImage1D>(GL_GET_EXTENSION("glCompressedTextureSubImage1D"));
-    glCompressedTextureSubImage2D = reinterpret_cast<NOpenGLProc::TCompressedTextureSubImage2D>(GL_GET_EXTENSION("glCompressedTextureSubImage2D"));
-    glCompressedTextureSubImage3D = reinterpret_cast<NOpenGLProc::TCompressedTextureSubImage3D>(GL_GET_EXTENSION("glCompressedTextureSubImage3D"));
-    glCopyNamedBufferSubData = reinterpret_cast<NOpenGLProc::TCopyNamedBufferSubData>(GL_GET_EXTENSION("glCopyNamedBufferSubData"));
-    glCopyTextureSubImage1D = reinterpret_cast<NOpenGLProc::TCopyTextureSubImage1D>(GL_GET_EXTENSION("glCopyTextureSubImage1D"));
-    glCopyTextureSubImage2D = reinterpret_cast<NOpenGLProc::TCopyTextureSubImage2D>(GL_GET_EXTENSION("glCopyTextureSubImage2D"));
-    glCopyTextureSubImage3D = reinterpret_cast<NOpenGLProc::TCopyTextureSubImage3D>(GL_GET_EXTENSION("glCopyTextureSubImage3D"));
-    glCreateBuffers = reinterpret_cast<NOpenGLProc::TCreateBuffers>(GL_GET_EXTENSION("glCreateBuffers"));
-    glCreateFramebuffers = reinterpret_cast<NOpenGLProc::TCreateFramebuffers>(GL_GET_EXTENSION("glCreateFramebuffers"));
-    glCreateProgramPipelines = reinterpret_cast<NOpenGLProc::TCreateProgramPipelines>(GL_GET_EXTENSION("glCreateProgramPipelines"));
-    glCreateQueries = reinterpret_cast<NOpenGLProc::TCreateQueries>(GL_GET_EXTENSION("glCreateQueries"));
-    glCreateRenderbuffers = reinterpret_cast<NOpenGLProc::TCreateRenderbuffers>(GL_GET_EXTENSION("glCreateRenderbuffers"));
-    glCreateSamplers = reinterpret_cast<NOpenGLProc::TCreateSamplers>(GL_GET_EXTENSION("glCreateSamplers"));
-    glCreateTextures = reinterpret_cast<NOpenGLProc::TCreateTextures>(GL_GET_EXTENSION("glCreateTextures"));
-    glCreateTransformFeedbacks = reinterpret_cast<NOpenGLProc::TCreateTransformFeedbacks>(GL_GET_EXTENSION("glCreateTransformFeedbacks"));
-    glCreateVertexArrays = reinterpret_cast<NOpenGLProc::TCreateVertexArrays>(GL_GET_EXTENSION("glCreateVertexArrays"));
-    glDisableVertexArrayAttrib = reinterpret_cast<NOpenGLProc::TDisableVertexArrayAttrib>(GL_GET_EXTENSION("glDisableVertexArrayAttrib"));
-    glEnableVertexArrayAttrib = reinterpret_cast<NOpenGLProc::TEnableVertexArrayAttrib>(GL_GET_EXTENSION("glEnableVertexArrayAttrib"));
-    glFlushMappedNamedBufferRange = reinterpret_cast<NOpenGLProc::TFlushMappedNamedBufferRange>(GL_GET_EXTENSION("glFlushMappedNamedBufferRange"));
-    glGenerateTextureMipmap = reinterpret_cast<NOpenGLProc::TGenerateTextureMipmap>(GL_GET_EXTENSION("glGenerateTextureMipmap"));
-    glGetCompressedTextureImage = reinterpret_cast<NOpenGLProc::TGetCompressedTextureImage>(GL_GET_EXTENSION("glGetCompressedTextureImage"));
-    glGetCompressedTextureSubImage = reinterpret_cast<NOpenGLProc::TGetCompressedTextureSubImage>(GL_GET_EXTENSION("glGetCompressedTextureSubImage"));
-    glGetGraphicsResetStatus = reinterpret_cast<NOpenGLProc::TGetGraphicsResetStatus>(GL_GET_EXTENSION("glGetGraphicsResetStatus"));
-    glGetNamedBufferParameteri64v = reinterpret_cast<NOpenGLProc::TGetNamedBufferParameteri64v>(GL_GET_EXTENSION("glGetNamedBufferParameteri64v"));
-    glGetNamedBufferParameteriv = reinterpret_cast<NOpenGLProc::TGetNamedBufferParameteriv>(GL_GET_EXTENSION("glGetNamedBufferParameteriv"));
-    glGetNamedBufferPointerv = reinterpret_cast<NOpenGLProc::TGetNamedBufferPointerv>(GL_GET_EXTENSION("glGetNamedBufferPointerv"));
-    glGetNamedBufferSubData = reinterpret_cast<NOpenGLProc::TGetNamedBufferSubData>(GL_GET_EXTENSION("glGetNamedBufferSubData"));
-    glGetNamedFramebufferAttachmentParameteriv = reinterpret_cast<NOpenGLProc::TGetNamedFramebufferAttachmentParameteriv>(GL_GET_EXTENSION("glGetNamedFramebufferAttachmentParameteriv"));
-    glGetNamedFramebufferParameteriv = reinterpret_cast<NOpenGLProc::TGetNamedFramebufferParameteriv>(GL_GET_EXTENSION("glGetNamedFramebufferParameteriv"));
-    glGetNamedRenderbufferParameteriv = reinterpret_cast<NOpenGLProc::TGetNamedRenderbufferParameteriv>(GL_GET_EXTENSION("glGetNamedRenderbufferParameteriv"));
-    glGetQueryBufferObjecti64v = reinterpret_cast<NOpenGLProc::TGetQueryBufferObjecti64v>(GL_GET_EXTENSION("glGetQueryBufferObjecti64v"));
-    glGetQueryBufferObjectiv = reinterpret_cast<NOpenGLProc::TGetQueryBufferObjectiv>(GL_GET_EXTENSION("glGetQueryBufferObjectiv"));
-    glGetQueryBufferObjectui64v = reinterpret_cast<NOpenGLProc::TGetQueryBufferObjectui64v>(GL_GET_EXTENSION("glGetQueryBufferObjectui64v"));
-    glGetQueryBufferObjectuiv = reinterpret_cast<NOpenGLProc::TGetQueryBufferObjectuiv>(GL_GET_EXTENSION("glGetQueryBufferObjectuiv"));
-    glGetTextureImage = reinterpret_cast<NOpenGLProc::TGetTextureImage>(GL_GET_EXTENSION("glGetTextureImage"));
-    glGetTextureLevelParameterfv = reinterpret_cast<NOpenGLProc::TGetTextureLevelParameterfv>(GL_GET_EXTENSION("glGetTextureLevelParameterfv"));
-    glGetTextureLevelParameteriv = reinterpret_cast<NOpenGLProc::TGetTextureLevelParameteriv>(GL_GET_EXTENSION("glGetTextureLevelParameteriv"));
-    glGetTextureParameterIiv = reinterpret_cast<NOpenGLProc::TGetTextureParameterIiv>(GL_GET_EXTENSION("glGetTextureParameterIiv"));
-    glGetTextureParameterIuiv = reinterpret_cast<NOpenGLProc::TGetTextureParameterIuiv>(GL_GET_EXTENSION("glGetTextureParameterIuiv"));
-    glGetTextureParameterfv = reinterpret_cast<NOpenGLProc::TGetTextureParameterfv>(GL_GET_EXTENSION("glGetTextureParameterfv"));
-    glGetTextureParameteriv = reinterpret_cast<NOpenGLProc::TGetTextureParameteriv>(GL_GET_EXTENSION("glGetTextureParameteriv"));
-    glGetTextureSubImage = reinterpret_cast<NOpenGLProc::TGetTextureSubImage>(GL_GET_EXTENSION("glGetTextureSubImage"));
-    glGetTransformFeedbacki64_v = reinterpret_cast<NOpenGLProc::TGetTransformFeedbacki64_v>(GL_GET_EXTENSION("glGetTransformFeedbacki64_v"));
-    glGetTransformFeedbacki_v = reinterpret_cast<NOpenGLProc::TGetTransformFeedbacki_v>(GL_GET_EXTENSION("glGetTransformFeedbacki_v"));
-    glGetTransformFeedbackiv = reinterpret_cast<NOpenGLProc::TGetTransformFeedbackiv>(GL_GET_EXTENSION("glGetTransformFeedbackiv"));
-    glGetVertexArrayIndexed64iv = reinterpret_cast<NOpenGLProc::TGetVertexArrayIndexed64iv>(GL_GET_EXTENSION("glGetVertexArrayIndexed64iv"));
-    glGetVertexArrayIndexediv = reinterpret_cast<NOpenGLProc::TGetVertexArrayIndexediv>(GL_GET_EXTENSION("glGetVertexArrayIndexediv"));
-    glGetVertexArrayiv = reinterpret_cast<NOpenGLProc::TGetVertexArrayiv>(GL_GET_EXTENSION("glGetVertexArrayiv"));
-    glGetnCompressedTexImage = reinterpret_cast<NOpenGLProc::TGetnCompressedTexImage>(GL_GET_EXTENSION("glGetnCompressedTexImage"));
-    glGetnTexImage = reinterpret_cast<NOpenGLProc::TGetnTexImage>(GL_GET_EXTENSION("glGetnTexImage"));
-    glGetnUniformdv = reinterpret_cast<NOpenGLProc::TGetnUniformdv>(GL_GET_EXTENSION("glGetnUniformdv"));
-    glGetnUniformfv = reinterpret_cast<NOpenGLProc::TGetnUniformfv>(GL_GET_EXTENSION("glGetnUniformfv"));
-    glGetnUniformiv = reinterpret_cast<NOpenGLProc::TGetnUniformiv>(GL_GET_EXTENSION("glGetnUniformiv"));
-    glGetnUniformuiv = reinterpret_cast<NOpenGLProc::TGetnUniformuiv>(GL_GET_EXTENSION("glGetnUniformuiv"));
-    glInvalidateNamedFramebufferData = reinterpret_cast<NOpenGLProc::TInvalidateNamedFramebufferData>(GL_GET_EXTENSION("glInvalidateNamedFramebufferData"));
-    glInvalidateNamedFramebufferSubData = reinterpret_cast<NOpenGLProc::TInvalidateNamedFramebufferSubData>(GL_GET_EXTENSION("glInvalidateNamedFramebufferSubData"));
-    glMapNamedBuffer = reinterpret_cast<NOpenGLProc::TMapNamedBuffer>(GL_GET_EXTENSION("glMapNamedBuffer"));
-    glMapNamedBufferRange = reinterpret_cast<NOpenGLProc::TMapNamedBufferRange>(GL_GET_EXTENSION("glMapNamedBufferRange"));
-    glMemoryBarrierByRegion = reinterpret_cast<NOpenGLProc::TMemoryBarrierByRegion>(GL_GET_EXTENSION("glMemoryBarrierByRegion"));
-    glNamedBufferData = reinterpret_cast<NOpenGLProc::TNamedBufferData>(GL_GET_EXTENSION("glNamedBufferData"));
-    glNamedBufferStorage = reinterpret_cast<NOpenGLProc::TNamedBufferStorage>(GL_GET_EXTENSION("glNamedBufferStorage"));
-    glNamedBufferSubData = reinterpret_cast<NOpenGLProc::TNamedBufferSubData>(GL_GET_EXTENSION("glNamedBufferSubData"));
-    glNamedFramebufferDrawBuffer = reinterpret_cast<NOpenGLProc::TNamedFramebufferDrawBuffer>(GL_GET_EXTENSION("glNamedFramebufferDrawBuffer"));
-    glNamedFramebufferDrawBuffers = reinterpret_cast<NOpenGLProc::TNamedFramebufferDrawBuffers>(GL_GET_EXTENSION("glNamedFramebufferDrawBuffers"));
-    glNamedFramebufferParameteri = reinterpret_cast<NOpenGLProc::TNamedFramebufferParameteri>(GL_GET_EXTENSION("glNamedFramebufferParameteri"));
-    glNamedFramebufferReadBuffer = reinterpret_cast<NOpenGLProc::TNamedFramebufferReadBuffer>(GL_GET_EXTENSION("glNamedFramebufferReadBuffer"));
-    glNamedFramebufferRenderbuffer = reinterpret_cast<NOpenGLProc::TNamedFramebufferRenderbuffer>(GL_GET_EXTENSION("glNamedFramebufferRenderbuffer"));
-    glNamedFramebufferTexture = reinterpret_cast<NOpenGLProc::TNamedFramebufferTexture>(GL_GET_EXTENSION("glNamedFramebufferTexture"));
-    glNamedFramebufferTextureLayer = reinterpret_cast<NOpenGLProc::TNamedFramebufferTextureLayer>(GL_GET_EXTENSION("glNamedFramebufferTextureLayer"));
-    glNamedRenderbufferStorage = reinterpret_cast<NOpenGLProc::TNamedRenderbufferStorage>(GL_GET_EXTENSION("glNamedRenderbufferStorage"));
-    glNamedRenderbufferStorageMultisample = reinterpret_cast<NOpenGLProc::TNamedRenderbufferStorageMultisample>(GL_GET_EXTENSION("glNamedRenderbufferStorageMultisample"));
-    glReadnPixels = reinterpret_cast<NOpenGLProc::TReadnPixels>(GL_GET_EXTENSION("glReadnPixels"));
-    glTextureBarrier = reinterpret_cast<NOpenGLProc::TTextureBarrier>(GL_GET_EXTENSION("glTextureBarrier"));
-    glTextureBuffer = reinterpret_cast<NOpenGLProc::TTextureBuffer>(GL_GET_EXTENSION("glTextureBuffer"));
-    glTextureBufferRange = reinterpret_cast<NOpenGLProc::TTextureBufferRange>(GL_GET_EXTENSION("glTextureBufferRange"));
-    glTextureParameterIiv = reinterpret_cast<NOpenGLProc::TTextureParameterIiv>(GL_GET_EXTENSION("glTextureParameterIiv"));
-    glTextureParameterIuiv = reinterpret_cast<NOpenGLProc::TTextureParameterIuiv>(GL_GET_EXTENSION("glTextureParameterIuiv"));
-    glTextureParameterf = reinterpret_cast<NOpenGLProc::TTextureParameterf>(GL_GET_EXTENSION("glTextureParameterf"));
-    glTextureParameterfv = reinterpret_cast<NOpenGLProc::TTextureParameterfv>(GL_GET_EXTENSION("glTextureParameterfv"));
-    glTextureParameteri = reinterpret_cast<NOpenGLProc::TTextureParameteri>(GL_GET_EXTENSION("glTextureParameteri"));
-    glTextureParameteriv = reinterpret_cast<NOpenGLProc::TTextureParameteriv>(GL_GET_EXTENSION("glTextureParameteriv"));
-    glTextureStorage1D = reinterpret_cast<NOpenGLProc::TTextureStorage1D>(GL_GET_EXTENSION("glTextureStorage1D"));
-    glTextureStorage2D = reinterpret_cast<NOpenGLProc::TTextureStorage2D>(GL_GET_EXTENSION("glTextureStorage2D"));
-    glTextureStorage2DMultisample = reinterpret_cast<NOpenGLProc::TTextureStorage2DMultisample>(GL_GET_EXTENSION("glTextureStorage2DMultisample"));
-    glTextureStorage3D = reinterpret_cast<NOpenGLProc::TTextureStorage3D>(GL_GET_EXTENSION("glTextureStorage3D"));
-    glTextureStorage3DMultisample = reinterpret_cast<NOpenGLProc::TTextureStorage3DMultisample>(GL_GET_EXTENSION("glTextureStorage3DMultisample"));
-    glTextureSubImage1D = reinterpret_cast<NOpenGLProc::TTextureSubImage1D>(GL_GET_EXTENSION("glTextureSubImage1D"));
-    glTextureSubImage2D = reinterpret_cast<NOpenGLProc::TTextureSubImage2D>(GL_GET_EXTENSION("glTextureSubImage2D"));
-    glTextureSubImage3D = reinterpret_cast<NOpenGLProc::TTextureSubImage3D>(GL_GET_EXTENSION("glTextureSubImage3D"));
-    glTransformFeedbackBufferBase = reinterpret_cast<NOpenGLProc::TTransformFeedbackBufferBase>(GL_GET_EXTENSION("glTransformFeedbackBufferBase"));
-    glTransformFeedbackBufferRange = reinterpret_cast<NOpenGLProc::TTransformFeedbackBufferRange>(GL_GET_EXTENSION("glTransformFeedbackBufferRange"));
-    glUnmapNamedBuffer = reinterpret_cast<NOpenGLProc::TUnmapNamedBuffer>(GL_GET_EXTENSION("glUnmapNamedBuffer"));
-    glVertexArrayAttribBinding = reinterpret_cast<NOpenGLProc::TVertexArrayAttribBinding>(GL_GET_EXTENSION("glVertexArrayAttribBinding"));
-    glVertexArrayAttribFormat = reinterpret_cast<NOpenGLProc::TVertexArrayAttribFormat>(GL_GET_EXTENSION("glVertexArrayAttribFormat"));
-    glVertexArrayAttribIFormat = reinterpret_cast<NOpenGLProc::TVertexArrayAttribIFormat>(GL_GET_EXTENSION("glVertexArrayAttribIFormat"));
-    glVertexArrayAttribLFormat = reinterpret_cast<NOpenGLProc::TVertexArrayAttribLFormat>(GL_GET_EXTENSION("glVertexArrayAttribLFormat"));
-    glVertexArrayBindingDivisor = reinterpret_cast<NOpenGLProc::TVertexArrayBindingDivisor>(GL_GET_EXTENSION("glVertexArrayBindingDivisor"));
-    glVertexArrayElementBuffer = reinterpret_cast<NOpenGLProc::TVertexArrayElementBuffer>(GL_GET_EXTENSION("glVertexArrayElementBuffer"));
-    glVertexArrayVertexBuffer = reinterpret_cast<NOpenGLProc::TVertexArrayVertexBuffer>(GL_GET_EXTENSION("glVertexArrayVertexBuffer"));
-    glVertexArrayVertexBuffers = reinterpret_cast<NOpenGLProc::TVertexArrayVertexBuffers>(GL_GET_EXTENSION("glVertexArrayVertexBuffers"));
-  }
-}
-//------------------------------------------------------------------------------
-inline COpenGL::~COpenGL()
-{
-  //
-}
-//------------------------------------------------------------------------------
 inline void COpenGL::makeCurrent()
 {
-  //
 }
 //------------------------------------------------------------------------------
 #endif // OPENGL_H

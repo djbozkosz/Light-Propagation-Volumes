@@ -291,6 +291,26 @@ void printCoreHeader(const std::map<std::string, SVerExt> &v)
 
 void printCoreClass(const std::map<std::string, SVerExt> &v)
 {
+  std::map<std::string, std::string> vers;
+  vers["GL_VERSION_1_0"] = "0100";
+  vers["GL_VERSION_1_1"] = "0101";
+  vers["GL_VERSION_1_2"] = "0102";
+  vers["GL_VERSION_1_3"] = "0103";
+  vers["GL_VERSION_1_4"] = "0104";
+  vers["GL_VERSION_1_5"] = "0105";
+  vers["GL_VERSION_2_0"] = "0200";
+  vers["GL_VERSION_2_1"] = "0201";
+  vers["GL_VERSION_3_0"] = "0300";
+  vers["GL_VERSION_3_1"] = "0301";
+  vers["GL_VERSION_3_2"] = "0302";
+  vers["GL_VERSION_3_3"] = "0303";
+  vers["GL_VERSION_4_0"] = "0400";
+  vers["GL_VERSION_4_1"] = "0401";
+  vers["GL_VERSION_4_2"] = "0402";
+  vers["GL_VERSION_4_3"] = "0403";
+  vers["GL_VERSION_4_4"] = "0404";
+  vers["GL_VERSION_4_5"] = "0405";
+
   std::cout << "//------------------------------------------------------------------------------\n";
   std::cout << "class COpenGL : public CEngineBase\n{\n  private:\n";
 
@@ -303,7 +323,7 @@ void printCoreClass(const std::map<std::string, SVerExt> &v)
     std::cout << "    // " << i->second.name << "\n";
     for(auto j = i->second.functions.cbegin(); j != i->second.functions.cend(); j++)
     {
-      std::cout << "    NOpenGLProc::T" << j->second.name.substr(2) << " " << j->second.name << ";\n";
+      std::cout << "    NOpenGLProc::T" << j->second.name.substr(2) << " " << j->second.name << "; NOpenGLProc::EProcType status" << j->second.name.substr(2) << ";\n";
     }
     std::cout << "  \n";
   }
@@ -366,7 +386,7 @@ void printCoreClass(const std::map<std::string, SVerExt> &v)
     std::cout << "  // " << i->second.name << "\n";
     uint jj = 0;
     for(auto j = i->second.functions.cbegin(); j != i->second.functions.cend(); j++, jj++)
-      std::cout << "  " << j->second.name << "(NULL)" << (((ii == (iic - 1)) && (jj == (i->second.functions.size() - 1))) ? "" : ",") << "\n";
+      std::cout << "  " << j->second.name << "(NULL), status" << j->second.name.substr(2) << "(NOpenGLProc::TYPE_NOT_LOADED)" << (((ii == (iic - 1)) && (jj == (i->second.functions.size() - 1))) ? "" : ",") << "\n";
     if(ii < (iic - 1))
       std::cout << "\n";
   }
@@ -380,15 +400,49 @@ void printCoreClass(const std::map<std::string, SVerExt> &v)
     if((!i->second.functions.size()) || (i->second.name.find("GL_VERSION_") == std::string::npos) || (i->second.name == "GL_VERSION_1_0") || (i->second.name == "GL_VERSION_1_1"))
       continue;
 
-    std::cout << "  // " << i->second.name << "\n";
+    std::cout << "  // " << i->second.name << "\n  if(platform >= NEngine::GPU_PLATFORM_GL" << vers[i->second.name] << ")\n  {\n";
     for(auto j = i->second.functions.cbegin(); j != i->second.functions.cend(); j++)
-      std::cout << "  " << j->second.name << " = reinterpret_cast<T" << j->second.name.substr(2) << ">(GL_GET_EXTENSION(\"" << j->second.name << "\");\n";
+      std::cout << "    LOAD_GL_EXTENSION(" << j->second.name << ", status" << j->second.name.substr(2) << ", NOpenGLProc::T" << j->second.name.substr(2) << ", \"" << j->second.name << "\", \"" << j->second.name << "ARB\", \"" << j->second.name << "EXT\");\n";
+      /*std::cout << "  " << j->second.name << " = reinterpret_cast<T" << j->second.name.substr(2) << ">(GL_GET_EXTENSION(\"" << j->second.name << "\"); " << "status" << j->second.name.substr(2) << " = NOpenGLProc::TYPE_CORE; "
+      << "if(!" << j->second.name << ")" << "\n";*/
+    std::cout << "  }\n";
     if(ii < (iic - 1))
       std::cout << "\n";
   }
   std::cout << "}\n";
   std::cout << "//------------------------------------------------------------------------------\n";
   std::cout << "inline COpenGL::~COpenGL()\n{\n}\n";
+  std::cout << "//------------------------------------------------------------------------------\n";
+  std::cout << "inline std::string COpenGL::getStatus()\n{\n";
+  std::cout << "  std::string status;\n";
+  std::cout << "  \n";
+
+  ii = 0;
+  for(auto i = v.cbegin(); i != v.cend(); i++, ii++)
+  {
+    if((!i->second.functions.size()) || (i->second.name.find("GL_VERSION_") == std::string::npos))
+      continue;
+
+    const bool isFixed = ((i->second.name == "GL_VERSION_1_0") || (i->second.name == "GL_VERSION_1_1"));
+
+    std::cout << "  status += \"" << i->second.name << "\\n\";\n";
+    for(auto j = i->second.functions.cbegin(); j != i->second.functions.cend(); j++)
+    {
+      std::string s = j->second.name.substr(2);
+      std::transform(s.cbegin(), s.cend(), s.begin(), tolower);
+      s = std::string(1, s[0])+j->second.name.substr(3);
+      if((45 - static_cast<int>(s.length())) > 0)
+        s += std::string(45 - s.length(), ' ');
+      std::cout << "  status += std::string(\"  " << s << " \")+" << ((isFixed) ? std::string("\"   \"") : std::string("((status"+j->second.name.substr(2)+" == NOpenGLProc::TYPE_ARB) ? \"ARB\" : ((status"+j->second.name.substr(2)+" == NOpenGLProc::TYPE_EXT) ? \"EXT\" : \"   \"))")) << "+\" : " << ((isFixed) ? "true\"" : (std::string("\"+((")+j->second.name+") ? \"true\" : \"false\")")) << "+\"\\n\";\n";
+    }
+    if(ii < (iic - 1))
+      std::cout << "  status += \"\\n\";\n";
+    else
+      std::cout << "  \n";
+  }
+
+  std::cout << "  return status;\n";
+  std::cout << "}\n";
   std::cout << "//------------------------------------------------------------------------------\n";
 }
 

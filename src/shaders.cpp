@@ -59,13 +59,10 @@ void CShader::compile()
   if(infoLength)
     gl->getShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
   if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
-  {
-    context->log("aaa");
     context->log(log);
-  }
 
   if(status == NOpenGL::FALSE)
-    context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.file.c_str()), &log[0], false);
+    context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.file.c_str()), log.c_str(), false);
 
   f->close();
 }
@@ -167,14 +164,11 @@ void CShaderProgram::link()
 
 #ifndef Q_OS_SYMBIAN
   if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
-  {
-    context->log("bbb");
     context->log(log);
-  }
 #endif
 
   if(status == NOpenGL::FALSE)
-    context->engineShowMessage(CStr(NShader::STR_ERROR_LINK, NShader::STR_PROGRAM_LIST[program.name]), &log[0], false);
+    context->engineShowMessage(CStr(NShader::STR_ERROR_LINK, NShader::STR_PROGRAM_LIST[program.name]), log.c_str(), false);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::initUniforms()

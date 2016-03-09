@@ -19,10 +19,10 @@ uniform int type;
 uniform vec2 lightRange;
 uniform vec3 lightColor;*/
 
-out vec4 glFragColor;
-out vec4 glFragColorPos;
-out vec4 glFragColorNormal;
-out float glFragColorDepth;
+out vec4 glFragColor0;
+out vec4 glFragColor1Pos;
+out vec4 glFragColor2Normal;
+out float glFragColor3Depth;
 
 void main()
 {
@@ -41,8 +41,8 @@ void main()
 
   vec3 colorDif = lightColor * lightDot * lightDist;*/
 
-  glFragColor = vec4(fragDif.rgb * color.rgb/* * colorDif*/, 1.0);
-  glFragColorPos = vec4(positionWorld, 1.0);
-  glFragColorNormal = vec4(normalDir, 1.0); //vec4(mtbnt * normalize(texture(norTex, texCoord).rgb), 1.0);
-  glFragColorDepth = gl_FragCoord.z;
+  glFragColor0 = vec4(fragDif.rgb * color.rgb/* * colorDif*/, 1.0);
+  glFragColor1Pos = vec4(positionWorld, 1.0);
+  glFragColor2Normal = vec4(normalDir, 1.0); //vec4(mtbnt * normalize(texture(norTex, texCoord).rgb), 1.0);
+  glFragColor3Depth = gl_FragCoord.z;
 }

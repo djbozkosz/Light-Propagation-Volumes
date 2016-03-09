@@ -1,9 +1,9 @@
 #version 130
 precision lowp float;
 
-in vec3 vertexPosition;
-in vec2 vertexTexCoord;
-in vec4 vertexColor;
+in vec3 _vertexPosition;
+in vec2 _vertexTexCoord;
+in vec4 _vertexColor;
 
 uniform mat4 mvp;
 
@@ -12,7 +12,7 @@ out vec4 color;
 
 void main()
 {
-  texCoord = vertexTexCoord;
-  color = vertexColor;
-  gl_Position = mvp * vec4(vertexPosition, 1.0);
+  texCoord = _vertexTexCoord;
+  color = _vertexColor;
+  gl_Position = mvp * vec4(_vertexPosition, 1.0);
 }

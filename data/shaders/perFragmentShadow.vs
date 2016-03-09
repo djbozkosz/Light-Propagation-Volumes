@@ -1,10 +1,10 @@
 #version 130
 precision lowp float;
 
-in vec3 vertexPosition;
-in vec3 vertexNormal;
-in vec2 vertexTexCoord;
-in vec4 vertexColor;
+in vec3 _vertexPosition;
+in vec3 _vertexNormal;
+in vec2 _vertexTexCoord;
+in vec4 _vertexColor;
 
 uniform mat4 mw;
 uniform mat4 mvp;
@@ -18,10 +18,10 @@ out vec3 depthCoord;
 
 void main()
 {
-  positionWorld = vec4(mw * vec4(vertexPosition, 1.0)).xyz;
-  normal = vertexNormal;
-  texCoord = vertexTexCoord;
-  color = vertexColor;
-  depthCoord = vec4(mvpdb * vec4(vertexPosition, 1.0)).xyz * 0.5 + 0.5;
-  gl_Position = mvp * vec4(vertexPosition, 1.0);
+  positionWorld = vec4(mw * vec4(_vertexPosition, 1.0)).xyz;
+  normal = _vertexNormal;
+  texCoord = _vertexTexCoord;
+  color = _vertexColor;
+  depthCoord = vec4(mvpdb * vec4(_vertexPosition, 1.0)).xyz * 0.5 + 0.5;
+  gl_Position = mvp * vec4(_vertexPosition, 1.0);
 }

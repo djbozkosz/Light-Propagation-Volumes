@@ -99,12 +99,10 @@ CScene::~CScene()
 //------------------------------------------------------------------------------
 CScenes::CScenes() : CEngineBase(), activeScene(NULL)
 {
-  context->log("scenes constr");
 }
 //------------------------------------------------------------------------------
 CScenes::CScenes(CContext *context) : CEngineBase(context), activeScene(NULL)
 {
-  context->log("scenes constr 2");
 }
 //------------------------------------------------------------------------------
 CScenes::~CScenes()

@@ -44,7 +44,7 @@ void CRenderer::dispatch() const
   COpenGL *gl = context->getOpenGL();
 
   if(renderer.mode == NRenderer::MODE_BACKDROP)
-    gl->disable(NOpenGL::DEPTH_TEST);
+    gl->depthMask(NOpenGL::FALSE);
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
   {
@@ -59,7 +59,7 @@ void CRenderer::dispatch() const
     else if(p == NShader::PROGRAM_GEOMETRY)
       gl->disable(NOpenGL::CULL_FACE);
     /*if(p == NShader::PROGRAM_GUI_TEXT)
-      gl->disable(NOpenGL::DEPTH_TEST);*/
+      gl->depthMask(NOpenGL::FALSE);*/
 
     const CShaderProgram *prog = context->getShaders()->getProgram(static_cast<NShader::EProgram>(i));
 
@@ -108,11 +108,11 @@ void CRenderer::dispatch() const
     else if(p == NShader::PROGRAM_GEOMETRY)
       gl->enable(NOpenGL::CULL_FACE);
     /*if(p == NShader::PROGRAM_GUI_TEXT)
-      gl->enable(NOpenGL::DEPTH_TEST);*/
+      gl->depthMask(NOpenGL::TRUE);*/
   }
 
   if(renderer.mode == NRenderer::MODE_BACKDROP)
-    gl->enable(NOpenGL::DEPTH_TEST);
+    gl->depthMask(NOpenGL::TRUE);
 }
 //------------------------------------------------------------------------------
 void CRenderer::clearGroups()

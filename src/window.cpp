@@ -20,14 +20,14 @@ CWindow::CWindow(CContext *context
   , SDLwindow(NULL)
 #endif
 {
-  CEngineBase::context->log("window constr");
-
 #if defined(ENV_QT)
   const SEngine *e = CEngineBase::context->engineGetEngine();
 
   show();
   setGeometry(50, 50, e->defaultScreenWidth, e->defaultScreenHeight);
   move(QApplication::desktop()->screen()->rect().center() - rect().center());
+  setMouseTracking(true);
+  //setFocusPolicy(Qt::StrongFocus);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -40,7 +40,6 @@ CWindow::~CWindow()
 //------------------------------------------------------------------------------
 void CWindow::initializeGL()
 {
-  CEngineBase::context->log("window init");
   const SEngine *e = CEngineBase::context->engineGetEngine();
   CShaders *s = CEngineBase::context->getShaders();
   COpenGL *gl = CEngineBase::context->getOpenGL();
@@ -101,6 +100,7 @@ void CWindow::initializeGL()
 
   gl->makeCurrent();
   gl->initializeGLFunctions(NEngine::GPU_PLATFORM_MAX);
+  //context->log(gl->getStatus());
 
   CEngineBase::context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::VENDOR)));
   CEngineBase::context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::RENDERER)));
@@ -319,9 +319,9 @@ void CWindow::paintGL()
     if((fboGeo) && (e->showGeometryBuffer))
     {
       const float r = c->height / c->width;
-      drawTexture(fboGeo->getFrameBuffer()->attachments[0].map->getMap()->texture, 0.0f, 0.0f, 0.25f * r, 0.25f, true);
-      drawTexture(fboGeo->getFrameBuffer()->attachments[1].map->getMap()->texture, 0.0f, 0.25f, 0.25f * r, 0.25f, true);
-      drawTexture(fboGeo->getFrameBuffer()->attachments[2].map->getMap()->texture, 0.0f, 0.5f, 0.25f * r, 0.25f, true);
+      drawTexture(fboGeo->getFrameBuffer()->attachments[0].map->getMap()->texture, 0.0f, 0.0f, 0.25f * r, 0.25f);
+      drawTexture(fboGeo->getFrameBuffer()->attachments[1].map->getMap()->texture, 0.0f, 0.25f, 0.25f * r, 0.25f);
+      drawTexture(fboGeo->getFrameBuffer()->attachments[2].map->getMap()->texture, 0.0f, 0.5f, 0.25f * r, 0.25f);
       drawTexture(fboGeo->getFrameBuffer()->attachments[3].map->getMap()->texture, 0.0f, 0.75f, 0.25f * r, 0.25f, true);
     }
   }
@@ -365,7 +365,7 @@ bool CWindow::event(QEvent *event)
     if(event->type() == QEvent::MouseButtonPress)
       emit onMousePress(b);
     else if(event->type() == QEvent::MouseButtonRelease)
-      emit onMousePress(b);
+      emit onMouseRelease(b);
     else if(event->type() == QEvent::MouseMove)
       emit onMouseMove(SPoint(e->pos().x(), e->pos().y()), b);
 
@@ -425,19 +425,20 @@ void CWindow::drawTexture(GLuint texture, float x, float y, float w, float h, bo
   COpenGL *gl = CEngineBase::context->getOpenGL();
 
   gl->useProgram(0);
-  glEnable(NOpenGL::TEXTURE_2D);
+  gl->enable(NOpenGL::TEXTURE_2D);
   gl->activeTexture(NOpenGL::TEXTURE3);
-  glBindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
   gl->activeTexture(NOpenGL::TEXTURE2);
-  glBindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
   gl->activeTexture(NOpenGL::TEXTURE1);
-  glBindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
   gl->activeTexture(NOpenGL::TEXTURE0);
-  glBindTexture(NOpenGL::TEXTURE_2D, texture);
+  gl->bindTexture(NOpenGL::TEXTURE_2D, texture);
   if(isShadow)
-    glTexParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);
-  glDisable(NOpenGL::DEPTH_TEST);
-  glDisable(NOpenGL::BLEND);
+    gl->texParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);
+  //gl->depthMask(NOpenGL::FALSE);
+  gl->disable(NOpenGL::DEPTH_TEST);
+  gl->disable(NOpenGL::BLEND);
 
   const float vx[] = { x * 2.0f - 1.0f, -y * 2.0f + 1.0f, (x + w) * 2.0f - 1.0f, (-y - h) * 2.0f + 1.0f };
 
@@ -454,10 +455,11 @@ void CWindow::drawTexture(GLuint texture, float x, float y, float w, float h, bo
   glEnd();
 
   if(isShadow)
-    glTexParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);
-  glBindTexture(NOpenGL::TEXTURE_2D, 0);
-  glEnable(NOpenGL::DEPTH_TEST);
-  glDisable(NOpenGL::TEXTURE_2D);
+    gl->texParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);
+  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
+  //gl->depthMask(NOpenGL::TRUE);
+  gl->enable(NOpenGL::DEPTH_TEST);
+  gl->disable(NOpenGL::TEXTURE_2D);
 }
 //------------------------------------------------------------------------------
 //test debug, don't panic !

@@ -47,7 +47,7 @@ namespace NMap
 
   static const char STR_ERROR_UNABLE_TO_OPEN[] = "Unable to open map: \"%s\"";
   static const char STR_ERROR_INVALID_FBO[] = "Unable to create framebuffer!";
-  static const char STR_ERROR_INVALID_FBO_STATUS[] = "Status: %ud.";
+  static const char STR_ERROR_INVALID_FBO_STATUS[] = "Status: %x.";
 
   enum EMapDefault
   {

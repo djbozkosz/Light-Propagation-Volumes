@@ -25,6 +25,12 @@
 #elif defined(__linux__)
 #define GL_GET_EXTENSION glXGetProcAddress
 #endif
+
+#define LOAD_GL_EXTENSION(var, status, type, fcore, farb, fext)\
+  var = reinterpret_cast<type>(GL_GET_EXTENSION(fcore)); status = NOpenGLProc::TYPE_CORE;\
+  if(!var) { var = reinterpret_cast<type>(GL_GET_EXTENSION(farb)); status = NOpenGLProc::TYPE_ARB; }\
+  if(!var) { var = reinterpret_cast<type>(GL_GET_EXTENSION(fext)); status = NOpenGLProc::TYPE_EXT; }\
+  if(!var) status = NOpenGLProc::TYPE_NOT_LOADED;
 //-----------------------------------------------------------------------------
 //typedef void            GLvoid;
 //typedef uint32          GLenum;
@@ -1436,6 +1442,14 @@ namespace NOpenGL
 //-----------------------------------------------------------------------------
 namespace NOpenGLProc
 {
+  enum EProcType
+  {
+    TYPE_NOT_LOADED = 0,
+    TYPE_CORE,
+    TYPE_ARB,
+    TYPE_EXT
+  };
+
   typedef void (APIENTRY *TDebugCallback)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
   // GL_VERSION_1_2

@@ -18,12 +18,12 @@ namespace NShader
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
-  static const char STR_ATTRIB_VERTEX_POSITION[] = "vertexPosition";
-  static const char STR_ATTRIB_VERTEX_NORMAL[] = "vertexNormal";
-  static const char STR_ATTRIB_VERTEX_NORMAL_TANGENT[] = "vertexNormalTangent";
-  //static const char STR_ATTRIB_VERTEX_NORMAL_BITANGENT[] = "vertexNormalBitangent";
-  static const char STR_ATTRIB_VERTEX_TEX_COORD[] = "vertexTexCoord";
-  static const char STR_ATTRIB_VERTEX_COLOR[] = "vertexColor";
+  static const char STR_ATTRIB_VERTEX_POSITION[] = "_vertexPosition";
+  static const char STR_ATTRIB_VERTEX_NORMAL[] = "_vertexNormal";
+  static const char STR_ATTRIB_VERTEX_NORMAL_TANGENT[] = "_vertexNormalTangent";
+  //static const char STR_ATTRIB_VERTEX_NORMAL_BITANGENT[] = "_vertexNormalBitangent";
+  static const char STR_ATTRIB_VERTEX_TEX_COORD[] = "_vertexTexCoord";
+  static const char STR_ATTRIB_VERTEX_COLOR[] = "_vertexColor";
 
   static const char STR_UNIFORM_MW[] = "mw"; // model world (4x4)
   static const char STR_UNIFORM_MWNIT[] = "mwnit"; // model world normal inversed transposed (3x3)
@@ -113,17 +113,17 @@ namespace NShader
     "Basic",
     "Basic Alpha",
     "Per Fragment",
-    "Per Fragment Normal",
-    "Per Fragment Normal Jitter",
+    "Per Fragment Shadow",
+    "Per Fragment Shadow Jitter",
     "Per Fragment Alpha",
-    "Per Fragment Alpha Normal",
-    "Per Fragment Alpha Normal Jitter",
+    "Per Fragment Alpha Shadow",
+    "Per Fragment Alpha Shadow Jitter",
     "Per Fragment Normal",
-    "Per Fragment Normal Normal",
-    "Per Fragment Normal Normal Jitter",
+    "Per Fragment Normal Shadow",
+    "Per Fragment Normal Shadow Jitter",
     "Per Fragment Normal Alpha",
-    "Per Fragment Normal Alpha Normal",
-    "Per Fragment Normal Alpha Normal Jitter",
+    "Per Fragment Normal Alpha Shadow",
+    "Per Fragment Normal Alpha Shadow Jitter",
     "Geometry",
     "LPV Clear",
     "LPV Injection",
