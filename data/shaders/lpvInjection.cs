@@ -12,10 +12,10 @@ layout(rgba32f) uniform readonly image2D fragPos;
 layout(rgba32f) uniform readonly image2D fragNormal;
 layout(rgba32f) uniform readonly image2D fragDepth;
 
-layout(rgba32f) uniform image3D lpvImgR0;
-layout(rgba32f) uniform image3D lpvImgG0;
-layout(rgba32f) uniform image3D lpvImgB0;
-layout(rgba32f) uniform image3D gvImgA0;
+layout(r32i) uniform image3D lpv0ImgR;
+layout(r32i) uniform image3D lpv0ImgG;
+layout(r32i) uniform image3D lpv0ImgB;
+layout(r32i) uniform image3D gvImgA0;
 
 uniform vec2 fragSize;
 uniform vec4 lpvPos;

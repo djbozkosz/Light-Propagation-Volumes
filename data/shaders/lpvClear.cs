@@ -3,10 +3,13 @@ precision lowp float;
 
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-layout(rgba32f) uniform image3D lpvImgR0;
-layout(rgba32f) uniform image3D lpvImgG0;
-layout(rgba32f) uniform image3D lpvImgB0;
-layout(rgba32f) uniform image3D gvImgA0;
+layout(r32i) uniform image3D lpv0ImgR;
+layout(r32i) uniform image3D lpv0ImgG;
+layout(r32i) uniform image3D lpv0ImgB;
+layout(r32i) uniform image3D lpv1ImgR;
+layout(r32i) uniform image3D lpv1ImgG;
+layout(r32i) uniform image3D lpv1ImgB;
+layout(r32i) uniform image3D gvImgA0;
 
 uniform vec3 lpvSize;
 
