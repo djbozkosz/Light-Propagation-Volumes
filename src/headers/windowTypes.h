@@ -15,10 +15,20 @@ namespace NWindow
   static const char STR_ORTHO_GEOMETRY_FBO_NORMAL_MAP[] = "orthoGeometry_2";
   static const char STR_ORTHO_GEOMETRY_FBO_DEPTH_MAP[] = "orthoGeometry_3";
 
-  static const char STR_LPV_MAP_R0[] = "lpv3DR0";
-  static const char STR_LPV_MAP_G0[] = "lpv3DG0";
-  static const char STR_LPV_MAP_B0[] = "lpv3DB0";
-  static const char STR_GV_MAP_A0[] = "gv3DA0";
+  // for gl 3.2+: fbo + attachments, for gl 4.3+: image load store (int + float)
+  static const char STR_LPV0_FBO[] = "lpv0Tex";
+  static const char STR_LPV0_MAP_R[] = "lpv0Tex_0";
+  static const char STR_LPV0_MAP_G[] = "lpv0Tex_1";
+  static const char STR_LPV0_MAP_B[] = "lpv0Tex_2";
+  static const char STR_GV0_MAP[] = "lpv0Tex_3";
+  static const char STR_LPV1_FBO[] = "lpv1Tex";
+  static const char STR_LPV1_MAP_R[] = "lpv1Tex_0";
+  static const char STR_LPV1_MAP_G[] = "lpv1Tex_1";
+  static const char STR_LPV1_MAP_B[] = "lpv1Tex_2";
+  static const char STR_GV1_MAP[] = "lpv1Tex_3";
+  static const char STR_LPV_OUT_MAP_R[] = "lpvOutTexR";
+  static const char STR_LPV_OUT_MAP_G[] = "lpvOutTexG";
+  static const char STR_LPV_OUT_MAP_B[] = "lpvOutTexB";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
 

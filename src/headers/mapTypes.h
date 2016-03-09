@@ -75,9 +75,12 @@ namespace NMap
     FORMAT_LINEAR   = 0x0020,
     FORMAT_MIPMAP   = 0x0040,
     FORMAT_EDGE     = 0x0080,
-    FORMAT_IMAGE_R  = 0x0100,
-    FORMAT_IMAGE_W  = 0x0200,
-    FORMAT_IMAGE_RW = 0x0400
+    FORMAT_BORDER   = 0x0100,
+    FORMAT_32I      = 0x0200,
+    FORMAT_32UI     = 0x0400,
+    FORMAT_IMAGE_R  = 0x0800,
+    FORMAT_IMAGE_W  = 0x1000,
+    FORMAT_IMAGE_RW = 0x2000
   };
 
   enum ERboFormat

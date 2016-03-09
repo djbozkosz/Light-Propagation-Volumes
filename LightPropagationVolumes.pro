@@ -73,6 +73,10 @@ OTHER_FILES += \
     data/shaders/perFragmentNormal.vs \
     data/shaders/perFragmentNormalShadow.vs \
     data/shaders/geometry.vs \
+    data/shaders/lpvInjection.vs \
+    data/shaders/lpvPropagation.vs \
+    data/shaders/lpvInjection.gs \
+    data/shaders/lpvPropagation.gs \
     data/shaders/basic.fs \
     data/shaders/basicAlpha.fs \
     data/shaders/color.fs \
@@ -90,6 +94,8 @@ OTHER_FILES += \
     data/shaders/perFragmentNormalAlphaShadow.fs \
     data/shaders/perFragmentNormalAlphaShadowJitter.fs \
     data/shaders/geometry.fs \
+    data/shaders/lpvInjection.fs \
+    data/shaders/lpvPropagation.fs \
     data/shaders/lpvClear.cs \
     data/shaders/lpvInjection.cs \
     data/shaders/lpvPropagation.cs

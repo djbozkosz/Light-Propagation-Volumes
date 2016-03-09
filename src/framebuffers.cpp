@@ -53,6 +53,11 @@ void CFramebuffer::create()
         (it->format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP_POSITIVE_X : NOpenGL::TEXTURE_2D, it->map->getMap()->texture, 0);
       colorAttachments.push_back(NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size());
     }
+    else if(it->format & NMap::FORMAT_3D)
+    {
+      gl->framebufferTexture(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size(), it->map->getMap()->texture, 0);
+      colorAttachments.push_back(NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size());
+    }
   }
 
   // draw buffers

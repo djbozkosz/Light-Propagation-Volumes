@@ -14,9 +14,11 @@ namespace NRenderer
     MODE_PICK,
     MODE_DEPTH,
     MODE_GEOMETRY,
-    MODE_LPV_CLEAR,
     MODE_LPV_INJECTION,
-    MODE_LPV_PROPAGATION
+    MODE_LPV_PROPAGATION,
+    MODE_LPV_CLEAR_COMPUTE,
+    MODE_LPV_INJECTION_COMPUTE,
+    MODE_LPV_PROPAGATION_COMPUTE
   };
 }
 //------------------------------------------------------------------------------

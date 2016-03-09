@@ -8,10 +8,44 @@ cascaded LPV
 inject GV
 
 gl3:
+  dva fbo - každý r, g, b, gv 3d textury
   injekce:
     +blend
     -depth mask
-    bind fbo - mrt lpv
-    vs: draw points fbo w*h
-    gs: by vertex_id select gl_layer
+    bind fbo 0
+    vs: draw points fbo w * h
+    gs: by vertex_id select gl_layer - send point into layer
     fs: store point in lpv: r, g, b, gv layers
+  propagace:
+    for(p : proc_cnt)
+      bind fbo 1/0
+      vs: draw points * lpv depth
+      gs: expand to fs quad, select layer by vertex_id
+      fs: compute lpv by gathering from lpv 0/1, out into r,g,b lpv 1/0
+      swap fbo 1/0
+
+gl4:
+  lpv image textury 2x: r32i: r, g, b: (32 * 4) * 32 * 32, gv: 32^3
+  image load store: itof: float(a) * 0.000001, ftoi int(a * 1000000.0)
+  injekce:
+    atomicAdd 4x pro 4 sh koef * 3 barvy + gv
+    do lpv0
+  prop:
+    for(p : proc_cnt)
+      distribute lpv from lpv0/1 into lpv1/0, atomicAdd
+      barrier
+      swwap 1/0
+    merge r32i channels into r, g, b tex3ds
+
+both gl3 / gl4:
+  render:
+    for drawing bind lpv tex 0/1
+
+kaskády 32^3: velikost - dosah
+  0.1m - 1.6m
+  0.3m - 4.8m
+  0.8m - 12.8m
+  2m - 32m
+  6m - 96m
+  20m - 320m
+  100m - 1600m

@@ -41,6 +41,7 @@ CWindow::~CWindow()
 void CWindow::initializeGL()
 {
   const SEngine *e = CEngineBase::context->engineGetEngine();
+  CMaps *maps = CEngineBase::context->getMaps();
   CShaders *s = CEngineBase::context->getShaders();
   COpenGL *gl = CEngineBase::context->getOpenGL();
 
@@ -60,10 +61,10 @@ void CWindow::initializeGL()
   if((ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER)) < -1)
     CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_SDL));
 
-  /*SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_MAJOR_VERSION, 3);
-  SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_MINOR_VERSION, 0);
-  SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_PROFILE_MASK, SDL_NOpenGL::CONTEXT_PROFILE_CORE);
-  SDL_NOpenGL::SetAttribute(SDL_NOpenGL::CONTEXT_FLAGS, SDL_NOpenGL::CONTEXT_DEBUG_FLAG);*/
+  /*SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);*/
 
   if(e->multisampling > 1)
   {
@@ -72,7 +73,7 @@ void CWindow::initializeGL()
   }
 
   if(!(SDLwindow = SDL_CreateWindow(
-    NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED/*1550 - c->width*/, SDL_WINDOWPOS_UNDEFINED/*850 - c->height*/, e->defaultScreenWidth, e->defaultScreenHeight,
+    NEngine::STR_APP_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, e->defaultScreenWidth, e->defaultScreenHeight,
     SDL_WINDOW_OPENGL | ((e->flags & NEngine::EFLAG_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN :
                          ((e->flags & NEngine::EFLAG_MAXIMIZED) ? (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE) : SDL_WINDOW_RESIZABLE))
     )))
@@ -86,9 +87,6 @@ void CWindow::initializeGL()
     CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_JPG));
   if(!(imgInited & IMG_INIT_PNG))
     CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_IMG_PNG));
-
-  /*if(SDL_NOpenGL::SetSwapInterval(-1) == -1)
-    SDL_NOpenGL::SetSwapInterval(1);*/
 
   /*glewExperimental = NOpenGL::TRUE;
   if(glewInit() != GLEW_OK)
@@ -118,15 +116,8 @@ void CWindow::initializeGL()
 
   gl->clearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-  /*GLint p[2];
-  gl->getIntegerv(NOpenGL::MAX_TEXTURE_IMAGE_UNITS, &p[0]);
-  gl->getIntegerv(NOpenGL::MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &p[1]);
-  CEngineBase::context->log(CStr("Max Texture Image Units: %d, Compute Image Units: %d", p[0], p[1]));*/
-
-  // maps
-  CMaps *maps = CEngineBase::context->getMaps();
+  // lpv maps
   maps->loadDefaultMaps();
-  //CMap *lpvMap = 
   maps->addMap(SMap(NWindow::STR_LPV_MAP_R0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
   maps->addMap(SMap(NWindow::STR_LPV_MAP_G0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
   maps->addMap(SMap(NWindow::STR_LPV_MAP_B0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
@@ -140,12 +131,13 @@ void CWindow::initializeGL()
   gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvData[0]);
   gl->bindTexture(NOpenGL::TEXTURE_3D, 0);*/
 
-  // framebuffers
+  // shadow framebuffer
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   std::vector<uint32> fboAttachments;
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
   fbo->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, e->depthTextureSize, e->depthTextureSize));
 
+  // geometry framebuffer
   fboAttachments.clear();
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // amb
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // pos
@@ -216,12 +208,6 @@ void CWindow::paintGL()
     s->render();
     ren->dispatch();
     ren->clearGroups();
-
-    // clear lpv
-    /*if(CMap *lpvMap = maps->getMap(NWindow::STR_LPV_MAP))
-      lpvMap->clear();
-    if(CMap *gvMap = maps->getMap(NWindow::STR_GV_MAP))
-      gvMap->clear();*/
 
     // depth map
     CFramebuffer *fboDepth = fbo->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO);
