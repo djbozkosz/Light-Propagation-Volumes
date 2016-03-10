@@ -8,8 +8,8 @@ out vec4 glFragColor3Gv;
 
 void main()
 {
-  glFragColor0LpvR = vec4(1.0, 0.0, 0.0, 1.0);
-  glFragColor1LpvG = vec4(0.0, -1.0, 0.0, 1.0);
-  glFragColor2LpvB = vec4(-1.0, 0.0, 1.0, 1.0);
+  glFragColor0LpvR = vec4(0.33, 0.0, 0.0, 1.0);
+  glFragColor1LpvG = vec4(0.33, 0.0, 0.0, 1.0);
+  glFragColor2LpvB = vec4(0.34, 0.0, 0.0, 1.0);
   glFragColor3Gv = vec4(0.0, 0.0, 0.0, 1.0);
 }

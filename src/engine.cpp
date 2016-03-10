@@ -18,10 +18,10 @@ CEngine::CEngine(
   //engine.flags = NEngine::EFLAG_FULLSCREEN;
   engine.gpuPlatform = NEngine::GPU_PLATFORM_GL0302;
   engine.multisampling = 1;
-  engine.maxTextureSize = 64;
+  engine.maxTextureSize = 256;
   engine.depthTextureSize = 1024;
-  engine.geometryTextureSize = 32;
-  engine.lpvTextureSize = glm::vec3(64.0f);
+  engine.geometryTextureSize = 256;
+  engine.lpvTextureSize = glm::vec3(32.0f);
   engine.lpvCellSize = glm::vec3(1.0f);
   engine.lpvPropagationSteps = 0;
   //engine.lpvIntensity = 1.0f;

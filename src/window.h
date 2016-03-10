@@ -44,6 +44,7 @@ class CWindow : public
 #endif
 
     GLuint vboGeoPoints;
+    std::vector<float> lpvClearData;
 
   protected:
     virtual void paintGL();

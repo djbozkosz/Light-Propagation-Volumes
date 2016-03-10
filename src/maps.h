@@ -28,6 +28,7 @@ class CMap : public CEngineBase
 
     void bind(GLuint uniform = 0, uint8 sampler = 0, uint32 format = NMap::FORMAT_MIPMAP) const;
     void clear();
+    void fill(const void *data);
 
     inline const SMap *getMap() const { return &map; }
 };
@@ -87,14 +88,16 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, uint32 format) const
 inline void CMap::clear()
 {
   COpenGL *gl = context->getOpenGL();
-
-  //const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? NOpenGL::TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D);
-  //std::vector<float> lpvData(map.width * map.height * map.depth * NMap::RGBA_SIZE, 0.0f);
-
-  //gl->bindTexture(texFormat, map.texture);
-  //gl->texSubImage3D(texFormat, 0, 0, 0, 0, map.width, map.height, map.depth, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvData[0]);
   gl->clearTexImage(map.texture, 0, NOpenGL::RGBA, NOpenGL::FLOAT, NULL);
-  //gl->bindTexture(texFormat, 0);
+}
+//------------------------------------------------------------------------------
+inline void CMap::fill(const void *data)
+{
+  COpenGL *gl = context->getOpenGL();
+  gl->activeTexture(NOpenGL::TEXTURE0);
+  gl->bindTexture(NOpenGL::TEXTURE_3D, map.texture);
+  gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, map.width, map.height, map.depth, NOpenGL::RGBA, NOpenGL::FLOAT, data);
+  gl->bindTexture(NOpenGL::TEXTURE_3D, 0);
 }
 //------------------------------------------------------------------------------
 inline CMap *CMaps::addMap(const SMap &map)

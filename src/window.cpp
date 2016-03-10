@@ -155,12 +155,13 @@ void CWindow::initializeGL()
   }
 
   // lpv test
-  /*std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
-  for(auto it = lpvData.begin(); it != lpvData.end(); it++)
-  *it = static_cast<float>((rand() % 2000) - 1000) * 0.002f;
+  lpvClearData.resize(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
+  /*for(auto it = lpvClearData.begin(); it != lpvClearData.end(); it++)
+    *it = static_cast<float>((rand() % 2000) - 1000) * 0.002f;
   gl->bindTexture(NOpenGL::TEXTURE_3D, maps->getMap(NWindow::STR_LPV0_MAP_R)->getMap()->texture);
-  gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvData[0]);
+  gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvClearData[0]);
   gl->bindTexture(NOpenGL::TEXTURE_3D, 0);*/
+  memset(&lpvClearData[0], 0, sizeof(float) * lpvClearData.size());
 
   // shadow framebuffer
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
@@ -210,7 +211,7 @@ void CWindow::paintGL()
   COpenGL *gl = CEngineBase::context->getOpenGL();
   CRenderer *ren = CEngineBase::context->getRenderer();
   CShaders *sh = CEngineBase::context->getShaders();
-  //CMaps *maps = CEngineBase::context->getMaps();
+  CMaps *maps = CEngineBase::context->getMaps();
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CCamera *cam = CEngineBase::context->getCamera();
   CCulling *cul = CEngineBase::context->getCulling();
@@ -244,7 +245,7 @@ void CWindow::paintGL()
     CFramebuffer *fboGeo = fbo->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO);
     CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
     const glm::vec3 orthoScale(NCamera::ORTHO_DEPTH_SCALE_X, NCamera::ORTHO_DEPTH_SCALE_Y, NCamera::ORTHO_DEPTH_SCALE_Z);
-    fboDepth->setChanged();
+    //fboDepth->setChanged(); // debug
 
     if((fboDepth) && (fboGeo) && (sun) &&
        ((fboDepth->getFrameBuffer()->changed) ||
@@ -296,25 +297,39 @@ void CWindow::paintGL()
 
       if((e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302) && (e->gpuPlatform < NEngine::GPU_PLATFORM_GL0403))
       {
+        maps->getMap(NWindow::STR_LPV0_MAP_R)->fill(&lpvClearData[0]);
+        maps->getMap(NWindow::STR_LPV0_MAP_G)->fill(&lpvClearData[0]);
+        maps->getMap(NWindow::STR_LPV0_MAP_B)->fill(&lpvClearData[0]);
+        maps->getMap(NWindow::STR_GV0_MAP)->fill(&lpvClearData[0]);
+        maps->getMap(NWindow::STR_LPV1_MAP_R)->fill(&lpvClearData[0]);
+        maps->getMap(NWindow::STR_LPV1_MAP_G)->fill(&lpvClearData[0]);
+        maps->getMap(NWindow::STR_LPV1_MAP_B)->fill(&lpvClearData[0]);
+        maps->getMap(NWindow::STR_GV0_MAP)->fill(&lpvClearData[0]);
+
         CShaderProgram *lpvInject = sh->getProgram(NShader::PROGRAM_LPV_INJECTION);
 
         fbo->getFramebuffer(NWindow::STR_LPV0_FBO)->bind();
-        gl->depthMask(NOpenGL::FALSE);
-        gl->clear(NOpenGL::COLOR_BUFFER_BIT);
-        lpvInject->bind();
+        gl->depthMask(NOpenGL::FALSE); // proceed all fragments
+        gl->enable(NOpenGL::BLEND);
+        gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA); // pseudo imageAtomicAdd() with floats
+        lpvInject->bind(); // shader with random access writing
         gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboGeoPoints);
 
         lpvInject->begin(NULL, NRenderer::MODE_LPV_INJECTION);
-        gl->drawArrays(NOpenGL::POINTS, 0, 1/*e->geometryTextureSize * e->geometryTextureSize*/);
+        gl->drawArrays(NOpenGL::POINTS, 0, e->geometryTextureSize * e->geometryTextureSize);
         lpvInject->end(NULL);
 
         gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
         lpvInject->unbind();
+        gl->disable(NOpenGL::BLEND);
+        gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE);
         gl->depthMask(NOpenGL::TRUE);
         fbo->unbind();
       }
       else if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
       {
+        // todo try gl->clearTexImage();
+
         sh->getProgram(NShader::PROGRAM_LPV_CLEAR_COMPUTE)->
           dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR_COMPUTE);
         sh->getProgram(NShader::PROGRAM_LPV_INJECTION_COMPUTE)->

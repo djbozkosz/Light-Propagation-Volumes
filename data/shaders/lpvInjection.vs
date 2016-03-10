@@ -3,10 +3,10 @@ precision lowp float;
 
 in float _vertexPosition;
 
-//flat out int vertexID;
+flat out int vertexID;
 
 void main()
 {
-  //vertexID = gl_VertexID;
+  vertexID = gl_VertexID;
   gl_Position = vec4(_vertexPosition, _vertexPosition, _vertexPosition, 1.0);
 }

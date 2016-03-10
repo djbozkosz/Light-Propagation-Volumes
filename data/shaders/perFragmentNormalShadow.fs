@@ -73,5 +73,5 @@ void main()
   /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
-  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/ + texture(lpv0ImgR, p).rgb, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
+  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/ + texture(lpv0ImgR, p).rgb + texture(lpv0ImgG, p).rgb + texture(lpv0ImgB, p).rgb, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
 }
