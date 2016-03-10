@@ -19,6 +19,7 @@ CWindow::CWindow(CContext *context
 #ifdef ENV_SDL
   , SDLwindow(NULL)
 #endif
+  , vboGeoPoints(0)
 {
 #if defined(ENV_QT)
   const SEngine *e = CEngineBase::context->engineGetEngine();
@@ -41,6 +42,7 @@ CWindow::~CWindow()
 void CWindow::initializeGL()
 {
   const SEngine *e = CEngineBase::context->engineGetEngine();
+  CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CMaps *maps = CEngineBase::context->getMaps();
   CShaders *s = CEngineBase::context->getShaders();
   COpenGL *gl = CEngineBase::context->getOpenGL();
@@ -116,44 +118,72 @@ void CWindow::initializeGL()
 
   gl->clearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-  // lpv maps
   maps->loadDefaultMaps();
-  maps->addMap(SMap(NWindow::STR_LPV_MAP_R0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
-  maps->addMap(SMap(NWindow::STR_LPV_MAP_G0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
-  maps->addMap(SMap(NWindow::STR_LPV_MAP_B0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
-  maps->addMap(SMap(NWindow::STR_GV_MAP_A0, NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_EDGE, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+
+  // lpv maps
+  std::vector<uint32> fboAttachments;
+
+  if((e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302) && (e->gpuPlatform < NEngine::GPU_PLATFORM_GL0403))
+  {
+    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // lpv r
+    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // lpv g
+    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // lpv b
+    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // gv
+    fbo->addFbo(SFramebuffer(NWindow::STR_LPV0_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    fbo->addFbo(SFramebuffer(NWindow::STR_LPV1_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    fboAttachments.clear();
+
+    std::vector<float> vboGeoData(e->geometryTextureSize * e->geometryTextureSize);
+    memset(&vboGeoData[0], 0, sizeof(float) * vboGeoData.size());
+    gl->genBuffers(1, &vboGeoPoints);
+    gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboGeoPoints);
+    gl->bufferData(NOpenGL::ARRAY_BUFFER, sizeof(float) * vboGeoData.size(), &vboGeoData[0], NOpenGL::STATIC_DRAW);
+    gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
+  }
+  else if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
+  {
+    maps->addMap(SMap(NWindow::STR_LPV0_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NWindow::LPV_SH_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV0_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NWindow::LPV_SH_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV0_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NWindow::LPV_SH_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV1_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NWindow::LPV_SH_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV1_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NWindow::LPV_SH_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV1_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NWindow::LPV_SH_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_GV0_MAP, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NWindow::LPV_SH_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV_OUT_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV_OUT_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NWindow::STR_LPV_OUT_MAP_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z));
+  }
 
   // lpv test
   /*std::vector<float> lpvData(e->lpvTextureSize.x * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
   for(auto it = lpvData.begin(); it != lpvData.end(); it++)
-    *it = static_cast<float>((rand() % 2000) - 1900) * 0.001f;
-  gl->bindTexture(NOpenGL::TEXTURE_3D, lpvMap->getMap()->texture);
+  *it = static_cast<float>((rand() % 2000) - 1000) * 0.002f;
+  gl->bindTexture(NOpenGL::TEXTURE_3D, maps->getMap(NWindow::STR_LPV0_MAP_R)->getMap()->texture);
   gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvData[0]);
   gl->bindTexture(NOpenGL::TEXTURE_3D, 0);*/
 
   // shadow framebuffer
-  CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
-  std::vector<uint32> fboAttachments;
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
   fbo->addFbo(SFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO, fboAttachments, NMap::RBO, e->depthTextureSize, e->depthTextureSize));
+  fboAttachments.clear();
 
   // geometry framebuffer
-  fboAttachments.clear();
-  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // amb
-  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // pos
-  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_EDGE); // normal
-  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE); // depth
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_BORDER); // amb
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_BORDER); // pos
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_BORDER); // normal
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER); // depth
   fbo->addFbo(SFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO, fboAttachments, NMap::RBO, e->geometryTextureSize, e->geometryTextureSize));
+  fboAttachments.clear();
 
   // shaders
   for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_VERTEX_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::GEOMETRY_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_GEOMETRY_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_GEOMETRY, NShader::STR_GEOMETRY_SHADER_LIST[i]));
-  for(uint32 i = 0; i < NShader::TESSELATION_CONTROL_SHADERS_COUNT; i++)
+  /*for(uint32 i = 0; i < NShader::TESSELATION_CONTROL_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_CONTROL, NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::TESSELATION_EVALUATION_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_EVALUATION, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]));
+    s->addShader(SShader((std::string(NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_EVALUATION, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]));*/
   for(uint32 i = 0; i < NShader::FRAGMENT_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_FRAGMENT_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::COMPUTE_SHADERS_COUNT; i++)
@@ -214,6 +244,7 @@ void CWindow::paintGL()
     CFramebuffer *fboGeo = fbo->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO);
     CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
     const glm::vec3 orthoScale(NCamera::ORTHO_DEPTH_SCALE_X, NCamera::ORTHO_DEPTH_SCALE_Y, NCamera::ORTHO_DEPTH_SCALE_Z);
+    fboDepth->setChanged();
 
     if((fboDepth) && (fboGeo) && (sun) &&
        ((fboDepth->getFrameBuffer()->changed) ||
@@ -263,15 +294,34 @@ void CWindow::paintGL()
       cam->setPosition(sun->getObject()->position);
       fboGeo->setCamera(*c);
 
-      if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
+      if((e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302) && (e->gpuPlatform < NEngine::GPU_PLATFORM_GL0403))
       {
-        sh->getProgram(NShader::PROGRAM_LPV_CLEAR)->
-          dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR);
-        sh->getProgram(NShader::PROGRAM_LPV_INJECTION)->
-          dispatch(e->geometryTextureSize, e->geometryTextureSize, 1, NRenderer::MODE_LPV_INJECTION);
+        CShaderProgram *lpvInject = sh->getProgram(NShader::PROGRAM_LPV_INJECTION);
+
+        fbo->getFramebuffer(NWindow::STR_LPV0_FBO)->bind();
+        gl->depthMask(NOpenGL::FALSE);
+        gl->clear(NOpenGL::COLOR_BUFFER_BIT);
+        lpvInject->bind();
+        gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboGeoPoints);
+
+        lpvInject->begin(NULL, NRenderer::MODE_LPV_INJECTION);
+        gl->drawArrays(NOpenGL::POINTS, 0, 1/*e->geometryTextureSize * e->geometryTextureSize*/);
+        lpvInject->end(NULL);
+
+        gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
+        lpvInject->unbind();
+        gl->depthMask(NOpenGL::TRUE);
+        fbo->unbind();
+      }
+      else if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
+      {
+        sh->getProgram(NShader::PROGRAM_LPV_CLEAR_COMPUTE)->
+          dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR_COMPUTE);
+        sh->getProgram(NShader::PROGRAM_LPV_INJECTION_COMPUTE)->
+          dispatch(e->geometryTextureSize, e->geometryTextureSize, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
         for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
-          sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION)->
-          dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_PROPAGATION);
+          sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_COMPUTE)->
+          dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_PROPAGATION_COMPUTE);
       }
     }
     

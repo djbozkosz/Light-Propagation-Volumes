@@ -43,6 +43,8 @@ class CWindow : public
     SDL_GLContext SDLcontext;
 #endif
 
+    GLuint vboGeoPoints;
+
   protected:
     virtual void paintGL();
     void drawTexture(GLuint texture, float x, float y, float w, float h, bool isShadow = false);

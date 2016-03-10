@@ -550,6 +550,7 @@ struct SShaderUniforms
     difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0),
     fragColorImg(0), fragPosImg(0), fragNormalImg(0), fragDepthImg(0),
     lpv0ImgR(0), lpv0ImgG(0), lpv0ImgB(0), lpv1ImgR(0), lpv1ImgG(0), lpv1ImgB(0), gvImg(0),
+    lpvOutImgR(0), lpvOutImgG(0), lpvOutImgB(0),
     type(0), opacity(0), depthTexelSize(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),

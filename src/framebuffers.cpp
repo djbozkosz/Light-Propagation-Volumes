@@ -21,7 +21,7 @@ void CFramebuffer::create()
 
   // color textures
   for(uint32 i = 0; i < framebuffer.attachments.size(); i++)
-    framebuffer.attachments[i].map = context->getMaps()->addMap(SMap(CStr(NMap::STR_FBO_MAP_NAME, framebuffer.name.c_str(), i), framebuffer.attachments[i].format, framebuffer.width, framebuffer.height));
+    framebuffer.attachments[i].map = context->getMaps()->addMap(SMap(CStr(NMap::STR_FBO_MAP_NAME, framebuffer.name.c_str(), i), framebuffer.attachments[i].format, framebuffer.width, framebuffer.height, framebuffer.depth));
 
   // render buffers
   if(framebuffer.rboFormat & NMap::RBO_DEPTH)

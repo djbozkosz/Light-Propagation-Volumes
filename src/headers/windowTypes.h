@@ -7,6 +7,8 @@
 //-----------------------------------------------------------------------------
 namespace NWindow
 {
+  static const uint32 LPV_SH_COUNT = 4;
+
   static const char STR_ORTHO_DEPTH_FBO[] = "orthoDepth";
   static const char STR_ORTHO_DEPTH_FBO_MAP[] = "orthoDepth_0";
   static const char STR_ORTHO_GEOMETRY_FBO[] = "orthoGeometry";

@@ -132,26 +132,26 @@ void CShaderProgram::link()
 
   program.program = gl->createProgram();
 
-  if(((program.geometryShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0302)) ||
-     ((program.tesselationControlShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
-     ((program.tesselationEvaluationShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
-     ((program.computeShader->getShader()->type != NShader::TYPE_UNDEFINED) && (platform < NEngine::GPU_PLATFORM_GL0403)))
+  if(((program.geometryShader) && (platform < NEngine::GPU_PLATFORM_GL0302)) ||
+     ((program.tesselationControlShader) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+     ((program.tesselationEvaluationShader) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+     ((program.computeShader) && (platform < NEngine::GPU_PLATFORM_GL0403)))
   {
     context->log(CStr(NShader::STR_ERROR_LINK_SKIP, NShader::STR_PROGRAM_LIST[program.name]));
     return;
   }
 
-  if(program.vertexShader->getShader()->type != NShader::TYPE_UNDEFINED)
+  if(program.vertexShader)
     gl->attachShader(program.program, program.vertexShader->getShader()->shader);
-  if(program.geometryShader->getShader()->type != NShader::TYPE_UNDEFINED)
+  if(program.geometryShader)
     gl->attachShader(program.program, program.geometryShader->getShader()->shader);
-  if(program.tesselationControlShader->getShader()->type != NShader::TYPE_UNDEFINED)
+  if(program.tesselationControlShader)
     gl->attachShader(program.program, program.tesselationControlShader->getShader()->shader);
-  if(program.tesselationEvaluationShader->getShader()->type != NShader::TYPE_UNDEFINED)
+  if(program.tesselationEvaluationShader)
     gl->attachShader(program.program, program.tesselationEvaluationShader->getShader()->shader);
-  if(program.fragmentShader->getShader()->type != NShader::TYPE_UNDEFINED)
+  if(program.fragmentShader)
     gl->attachShader(program.program, program.fragmentShader->getShader()->shader);
-  if(program.computeShader->getShader()->type != NShader::TYPE_UNDEFINED)
+  if(program.computeShader)
     gl->attachShader(program.program, program.computeShader->getShader()->shader);
 
   gl->linkProgram(program.program);
@@ -265,30 +265,38 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       //gl->vertexAttribPointer(program.uniforms.vertexNormalBitangent, 3, NOpenGL::FLOAT, NOpenGL::FALSE, sizeof(float) * NModel::VERTEX_PNTBTC_SIZE, reinterpret_cast<float *>(sizeof(float) * NModel::VBO_OFFSET_NORMAL_BITANGENT));
     }
   }
+  else if((program.name >= NShader::PROGRAM_LPV_INJECTION) && (program.name <= NShader::PROGRAM_LPV_PROPAGATION))
+  {
+    gl->enableVertexAttribArray(program.uniforms.vertexPosition);
+    gl->vertexAttribPointer(program.uniforms.vertexPosition, 1, NOpenGL::FLOAT, NOpenGL::FALSE, 0, NULL);
+  }
 
   const SEngine *e = context->engineGetEngine();
   const CMap *depthMap = context->getMaps()->getMap(NWindow::STR_ORTHO_DEPTH_FBO_MAP);
-  const CMap *lpvMapR;
-  const CMap *lpvMapG;
-  const CMap *lpvMapB;
+  const CMap *lpvMapR = NULL;
+  const CMap *lpvMapG = NULL;
+  const CMap *lpvMapB = NULL;
 
-  if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
+  if(e->gpuPlatform < NEngine::GPU_PLATFORM_GL0403)
+  {
+    if(!(e->lpvPropagationSteps % 2))
+    {
+      lpvMapR = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_R);
+      lpvMapG = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_G);
+      lpvMapB = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_B);
+    }
+    else
+    {
+      lpvMapR = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_R);
+      lpvMapG = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_G);
+      lpvMapB = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_B);
+    }
+  }
+  else
   {
     lpvMapR = context->getMaps()->getMap(NWindow::STR_LPV_OUT_MAP_R);
     lpvMapG = context->getMaps()->getMap(NWindow::STR_LPV_OUT_MAP_G);
     lpvMapB = context->getMaps()->getMap(NWindow::STR_LPV_OUT_MAP_B);
-  }
-  else if(!(e->lpvPropagationSteps % 2))
-  {
-    lpvMapR = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_R);
-    lpvMapG = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_G);
-    lpvMapB = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_B);
-  }
-  else
-  {
-    lpvMapR = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_R);
-    lpvMapG = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_G);
-    lpvMapB = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_B);
   }
 
   if(technique)
@@ -410,32 +418,58 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
   {
     const glm::vec3 lpvCellSize(1.0f / e->lpvCellSize / e->lpvTextureSize);
     const glm::vec3 lpvPos(e->lpvCellSize * e->lpvTextureSize * 0.5f - e->lpvPos);
-    gl->uniform2f(program.uniforms.fragSize, e->geometryTextureSize, e->geometryTextureSize);
+    gl->uniform4f(program.uniforms.fragSize, e->geometryTextureSize, e->geometryTextureSize, 1.0f / static_cast<float>(e->geometryTextureSize), 1.0f / static_cast<float>(e->geometryTextureSize));
     gl->uniform4f(program.uniforms.lpvPos, lpvPos.x, lpvPos.y, lpvPos.z, e->lpvIntensity * e->showLPV);
     gl->uniform3f(program.uniforms.lpvSize, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z);
     gl->uniform3f(program.uniforms.lpvCellSize, lpvCellSize.x, lpvCellSize.y, lpvCellSize.z);
   }
 
-  const CMap *lpv0MapR;
-  const CMap *lpv0MapG;
-  const CMap *lpv0MapB;
-  const CMap *lpv1MapR;
-  const CMap *lpv1MapG;
-  const CMap *lpv1MapB;
-  const CMap *gvMap;
+  const CMap *fragColor = NULL;
+  const CMap *fragPos = NULL;
+  const CMap *fragNormal = NULL;
+  //const CMap *fragDepth = NULL;
+  const CMap *lpv0MapR = NULL;
+  const CMap *lpv0MapG = NULL;
+  const CMap *lpv0MapB = NULL;
+  const CMap *lpv1MapR = NULL;
+  const CMap *lpv1MapG = NULL;
+  const CMap *lpv1MapB = NULL;
+  const CMap *gvMap = NULL;
+  glm::vec4 fboGeoCam;
 
+  if((program.name == NShader::PROGRAM_LPV_INJECTION) || (program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE))
+  {
+    fragColor = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_AMB_MAP);
+    fragPos = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_POS_MAP);
+    fragNormal = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_NORMAL_MAP);
+    //fragDepth = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_DEPTH_MAP);
+    fboGeoCam = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO)->getFrameBuffer()->camera.position;
+
+    gl->uniform3f(program.uniforms.lightPos, fboGeoCam.x, fboGeoCam.y, fboGeoCam.z);
+  }
   if((program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE) || (program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE) || (program.name == NShader::PROGRAM_LPV_PROPAGATION_COMPUTE))
   {
-    const CMap *lpv0MapR = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_R);
-    const CMap *lpv0MapG = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_R);
-    const CMap *lpv0MapB = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_R);
-    const CMap *lpv1MapR = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_R);
-    const CMap *lpv1MapG = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_R);
-    const CMap *lpv1MapB = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_R);
-    const CMap *gvMap = context->getMaps()->getMap(NWindow::STR_GV0_MAP);
+    lpv0MapR = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_R);
+    lpv0MapG = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_G);
+    lpv0MapB = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_B);
+    lpv1MapR = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_R);
+    lpv1MapG = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_G);
+    lpv1MapB = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_B);
+    gvMap = context->getMaps()->getMap(NWindow::STR_GV0_MAP);
   }
 
-  if(program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE)
+  if(program.name == NShader::PROGRAM_LPV_INJECTION)
+  {
+    setSampler(fragColor, program.uniforms.fragColorImg, NShader::SAMPLER_LPV_INJECTION_FRAG_COLOR, NMap::FORMAT_BORDER);
+    setSampler(fragPos, program.uniforms.fragPosImg, NShader::SAMPLER_LPV_INJECTION_FRAG_POS, NMap::FORMAT_BORDER);
+    setSampler(fragNormal, program.uniforms.fragNormalImg, NShader::SAMPLER_LPV_INJECTION_FRAG_NORMAL, NMap::FORMAT_BORDER);
+    //setSampler(fragDepth, program.uniforms.fragDepthImg, NShader::SAMPLER_LPV_INJECTION_FRAG_DEPTH, NMap::FORMAT_BORDER);
+  }
+  else if(program.name == NShader::PROGRAM_LPV_PROPAGATION)
+  {
+    //
+  }
+  else if(program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE)
   {
     setSampler(lpv0MapR, program.uniforms.lpv0ImgR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_W);
     setSampler(lpv0MapG, program.uniforms.lpv0ImgG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_W);
@@ -447,14 +481,6 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
   }
   else if(program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE)
   {
-    const CMap *fragColor = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_AMB_MAP);
-    const CMap *fragPos = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_POS_MAP);
-    const CMap *fragNormal = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_NORMAL_MAP);
-    //const CMap *fragDepth = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_DEPTH_MAP);
-
-    const glm::vec4 &fboGeoCam = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO)->getFrameBuffer()->camera.position;
-    gl->uniform3f(program.uniforms.lightPos, fboGeoCam.x, fboGeoCam.y, fboGeoCam.z);
-
     setSampler(fragColor, program.uniforms.fragColorImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_COLOR, NMap::FORMAT_IMAGE_R);
     setSampler(fragPos, program.uniforms.fragPosImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_POS, NMap::FORMAT_IMAGE_R);
     setSampler(fragNormal, program.uniforms.fragNormalImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_NORMAL, NMap::FORMAT_IMAGE_R);
@@ -508,6 +534,8 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
       //gl->disableVertexAttribArray(program.uniforms.vertexNormalBitangent);
     }
   }
+  else if((program.name >= NShader::PROGRAM_LPV_INJECTION) && (program.name <= NShader::PROGRAM_LPV_PROPAGATION))
+    gl->disableVertexAttribArray(program.uniforms.vertexPosition);
 
   if(program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE)
   {

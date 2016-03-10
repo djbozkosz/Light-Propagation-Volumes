@@ -69,8 +69,10 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, uint32 format) const
     gl->bindTexture(texFormat, map.texture);
     gl->texParameteri(texFormat, NOpenGL::TEXTURE_MAG_FILTER, (format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR : NOpenGL::NEAREST));
     gl->texParameteri(texFormat, NOpenGL::TEXTURE_MIN_FILTER, (format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR_MIPMAP_LINEAR : NOpenGL::NEAREST));
-    gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_S, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : NOpenGL::REPEAT);
-    gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_T, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : NOpenGL::REPEAT);
+    if(map.format & NMap::FORMAT_3D)
+      gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_R, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : ((format & NMap::FORMAT_BORDER) ? NOpenGL::CLAMP_TO_BORDER : NOpenGL::REPEAT));
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_S, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : ((format & NMap::FORMAT_BORDER) ? NOpenGL::CLAMP_TO_BORDER : NOpenGL::REPEAT));
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_T, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : ((format & NMap::FORMAT_BORDER) ? NOpenGL::CLAMP_TO_BORDER : NOpenGL::REPEAT));
     if(format & NMap::FORMAT_DEPTH)
     {
       gl->texParameteri(texFormat, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);

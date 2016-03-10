@@ -76,8 +76,8 @@ namespace NMap
     FORMAT_MIPMAP   = 0x0040,
     FORMAT_EDGE     = 0x0080,
     FORMAT_BORDER   = 0x0100,
-    FORMAT_32I      = 0x0200,
-    FORMAT_32UI     = 0x0400,
+    FORMAT_INT      = 0x0200,
+    FORMAT_UINT     = 0x0400,
     FORMAT_IMAGE_R  = 0x0800,
     FORMAT_IMAGE_W  = 0x1000,
     FORMAT_IMAGE_RW = 0x2000
@@ -171,10 +171,11 @@ struct SFramebuffer
   uint8 rboFormat;
   uint32 width;
   uint32 height;
+  uint32 depth;
   SCamera camera;
 
-  inline SFramebuffer() : changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(NMap::RBO_DEPTH), width(1), height(1) {}
-  inline SFramebuffer(const std::string &name, const std::vector<uint32> &attachments, uint8 rboFormat, uint32 width, uint32 height) : name(name), changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height)
+  inline SFramebuffer() : changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(NMap::RBO_DEPTH), width(1), height(1), depth(0) {}
+  inline SFramebuffer(const std::string &name, const std::vector<uint32> &attachments, uint8 rboFormat, uint32 width, uint32 height, uint32 depth = 0) : name(name), changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height), depth(depth)
   {
     for(auto it = attachments.cbegin(); it != attachments.cend(); it++)
       this->attachments.push_back(SFramebufferAttachment(*it, NULL));

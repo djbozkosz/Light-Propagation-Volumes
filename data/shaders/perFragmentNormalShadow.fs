@@ -49,7 +49,7 @@ void main()
   vec4 lpvShG0 = texture(lpv0ImgG, p);
   vec4 lpvShB0 = texture(lpv0ImgB, p);
   vec3 lpvColor = vec3(dot(sh, lpvShR0), dot(sh, lpvShG0), dot(sh, lpvShB0)) * lpvPos.w;
-  if((lpvColor.x < 0.0) || (lpvColor.y < 0.0) || (lpvColor.z < 0.0))
+  //if((lpvColor.x < 0.0) || (lpvColor.y < 0.0) || (lpvColor.z < 0.0))
     lpvColor = vec3(0.0);
 
   vec3 fragSpe = texture(speTex, texCoord).rgb;
@@ -73,5 +73,5 @@ void main()
   /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
-  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
+  glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/ + texture(lpv0ImgR, p).rgb, fogColor/* + fogDot * lightColor*/, fogDist), 1.0);
 }

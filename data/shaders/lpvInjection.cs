@@ -5,8 +5,6 @@ precision lowp float;
 
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-uniform vec3 lightPos;
-
 layout(rgba32f) uniform readonly image2D fragColor;
 layout(rgba32f) uniform readonly image2D fragPos;
 layout(rgba32f) uniform readonly image2D fragNormal;
@@ -17,7 +15,9 @@ layout(r32i) uniform image3D lpv0ImgG;
 layout(r32i) uniform image3D lpv0ImgB;
 layout(r32i) uniform image3D gvImgA0;
 
-uniform vec2 fragSize;
+uniform vec3 lightPos;
+
+uniform vec4 fragSize;
 uniform vec4 lpvPos;
 uniform vec3 lpvSize;
 uniform vec3 lpvCellSize;
