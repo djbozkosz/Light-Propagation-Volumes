@@ -32,7 +32,7 @@ CEngine::CEngine(
   engine.shadowJittering = 0.0f;
 
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
-  context.setEngineCallbacks(&staticInitialize, &staticInitializeFinish, &staticShowMessage, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
+  context.setEngineCallbacks(&staticInitialize, &staticInitializeFinish, &staticShowMessage, &staticSetPlatform, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
 
   window = new CWindow(&context
 #ifdef ENV_QT
@@ -50,40 +50,9 @@ CEngine::CEngine(
   connect(window, SIGNAL(onMouseMove(const SPoint &, NEngine::EMouseButton)), this, SLOT(mouseMove(const SPoint &, NEngine::EMouseButton)));
   connect(window, SIGNAL(onKeyPress(NEngine::EKey)), this, SLOT(keyPress(NEngine::EKey)));
   connect(window, SIGNAL(onKeyRelease(NEngine::EKey)), this, SLOT(keyRelease(NEngine::EKey)));
+#endif
 
-  engine.keysMap[Qt::Key_W] = NEngine::KEY_FRONT;
-  engine.keysMap[Qt::Key_Up] = NEngine::KEY_FRONT;
-  engine.keysMap[Qt::Key_S] = NEngine::KEY_BACK;
-  engine.keysMap[Qt::Key_Down] = NEngine::KEY_BACK;
-  engine.keysMap[Qt::Key_A] = NEngine::KEY_LEFT;
-  engine.keysMap[Qt::Key_Left] = NEngine::KEY_LEFT;
-  engine.keysMap[Qt::Key_D] = NEngine::KEY_RIGHT;
-  engine.keysMap[Qt::Key_Right] = NEngine::KEY_RIGHT;
-  engine.keysMap[Qt::Key_Q] = NEngine::KEY_DOWN;
-  engine.keysMap[Qt::Key_E] = NEngine::KEY_UP;
-
-  engine.keysMap[Qt::Key_I] = NEngine::KEY_SPECIAL_FRONT;
-  engine.keysMap[Qt::Key_K] = NEngine::KEY_SPECIAL_BACK;
-  engine.keysMap[Qt::Key_J] = NEngine::KEY_SPECIAL_LEFT;
-  engine.keysMap[Qt::Key_L] = NEngine::KEY_SPECIAL_RIGHT;
-  engine.keysMap[Qt::Key_U] = NEngine::KEY_SPECIAL_DOWN;
-  engine.keysMap[Qt::Key_O] = NEngine::KEY_SPECIAL_UP;
-
-  engine.keysMap[Qt::Key_5] = NEngine::KEY_LPV_PROPAGATION_DOWN;
-  engine.keysMap[Qt::Key_6] = NEngine::KEY_LPV_PROPAGATION_UP;
-  engine.keysMap[Qt::Key_7] = NEngine::KEY_LPV_INTENSITY_DOWN;
-  engine.keysMap[Qt::Key_8] = NEngine::KEY_LPV_INTENSITY_UP;
-  engine.keysMap[Qt::Key_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
-  engine.keysMap[Qt::Key_0] = NEngine::KEY_SHADOW_JITTERING_UP;
-
-  engine.keysMap[Qt::Key_F] = NEngine::KEY_FRUSTUM_UPDATE;
-  engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFER;
-  engine.keysMap[Qt::Key_H] = NEngine::KEY_SHOW_LPV;
-
-  engine.keysMap[Qt::Key_Escape] = NEngine::KEY_QUIT;
-
-  // fill keys move map
-#elif defined(ENV_SDL)
+  // fill keys mapping
   engine.keysMap[SDLK_w] = NEngine::KEY_FRONT;
   engine.keysMap[SDLK_UP] = NEngine::KEY_FRONT;
   engine.keysMap[SDLK_s] = NEngine::KEY_BACK;
@@ -102,6 +71,8 @@ CEngine::CEngine(
   engine.keysMap[SDLK_u] = NEngine::KEY_SPECIAL_DOWN;
   engine.keysMap[SDLK_o] = NEngine::KEY_SPECIAL_UP;
 
+  engine.keysMap[SDLK_3] = NEngine::KEY_LPV_MODE; // with Qt (cz): shift pressed is needed
+  engine.keysMap[SDLK_4] = NEngine::KEY_LPV_TECHNIQUE;
   engine.keysMap[SDLK_5] = NEngine::KEY_LPV_PROPAGATION_DOWN;
   engine.keysMap[SDLK_6] = NEngine::KEY_LPV_PROPAGATION_UP;
   engine.keysMap[SDLK_7] = NEngine::KEY_LPV_INTENSITY_DOWN;
@@ -111,10 +82,8 @@ CEngine::CEngine(
 
   engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
   engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFER;
-  engine.keysMap[SDLK_h] = NEngine::KEY_SHOW_LPV;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
-#endif
 }
 //------------------------------------------------------------------------------
 CEngine::~CEngine()
@@ -341,6 +310,22 @@ void CEngine::keyPress(NEngine::EKey key)
 {
   if(key & NEngine::KEY_QUIT)
     quit();
+  else if(key & NEngine::KEY_LPV_MODE)
+  {
+    engine.lpvMode = static_cast<NEngine::ELPVMode>((static_cast<uint32>(engine.lpvMode) + 1) % NEngine::LPV_MODES_COUNT);
+    context.log(CStr("LPV Mode: %s", NEngine::STR_LPV_MODES[engine.lpvMode]));
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+      f->setChanged();
+    window->repaint();
+  }
+  else if(key & NEngine::KEY_LPV_TECHNIQUE)
+  {
+    engine.lpvTechnique = static_cast<NEngine::ELPVTechnique>((static_cast<uint32>(engine.lpvTechnique) + 1) % NEngine::LPV_TECHNIQUES_COUNT);
+    context.log(CStr("LPV Technique: %s", NEngine::STR_LPV_MODES[engine.lpvMode]));
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+      f->setChanged();
+    window->repaint();
+  }
   else if(key & NEngine::KEY_LPV_PROPAGATION_DOWN)
   {
     if(engine.lpvPropagationSteps > 0)
@@ -374,11 +359,6 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFER)
   {
     engine.showGeometryBuffer = !engine.showGeometryBuffer;
-    window->repaint();
-  }
-  else if(key & NEngine::KEY_SHOW_LPV)
-  {
-    engine.showLPV = !engine.showLPV;
     window->repaint();
   }
 

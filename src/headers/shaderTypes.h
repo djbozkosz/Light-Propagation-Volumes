@@ -9,12 +9,12 @@
 namespace NShader
 {
   static const uint32 VERTEX_SHADERS_COUNT = 10;
-  static const uint32 GEOMETRY_SHADERS_COUNT = 2;
+  static const uint32 GEOMETRY_SHADERS_COUNT = 3;
   static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 0;
   static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 0;
   static const uint32 FRAGMENT_SHADERS_COUNT = 19;
-  static const uint32 COMPUTE_SHADERS_COUNT = 3;
-  static const uint32 PROGRAMS_COUNT = 22;
+  static const uint32 COMPUTE_SHADERS_COUNT = 4;
+  static const uint32 PROGRAMS_COUNT = 24;
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
@@ -84,7 +84,8 @@ namespace NShader
   static const char STR_VERTEX_LPV_PROPAGATION[] = "lpvPropagation.vs";
 
   static const char STR_GEOMETRY_LPV_INJECTION[] = "lpvInjection.gs";
-  static const char STR_GEOMETRY_LPV_PROPAGATION[] = "lpvPropagation.gs";
+  static const char STR_GEOMETRY_LPV_PROPAGATION_GATHERING[] = "lpvPropagationGathering.gs";
+  static const char STR_GEOMETRY_LPV_PROPAGATION_SCATTERING[] = "lpvPropagationScattering.gs";
 
   static const char STR_FRAGMENT_COLOR[] = "color.fs";
   static const char STR_FRAGMENT_DEPTH[] = "depth.fs";
@@ -108,7 +109,8 @@ namespace NShader
 
   static const char STR_COMPUTE_LPV_CLEAR[] = "lpvClear.cs";
   static const char STR_COMPUTE_LPV_INJECTION[] = "lpvInjection.cs";
-  static const char STR_COMPUTE_LPV_PROPAGATION[] = "lpvPropagation.cs";
+  static const char STR_COMPUTE_LPV_PROPAGATION_GATHERING[] = "lpvPropagationGathering.cs";
+  static const char STR_COMPUTE_LPV_PROPAGATION_SCATTERING[] = "lpvPropagationScattering.cs";
 
   static const char STR_ERROR_COMPILE_SKIP[] = "Shader Compilation Skip: \"%s\"!";
   static const char STR_ERROR_LINK_SKIP[] = "Program Link Skip: \"%s\"!";
@@ -136,11 +138,13 @@ namespace NShader
     "Per Fragment Normal Alpha Shadow",
     "Per Fragment Normal Alpha Shadow Jitter",
     "Geometry",
-    "LPV Injection",
-    "LPV Propagation",
+    "LPV Injection Geometry",
+    "LPV Propagation Geometry Gathering",
+    "LPV Propagation Geometry Scattering",
     "LPV Clear Compute",
     "LPV Injection Compute",
-    "LPV Propagation Compute"
+    "LPV Propagation Compute Gathering",
+    "LPV Propagation Compute Scattering"
   };
 
   // unique lists --------------------------------------------------------------
@@ -161,7 +165,8 @@ namespace NShader
   static const char *const STR_GEOMETRY_SHADER_LIST[] =
   {
     STR_GEOMETRY_LPV_INJECTION,
-    STR_GEOMETRY_LPV_PROPAGATION
+    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
+    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING
   };
 
   static const char *const STR_TESSELATION_CONTROL_SHADER_LIST[] =
@@ -200,7 +205,8 @@ namespace NShader
   {
     STR_COMPUTE_LPV_CLEAR,
     STR_COMPUTE_LPV_INJECTION,
-    STR_COMPUTE_LPV_PROPAGATION
+    STR_COMPUTE_LPV_PROPAGATION_GATHERING,
+    STR_COMPUTE_LPV_PROPAGATION_SCATTERING
   };
 
   // linking lists -------------------------------------------------------------
@@ -225,6 +231,8 @@ namespace NShader
     STR_VERTEX_GEOMETRY,
     STR_VERTEX_LPV_INJECTION,
     STR_VERTEX_LPV_PROPAGATION,
+    STR_VERTEX_LPV_PROPAGATION,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
@@ -250,7 +258,9 @@ namespace NShader
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_GEOMETRY_LPV_INJECTION,
-    STR_GEOMETRY_LPV_PROPAGATION,
+    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
+    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
@@ -258,6 +268,8 @@ namespace NShader
 
   static const char *const STR_PROGRAM_TESSELATION_CONTROL_SHADER_LIST[] =
   {
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
@@ -304,6 +316,8 @@ namespace NShader
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
   };
 
@@ -328,6 +342,8 @@ namespace NShader
     STR_FRAGMENT_GEOMETRY,
     STR_FRAGMENT_LPV_INJECTION,
     STR_FRAGMENT_LPV_PROPAGATION,
+    STR_FRAGMENT_LPV_PROPAGATION,
+    STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED
@@ -354,9 +370,11 @@ namespace NShader
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
     STR_COMPUTE_LPV_CLEAR,
     STR_COMPUTE_LPV_INJECTION,
-    STR_COMPUTE_LPV_PROPAGATION
+    STR_COMPUTE_LPV_PROPAGATION_GATHERING,
+    STR_COMPUTE_LPV_PROPAGATION_SCATTERING
   };
 
   enum EType
@@ -400,11 +418,13 @@ namespace NShader
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
     PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
     PROGRAM_GEOMETRY,
-    PROGRAM_LPV_INJECTION,
-    PROGRAM_LPV_PROPAGATION,
+    PROGRAM_LPV_INJECTION_GEOMETRY,
+    PROGRAM_LPV_PROPAGATION_GEOMETRY_GATHERING,
+    PROGRAM_LPV_PROPAGATION_GEOMETRY_SCATTERING,
     PROGRAM_LPV_CLEAR_COMPUTE,
     PROGRAM_LPV_INJECTION_COMPUTE,
-    PROGRAM_LPV_PROPAGATION_COMPUTE
+    PROGRAM_LPV_PROPAGATION_COMPUTE_GATHERING,
+    PROGRAM_LPV_PROPAGATION_COMPUTE_SCATTERING
   };
 
   enum ESampler
@@ -449,15 +469,15 @@ namespace NShader
     SAMPLER_GEOMETRY_DIF = 0,
     SAMPLER_GEOMETRY_NOR,
 
-    SAMPLER_LPV_INJECTION_FRAG_COLOR = 0,
-    SAMPLER_LPV_INJECTION_FRAG_POS,
-    SAMPLER_LPV_INJECTION_FRAG_NORMAL,
-    SAMPLER_LPV_INJECTION_FRAG_DEPTH,
+    SAMPLER_LPV_INJECTION_GEOMETRY_FRAG_COLOR = 0,
+    SAMPLER_LPV_INJECTION_GEOMETRY_FRAG_POS,
+    SAMPLER_LPV_INJECTION_GEOMETRY_FRAG_NORMAL,
+    SAMPLER_LPV_INJECTION_GEOMETRY_FRAG_DEPTH,
 
-    SAMPLER_LPV_PROPAGATION_LPV0_R = 0,
-    SAMPLER_LPV_PROPAGATION_LPV0_G,
-    SAMPLER_LPV_PROPAGATION_LPV0_B,
-    SAMPLER_LPV_PROPAGATION_GV,
+    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV0_R = 0,
+    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV0_G,
+    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV0_B,
+    SAMPLER_LPV_PROPAGATION_GEOMETRY_GV,
 
     IMAGE_LPV_CLEAR_COMPUTE_LPV0_R = 0,
     IMAGE_LPV_CLEAR_COMPUTE_LPV0_G,
@@ -483,9 +503,9 @@ namespace NShader
     IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_G,
     IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_B,
     IMAGE_LPV_PROPAGATION_COMPUTE_GV,
-    IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_R,
-    IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_G,
-    IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_B,
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_OUT_R,
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_OUT_G,
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_OUT_B,
   };
 }
 //------------------------------------------------------------------------------

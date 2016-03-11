@@ -42,6 +42,7 @@ class CEngine
 #endif
     static inline void staticShowMessage(const CContext *context, const std::string &title, const std::string &text, bool modal = true) { context->getEngine()->showMessage(title, text, modal); }
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
+    static inline void staticSetPlatform(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { context->getEngine()->setPlatform(gpuPlatform, lpvMode, lpvTechnique); }
     static inline void staticClearDrawCalls(CContext *context) { context->getEngine()->clearDrawCalls(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
     static inline const SEngine *staticGetEngine(const CContext *context) { return context->getEngine()->getEngine(); }
@@ -89,6 +90,7 @@ class CEngine
 
     bool isKeyForDelayedRendering() const;
 
+    inline void setPlatform(NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { engine.gpuPlatform = gpuPlatform; engine.lpvMode = lpvMode; engine.lpvTechnique = lpvTechnique; }
     inline void incDrawCalls() { engine.drawCalls++; }
     inline void clearDrawCalls() { engine.drawCalls = 0; }
     void updateTicks();

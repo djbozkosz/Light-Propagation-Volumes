@@ -22,6 +22,9 @@ namespace NEngine
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
+  static const uint32 LPV_MODES_COUNT = 3;
+  static const uint32 LPV_TECHNIQUES_COUNT = 2;
+
   static const uint32 INIT_LOAD_TIMER_MS = 100;
 
   static const uint32 DEFAULT_SCREEN_WIDTH = 1024;
@@ -46,6 +49,9 @@ namespace NEngine
   static const float SHADOW_JITTERING = 2.0f;
 
   static const char STR_APP_NAME[] = "Light Propagation Volumes";
+
+  static const char *const STR_LPV_MODES[] = { "Disabled", "GL 3.2+ - Geometry Shader", "GL 4.3+ - Compute Shader" };
+  static const char *const STR_LPV_TECHNIQUES[] = { "Gathering", "Scattering" };
 
   static const char *const STR_ENGINE_CLASSES[] =
   {
@@ -74,15 +80,15 @@ namespace NEngine
 
   enum EEngineFlags
   {
-    EFLAG = 0x00,
+    EFLAG              = 0x00,
     EFLAG_SHOW_CONSOLE = 0x01,
-    EFLAG_MAXIMIZED = 0x02,
-    EFLAG_FULLSCREEN = 0x04,
+    EFLAG_MAXIMIZED    = 0x02,
+    EFLAG_FULLSCREEN   = 0x04,
   };
 
   enum EGPUPlatform
   {
-    GPU_PLATFORM_KEEP = 0,
+    GPU_PLATFORM_KEEP   = 0,
 
     GPU_PLATFORM_GL0100 = 0100,
     GPU_PLATFORM_GL0101 = 0101,
@@ -104,7 +110,20 @@ namespace NEngine
     GPU_PLATFORM_GL0404 = 0404,
     GPU_PLATFORM_GL0405 = 0405,
 
-    GPU_PLATFORM_MAX = 0xffff,
+    GPU_PLATFORM_MAX    = 0xffff,
+  };
+
+  enum ELPVMode
+  {
+    LPV_MODE_DISABLED = 0,
+    LPV_MODE_GEOMETRY,
+    LPV_MODE_COMPUTE
+  };
+
+  enum ELPVTechnique
+  {
+    LPV_TECHNIQUE_GATHERING = 0,
+    LPV_TECHNIQUE_SCATTERING
   };
 
   enum EKey
@@ -125,16 +144,17 @@ namespace NEngine
     KEY_SPECIAL_DOWN          = 0x00000400,
     KEY_SPECIAL_UP            = 0x00000800,
 
-    KEY_LPV_PROPAGATION_DOWN  = 0x00001000,
-    KEY_LPV_PROPAGATION_UP    = 0x00002000,
-    KEY_LPV_INTENSITY_DOWN    = 0x00004000,
-    KEY_LPV_INTENSITY_UP      = 0x00008000,
-    KEY_SHADOW_JITTERING_DOWN = 0x00010000,
-    KEY_SHADOW_JITTERING_UP   = 0x00020000,
+    KEY_LPV_MODE              = 0x00001000,
+    KEY_LPV_TECHNIQUE         = 0x00002000,
+    KEY_LPV_PROPAGATION_DOWN  = 0x00004000,
+    KEY_LPV_PROPAGATION_UP    = 0x00008000,
+    KEY_LPV_INTENSITY_DOWN    = 0x00010000,
+    KEY_LPV_INTENSITY_UP      = 0x00020000,
+    KEY_SHADOW_JITTERING_DOWN = 0x00040000,
+    KEY_SHADOW_JITTERING_UP   = 0x00080000,
 
     KEY_FRUSTUM_UPDATE        = 0x10000000,
     KEY_SHOW_GEOMETRY_BUFFER  = 0x20000000,
-    KEY_SHOW_LPV              = 0x40000000,
 
     KEY_QUIT                  = 0x80000000
   };
@@ -177,6 +197,8 @@ struct SEngine
   bool activeRendering;
   uint8 flags;
   NEngine::EGPUPlatform gpuPlatform;
+  NEngine::ELPVMode lpvMode;
+  NEngine::ELPVTechnique lpvTechnique;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
@@ -194,7 +216,6 @@ struct SEngine
 
   bool updateFrustum;
   bool showGeometryBuffer;
-  bool showLPV;
   uint32 defaultScreenWidth;
   uint32 defaultScreenHeight;
 
@@ -224,6 +245,8 @@ struct SEngine
     activeRendering(false),
     flags(NEngine::EFLAG_MAXIMIZED),
     gpuPlatform(NEngine::GPU_PLATFORM_MAX),
+    lpvMode(NEngine::LPV_MODE_COMPUTE),
+    lpvTechnique(NEngine::LPV_TECHNIQUE_SCATTERING),
     keys(NEngine::KEY),
     tickOld(0),
     tickNew(0),
@@ -233,7 +256,6 @@ struct SEngine
     drawCalls(0),
     updateFrustum(true),
     showGeometryBuffer(false),
-    showLPV(true),
     defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH),
     defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
     multisampling(NEngine::DEFAULT_MULTISAMPLING),

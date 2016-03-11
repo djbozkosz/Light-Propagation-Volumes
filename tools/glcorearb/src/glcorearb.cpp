@@ -329,8 +329,7 @@ void printCoreClass(const std::map<std::string, SVerExt> &v)
   }
   std::cout << "  public:\n    COpenGL();\n    COpenGL(CContext *context);\n    ~COpenGL();\n\n";
 
-  uint ii = 0;
-  for(auto i = v.cbegin(); i != v.cend(); i++, ii++)
+  for(auto i = v.cbegin(); i != v.cend(); i++)
   {
     if((!i->second.functions.size()) || (i->second.name.find("GL_VERSION_") == std::string::npos))
       continue;
@@ -370,9 +369,23 @@ void printCoreClass(const std::map<std::string, SVerExt> &v)
 
       std::cout << "    inline " << j->second.ret << s[0] << j->second.name.substr(3) << "(" << j->second.params << ") { " << ((j->second.ret == "void ") ? "" : "return ") << j->second.name << "(" << p << "); }\n";
     }
+    std::cout << "\n";
+  }
+
+  uint ii = 0;
+  for(auto i = v.cbegin(); i != v.cend(); i++, ii++)
+  {
+    if((!i->second.functions.size()) || (i->second.name.find("GL_VERSION_") == std::string::npos) || (i->second.name == "GL_VERSION_1_0") || (i->second.name == "GL_VERSION_1_1"))
+      continue;
+
+    std::cout << "    // " << i->second.name << "\n";
+    for(auto j = i->second.functions.cbegin(); j != i->second.functions.cend(); j++)
+      std::cout << "    inline NOpenGLProc::EProcType getStatus" << j->second.name.substr(2) << "() const { return status" << j->second.name.substr(2) << "; }\n";
+
     if(ii < (iic - 1))
       std::cout << "\n";
   }
+
   std::cout << "};\n";
   std::cout << "//------------------------------------------------------------------------------\n";
   std::cout << "inline COpenGL::COpenGL() : CEngineBase(),\n";

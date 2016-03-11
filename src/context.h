@@ -54,6 +54,7 @@ class CContext
     void (*fncInitialize)(CContext *context);
     void (*fncInitializeFinish)(CContext *context);
     void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal);
+    void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique);
     void (*fncEngineIncDrawCalls)(CContext *context);
     void (*fncEngineClearDrawCalls)(CContext *context);
     std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object);
@@ -79,6 +80,7 @@ class CContext
       fncInitialize(NULL),
       fncInitializeFinish(NULL),
       fncEngineShowMessage(NULL),
+      fncEngineSetPlatform(NULL),
       fncEngineIncDrawCalls(NULL),
       fncEngineClearDrawCalls(NULL),
       fncEngineGetClassName(NULL),
@@ -117,6 +119,7 @@ class CContext
         fncInitialize(NULL),
         fncInitializeFinish(NULL),
         fncEngineShowMessage(NULL),
+        fncEngineSetPlatform(NULL),
         fncEngineIncDrawCalls(NULL),
         fncEngineClearDrawCalls(NULL),
         fncEngineGetClassName(NULL),
@@ -160,6 +163,7 @@ class CContext
       void (*fncInitialize)(CContext *context),
       void (*fncInitializeFinish)(CContext *context),
       void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal),
+      void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique),
       void (*fncEngineIncDrawCalls)(CContext *context),
       void (*fncEngineClearDrawCalls)(CContext *context),
       std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object),
@@ -168,6 +172,7 @@ class CContext
       if(fncInitialize)           this->fncInitialize = fncInitialize;
       if(fncInitializeFinish)     this->fncInitializeFinish = fncInitializeFinish;
       if(fncEngineShowMessage)    this->fncEngineShowMessage = fncEngineShowMessage;
+      if(fncEngineSetPlatform)    this->fncEngineSetPlatform = fncEngineSetPlatform;
       if(fncEngineIncDrawCalls)   this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
       if(fncEngineClearDrawCalls) this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
       if(fncEngineGetClassName)   this->fncEngineGetClassName = fncEngineGetClassName;
@@ -176,9 +181,10 @@ class CContext
 //------------------------------------------------------------------------------
 
     // callbacks engine
-    inline void engineShowMessage(const std::string &title, const std::string &text, bool modal = true) const { if(fncEngineShowMessage) fncEngineShowMessage(this, title, text, modal); }
     inline void engineInitialize() { if(fncInitialize) fncInitialize(this); }
     inline void engineInitializeFinish() { if(fncInitializeFinish) fncInitializeFinish(this); }
+    inline void engineShowMessage(const std::string &title, const std::string &text, bool modal = true) const { if(fncEngineShowMessage) fncEngineShowMessage(this, title, text, modal); }
+    inline void engineSetPlatform(NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { if(fncEngineSetPlatform) fncEngineSetPlatform(this, gpuPlatform, lpvMode, lpvTechnique); }
     inline void engineIncDrawCalls() { if(fncEngineIncDrawCalls) fncEngineIncDrawCalls(this); }
     inline void engineClearDrawCalls() { if(fncEngineClearDrawCalls) fncEngineClearDrawCalls(this); }
     inline std::string engineGetClassName(const CEngineBase *object) { if(fncEngineGetClassName) return fncEngineGetClassName(this, object); return std::string(); }
