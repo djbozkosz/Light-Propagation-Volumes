@@ -35,6 +35,7 @@ class CShaderProgram : public CEngineBase
     SShaderProgram program;
 
     void setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint32 format = NMap::FORMAT_MIPMAP) const;
+    void beginLPV(NShader::ESampler startDepthSampler, const CMap *depthMap) const;
 
   public:
     CShaderProgram();
@@ -106,6 +107,14 @@ inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint
     texture->bind(uniform, sampler, format);
   else
     context->getMaps()->unbind(uniform, sampler, format);
+}
+//------------------------------------------------------------------------------
+inline void CShaderProgram::beginLPV(NShader::ESampler startDepthSampler, const CMap *depthMap) const
+{
+  setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
+  setSampler(lpvMapR, program.uniforms.lpv0ImgR, NShader::SAMPLER_PER_FRAGMENT_LPV_R, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+  setSampler(lpvMapG, program.uniforms.lpv0ImgG, NShader::SAMPLER_PER_FRAGMENT_LPV_G, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+  setSampler(lpvMapB, program.uniforms.lpv0ImgB, NShader::SAMPLER_PER_FRAGMENT_LPV_B, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);//
 }
 //------------------------------------------------------------------------------
 #endif // SHADERS_H

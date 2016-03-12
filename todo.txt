@@ -7,8 +7,11 @@ point SM
 cascaded LPV
 inject GV
 
+stíny: 2d tex array - x * y * 6
+6 fbo (kaskády) x 3 - r, g, b
+
 gl3:
-  dva fbo - každý r, g, b, gv 3d textury
+  dva swap fbo - každý r, g, b, gv 3d textury
   injekce:
     +blend
     -depth mask
@@ -25,7 +28,7 @@ gl3:
       swap fbo 1/0
 
 gl4:
-  lpv image textury 2x: r32i: r, g, b: (32 * 4) * 32 * 32, gv: 32^3
+  dvě lpv image swap textury: r32i: r, g, b: (32 * 4) * 32 * 32, gv: 32^3
   image load store: itof: float(a) * 0.000001, ftoi int(a * 1000000.0)
   injekce:
     atomicAdd 4x pro 4 sh koef * 3 barvy + gv

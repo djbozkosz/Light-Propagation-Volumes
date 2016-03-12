@@ -42,16 +42,13 @@ namespace NShader
   static const char STR_UNIFORM_FRAG_POS_IMG[] = "fragPos";
   static const char STR_UNIFORM_FRAG_NORMAL_IMG[] = "fragNormal";
   static const char STR_UNIFORM_FRAG_DEPTH_IMG[] = "fragDepth";
-  static const char STR_UNIFORM_LPV0_IMG_R[] = "lpv0ImgR";
-  static const char STR_UNIFORM_LPV0_IMG_G[] = "lpv0ImgG";
-  static const char STR_UNIFORM_LPV0_IMG_B[] = "lpv0ImgB";
-  static const char STR_UNIFORM_LPV1_IMG_R[] = "lpv1ImgR";
-  static const char STR_UNIFORM_LPV1_IMG_G[] = "lpv1ImgG";
-  static const char STR_UNIFORM_LPV1_IMG_B[] = "lpv1ImgB";
-  static const char STR_UNIFORM_GV_IMG[] = "gvImg";
-  static const char STR_UNIFORM_LPV_OUT_IMG_R[] = "lpvOutImgR";
-  static const char STR_UNIFORM_LPV_OUT_IMG_G[] = "lpvOutImgG";
-  static const char STR_UNIFORM_LPV_OUT_IMG_B[] = "lpvOutImgB";
+  static const char STR_UNIFORM_LPV_TEX_R[] = "lpvTexR"; // cs out, gs in
+  static const char STR_UNIFORM_LPV_TEX_G[] = "lpvTexG";
+  static const char STR_UNIFORM_LPV_TEX_B[] = "lpvTexB";
+  static const char STR_UNIFORM_GV_TEX[] = "gvTex";
+  static const char STR_UNIFORM_LPV0_TEX_R[] = "lpv%dTexR"; // cascades, cs swap in/out
+  static const char STR_UNIFORM_LPV0_TEX_G[] = "lpv%dTexG";
+  static const char STR_UNIFORM_LPV0_TEX_B[] = "lpv%dTexB";
 
   static const char STR_UNIFORM_TYPE[] = "type";
   static const char STR_UNIFORM_OPACITY[] = "opacity";
@@ -437,34 +434,34 @@ namespace NShader
     SAMPLER_PER_FRAGMENT_DIF = 0,
     SAMPLER_PER_FRAGMENT_SPE,
     SAMPLER_PER_FRAGMENT_DEPTH,
-    SAMPLER_PER_FRAGMENT_LPV_R,
-    SAMPLER_PER_FRAGMENT_LPV_G,
-    SAMPLER_PER_FRAGMENT_LPV_B,
+    SAMPLER_PER_FRAGMENT_LPV0_R,
+    SAMPLER_PER_FRAGMENT_LPV0_G,
+    SAMPLER_PER_FRAGMENT_LPV0_B,
 
     SAMPLER_PER_FRAGMENT_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_ALPHA_SPE,
     SAMPLER_PER_FRAGMENT_ALPHA_DEPTH,
-    SAMPLER_PER_FRAGMENT_ALPHA_LPV_R,
-    SAMPLER_PER_FRAGMENT_ALPHA_LPV_G,
-    SAMPLER_PER_FRAGMENT_ALPHA_LPV_B,
+    SAMPLER_PER_FRAGMENT_ALPHA_LPV0_R,
+    SAMPLER_PER_FRAGMENT_ALPHA_LPV0_G,
+    SAMPLER_PER_FRAGMENT_ALPHA_LPV0_B,
 
     SAMPLER_PER_FRAGMENT_NORMAL_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_NOR,
     SAMPLER_PER_FRAGMENT_NORMAL_DEPTH,
-    SAMPLER_PER_FRAGMENT_NORMAL_LPV_R,
-    SAMPLER_PER_FRAGMENT_NORMAL_LPV_G,
-    SAMPLER_PER_FRAGMENT_NORMAL_LPV_B,
+    SAMPLER_PER_FRAGMENT_NORMAL_LPV0_R,
+    SAMPLER_PER_FRAGMENT_NORMAL_LPV0_G,
+    SAMPLER_PER_FRAGMENT_NORMAL_LPV0_B,
 
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF = 0,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR,
     SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_R,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_G,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV_B,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV0_R,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV0_G,
+    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV0_B,
 
     SAMPLER_GEOMETRY_DIF = 0,
     SAMPLER_GEOMETRY_NOR,
@@ -474,9 +471,9 @@ namespace NShader
     SAMPLER_LPV_INJECTION_GEOMETRY_FRAG_NORMAL,
     SAMPLER_LPV_INJECTION_GEOMETRY_FRAG_DEPTH,
 
-    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV0_R = 0,
-    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV0_G,
-    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV0_B,
+    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV_R = 0, // swap in
+    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV_G,
+    SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV_B,
     SAMPLER_LPV_PROPAGATION_GEOMETRY_GV,
 
     IMAGE_LPV_CLEAR_COMPUTE_LPV0_R = 0,
@@ -491,21 +488,21 @@ namespace NShader
     IMAGE_LPV_INJECTION_COMPUTE_FRAG_POS,
     IMAGE_LPV_INJECTION_COMPUTE_FRAG_NORMAL,
     IMAGE_LPV_INJECTION_COMPUTE_FRAG_DEPTH,
-    IMAGE_LPV_INJECTION_COMPUTE_LPV0_R,
-    IMAGE_LPV_INJECTION_COMPUTE_LPV0_G,
-    IMAGE_LPV_INJECTION_COMPUTE_LPV0_B,
+    IMAGE_LPV_INJECTION_COMPUTE_LPV_R, // out
+    IMAGE_LPV_INJECTION_COMPUTE_LPV_G,
+    IMAGE_LPV_INJECTION_COMPUTE_LPV_B,
     IMAGE_LPV_INJECTION_COMPUTE_GV,
 
-    IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_R = 0,
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_R = 0, // swap in
     IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_G,
     IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_B,
-    IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_R,
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_R, // swap out
     IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_G,
     IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_B,
-    IMAGE_LPV_PROPAGATION_COMPUTE_GV,
-    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_OUT_R,
-    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_OUT_G,
-    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_OUT_B,
+    IMAGE_LPV_PROPAGATION_COMPUTE_GV, // static
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_R, // out
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_G,
+    IMAGE_LPV_PROPAGATION_COMPUTE_LPV_B,
   };
 }
 //------------------------------------------------------------------------------
@@ -535,16 +532,13 @@ struct SShaderUniforms
   GLuint fragPosImg;
   GLuint fragNormalImg;
   GLuint fragDepthImg;
-  GLuint lpv0ImgR;
-  GLuint lpv0ImgG;
-  GLuint lpv0ImgB;
-  GLuint lpv1ImgR;
-  GLuint lpv1ImgG;
-  GLuint lpv1ImgB;
-  GLuint gvImg;
-  GLuint lpvOutImgR;
-  GLuint lpvOutImgG;
-  GLuint lpvOutImgB;
+  GLuint lpvTexR;
+  GLuint lpvTexG;
+  GLuint lpvTexB;
+  GLuint gvTex;
+  GLuint lpv0TexR[NEngine::LPV_CASCADES_COUNT];
+  GLuint lpv0TexG[NEngine::LPV_CASCADES_COUNT];
+  GLuint lpv0TexB[NEngine::LPV_CASCADES_COUNT];
 
   GLuint type;
   GLuint opacity;
@@ -569,13 +563,15 @@ struct SShaderUniforms
     mw(0), mwnit(0), mvp(0), mvpdb(0), cam(0),
     difTex(0), alpTex(0), speTex(0), norTex(0), envTex(0), depthTex(0),
     fragColorImg(0), fragPosImg(0), fragNormalImg(0), fragDepthImg(0),
-    lpv0ImgR(0), lpv0ImgG(0), lpv0ImgB(0), lpv1ImgR(0), lpv1ImgG(0), lpv1ImgB(0), gvImg(0),
-    lpvOutImgR(0), lpvOutImgG(0), lpvOutImgB(0),
+    lpvTexR(0), lpvTexG(0), lpvTexB(0), gvTex(0),
     type(0), opacity(0), depthTexelSize(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
     fragSize(0), lpvPos(0), lpvSize(0), lpvCellSize(0), lpvPropagationsCount(0)
   {
+    memset(lpv0TexR, 0, sizeof(GLuint) * NEngine::LPV_CASCADES_COUNT);
+    memset(lpv0TexG, 0, sizeof(GLuint) * NEngine::LPV_CASCADES_COUNT);
+    memset(lpv0TexB, 0, sizeof(GLuint) * NEngine::LPV_CASCADES_COUNT);
   }
 };
 //------------------------------------------------------------------------------

@@ -24,6 +24,9 @@ namespace NEngine
 
   static const uint32 LPV_MODES_COUNT = 3;
   static const uint32 LPV_TECHNIQUES_COUNT = 2;
+  static const uint32 LPV_SH_COUNT = 4;
+  static const uint32 LPV_CASCADES_COUNT = 1;
+  static const uint32 SHADOW_CASCADES_COUNT = 1;
 
   static const uint32 INIT_LOAD_TIMER_MS = 100;
 

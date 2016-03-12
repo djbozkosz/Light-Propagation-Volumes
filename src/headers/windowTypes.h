@@ -7,8 +7,6 @@
 //-----------------------------------------------------------------------------
 namespace NWindow
 {
-  static const uint32 LPV_SH_COUNT = 4;
-
   static const char STR_ORTHO_DEPTH_FBO[] = "orthoDepth";
   static const char STR_ORTHO_DEPTH_FBO_MAP[] = "orthoDepth_0";
   static const char STR_ORTHO_GEOMETRY_FBO[] = "orthoGeometry";
@@ -17,20 +15,21 @@ namespace NWindow
   static const char STR_ORTHO_GEOMETRY_FBO_NORMAL_MAP[] = "orthoGeometry_2";
   static const char STR_ORTHO_GEOMETRY_FBO_DEPTH_MAP[] = "orthoGeometry_3";
 
-  // for gl 3.2+: fbo + attachments, for gl 4.3+: image load store (int + float)
-  static const char STR_LPV0_FBO[] = "lpv0Tex";
-  static const char STR_LPV0_MAP_R[] = "lpv0Tex_0";
-  static const char STR_LPV0_MAP_G[] = "lpv0Tex_1";
-  static const char STR_LPV0_MAP_B[] = "lpv0Tex_2";
-  static const char STR_GV0_MAP[] = "lpv0Tex_3";
-  static const char STR_LPV1_FBO[] = "lpv1Tex";
-  static const char STR_LPV1_MAP_R[] = "lpv1Tex_0";
-  static const char STR_LPV1_MAP_G[] = "lpv1Tex_1";
-  static const char STR_LPV1_MAP_B[] = "lpv1Tex_2";
-  static const char STR_GV1_MAP[] = "lpv1Tex_3";
-  static const char STR_LPV_OUT_MAP_R[] = "lpvOutTexR";
-  static const char STR_LPV_OUT_MAP_G[] = "lpvOutTexG";
-  static const char STR_LPV_OUT_MAP_B[] = "lpvOutTexB";
+  static const char STR_LPV_FBO[] = "lpv%dTex"; // %d cascades
+  static const char STR_LPV_MAP_R[] = "lpv%dTex_0";
+  static const char STR_LPV_MAP_G[] = "lpv%dTex_1";
+  static const char STR_LPV_MAP_B[] = "lpv%dTex_2";
+
+  static const char STR_LPV_SWAP_FBO[] = "lpvSwap%dTex"; // gl 3.2 fbo swap propagation textures
+  static const char STR_LPV_SWAP_MAP_R[] = "lpvSwap%dTex_0";
+  static const char STR_LPV_SWAP_MAP_G[] = "lpvSwap%dTex_1";
+  static const char STR_LPV_SWAP_MAP_B[] = "lpvSwap%dTex_2";
+  static const char STR_GV_SWAP_MAP[] = "lpvSwap%dTex_3";
+
+  static const char STR_LPV_SWAP_IMG_R[] = "lpvSwap%dImg_0"; // gl 4.3 swap propagation images
+  static const char STR_LPV_SWAP_IMG_G[] = "lpvSwap%dImg_1";
+  static const char STR_LPV_SWAP_IMG_B[] = "lpvSwap%dImg_2";
+  static const char STR_GV_SWAP_IMG[] = "lpvSwapImg_3";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
 

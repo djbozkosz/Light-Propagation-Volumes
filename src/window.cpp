@@ -107,6 +107,9 @@ void CWindow::initializeGL()
   CEngineBase::context->log(std::string("Version: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::VERSION)));
   CEngineBase::context->log(std::string("GLSL Version: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::SHADING_LANGUAGE_VERSION)));
 
+  const bool gpu43 = (gl->getStatusDispatchCompute() == NOpenGLProc::TYPE_NOT_LOADED);
+  CEngineBase::context->engineSetPlatform((gpu43) ? NEngine::GPU_PLATFORM_GL0302 : NEngine::GPU_PLATFORM_GL0403, (gpu43) ? NEngine::LPV_MODE_COMPUTE : NEngine::LPV_MODE_GEOMETRY, NEngine::LPV_TECHNIQUE_SCATTERING);
+
   gl->enable(NOpenGL::DEPTH_TEST);
 
   gl->enable(NOpenGL::CULL_FACE);
