@@ -575,12 +575,21 @@ struct SShaderUniforms
   }
 };
 //------------------------------------------------------------------------------
+struct SShaderSkyLight
+{
+  glm::vec3 lightPos;
+  glm::vec3 lightColor;
+
+  inline SShaderSkyLight() {}
+};
+//------------------------------------------------------------------------------
 struct SShaderTechnique
 {
   glm::mat4 mw; // trochu špatně modelované -> dupliticní pro lody, ale dejme tomu
   glm::mat3 mwnit;
   mutable glm::mat4 mvp;
-  mutable glm::mat4 mvpdb; // shadow bias
+  mutable glm::mat4 mvpd[NEngine::SHADOW_CASCADES_COUNT]; // depth mvp
+  mutable glm::mat4 mvpg[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS]; // geometry mvp
   mutable glm::vec3 cam;
 
   mutable const SMaterial *material;
@@ -592,6 +601,7 @@ struct SShaderTechnique
   glm::vec2 lightRange;
   glm::vec3 lightColor;
   glm::vec4 lightSpeColor;
+  SShaderSkyLight lightSky[NEngine::LPV_SUN_SKY_DIRS];
 
   glm::vec2 fogRange;
   glm::vec3 fogColor;
