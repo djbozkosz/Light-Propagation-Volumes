@@ -8,7 +8,8 @@ cascaded LPV
 inject GV
 
 stíny: 2d tex array - x * y * 6
-6 fbo (kaskády) x 3 - r, g, b
+g-buffer: 2x tex array - x * y * 6 * sun/sky dirs
+lpv: 6x fbo (kaskády) * 4 (r, g, b, gv)
 
 gl3:
   dva swap fbo - každý r, g, b, gv 3d textury

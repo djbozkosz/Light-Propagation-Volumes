@@ -169,9 +169,6 @@
     <ClInclude Include="..\src\headers\mapTypes.h">
       <Filter>Header Files\headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\headers\windowTypes.h">
-      <Filter>Header Files\headers</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shaders\basic.fs">
@@ -246,9 +243,6 @@
     <None Include="..\data\shaders\geometry.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
-    <None Include="..\data\shaders\lpvPropagation.cs">
-      <Filter>Shader Files\Compute</Filter>
-    </None>
     <None Include="..\data\shaders\geometry.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
@@ -267,13 +261,37 @@
     <None Include="..\data\shaders\lpvInjection.gs">
       <Filter>Shader Files\Geometry</Filter>
     </None>
-    <None Include="..\data\shaders\lpvPropagation.gs">
-      <Filter>Shader Files\Geometry</Filter>
-    </None>
     <None Include="..\data\shaders\lpvInjection.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
     <None Include="..\data\shaders\lpvPropagation.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvPropagationGathering.cs">
+      <Filter>Shader Files\Compute</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvPropagationGathering.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvPropagationScattering.cs">
+      <Filter>Shader Files\Compute</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvPropagationScattering.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\depthColorKey.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\depthCascade.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\geometryCascade.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\depthCascade.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
+    <None Include="..\data\shaders\geometryCascade.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
   </ItemGroup>
