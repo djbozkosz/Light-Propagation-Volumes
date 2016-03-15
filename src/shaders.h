@@ -8,7 +8,6 @@
 
 #include "culling.h"
 #include "headers/rendererTypes.h"
-#include "headers/windowTypes.h"
 #include "headers/sceneTypes.h"
 
 //------------------------------------------------------------------------------
@@ -35,7 +34,7 @@ class CShaderProgram : public CEngineBase
     SShaderProgram program;
 
     void setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint32 format = NMap::FORMAT_MIPMAP) const;
-    void beginLPV(NShader::ESampler startDepthSampler, const CMap *depthMap) const;
+    void beginLPV(NShader::ESampler startDepthSampler, bool index) const;
 
   public:
     CShaderProgram();
@@ -46,7 +45,7 @@ class CShaderProgram : public CEngineBase
     void initUniforms();
 
     void bind() const;
-    void begin(const SShaderTechnique *technique, NRenderer::EMode mode = NRenderer::MODE_STANDARD) const;
+    void begin(const SShaderTechnique *technique, NRenderer::EMode mode = NRenderer::MODE_STANDARD) const; // mode for backdrop, etc...
     void end(const SShaderTechnique *technique) const;
     void unbind() const;
     void dispatch(uint32 x, uint32 y, uint32 z, NRenderer::EMode mode, GLbitfield preSync = GL_NONE, GLbitfield postSync = GL_NONE) const;
@@ -109,12 +108,22 @@ inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint
     context->getMaps()->unbind(uniform, sampler, format);
 }
 //------------------------------------------------------------------------------
-inline void CShaderProgram::beginLPV(NShader::ESampler startDepthSampler, const CMap *depthMap) const
+inline void CShaderProgram::beginLPV(NShader::ESampler startDepthSampler, bool index) const
 {
-  setSampler(depthMap, program.uniforms.depthTex, NShader::SAMPLER_PER_FRAGMENT_DEPTH, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
-  setSampler(lpvMapR, program.uniforms.lpv0ImgR, NShader::SAMPLER_PER_FRAGMENT_LPV_R, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
-  setSampler(lpvMapG, program.uniforms.lpv0ImgG, NShader::SAMPLER_PER_FRAGMENT_LPV_G, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
-  setSampler(lpvMapB, program.uniforms.lpv0ImgB, NShader::SAMPLER_PER_FRAGMENT_LPV_B, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);//
+  const SShaderUniforms *u = &program.uniforms;
+  setSampler(u->shadowMap, program.uniforms.shadTex, startDepthSampler, NMap::FORMAT_LINEAR | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
+  if(!index)
+  {
+    setSampler(u->lpvGs0MapR, program.uniforms.lpvTexR, startDepthSampler + 1, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+    setSampler(u->lpvGs0MapG, program.uniforms.lpvTexG, startDepthSampler + 2, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+    setSampler(u->lpvGs0MapB, program.uniforms.lpvTexB, startDepthSampler + 3, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+  }
+  else
+  {
+    setSampler(u->lpvGs1MapR, program.uniforms.lpvTexR, startDepthSampler + 1, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+    setSampler(u->lpvGs1MapG, program.uniforms.lpvTexG, startDepthSampler + 2, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+    setSampler(u->lpvGs1MapB, program.uniforms.lpvTexB, startDepthSampler + 3, NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER);
+  }
 }
 //------------------------------------------------------------------------------
 #endif // SHADERS_H

@@ -63,9 +63,6 @@ void CRenderer::dispatch() const
 
     const CShaderProgram *prog = context->getShaders()->getProgram(static_cast<NShader::EProgram>(i));
 
-    /*if((context->getCamera()->getCamera()->renderMode == NCamera::RENDER_MODE_REFLECTION) && ((prog->getProgram()->name == NShader::PROGRAM_WATER) || (prog->getProgram()->name == NShader::PROGRAM_UNDER_WATER)))
-    continue;*/
-
     prog->bind();
 
     for(auto mesh = meshes[i].cbegin(); mesh != meshes[i].cend(); mesh++)

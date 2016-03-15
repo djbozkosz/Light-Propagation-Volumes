@@ -7,12 +7,15 @@ point SM
 cascaded LPV
 inject GV
 
-stíny: 2d tex array - x * y * 6
-g-buffer: 2x tex array - x * y * 6 * sun/sky dirs
-lpv: 6x fbo (kaskády) * 4 (r, g, b, gv)
+lpv vstup:
+  g-buffer: (amb, pos, normal) 2d tex array - x * y * 6*sun/sky dirs		3 textury
+
+výstup - out vstup:
+  stíny: 2d tex array: x * y * z						1 textura
+  lpv: 3d tex: 3(rgb) * x*6 * y * z						3 textury
 
 gl3:
-  dva swap fbo - každý r, g, b, gv 3d textury
+  dva swap fbo - 3d tex: 4(rgbg) * x*6 * y * z					2 fbo + 8 textur
   injekce:
     +blend
     -depth mask
@@ -29,7 +32,7 @@ gl3:
       swap fbo 1/0
 
 gl4:
-  dvě lpv image swap textury: r32i: r, g, b: (32 * 4) * 32 * 32, gv: 32^3
+  dva swap image - r32i: 3d tex: 3(rgb) * x*4*6 * y * z   +   3d gv		7 textur
   image load store: itof: float(a) * 0.000001, ftoi int(a * 1000000.0)
   injekce:
     atomicAdd 4x pro 4 sh koef * 3 barvy + gv
@@ -53,3 +56,10 @@ kaskády 32^3: velikost - dosah
   6m - 96m
   20m - 320m
   100m - 1600m
+
+ukládání matic:
+  geometry:
+    u modelu: cyklus co getne z enginu viewProj matice geometry kaskád,
+    vynásobí je s modelWorld a všechny uloží do techniky
+  stíny:
+    úplně stejně pro stíny akorát výsledek ještě vynásobí s bias maticí a uloží taky

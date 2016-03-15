@@ -22,40 +22,101 @@ namespace NEngine
   static const float FPS_MS = 0.001f;
   static const uint8 FPS_COUNTER_MAX = 10;
 
-  static const uint32 LPV_MODES_COUNT = 3;
-  static const uint32 LPV_TECHNIQUES_COUNT = 2;
-  static const uint32 LPV_SH_COUNT = 4;
-  static const uint32 LPV_CASCADES_COUNT = 6;
-  static const uint32 LPV_SUN_SKY_DIRS = 4;
-  static const uint32 SHADOW_CASCADES_COUNT = 6;
-
   static const uint32 INIT_LOAD_TIMER_MS = 100;
 
   static const uint32 DEFAULT_SCREEN_WIDTH = 1024;
   static const uint32 DEFAULT_SCREEN_HEIGHT = 600;
   static const uint32 DEFAULT_MULTISAMPLING = 4;
   static const uint32 MAX_TEXTURE_SIZE = 0;
-  static const uint32 DEPTH_TEXTURE_SIZE = 2048;
+
+  static const uint32 SHADOW_TEXTURE_SIZE = 256;
+  static const uint32 SHADOW_CASCADES_COUNT = 1;
+  static const float SHADOW_JITTERING = 2.0f;
+
   static const uint32 GEOMETRY_TEXTURE_SIZE = 32;
-  static const float LPV_POS_X = 0.0f;
-  static const float LPV_POS_Y = 0.0f;
-  static const float LPV_POS_Z = 0.0f;
+
   static const float LPV_TEXTURE_SIZE_X = 32.0f;
   static const float LPV_TEXTURE_SIZE_Y = 32.0f;
   static const float LPV_TEXTURE_SIZE_Z = 32.0f;
-  static const float LPV_CELL_SIZE_X = 1.0f;
-  static const float LPV_CELL_SIZE_Y = 1.0f;
-  static const float LPV_CELL_SIZE_Z = 1.0f;
   static const uint32 LPV_PROPAGATION_STEPS = 5;
   static const float LPV_INTENSITY = 1.0f;
-  static const float ORTHO_DEPTH_SIZE = 32.0f;
-  static const float ORTHO_DEPTH_DEPTH = 200.0f;
-  static const float SHADOW_JITTERING = 2.0f;
+  static const uint32 LPV_MODES_COUNT = 3;
+  static const uint32 LPV_TECHNIQUES_COUNT = 2;
+  static const uint32 LPV_SH_COUNT = 4;
+  static const uint32 LPV_CASCADES_COUNT = 1;
+  static const uint32 LPV_SUN_SKY_DIRS_COUNT = 1; // sun + sky
+  static const float LPV_CUBE_LENGTH = 1.74f;
+
+  static const float SHADOW_CASCADES_CLIPS[SHADOW_CASCADES_COUNT * NMath::VEC2] =
+  {
+    10.0f, 50.0f
+    /*2.0f, 50.0f, // side, front
+    5.0f, 100.0f,
+    10.0f, 150.0f,
+    25.0f, 200.0f,
+    80.0f, 250.0f,
+    160.0f, 300.0f*/
+  };
+
+  static const float GEOMETRY_CASCADES_CLIPS[LPV_CASCADES_COUNT * LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2] =
+  {
+    16.0f * LPV_CUBE_LENGTH, 50.0f
+    /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, front
+    5.0f * LPV_CUBE_LENGTH, 100.0f,
+    10.0f * LPV_CUBE_LENGTH, 150.0f,
+    25.0f * LPV_CUBE_LENGTH, 200.0f,
+    80.0f * LPV_CUBE_LENGTH, 250.0f,
+    160.0f * LPV_CUBE_LENGTH, 300.0f*/
+  };
+
+  static const float LPV_CELL_SIZES[LPV_CASCADES_COUNT * NMath::VEC3] =
+  {
+    1.0f, 1.0f, 1.0f
+    /*0.1f, 0.1f, 0.1f,
+    0.3f, 0.3f, 0.3f,
+    0.8f, 0.8f, 0.8f,
+    2.0f, 2.0f, 2.0f,
+    6.0f, 6.0f, 6.0f,
+    20.0f, 20.0f, 20.0f*/
+  };
 
   static const char STR_APP_NAME[] = "Light Propagation Volumes";
 
   static const char *const STR_LPV_MODES[] = { "Disabled", "GL 3.2+ - Geometry Shader", "GL 4.3+ - Compute Shader" };
   static const char *const STR_LPV_TECHNIQUES[] = { "Gathering", "Scattering" };
+
+  static const char STR_SUN_SHADOW_FBO[] = "sunShadow";
+  static const char STR_SUN_SHADOW_FBO_MAP[] = "sunShadow_0";
+  static const char STR_GEOMETRY_FBO[] = "geometry";
+  static const char STR_GEOMETRY_FBO_AMB_MAP[] = "geometry_0";
+  static const char STR_GEOMETRY_FBO_POS_MAP[] = "geometry_1";
+  static const char STR_GEOMETRY_FBO_NORMAL_MAP[] = "geometry_2";
+  static const char STR_GEOMETRY_FBO_DEPTH_MAP[] = "geometry_3";
+
+  static const char STR_LPV_FBO[] = "lpv%dTex"; // %d cascades
+  static const char STR_LPV_MAP_R[] = "lpv%dTex_0";
+  static const char STR_LPV_MAP_G[] = "lpv%dTex_1";
+  static const char STR_LPV_MAP_B[] = "lpv%dTex_2";
+
+  static const char STR_LPV_SWAP_FBO[] = "lpvSwap%dTex"; // gl 3.2 fbo swap propagation textures - 2
+  static const char STR_LPV_SWAP_MAP_R[] = "lpvSwap%dTex_0";
+  static const char STR_LPV_SWAP_MAP_G[] = "lpvSwap%dTex_1";
+  static const char STR_LPV_SWAP_MAP_B[] = "lpvSwap%dTex_2";
+  static const char STR_GV_SWAP_MAP[] = "lpvSwap%dTex_3";
+
+  static const char STR_LPV_SWAP_IMG_R[] = "lpvSwap%dImg_0"; // gl 4.3 swap propagation images - 2
+  static const char STR_LPV_SWAP_IMG_G[] = "lpvSwap%dImg_1";
+  static const char STR_LPV_SWAP_IMG_B[] = "lpvSwap%dImg_2";
+  static const char STR_GV_SWAP_IMG[] = "lpvSwapImg_3";
+
+  static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
+
+  static const char STR_ERROR_INIT_SDL[] = "Unable to init SDL";
+  static const char STR_ERROR_INIT_WINDOW[] = "Unable to init window";
+  static const char STR_ERROR_INIT_GL_CONTEXT[] = "Unable to init OpenGL context";
+  static const char STR_ERROR_INIT_IMG_JPG[] = "Unable to init SDL Image: JPG";
+  static const char STR_ERROR_INIT_IMG_PNG[] = "Unable to init SDL Image: PNG";
+  static const char STR_ERROR_INIT_GLEW[] = "Unable to init GLEW";
 
   static const char *const STR_ENGINE_CLASSES[] =
   {
@@ -158,7 +219,8 @@ namespace NEngine
     KEY_SHADOW_JITTERING_UP   = 0x00080000,
 
     KEY_FRUSTUM_UPDATE        = 0x10000000,
-    KEY_SHOW_GEOMETRY_BUFFER  = 0x20000000,
+    KEY_SHOW_GEOMETRY_BUFFERS = 0x20000000,
+    KEY_SHOW_SHADOW_BUFFERS   = 0x40000000,
 
     KEY_QUIT                  = 0x80000000
   };
@@ -220,21 +282,29 @@ struct SEngine
 
   bool updateFrustum;
   bool showGeometryBuffer;
+  bool showShadowBuffer;
   uint32 defaultScreenWidth;
   uint32 defaultScreenHeight;
 
   uint8 multisampling;
   uint32 maxTextureSize;
-  uint32 depthTextureSize;
+
+  uint32 shadowTextureSize;
+  float shadowJittering;
+  glm::vec3 shadowPoses[NEngine::SHADOW_CASCADES_COUNT];
+  glm::mat4 shadowViewProj[NEngine::SHADOW_CASCADES_COUNT]; // shadow proj * view
+
   uint32 geometryTextureSize;
-  glm::vec3 lpvPos;
+  glm::mat4 geometryViewProj[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry proj * view
+
+  float sunSkyPoses[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2];
+  float sunSkyColors[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3];
+
   glm::vec3 lpvTextureSize;
-  glm::vec3 lpvCellSize;
   uint32 lpvPropagationSteps;
   float lpvIntensity;
-  float orthoDepthSize;
-  float orthoDepthDepth;
-  float shadowJittering;
+  glm::vec3 lpvPoses[NEngine::LPV_CASCADES_COUNT];
+  float lpvPosesOut[NEngine::LPV_CASCADES_COUNT * NMath::VEC3];
 
 #if defined(ENV_QT)
   QElapsedTimer timer;
@@ -251,34 +321,53 @@ struct SEngine
     gpuPlatform(NEngine::GPU_PLATFORM_MAX),
     lpvMode(NEngine::LPV_MODE_COMPUTE),
     lpvTechnique(NEngine::LPV_TECHNIQUE_SCATTERING),
+
     keys(NEngine::KEY),
+
     tickOld(0),
     tickNew(0),
     simulationStep(1.0),
     fps(0.0),
     fpsCounter(0),
+
     drawCalls(0),
+
     updateFrustum(true),
     showGeometryBuffer(false),
+    showShadowBuffer(false),
     defaultScreenWidth(NEngine::DEFAULT_SCREEN_WIDTH),
     defaultScreenHeight(NEngine::DEFAULT_SCREEN_HEIGHT),
+
     multisampling(NEngine::DEFAULT_MULTISAMPLING),
     maxTextureSize(NEngine::MAX_TEXTURE_SIZE),
-    depthTextureSize(NEngine::DEPTH_TEXTURE_SIZE),
+
+    shadowTextureSize(NEngine::SHADOW_TEXTURE_SIZE),
+    shadowJittering(NEngine::SHADOW_JITTERING),
+
     geometryTextureSize(NEngine::GEOMETRY_TEXTURE_SIZE),
-    lpvPos(NEngine::LPV_POS_X, NEngine::LPV_POS_Y, NEngine::LPV_POS_Z),
+
     lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
-    lpvCellSize(NEngine::LPV_CELL_SIZE_X, NEngine::LPV_CELL_SIZE_Y, NEngine::LPV_CELL_SIZE_Z),
     lpvPropagationSteps(NEngine::LPV_PROPAGATION_STEPS),
     lpvIntensity(NEngine::LPV_INTENSITY),
-    orthoDepthSize(NEngine::ORTHO_DEPTH_SIZE),
-    orthoDepthDepth(NEngine::ORTHO_DEPTH_DEPTH),
-    shadowJittering(NEngine::SHADOW_JITTERING),
+    
 #ifdef ENV_SDL
     initSceneTimer(0),
     initSceneEvent(0),
 #endif
-    waitForFlushTimers(false) {}
+    waitForFlushTimers(false)
+  {
+    memset(sunSkyPoses, 0, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2);
+    memset(sunSkyColors, 0, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3);
+    memset(lpvPosesOut, 0, sizeof(float) * NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
+
+    for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT; i++)
+    {
+      shadowPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+      shadowViewProj[i] = glm::mat4();
+      geometryViewProj[i] = glm::mat4();
+      lpvPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+  }
 };
 //-----------------------------------------------------------------------------
 #endif // ENGINETYPES_H

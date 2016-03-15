@@ -172,7 +172,6 @@ struct SFramebuffer
   uint32 width;
   uint32 height;
   uint32 depth;
-  SCamera camera;
 
   inline SFramebuffer() : changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(NMap::RBO_DEPTH), width(1), height(1), depth(0) {}
   inline SFramebuffer(const std::string &name, const std::vector<uint32> &attachments, uint8 rboFormat, uint32 width, uint32 height, uint32 depth = 0) : name(name), changed(true), fbo(0), rboDepth(0), rboStencil(0), rboFormat(rboFormat), width(width), height(height), depth(depth)

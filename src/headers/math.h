@@ -29,6 +29,9 @@ namespace NMath
   static const float DIV_2_PI_DEG = 45.0f;
   static const float RAD_2_DEG = PI_DEG / PI;
   static const float DEG_2_RAD = PI / PI_DEG;
+  static const uint8 VEC2 = 2;
+  static const uint8 VEC3 = 3;
+  static const uint8 VEC4 = 4;
   static const uint8 MAT3 = 9;
   static const uint8 MAT4 = 16;
 }
