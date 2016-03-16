@@ -113,7 +113,7 @@ namespace NEngine
   static const char STR_GV_CS_IMG[] = "lpvImg_3";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
-  static const char STR_SELECT_GL_PLATFORM[] = "Selected OpenGL version %s.";
+  static const char STR_SELECT_GL_PLATFORM[] = "Selected OpenGL version: %s.";
 
   static const char STR_ERROR_INIT_SDL[] = "Unable to init SDL";
   static const char STR_ERROR_INIT_WINDOW[] = "Unable to init window";
@@ -121,7 +121,7 @@ namespace NEngine
   static const char STR_ERROR_INIT_IMG_JPG[] = "Unable to init SDL Image: JPG";
   static const char STR_ERROR_INIT_IMG_PNG[] = "Unable to init SDL Image: PNG";
   static const char STR_ERROR_INIT_GLEW[] = "Unable to init GLEW";
-  static const char STR_ERROR_INIT_GL_PLATFORM[] = "Unable to setup OpenGL version 3.2";
+  static const char STR_ERROR_INIT_GL_PLATFORM[] = "Unable to setup OpenGL version: 3.2";
 
   static const char *const STR_ENGINE_CLASSES[] =
   {

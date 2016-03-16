@@ -45,18 +45,25 @@ void CFramebuffer::create()
   std::vector<GLenum> colorAttachments;
   for(auto it = framebuffer.attachments.begin(); it != framebuffer.attachments.end(); it++)
   {
-    if(it->format & (NMap::FORMAT_DEPTH | NMap::FORMAT_STENCIL))
-      gl->framebufferTexture2D(NOpenGL::FRAMEBUFFER, (it->format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_ATTACHMENT : NOpenGL::DEPTH_STENCIL, NOpenGL::TEXTURE_2D, it->map->getMap()->texture, 0);
-    else if(it->format & (NMap::FORMAT_2D | NMap::FORMAT_CUBE))
+    if(it->format & (NMap::FORMAT_2D | NMap::FORMAT_CUBE))
     {
-      gl->framebufferTexture2D(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size(),
-        (it->format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP_POSITIVE_X : NOpenGL::TEXTURE_2D, it->map->getMap()->texture, 0);
-      colorAttachments.push_back(NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size());
+      if(it->format & (NMap::FORMAT_DEPTH | NMap::FORMAT_STENCIL))
+        gl->framebufferTexture2D(NOpenGL::FRAMEBUFFER, (it->format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_ATTACHMENT : NOpenGL::DEPTH_STENCIL, NOpenGL::TEXTURE_2D, it->map->getMap()->texture, 0);
+      else
+      {
+        gl->framebufferTexture2D(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size(), (it->format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP_POSITIVE_X : NOpenGL::TEXTURE_2D, it->map->getMap()->texture, 0);
+        colorAttachments.push_back(NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size());
+      }
     }
     else if(it->format & (NMap::FORMAT_2D_ARRAY | NMap::FORMAT_3D))
     {
-      gl->framebufferTexture(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size(), it->map->getMap()->texture, 0);
-      colorAttachments.push_back(NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size());
+      if(it->format & (NMap::FORMAT_DEPTH | NMap::FORMAT_STENCIL))
+        gl->framebufferTexture(NOpenGL::FRAMEBUFFER, (it->format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_ATTACHMENT : NOpenGL::DEPTH_STENCIL, it->map->getMap()->texture, 0);
+      else
+      {
+        gl->framebufferTexture(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size(), it->map->getMap()->texture, 0);
+        colorAttachments.push_back(NOpenGL::COLOR_ATTACHMENT0 + colorAttachments.size());
+      }
     }
   }
 
@@ -73,7 +80,7 @@ void CFramebuffer::create()
     gl->framebufferRenderbuffer(NOpenGL::FRAMEBUFFER, NOpenGL::STENCIL_ATTACHMENT, NOpenGL::RENDERBUFFER, framebuffer.rboStencil);
 
   if(GLuint status = gl->checkFramebufferStatus(NOpenGL::FRAMEBUFFER) != NOpenGL::FRAMEBUFFER_COMPLETE)
-    context->engineShowMessage(NMap::STR_ERROR_INVALID_FBO, CStr(NMap::STR_ERROR_INVALID_FBO_STATUS, status), false);
+    context->engineShowMessage(CStr(NMap::STR_ERROR_INVALID_FBO, framebuffer.name.c_str()), CStr(NMap::STR_ERROR_INVALID_FBO_STATUS, status), false);
 
   gl->bindRenderbuffer(NOpenGL::RENDERBUFFER, 0);
   gl->bindFramebuffer(NOpenGL::FRAMEBUFFER, 0);

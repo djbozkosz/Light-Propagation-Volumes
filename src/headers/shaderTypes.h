@@ -9,9 +9,9 @@
 namespace NShader
 {
   static const uint32 VERTEX_SHADERS_COUNT = 12;
-  static const uint32 GEOMETRY_SHADERS_COUNT = 5;
   static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 0;
   static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 0;
+  static const uint32 GEOMETRY_SHADERS_COUNT = 5;
   static const uint32 FRAGMENT_SHADERS_COUNT = 20;
   static const uint32 COMPUTE_SHADERS_COUNT = 4;
   static const uint32 PROGRAMS_COUNT = 28;
@@ -178,15 +178,6 @@ namespace NShader
     STR_VERTEX_LPV_PROPAGATION
   };
 
-  static const char *const STR_GEOMETRY_SHADER_LIST[] =
-  {
-    STR_GEOMETRY_DEPTH_CASCADE,
-    STR_GEOMETRY_GEOMETRY_CASCADE,
-    STR_GEOMETRY_LPV_INJECTION,
-    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
-    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING
-  };
-
   static const char *const STR_TESSELATION_CONTROL_SHADER_LIST[] =
   {
     STR_SHADER_UNUSED
@@ -194,6 +185,15 @@ namespace NShader
   static const char *const STR_TESSELATION_EVALUATION_SHADER_LIST[] =
   {
     STR_SHADER_UNUSED
+  };
+
+  static const char *const STR_GEOMETRY_SHADER_LIST[] =
+  {
+    STR_GEOMETRY_DEPTH_CASCADE,
+    STR_GEOMETRY_GEOMETRY_CASCADE,
+    STR_GEOMETRY_LPV_INJECTION,
+    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
+    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING
   };
 
   static const char *const STR_FRAGMENT_SHADER_LIST[] =
@@ -261,38 +261,6 @@ namespace NShader
     STR_SHADER_UNUSED
   };
 
-  static const char *const STR_PROGRAM_GEOMETRY_SHADER_LIST[] =
-  {
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_GEOMETRY_DEPTH_CASCADE,
-    STR_GEOMETRY_DEPTH_CASCADE,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_GEOMETRY_GEOMETRY_CASCADE,
-    STR_GEOMETRY_LPV_INJECTION,
-    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
-    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED
-  };
-
   static const char *const STR_PROGRAM_TESSELATION_CONTROL_SHADER_LIST[] =
   {
     STR_SHADER_UNUSED,
@@ -350,6 +318,38 @@ namespace NShader
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED
+  };
+
+  static const char *const STR_PROGRAM_GEOMETRY_SHADER_LIST[] =
+  {
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_GEOMETRY_DEPTH_CASCADE,
+    STR_GEOMETRY_DEPTH_CASCADE,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_SHADER_UNUSED,
+    STR_GEOMETRY_GEOMETRY_CASCADE,
+    STR_GEOMETRY_LPV_INJECTION,
+    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
+    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
     STR_SHADER_UNUSED,
@@ -424,9 +424,9 @@ namespace NShader
   {
     TYPE_UNDEFINED = 0,
     TYPE_VERTEX,
-    TYPE_GEOMETRY,
     TYPE_TESSELATION_CONTROL,
     TYPE_TESSELATION_EVALUATION,
+    TYPE_GEOMETRY,
     TYPE_FRAGMENT,
     TYPE_COMPUTE
   };
@@ -435,9 +435,9 @@ namespace NShader
   {
     NOpenGL::NONE,
     NOpenGL::VERTEX_SHADER,
-    NOpenGL::GEOMETRY_SHADER,
     NOpenGL::TESS_CONTROL_SHADER,
     NOpenGL::TESS_EVALUATION_SHADER, 
+    NOpenGL::GEOMETRY_SHADER,
     NOpenGL::FRAGMENT_SHADER,
     NOpenGL::COMPUTE_SHADER
   };
@@ -704,9 +704,9 @@ struct SShaderProgram
 {
   NShader::EProgram name;
   CShader *vertexShader;
-  CShader *geometryShader;
   CShader *tesselationControlShader;
   CShader *tesselationEvaluationShader;
+  CShader *geometryShader;
   CShader *fragmentShader;
   CShader *computeShader;
   GLuint program;
@@ -715,9 +715,9 @@ struct SShaderProgram
   inline SShaderProgram() :
     name(NShader::PROGRAM_BASIC),
     vertexShader(NULL),
-    geometryShader(NULL),
     tesselationControlShader(NULL),
     tesselationEvaluationShader(NULL),
+    geometryShader(NULL),
     fragmentShader(NULL),
     computeShader(NULL),
     program(0) {}
@@ -725,18 +725,18 @@ struct SShaderProgram
   inline SShaderProgram(
     NShader::EProgram name,
     CShader *vertexShader,
-    CShader *geometryShader,
     CShader *tesselationControlShader,
     CShader *tesselationEvaluationShader,
+    CShader *geometryShader,
     CShader *fragmentShader,
     CShader *computeShader,
     GLuint program = 0,
     SShaderUniforms uniforms = SShaderUniforms()) :
       name(name),
       vertexShader(vertexShader),
-      geometryShader(geometryShader),
       tesselationControlShader(tesselationControlShader),
       tesselationEvaluationShader(tesselationEvaluationShader),
+      geometryShader(geometryShader),
       fragmentShader(fragmentShader),
       computeShader(computeShader),
       program(program),

@@ -124,6 +124,14 @@ CShaderProgram::~CShaderProgram()
 //------------------------------------------------------------------------------
 void CShaderProgram::link()
 {
+  /*context->log(CStr("%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n", NShader::STR_PROGRAM_LIST[program.name],
+    (program.vertexShader) ? program.vertexShader->getShader()->file.c_str() : "NULL",
+    (program.tesselationControlShader) ? program.tesselationControlShader->getShader()->file.c_str() : "NULL",
+    (program.tesselationEvaluationShader) ? program.tesselationEvaluationShader->getShader()->file.c_str() : "NULL",
+    (program.geometryShader) ? program.geometryShader->getShader()->file.c_str() : "NULL",
+    (program.fragmentShader) ? program.fragmentShader->getShader()->file.c_str() : "NULL",
+    (program.computeShader) ? program.computeShader->getShader()->file.c_str() : "NULL"));*/
+
   COpenGL *gl = context->getOpenGL();
   GLint status = 0;
   GLint infoLength = 0;
@@ -132,9 +140,9 @@ void CShaderProgram::link()
 
   program.program = gl->createProgram();
 
-  if(((program.geometryShader) && (platform < NEngine::GPU_PLATFORM_GL0302)) ||
-     ((program.tesselationControlShader) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+  if(((program.tesselationControlShader) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
      ((program.tesselationEvaluationShader) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
+     ((program.geometryShader) && (platform < NEngine::GPU_PLATFORM_GL0302)) ||
      ((program.computeShader) && (platform < NEngine::GPU_PLATFORM_GL0403)))
   {
     context->log(CStr(NShader::STR_ERROR_LINK_SKIP, NShader::STR_PROGRAM_LIST[program.name]));
@@ -143,12 +151,12 @@ void CShaderProgram::link()
 
   if(program.vertexShader)
     gl->attachShader(program.program, program.vertexShader->getShader()->shader);
-  if(program.geometryShader)
-    gl->attachShader(program.program, program.geometryShader->getShader()->shader);
   if(program.tesselationControlShader)
     gl->attachShader(program.program, program.tesselationControlShader->getShader()->shader);
   if(program.tesselationEvaluationShader)
     gl->attachShader(program.program, program.tesselationEvaluationShader->getShader()->shader);
+  if(program.geometryShader)
+    gl->attachShader(program.program, program.geometryShader->getShader()->shader);
   if(program.fragmentShader)
     gl->attachShader(program.program, program.fragmentShader->getShader()->shader);
   if(program.computeShader)

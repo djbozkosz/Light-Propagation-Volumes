@@ -50,9 +50,42 @@ CEngine::CEngine(
   connect(window, SIGNAL(onMouseMove(const SPoint &, NEngine::EMouseButton)), this, SLOT(mouseMove(const SPoint &, NEngine::EMouseButton)));
   connect(window, SIGNAL(onKeyPress(NEngine::EKey)), this, SLOT(keyPress(NEngine::EKey)));
   connect(window, SIGNAL(onKeyRelease(NEngine::EKey)), this, SLOT(keyRelease(NEngine::EKey)));
-#endif
 
   // fill keys mapping
+  engine.keysMap[Qt::Key_W] = NEngine::KEY_FRONT;
+  engine.keysMap[Qt::Key_Up] = NEngine::KEY_FRONT;
+  engine.keysMap[Qt::Key_S] = NEngine::KEY_BACK;
+  engine.keysMap[Qt::Key_Down] = NEngine::KEY_BACK;
+  engine.keysMap[Qt::Key_A] = NEngine::KEY_LEFT;
+  engine.keysMap[Qt::Key_Left] = NEngine::KEY_LEFT;
+  engine.keysMap[Qt::Key_D] = NEngine::KEY_RIGHT;
+  engine.keysMap[Qt::Key_Right] = NEngine::KEY_RIGHT;
+  engine.keysMap[Qt::Key_Q] = NEngine::KEY_DOWN;
+  engine.keysMap[Qt::Key_E] = NEngine::KEY_UP;
+
+  engine.keysMap[Qt::Key_I] = NEngine::KEY_SPECIAL_FRONT;
+  engine.keysMap[Qt::Key_K] = NEngine::KEY_SPECIAL_BACK;
+  engine.keysMap[Qt::Key_J] = NEngine::KEY_SPECIAL_LEFT;
+  engine.keysMap[Qt::Key_L] = NEngine::KEY_SPECIAL_RIGHT;
+  engine.keysMap[Qt::Key_U] = NEngine::KEY_SPECIAL_DOWN;
+  engine.keysMap[Qt::Key_O] = NEngine::KEY_SPECIAL_UP;
+
+  engine.keysMap[Qt::Key_3] = NEngine::KEY_LPV_MODE; // with Qt (cz): shift pressed is needed
+  engine.keysMap[Qt::Key_4] = NEngine::KEY_LPV_TECHNIQUE;
+  engine.keysMap[Qt::Key_5] = NEngine::KEY_LPV_PROPAGATION_DOWN;
+  engine.keysMap[Qt::Key_6] = NEngine::KEY_LPV_PROPAGATION_UP;
+  engine.keysMap[Qt::Key_7] = NEngine::KEY_LPV_INTENSITY_DOWN;
+  engine.keysMap[Qt::Key_8] = NEngine::KEY_LPV_INTENSITY_UP;
+  engine.keysMap[Qt::Key_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
+  engine.keysMap[Qt::Key_0] = NEngine::KEY_SHADOW_JITTERING_UP;
+
+  engine.keysMap[Qt::Key_F] = NEngine::KEY_FRUSTUM_UPDATE;
+  engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
+  engine.keysMap[Qt::Key_H] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
+
+  engine.keysMap[Qt::Key_Escape] = NEngine::KEY_QUIT;
+
+#elif defined(ENV_SDL)
   engine.keysMap[SDLK_w] = NEngine::KEY_FRONT;
   engine.keysMap[SDLK_UP] = NEngine::KEY_FRONT;
   engine.keysMap[SDLK_s] = NEngine::KEY_BACK;
@@ -71,7 +104,7 @@ CEngine::CEngine(
   engine.keysMap[SDLK_u] = NEngine::KEY_SPECIAL_DOWN;
   engine.keysMap[SDLK_o] = NEngine::KEY_SPECIAL_UP;
 
-  engine.keysMap[SDLK_3] = NEngine::KEY_LPV_MODE; // with Qt (cz): shift pressed is needed
+  engine.keysMap[SDLK_3] = NEngine::KEY_LPV_MODE;
   engine.keysMap[SDLK_4] = NEngine::KEY_LPV_TECHNIQUE;
   engine.keysMap[SDLK_5] = NEngine::KEY_LPV_PROPAGATION_DOWN;
   engine.keysMap[SDLK_6] = NEngine::KEY_LPV_PROPAGATION_UP;
@@ -85,6 +118,7 @@ CEngine::CEngine(
   engine.keysMap[SDLK_h] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
+#endif
 }
 //------------------------------------------------------------------------------
 CEngine::~CEngine()

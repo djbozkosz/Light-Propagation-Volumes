@@ -29,7 +29,7 @@ void CMap::load()
     gl->genTextures(1, &map.texture);
     gl->bindTexture(texFormat, map.texture);
 
-    if(texFormat != NOpenGL::TEXTURE_3D)
+    if((texFormat != NOpenGL::TEXTURE_3D) && (texFormat != NOpenGL::TEXTURE_2D_ARRAY))
     {
       for(uint32 side = 0; side < ((texFormat != NOpenGL::TEXTURE_CUBE_MAP) ? 1 : NMap::CUBE_SIZE); side++)
         gl->texImage2D((texFormat != NOpenGL::TEXTURE_CUBE_MAP) ? texFormat : (NOpenGL::TEXTURE_CUBE_MAP_POSITIVE_X + side),

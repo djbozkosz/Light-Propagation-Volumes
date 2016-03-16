@@ -168,7 +168,7 @@ void CWindow::initializeGL()
   memset(&lpvClearData[0], 0, sizeof(float) * lpvClearData.size());
 
   // shadow framebuffer
-  fboAttachments.push_back(NMap::FORMAT_2D_ARRAY | NMap::FORMAT_DEPTH | NMap::FORMAT_EDGE);
+  fboAttachments.push_back(NMap::FORMAT_2D_ARRAY | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
   fbo->addFbo(SFramebuffer(NEngine::STR_SUN_SHADOW_FBO, fboAttachments, NMap::RBO, e->shadowTextureSize, e->shadowTextureSize, NEngine::SHADOW_CASCADES_COUNT));
   fboAttachments.clear();
 
@@ -183,12 +183,12 @@ void CWindow::initializeGL()
   // shaders
   for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_VERTEX_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
-  for(uint32 i = 0; i < NShader::GEOMETRY_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_GEOMETRY_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_GEOMETRY, NShader::STR_GEOMETRY_SHADER_LIST[i]));
   /*for(uint32 i = 0; i < NShader::TESSELATION_CONTROL_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_CONTROL, NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::TESSELATION_EVALUATION_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_EVALUATION, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]));*/
+  for(uint32 i = 0; i < NShader::GEOMETRY_SHADERS_COUNT; i++)
+    s->addShader(SShader((std::string(NShader::STR_GEOMETRY_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_GEOMETRY, NShader::STR_GEOMETRY_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::FRAGMENT_SHADERS_COUNT; i++)
     s->addShader(SShader((std::string(NShader::STR_FRAGMENT_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
   for(uint32 i = 0; i < NShader::COMPUTE_SHADERS_COUNT; i++)
@@ -198,9 +198,9 @@ void CWindow::initializeGL()
     s->addShaderProgram(SShaderProgram(
       static_cast<NShader::EProgram>(i),
       s->getShader(NShader::STR_PROGRAM_VERTEX_SHADER_LIST[i]),
-      s->getShader(NShader::STR_PROGRAM_GEOMETRY_SHADER_LIST[i]),
       s->getShader(NShader::STR_PROGRAM_TESSELATION_CONTROL_SHADER_LIST[i]),
       s->getShader(NShader::STR_PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[i]),
+      s->getShader(NShader::STR_PROGRAM_GEOMETRY_SHADER_LIST[i]),
       s->getShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i]),
       s->getShader(NShader::STR_PROGRAM_COMPUTE_SHADER_LIST[i])));
 
@@ -245,7 +245,7 @@ void CWindow::paintGL()
     ren->clearGroups();
 
     // depth map
-    CFramebuffer *fboDepth = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
+    //CFramebuffer *fboDepth = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
     CFramebuffer *fboGeo = fbo->getFramebuffer(NEngine::STR_GEOMETRY_FBO);
     /*CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
     const glm::vec3 orthoScale(NCamera::ORTHO_DEPTH_SCALE_X, NCamera::ORTHO_DEPTH_SCALE_Y, NCamera::ORTHO_DEPTH_SCALE_Z);
