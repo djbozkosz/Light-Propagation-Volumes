@@ -814,7 +814,7 @@ void CModel::update(NModel::EMeshUpdateType type)
           for(auto lod = mesh->standardMesh.lods.begin(); lod != mesh->standardMesh.lods.end(); lod++)
           {
             std::vector<float> vx(lod->vertices.size() * NModel::VERTEX_PNTTC_SIZE);
-            std::vector<float> vxs(lod->vertices.size() * NModel::VERTEX_P_SIZE); // simple
+            std::vector<float> vxs(lod->vertices.size() * NModel::VERTEX_PT_SIZE); // simple
             std::vector<uint16> in;
 
             uint32 i = 0;
@@ -843,6 +843,8 @@ void CModel::update(NModel::EMeshUpdateType type)
               vxs[is++] = vertex->position.x;
               vxs[is++] = vertex->position.y;
               vxs[is++] = vertex->position.z;
+              vxs[is++] = vertex->texCoord.x;
+              vxs[is++] = vertex->texCoord.y;
             }
 
             i = 0;
@@ -922,6 +924,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
   if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()) || (!context->getCulling()->isAABBInFrustum(sceneModel->aabb)))
     return;
 
+  const SEngine *e = context->engineGetEngine();
   const SCamera *c = context->getCamera()->getCamera();
 
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
@@ -940,7 +943,24 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
       continue;
 
     soLod->mvp = c->viewProjection * soLod->mw;
-    soLod->mvpdb = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO)->getFrameBuffer()->camera.viewProjection * soLod->mw;
+    if(mode == NRenderer::MODE_DEPTH)
+    {
+      for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
+      {
+        const glm::mat4 shadowMvp(e->shadowViewProj[i] * soLod->mw);
+        const glm::mat4 shadowMvpBias(glm::mat4(0.5f, 0.0f, 0.0f, 0.0f,   0.0f, 0.5f, 0.0f, 0.0f,   0.0f, 0.0f, 0.5f, 0.0f,   0.5f, 0.5f, 0.5f, 1.0f) * shadowMvp);
+        memcpy(&soLod->mvps[NMath::MAT4 * i], glm::value_ptr(shadowMvp), sizeof(float) * NMath::MAT4);
+        memcpy(&soLod->mvpsb[NMath::MAT4 * i], glm::value_ptr(shadowMvpBias), sizeof(float) * NMath::MAT4);
+      }
+    }
+    else if(mode == NRenderer::MODE_GEOMETRY)
+    {
+      for(uint32 i = 0; i < (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT); i++)
+      {
+        const glm::mat4 geometryMvp(e->geometryViewProj[i] * soLod->mw);
+        memcpy(&soLod->mvpg[NMath::MAT4 * i], glm::value_ptr(geometryMvp), sizeof(float) * NMath::MAT4);
+      }
+    }
     soLod->cam = glm::vec3(c->position);
 
     if(mesh->type == NModel::MESH_TYPE_STANDARD)

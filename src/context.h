@@ -57,6 +57,7 @@ class CContext
     void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique);
     void (*fncEngineIncDrawCalls)(CContext *context);
     void (*fncEngineClearDrawCalls)(CContext *context);
+    void(*fncEngineSwapLPV)(CContext *context);
     std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object);
     const SEngine *(*fncEngineGetEngine)(const CContext *context);
 
@@ -83,6 +84,7 @@ class CContext
       fncEngineSetPlatform(NULL),
       fncEngineIncDrawCalls(NULL),
       fncEngineClearDrawCalls(NULL),
+      fncEngineSwapLPV(NULL),
       fncEngineGetClassName(NULL),
       fncEngineGetEngine(NULL) {}
 //------------------------------------------------------------------------------
@@ -122,6 +124,7 @@ class CContext
         fncEngineSetPlatform(NULL),
         fncEngineIncDrawCalls(NULL),
         fncEngineClearDrawCalls(NULL),
+        fncEngineSwapLPV(NULL),
         fncEngineGetClassName(NULL),
         fncEngineGetEngine(NULL) {}
 //------------------------------------------------------------------------------
@@ -166,6 +169,7 @@ class CContext
       void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique),
       void (*fncEngineIncDrawCalls)(CContext *context),
       void (*fncEngineClearDrawCalls)(CContext *context),
+      void (*fncEngineSwapLPV)(CContext *context),
       std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object),
       const SEngine *(*fncEngineGetEngine)(const CContext *context))
     {
@@ -175,6 +179,7 @@ class CContext
       if(fncEngineSetPlatform)    this->fncEngineSetPlatform = fncEngineSetPlatform;
       if(fncEngineIncDrawCalls)   this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
       if(fncEngineClearDrawCalls) this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
+      if(fncEngineSwapLPV)        this->fncEngineSwapLPV = fncEngineSwapLPV;
       if(fncEngineGetClassName)   this->fncEngineGetClassName = fncEngineGetClassName;
       if(fncEngineGetEngine)      this->fncEngineGetEngine = fncEngineGetEngine;
     }
@@ -187,6 +192,7 @@ class CContext
     inline void engineSetPlatform(NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { if(fncEngineSetPlatform) fncEngineSetPlatform(this, gpuPlatform, lpvMode, lpvTechnique); }
     inline void engineIncDrawCalls() { if(fncEngineIncDrawCalls) fncEngineIncDrawCalls(this); }
     inline void engineClearDrawCalls() { if(fncEngineClearDrawCalls) fncEngineClearDrawCalls(this); }
+    inline void engineSwapLPV() { if(fncEngineSwapLPV) fncEngineSwapLPV(this); }
     inline std::string engineGetClassName(const CEngineBase *object) { if(fncEngineGetClassName) return fncEngineGetClassName(this, object); return std::string(); }
     inline const SEngine *engineGetEngine() const { if(fncEngineGetEngine) return fncEngineGetEngine(this); return NULL; }
 

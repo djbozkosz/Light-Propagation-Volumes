@@ -1,4 +1,4 @@
-#version 130
+#version 150
 precision lowp float;
 
 uniform vec3 lightAmb;

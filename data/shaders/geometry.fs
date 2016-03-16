@@ -1,4 +1,4 @@
-#version 130
+#version 150
 precision lowp float;
 
 in vec3 positionWorld;
@@ -8,7 +8,7 @@ in vec4 color;
 //in mat3 mtbnt;
 
 uniform mat3 mwnit;
-uniform vec3 cam;
+//uniform vec3 cam;
 
 uniform sampler2D difTex;
 uniform sampler2D norTex;

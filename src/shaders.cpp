@@ -174,6 +174,7 @@ void CShaderProgram::link()
 void CShaderProgram::initUniforms()
 {
   COpenGL *gl = context->getOpenGL();
+  CMaps *maps = context->getMaps();
   SShaderUniforms *u = &program.uniforms;
 
   u->vertexPosition = gl->getAttribLocation(program.program, NShader::STR_ATTRIB_VERTEX_POSITION);
@@ -228,6 +229,28 @@ void CShaderProgram::initUniforms()
   u->lpvSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_SIZE);
   u->lpvCellSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_CELL_SIZE);
   u->lpvParams = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_PARAMS);
+
+  u->shadowMap = maps->getMap(NEngine::STR_SUN_SHADOW_FBO_MAP);
+  u->geomColorMap = maps->getMap(NEngine::STR_GEOMETRY_FBO_AMB_MAP);
+  u->geomPosMap = maps->getMap(NEngine::STR_GEOMETRY_FBO_POS_MAP);
+  u->geomNormalMap = maps->getMap(NEngine::STR_GEOMETRY_FBO_NORMAL_MAP);
+  //u->geomDepthMap = maps->getMap(NEngine::STR_GEOMETRY_FBO_DEPTH_MAP);
+
+  u->lpvGs0MapR = maps->getMap(NEngine::STR_LPV0_GS_MAP_R);
+  u->lpvGs0MapG = maps->getMap(NEngine::STR_LPV0_GS_MAP_G);
+  u->lpvGs0MapB = maps->getMap(NEngine::STR_LPV0_GS_MAP_B);
+  u->gvGs0Map = maps->getMap(NEngine::STR_GV0_GS_MAP);
+  u->lpvGs1MapR = maps->getMap(NEngine::STR_LPV1_GS_MAP_R);
+  u->lpvGs1MapG = maps->getMap(NEngine::STR_LPV1_GS_MAP_G);
+  u->lpvGs1MapB = maps->getMap(NEngine::STR_LPV1_GS_MAP_B);
+  u->gvGs1Map = maps->getMap(NEngine::STR_GV1_GS_MAP);
+  u->lpvCs0MapR = maps->getMap(NEngine::STR_LPV0_CS_IMG_R);
+  u->lpvCs0MapG = maps->getMap(NEngine::STR_LPV0_CS_IMG_G);
+  u->lpvCs0MapB = maps->getMap(NEngine::STR_LPV0_CS_IMG_B);
+  u->lpvCs1MapR = maps->getMap(NEngine::STR_LPV1_CS_IMG_R);
+  u->lpvCs1MapG = maps->getMap(NEngine::STR_LPV1_CS_IMG_G);
+  u->lpvCs1MapB = maps->getMap(NEngine::STR_LPV1_CS_IMG_B);
+  u->gvCsMap = maps->getMap(NEngine::STR_GV_CS_IMG);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::bind() const
@@ -295,13 +318,17 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     gl->uniformMatrix3fv(u->mwnit, 1, NOpenGL::FALSE, glm::value_ptr(technique->mwnit));
 
     // mvp cascade variants
-    if((program.name >= NShader::PROGRAM_DEPTH_CASCADE) || (program.name <= NShader::PROGRAM_DEPTH_CASCADE_COLOR_KEY))
+    if((program.name >= NShader::PROGRAM_DEPTH) && (program.name <= NShader::PROGRAM_DEPTH_COLOR_KEY))
+      gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, technique->mvps);
+    else if((program.name >= NShader::PROGRAM_DEPTH_CASCADE) && (program.name <= NShader::PROGRAM_DEPTH_CASCADE_COLOR_KEY))
       gl->uniformMatrix4fv(u->mvp, NEngine::SHADOW_CASCADES_COUNT, NOpenGL::FALSE, technique->mvps);
+    else if(program.name == NShader::PROGRAM_GEOMETRY)
+      gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, technique->mvpg);
     else if(program.name == NShader::PROGRAM_GEOMETRY_CASCADE)
       gl->uniformMatrix4fv(u->mvp, NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT, NOpenGL::FALSE, technique->mvpg);
     else
       gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, glm::value_ptr(technique->mvp));
-    if(u->mvpsb != NShader::UNIFORM_UNDEFINED)
+    if(u->mvpsb != NShader::UNIFORM_UNDEFINED) // too programs to test
       gl->uniformMatrix4fv(u->mvpsb, NEngine::SHADOW_CASCADES_COUNT, NOpenGL::FALSE, technique->mvpsb);
 
     gl->uniform3f(u->cam, technique->cam.x, technique->cam.y, technique->cam.z);
@@ -309,7 +336,6 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     if(technique->material)
     {
       const SMaterial *m = technique->material;
-      const bool lpvSwapIndex = (e->lpvPropagationSteps % 2) ? true : false;
 
       if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
          (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
@@ -335,7 +361,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.name != NShader::PROGRAM_PER_FRAGMENT)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_DEPTH, lpvSwapIndex);
+          beginLPV(NShader::SAMPLER_PER_FRAGMENT_DEPTH);
       }
       else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_ALPHA_SHADOW_JITTER))
       {
@@ -343,7 +369,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.name != NShader::PROGRAM_PER_FRAGMENT_ALPHA)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH, lpvSwapIndex);
+          beginLPV(NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH);
       }
       else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER))
       {
@@ -351,7 +377,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->normalMap, u->norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH, lpvSwapIndex);
+          beginLPV(NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH);
       }
       else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER))
       {
@@ -360,7 +386,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->normalMap, u->norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH, lpvSwapIndex);
+          beginLPV(NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH);
       }
       else if((program.name >= NShader::PROGRAM_GEOMETRY) || (program.name <= NShader::PROGRAM_GEOMETRY_CASCADE))
       {
@@ -385,9 +411,8 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
 
       gl->uniform3f(u->shadowTexSize, 0.5f / static_cast<float>(e->shadowTextureSize), 0.5f / static_cast<float>(e->shadowTextureSize), context->engineGetEngine()->shadowJittering);
 
-      if((program.name >= NShader::PROGRAM_GEOMETRY) || (program.name <= NShader::PROGRAM_GEOMETRY_CASCADE))
-      {
-        // global illumination colors - sun + sky
+      if((program.name == NShader::PROGRAM_LPV_INJECTION_GEOMETRY) || (program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE))
+      { // global illumination colors - sun + sky
         gl->uniform3fv(u->lightAmb, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyColors);
         gl->uniform3fv(u->lightPos, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyPoses);
       }
@@ -406,80 +431,57 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
 
   if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name != NShader::PROGRAM_GEOMETRY) && (program.name != NShader::PROGRAM_GEOMETRY_CASCADE))
   {
-    const glm::vec3 lpvCellSize(1.0f / e->lpvCellSize / e->lpvTextureSize);
-    const glm::vec3 lpvPos(e->lpvCellSize * e->lpvTextureSize * 0.5f - e->lpvPos);
-
     gl->uniform4f(u->geomTexSize, e->geometryTextureSize, e->geometryTextureSize, 1.0f / static_cast<float>(e->geometryTextureSize), 1.0f / static_cast<float>(e->geometryTextureSize));
-    gl->uniform4f(u->lpvPos, lpvPos.x, lpvPos.y, lpvPos.z, e->lpvIntensity * e->showLPV);
+    gl->uniform3fv(u->lpvPos, NEngine::LPV_CASCADES_COUNT, e->lpvPosesOut);
     gl->uniform3f(u->lpvSize, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z);
-    gl->uniform3f(u->lpvCellSize, lpvCellSize.x, lpvCellSize.y, lpvCellSize.z);
+    gl->uniform3fv(u->lpvCellSize, NEngine::LPV_CASCADES_COUNT, NEngine::LPV_CELL_SIZES);
+    gl->uniform2f(u->lpvParams, e->lpvPropagationSteps, e->lpvIntensity);
   }
 
-  if((program.name == NShader::PROGRAM_LPV_INJECTION) || (program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE))
+  if(program.name == NShader::PROGRAM_LPV_INJECTION_GEOMETRY)
   {
-    fragColor = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_AMB_MAP);
-    fragPos = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_POS_MAP);
-    fragNormal = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_NORMAL_MAP);
-    //fragDepth = context->getMaps()->getMap(NWindow::STR_ORTHO_GEOMETRY_FBO_DEPTH_MAP);
-    fboGeoCam = context->getFramebuffers()->getFramebuffer(NWindow::STR_ORTHO_GEOMETRY_FBO)->getFrameBuffer()->camera.position;
-
-    gl->uniform3f(u->lightPos, fboGeoCam.x, fboGeoCam.y, fboGeoCam.z);
+    setSampler(u->geomColorMap, u->geomColorTex, NShader::SAMPLER_LPV_INJECTION_GEOMETRY_GEOM_COLOR, NMap::FORMAT_BORDER);
+    setSampler(u->geomPosMap, u->geomPosTex, NShader::SAMPLER_LPV_INJECTION_GEOMETRY_GEOM_POS, NMap::FORMAT_BORDER);
+    setSampler(u->geomNormalMap, u->geomNormalTex, NShader::SAMPLER_LPV_INJECTION_GEOMETRY_GEOM_NORMAL, NMap::FORMAT_BORDER);
+    //setSampler(u->geomDepthMap, u->geomDepthTex, NShader::SAMPLER_LPV_INJECTION_GEOMETRY_GEOM_DEPTH, NMap::FORMAT_BORDER);
   }
-  if((program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE) || (program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE) || (program.name == NShader::PROGRAM_LPV_PROPAGATION_COMPUTE))
+  else if((program.name >= NShader::PROGRAM_LPV_PROPAGATION_GEOMETRY_GATHERING) && program.name <= NShader::PROGRAM_LPV_PROPAGATION_GEOMETRY_SCATTERING)
   {
-    lpv0MapR = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_R);
-    lpv0MapG = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_G);
-    lpv0MapB = context->getMaps()->getMap(NWindow::STR_LPV0_MAP_B);
-    lpv1MapR = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_R);
-    lpv1MapG = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_G);
-    lpv1MapB = context->getMaps()->getMap(NWindow::STR_LPV1_MAP_B);
-    gvMap = context->getMaps()->getMap(NWindow::STR_GV0_MAP);
-  }
-
-  if(program.name == NShader::PROGRAM_LPV_INJECTION)
-  {
-    setSampler(fragColor, u->fragColorImg, NShader::SAMPLER_LPV_INJECTION_FRAG_COLOR, NMap::FORMAT_BORDER);
-    setSampler(fragPos, u->fragPosImg, NShader::SAMPLER_LPV_INJECTION_FRAG_POS, NMap::FORMAT_BORDER);
-    setSampler(fragNormal, u->fragNormalImg, NShader::SAMPLER_LPV_INJECTION_FRAG_NORMAL, NMap::FORMAT_BORDER);
-    //setSampler(fragDepth, u->fragDepthImg, NShader::SAMPLER_LPV_INJECTION_FRAG_DEPTH, NMap::FORMAT_BORDER);
-  }
-  else if(program.name == NShader::PROGRAM_LPV_PROPAGATION)
-  {
-    //
+    beginLPV(NShader::SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV_R);
   }
   else if(program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE)
   {
-    setSampler(lpv0MapR, u->lpv0ImgR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_W);
-    setSampler(lpv0MapG, u->lpv0ImgG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_W);
-    setSampler(lpv0MapB, u->lpv0ImgB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_W);
-    setSampler(lpv1MapR, u->lpv1ImgR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_W);
-    setSampler(lpv1MapG, u->lpv1ImgG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_W);
-    setSampler(lpv1MapB, u->lpv1ImgB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_W);
-    setSampler(gvMap, u->gvImg, NShader::IMAGE_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs1MapR, u->lpv1TexR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs1MapG, u->lpv1TexG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs1MapB, u->lpv1TexB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_W);
+    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
   }
   else if(program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE)
   {
-    setSampler(fragColor, u->fragColorImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_COLOR, NMap::FORMAT_IMAGE_R);
-    setSampler(fragPos, u->fragPosImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_POS, NMap::FORMAT_IMAGE_R);
-    setSampler(fragNormal, u->fragNormalImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_NORMAL, NMap::FORMAT_IMAGE_R);
-    //setSampler(fragDepth, u->fragDepthImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_DEPTH, NMap::FORMAT_IMAGE_R);
-    setSampler(lpv0MapR, u->lpv0ImgR, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpv0MapG, u->lpv0ImgG, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpv0MapB, u->lpv0ImgB, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(gvMap, u->gvImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->geomColorMap, u->geomColorTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_COLOR, NMap::FORMAT_IMAGE_R);
+    setSampler(u->geomPosMap, u->geomPosTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_POS, NMap::FORMAT_IMAGE_R);
+    setSampler(u->geomNormalMap, u->geomNormalTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_NORMAL, NMap::FORMAT_IMAGE_R);
+    //setSampler(u->geomDepthMap, u->geomDepthTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_DEPTH, NMap::FORMAT_IMAGE_R);
+    setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
+    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
   }
-  else if(program.name == NShader::PROGRAM_LPV_PROPAGATION_COMPUTE)
+  else if((program.name >= NShader::PROGRAM_LPV_PROPAGATION_COMPUTE_GATHERING) && (program.name <= NShader::PROGRAM_LPV_PROPAGATION_COMPUTE_SCATTERING))
   {
-    setSampler(lpv0MapR, u->lpv0ImgR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpv0MapG, u->lpv0ImgG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpv0MapB, u->lpv0ImgB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpv1MapR, u->lpv1ImgR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpv1MapG, u->lpv1ImgG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpv1MapB, u->lpv1ImgB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(gvMap, u->gvImg, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_RW);
-    setSampler(lpvMapR, u->lpvOutImgR, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_R, NMap::FORMAT_IMAGE_W);
-    setSampler(lpvMapG, u->lpvOutImgG, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_G, NMap::FORMAT_IMAGE_W);
-    setSampler(lpvMapB, u->lpvOutImgB, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_B, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvGs0MapR, u->lpvTexR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvGs0MapG, u->lpvTexG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvGs0MapB, u->lpvTexB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
+    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_R);
+    setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpvCs1MapR, u->lpv1TexR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpvCs1MapG, u->lpv1TexG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpvCs1MapB, u->lpv1TexB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_RW);
   }
 }
 //------------------------------------------------------------------------------
@@ -524,39 +526,39 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
     gl->disableVertexAttribArray(u->vertexPosition);
   }
 
-  if(program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE)
+  else if(program.name == NShader::PROGRAM_LPV_CLEAR_COMPUTE)
   {
-    setSampler(NULL, u->lpv0ImgR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv0ImgG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv0ImgB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv1ImgR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv1ImgG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv1ImgB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->gvImg, NShader::IMAGE_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0TexR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0TexG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0TexB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv1TexR, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv1TexG, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv1TexB, NShader::IMAGE_LPV_CLEAR_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->gvTex, NShader::IMAGE_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
   }
   else if(program.name == NShader::PROGRAM_LPV_INJECTION_COMPUTE)
   {
-    setSampler(NULL, u->fragColorImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_COLOR, NMap::FORMAT_IMAGE_R);
-    setSampler(NULL, u->fragPosImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_POS, NMap::FORMAT_IMAGE_R);
-    setSampler(NULL, u->fragNormalImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_NORMAL, NMap::FORMAT_IMAGE_R);
-    //setSampler(NULL, u->fragDepthImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_FRAG_DEPTH, NMap::FORMAT_IMAGE_R);
-    setSampler(NULL, u->lpv0ImgR, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv0ImgG, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv0ImgB, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->gvImg, NShader::IMAGE_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->geomColorTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_COLOR, NMap::FORMAT_IMAGE_R);
+    setSampler(NULL, u->geomPosTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_POS, NMap::FORMAT_IMAGE_R);
+    setSampler(NULL, u->geomNormalTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_NORMAL, NMap::FORMAT_IMAGE_R);
+    //setSampler(NULL, u->geomDepthTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GEOM_DEPTH, NMap::FORMAT_IMAGE_R);
+    setSampler(NULL, u->lpv0TexR, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0TexG, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0TexB, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->gvTex, NShader::IMAGE_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
   }
-  else if(program.name == NShader::PROGRAM_LPV_PROPAGATION_COMPUTE)
+  else if((program.name >= NShader::PROGRAM_LPV_PROPAGATION_COMPUTE_GATHERING) && (program.name <= NShader::PROGRAM_LPV_PROPAGATION_COMPUTE_SCATTERING))
   {
-    setSampler(NULL, u->lpv0ImgR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv0ImgG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv0ImgB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv1ImgR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv1ImgG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv1ImgB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->gvImg, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpvOutImgR, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_R, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpvOutImgG, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_G, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpvOutImgB, NShader::IMAGE_LPV_INJECTION_COMPUTE_LPV_OUT_B, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpvTexR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpvTexG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpvTexB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->gvTex, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_R);
+    setSampler(NULL, u->lpv0TexR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->lpv0TexG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->lpv0TexB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->lpv1TexR, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->lpv1TexG, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->lpv1TexB, NShader::IMAGE_LPV_PROPAGATION_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_RW);
   }
 }
 //------------------------------------------------------------------------------

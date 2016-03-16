@@ -39,9 +39,9 @@ namespace NShader
   static const char STR_UNIFORM_SPE_TEX[] = "speTex";
   static const char STR_UNIFORM_NOR_TEX[] = "norTex";
   //static const char STR_UNIFORM_ENV_TEX[] = "envTex";
-  static const char STR_UNIFORM_SHAD_TEX[] = "shadTex"; // shadow array
+  static const char STR_UNIFORM_SHAD_TEX[] = "shadTex"; // shadow texture array
 
-  static const char STR_UNIFORM_GEOM_COLOR_TEX[] = "geomColorTex"; // geometry arrays, gs in, cs in
+  static const char STR_UNIFORM_GEOM_COLOR_TEX[] = "geomColorTex"; // geometry texture arrays, gs in, cs in
   static const char STR_UNIFORM_GEOM_POS_TEX[] = "geomPosTex";
   static const char STR_UNIFORM_GEOM_NORMAL_TEX[] = "geomNormalTex";
   //static const char STR_UNIFORM_GEOM_DEPTH_TEX[] = "geomDepthTex";
@@ -616,10 +616,10 @@ struct SShaderUniforms
   GLint lpvParams;
 
   const CMap *shadowMap; // out shadow
-  const CMap *geometryColorMap; // lpv in geometry
-  const CMap *geometryPosMap;
-  const CMap *geometryNormalMap;
-  //const CMap *geometryDepthMap;
+  const CMap *geomColorMap; // lpv in geometry
+  const CMap *geomPosMap;
+  const CMap *geomNormalMap;
+  //const CMap *geomDepthMap;
 
   const CMap *lpvGs0MapR; // gl32 fbo swap textures, out lpv
   const CMap *lpvGs0MapG;
@@ -647,7 +647,7 @@ struct SShaderUniforms
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
     geomTexSize(0), lpvPos(0), lpvSize(0), lpvCellSize(0), lpvParams(0),
-    shadowMap(NULL), geometryColorMap(NULL), geometryPosMap(NULL), geometryNormalMap(NULL), /*geometryDepthMap(NULL),*/
+    shadowMap(NULL), geomColorMap(NULL), geomPosMap(NULL), geomNormalMap(NULL), /*geomDepthMap(NULL),*/
     lpvGs0MapR(NULL), lpvGs0MapG(NULL), lpvGs0MapB(NULL), gvGs0Map(NULL), 
     lpvGs1MapR(NULL), lpvGs1MapG(NULL), lpvGs1MapB(NULL), gvGs1Map(NULL),
     lpvCs0MapR(NULL), lpvCs0MapG(NULL), lpvCs0MapB(NULL), lpvCs1MapR(NULL), lpvCs1MapG(NULL), lpvCs1MapB(NULL), gvCsMap(NULL)

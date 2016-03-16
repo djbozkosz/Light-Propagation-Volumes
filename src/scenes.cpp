@@ -55,10 +55,10 @@ void CSceneObject::update(NScene::ESceneUpdateType type)
                 lod->lightAmb = light->color;
               else if(light->type == NScene::OBJECT_LIGHT_TYPE_POINT)
               {
-                lod->lightPos = so->second.getObject()->position;
-                lod->lightRange = light->range;
-                lod->lightColor = light->color;
-                lod->lightSpeColor = light->specularColor;
+                lod->lights[0].pos = so->second.getObject()->position;
+                lod->lights[0].range = light->range;
+                lod->lights[0].color = light->color;
+                lod->lights[0].speColor = light->specularColor;
               }
               else if(light->type == NScene::OBJECT_LIGHT_TYPE_FOG)
               {

@@ -65,22 +65,28 @@ HEADERS += \
     src/headers/types.h
 
 OTHER_FILES += \
-    data/shaders/basic.vs \
     data/shaders/color.vs \
     data/shaders/depth.vs \
+    data/shaders/depthCascade.vs \
+    data/shaders/basic.vs \
     data/shaders/perFragment.vs \
     data/shaders/perFragmentShadow.vs \
     data/shaders/perFragmentNormal.vs \
     data/shaders/perFragmentNormalShadow.vs \
     data/shaders/geometry.vs \
+    data/shaders/geometryCascade.vs \
     data/shaders/lpvInjection.vs \
     data/shaders/lpvPropagation.vs \
+    data/shaders/depthCascade.gs \
+    data/shaders/geometryCascade.gs \
     data/shaders/lpvInjection.gs \
-    data/shaders/lpvPropagation.gs \
-    data/shaders/basic.fs \
-    data/shaders/basicAlpha.fs \
+    data/shaders/lpvPropagationGathering.gs \
+    data/shaders/lpvPropagationScattering.gs \
     data/shaders/color.fs \
     data/shaders/depth.fs \
+    data/shaders/depthColorKey.fs \
+    data/shaders/basic.fs \
+    data/shaders/basicAlpha.fs \
     data/shaders/perFragment.fs \
     data/shaders/perFragmentShadow.fs \
     data/shaders/perFragmentShadowJitter.fs \
@@ -98,4 +104,5 @@ OTHER_FILES += \
     data/shaders/lpvPropagation.fs \
     data/shaders/lpvClear.cs \
     data/shaders/lpvInjection.cs \
-    data/shaders/lpvPropagation.cs
+    data/shaders/lpvPropagationGathering.cs \
+    data/shaders/lpvPropagationScattering.cs

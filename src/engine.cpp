@@ -17,22 +17,22 @@ CEngine::CEngine(
 #endif
   //engine.flags = NEngine::EFLAG_FULLSCREEN;
   engine.gpuPlatform = NEngine::GPU_PLATFORM_GL0302;
+
+  //engine.defaultScreenWidth = 1024;
+  //engine.defaultScreenHeight = 600;
   engine.multisampling = 1;
+
   engine.maxTextureSize = 256;
-  engine.depthTextureSize = 1024;
-  engine.geometryTextureSize = 256;
-  engine.lpvTextureSize = glm::vec3(32.0f);
-  engine.lpvCellSize = glm::vec3(1.0f);
+  //engine.shadowTextureSize = 1024;
+  engine.shadowJittering = 0.0f;
+  //engine.geometryTextureSize = 256;
+
+  //engine.lpvTextureSize = glm::vec3(32.0f);
   engine.lpvPropagationSteps = 0;
   //engine.lpvIntensity = 1.0f;
-  engine.defaultScreenWidth = 1024;
-  engine.defaultScreenHeight = 600;
-  //engine.orthoDepthSize = 64.0f;
-  //engine.orthoDepthDepth = 200.0f;
-  engine.shadowJittering = 0.0f;
 
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
-  context.setEngineCallbacks(&staticInitialize, &staticInitializeFinish, &staticShowMessage, &staticSetPlatform, &staticIncDrawCalls, &staticClearDrawCalls, &staticGetClassName, &staticGetEngine);
+  context.setEngineCallbacks(&staticInitialize, &staticInitializeFinish, &staticShowMessage, &staticSetPlatform, &staticIncDrawCalls, &staticClearDrawCalls, &staticSwapLPV, &staticGetClassName, &staticGetEngine);
 
   window = new CWindow(&context
 #ifdef ENV_QT
@@ -81,7 +81,8 @@ CEngine::CEngine(
   engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
 
   engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
-  engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFER;
+  engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
+  engine.keysMap[SDLK_h] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 }
@@ -238,7 +239,7 @@ void CEngine::simulationStep()
 
         sun->setPosition(glm::vec3(sinf(r.z) * cosf(r.y), sinf(r.y), cosf(r.z) * cosf(r.y)) * NScene::SUN_DIR_MUL);
         sun->setRotation(r);
-        if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+        if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
           f->setChanged();
         //std::cout << "sun " << o->position.x << " " << o->position.y << " " << o->position.z << ", " << (r.y * NMath::RAD_2_DEG) << " " << (r.z * NMath::RAD_2_DEG) << "\n";
       }
@@ -314,7 +315,7 @@ void CEngine::keyPress(NEngine::EKey key)
   {
     engine.lpvMode = static_cast<NEngine::ELPVMode>((static_cast<uint32>(engine.lpvMode) + 1) % NEngine::LPV_MODES_COUNT);
     context.log(CStr("LPV Mode: %s", NEngine::STR_LPV_MODES[engine.lpvMode]));
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
       f->setChanged();
     window->repaint();
   }
@@ -322,7 +323,7 @@ void CEngine::keyPress(NEngine::EKey key)
   {
     engine.lpvTechnique = static_cast<NEngine::ELPVTechnique>((static_cast<uint32>(engine.lpvTechnique) + 1) % NEngine::LPV_TECHNIQUES_COUNT);
     context.log(CStr("LPV Technique: %s", NEngine::STR_LPV_MODES[engine.lpvMode]));
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
       f->setChanged();
     window->repaint();
   }
@@ -352,11 +353,11 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & NEngine::KEY_FRUSTUM_UPDATE)
   {
     engine.updateFrustum = !engine.updateFrustum;
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
       f->setChanged();
     window->repaint();
   }
-  else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFER)
+  else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFERS)
   {
     engine.showGeometryBuffer = !engine.showGeometryBuffer;
     window->repaint();
@@ -365,7 +366,7 @@ void CEngine::keyPress(NEngine::EKey key)
   if(key & (NEngine::KEY_LPV_PROPAGATION_DOWN | NEngine::KEY_LPV_PROPAGATION_UP))
   {
     context.log(CStr("LPV Propagation Steps: %ud", engine.lpvPropagationSteps));
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
       f->setChanged();
     window->repaint();
   }
@@ -377,7 +378,7 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
   {
     context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NWindow::STR_ORTHO_DEPTH_FBO))
+    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
       f->setChanged();
     window->repaint();
   }

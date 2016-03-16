@@ -49,15 +49,20 @@ void CRenderer::dispatch() const
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
   {
     const NShader::EProgram p = static_cast<NShader::EProgram>(i);
+    bool twoSided = false;
 
-    if((p == NShader::PROGRAM_COLOR) || (p == NShader::PROGRAM_DEPTH))
+    if((p == NShader::PROGRAM_COLOR) || ((p >= NShader::PROGRAM_DEPTH) && (p <= NShader::PROGRAM_DEPTH_CASCADE_COLOR_KEY)))
     {
+      twoSided = true;
       gl->disable(NOpenGL::CULL_FACE);
       gl->enable(NOpenGL::POLYGON_OFFSET_FILL);
       gl->polygonOffset(context->engineGetEngine()->shadowJittering * 0.5f + 1.5f, 1.0f);
     }
-    else if(p == NShader::PROGRAM_GEOMETRY)
+    else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_GEOMETRY_CASCADE))
+    {
+      twoSided = true;
       gl->disable(NOpenGL::CULL_FACE);
+    }
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       gl->depthMask(NOpenGL::FALSE);*/
 
@@ -76,9 +81,7 @@ void CRenderer::dispatch() const
 
       mesh->technique->material = mesh->material;
 
-      if((p != NShader::PROGRAM_COLOR) && (p != NShader::PROGRAM_DEPTH) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
-        gl->disable(NOpenGL::CULL_FACE);
-      else if(p == NShader::PROGRAM_GEOMETRY)
+      if((!twoSided) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
         gl->disable(NOpenGL::CULL_FACE);
 
       prog->begin(mesh->technique, renderer.mode);
@@ -87,22 +90,20 @@ void CRenderer::dispatch() const
 
       context->engineIncDrawCalls();
 
-      if((p != NShader::PROGRAM_COLOR) && (p != NShader::PROGRAM_DEPTH) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
-        gl->enable(NOpenGL::CULL_FACE);
-      else if(p == NShader::PROGRAM_GEOMETRY)
+      if((!twoSided) && (mesh->material->type & NModel::MATERIAL_TWO_SIDED))
         gl->enable(NOpenGL::CULL_FACE);
 
       gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
       gl->bindBuffer(NOpenGL::ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    if((p == NShader::PROGRAM_COLOR) || (p == NShader::PROGRAM_DEPTH))
+    if((p == NShader::PROGRAM_COLOR) || ((p >= NShader::PROGRAM_DEPTH) && (p <= NShader::PROGRAM_DEPTH_CASCADE_COLOR_KEY)))
     {
       gl->polygonOffset(0.0f, 0.0f);
       gl->disable(NOpenGL::POLYGON_OFFSET_FILL);
       gl->enable(NOpenGL::CULL_FACE);
     }
-    else if(p == NShader::PROGRAM_GEOMETRY)
+    else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_GEOMETRY_CASCADE))
       gl->enable(NOpenGL::CULL_FACE);
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       gl->depthMask(NOpenGL::TRUE);*/

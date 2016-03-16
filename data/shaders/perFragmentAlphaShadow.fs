@@ -1,4 +1,4 @@
-#version 130
+#version 150
 precision lowp float;
 
 in vec3 positionWorld;
@@ -14,9 +14,9 @@ uniform sampler2D difTex;
 uniform sampler2D alpTex;
 uniform sampler2D speTex;
 uniform sampler2DShadow depthTex;
-uniform sampler3D lpv0ImgR;
-uniform sampler3D lpv0ImgG;
-uniform sampler3D lpv0ImgB;
+uniform sampler3D lpvTexR;
+uniform sampler3D lpvTexG;
+uniform sampler3D lpvTexB;
 
 uniform int type;
 uniform float opacity;
@@ -45,9 +45,9 @@ void main()
   vec3 n = normalize(mwnit * normalize(normal));
   vec4 sh = vec4(0.2821, -0.4886 * -n.y, 0.4886 * -n.z, -0.4886 * -n.x);
   vec3 p = (lpvPos.xyz + positionWorld) * lpvCellSize;
-  vec4 lpvShR0 = texture(lpv0ImgR, p);
-  vec4 lpvShG0 = texture(lpv0ImgG, p);
-  vec4 lpvShB0 = texture(lpv0ImgB, p);
+  vec4 lpvShR0 = texture(lpvTexR, p);
+  vec4 lpvShG0 = texture(lpvTexG, p);
+  vec4 lpvShB0 = texture(lpvTexB, p);
   vec3 lpvColor = vec3(dot(sh, lpvShR0), dot(sh, lpvShG0), dot(sh, lpvShB0)) * lpvPos.w;
   if((lpvColor.x < 0.0) || (lpvColor.y < 0.0) || (lpvColor.z < 0.0))
     lpvColor = vec3(0.0);

@@ -91,25 +91,29 @@ namespace NEngine
   static const char STR_GEOMETRY_FBO_AMB_MAP[] = "geometry_0";
   static const char STR_GEOMETRY_FBO_POS_MAP[] = "geometry_1";
   static const char STR_GEOMETRY_FBO_NORMAL_MAP[] = "geometry_2";
-  static const char STR_GEOMETRY_FBO_DEPTH_MAP[] = "geometry_3";
+  //static const char STR_GEOMETRY_FBO_DEPTH_MAP[] = "geometry_3";
 
-  static const char STR_LPV_FBO[] = "lpv%dTex"; // %d cascades
-  static const char STR_LPV_MAP_R[] = "lpv%dTex_0";
-  static const char STR_LPV_MAP_G[] = "lpv%dTex_1";
-  static const char STR_LPV_MAP_B[] = "lpv%dTex_2";
+  static const char STR_LPV0_GS_FBO[] = "lpv0Tex"; // gl 3.2 fbo swap propagation textures - 2
+  static const char STR_LPV1_GS_FBO[] = "lpv1Tex";
+  static const char STR_LPV0_GS_MAP_R[] = "lpv0Tex_0";
+  static const char STR_LPV0_GS_MAP_G[] = "lpv0Tex_1";
+  static const char STR_LPV0_GS_MAP_B[] = "lpv0Tex_2";
+  static const char STR_LPV1_GS_MAP_R[] = "lpv1Tex_0";
+  static const char STR_LPV1_GS_MAP_G[] = "lpv1Tex_1";
+  static const char STR_LPV1_GS_MAP_B[] = "lpv1Tex_2";
+  static const char STR_GV0_GS_MAP[] = "lpv0Tex_3";
+  static const char STR_GV1_GS_MAP[] = "lpv1Tex_3";
 
-  static const char STR_LPV_SWAP_FBO[] = "lpvSwap%dTex"; // gl 3.2 fbo swap propagation textures - 2
-  static const char STR_LPV_SWAP_MAP_R[] = "lpvSwap%dTex_0";
-  static const char STR_LPV_SWAP_MAP_G[] = "lpvSwap%dTex_1";
-  static const char STR_LPV_SWAP_MAP_B[] = "lpvSwap%dTex_2";
-  static const char STR_GV_SWAP_MAP[] = "lpvSwap%dTex_3";
-
-  static const char STR_LPV_SWAP_IMG_R[] = "lpvSwap%dImg_0"; // gl 4.3 swap propagation images - 2
-  static const char STR_LPV_SWAP_IMG_G[] = "lpvSwap%dImg_1";
-  static const char STR_LPV_SWAP_IMG_B[] = "lpvSwap%dImg_2";
-  static const char STR_GV_SWAP_IMG[] = "lpvSwapImg_3";
+  static const char STR_LPV0_CS_IMG_R[] = "lpv0Img_0"; // gl 4.3 swap propagation images - 2
+  static const char STR_LPV0_CS_IMG_G[] = "lpv0Img_1";
+  static const char STR_LPV0_CS_IMG_B[] = "lpv0Img_2";
+  static const char STR_LPV1_CS_IMG_R[] = "lpv1Img_0";
+  static const char STR_LPV1_CS_IMG_G[] = "lpv1Img_1";
+  static const char STR_LPV1_CS_IMG_B[] = "lpv1Img_2";
+  static const char STR_GV_CS_IMG[] = "lpvImg_3";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
+  static const char STR_SELECT_GL_PLATFORM[] = "Selected OpenGL version %s.";
 
   static const char STR_ERROR_INIT_SDL[] = "Unable to init SDL";
   static const char STR_ERROR_INIT_WINDOW[] = "Unable to init window";
@@ -117,6 +121,7 @@ namespace NEngine
   static const char STR_ERROR_INIT_IMG_JPG[] = "Unable to init SDL Image: JPG";
   static const char STR_ERROR_INIT_IMG_PNG[] = "Unable to init SDL Image: PNG";
   static const char STR_ERROR_INIT_GLEW[] = "Unable to init GLEW";
+  static const char STR_ERROR_INIT_GL_PLATFORM[] = "Unable to setup OpenGL version 3.2";
 
   static const char *const STR_ENGINE_CLASSES[] =
   {
@@ -302,6 +307,7 @@ struct SEngine
 
   glm::vec3 lpvTextureSize;
   uint32 lpvPropagationSteps;
+  bool lpvPropagationSwap;
   float lpvIntensity;
   glm::vec3 lpvPoses[NEngine::LPV_CASCADES_COUNT];
   float lpvPosesOut[NEngine::LPV_CASCADES_COUNT * NMath::VEC3];
@@ -348,6 +354,7 @@ struct SEngine
 
     lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
     lpvPropagationSteps(NEngine::LPV_PROPAGATION_STEPS),
+    lpvPropagationSwap(false),
     lpvIntensity(NEngine::LPV_INTENSITY),
     
 #ifdef ENV_SDL

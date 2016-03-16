@@ -68,19 +68,20 @@ namespace NMap
   {
     FORMAT          = 0x0000,
     FORMAT_2D       = 0x0001,
-    FORMAT_3D       = 0x0002,
-    FORMAT_CUBE     = 0x0004,
-    FORMAT_DEPTH    = 0x0008,
-    FORMAT_STENCIL  = 0x0010,
-    FORMAT_LINEAR   = 0x0020,
-    FORMAT_MIPMAP   = 0x0040,
-    FORMAT_EDGE     = 0x0080,
-    FORMAT_BORDER   = 0x0100,
-    FORMAT_INT      = 0x0200,
-    FORMAT_UINT     = 0x0400,
-    FORMAT_IMAGE_R  = 0x0800,
-    FORMAT_IMAGE_W  = 0x1000,
-    FORMAT_IMAGE_RW = 0x2000
+    FORMAT_2D_ARRAY = 0x0002,
+    FORMAT_3D       = 0x0004,
+    FORMAT_CUBE     = 0x0008,
+    FORMAT_DEPTH    = 0x0010,
+    FORMAT_STENCIL  = 0x0020,
+    FORMAT_LINEAR   = 0x0040,
+    FORMAT_MIPMAP   = 0x0080,
+    FORMAT_EDGE     = 0x0100,
+    FORMAT_BORDER   = 0x0200,
+    FORMAT_INT      = 0x0400,
+    FORMAT_UINT     = 0x0800,
+    FORMAT_IMAGE_R  = 0x1000,
+    FORMAT_IMAGE_W  = 0x2000,
+    FORMAT_IMAGE_RW = 0x4000
   };
 
   enum ERboFormat

@@ -60,17 +60,19 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, uint32 format) const
   
   if((format & (NMap::FORMAT_IMAGE_R | NMap::FORMAT_IMAGE_W | NMap::FORMAT_IMAGE_RW)))
   {
-    gl->bindImageTexture(sampler, map.texture, 0, NOpenGL::FALSE, 0, (format & NMap::FORMAT_IMAGE_R) ? NOpenGL::READ_ONLY : ((format & NMap::FORMAT_IMAGE_W) ? NOpenGL::WRITE_ONLY : NOpenGL::READ_WRITE), NOpenGL::RGBA32F);
+    gl->bindImageTexture(sampler, map.texture, 0, NOpenGL::FALSE, 0,
+      (format & NMap::FORMAT_IMAGE_R) ? NOpenGL::READ_ONLY : ((format & NMap::FORMAT_IMAGE_W) ? NOpenGL::WRITE_ONLY : NOpenGL::READ_WRITE),
+      (map.format & NMap::FORMAT_INT) ? NOpenGL::R32I : ((map.format & NMap::FORMAT_UINT) ? NOpenGL::R32UI : NOpenGL::RGBA32F));
     gl->uniform1i(uniform, sampler);
   }
   else
   {
-    const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? NOpenGL::TEXTURE_3D : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D);
+    const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? NOpenGL::TEXTURE_3D : ((map.format & NMap::FORMAT_2D_ARRAY) ? NOpenGL::TEXTURE_2D_ARRAY : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D));
     gl->activeTexture(NOpenGL::TEXTURE0 + sampler);
     gl->bindTexture(texFormat, map.texture);
     gl->texParameteri(texFormat, NOpenGL::TEXTURE_MAG_FILTER, (format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR : NOpenGL::NEAREST));
     gl->texParameteri(texFormat, NOpenGL::TEXTURE_MIN_FILTER, (format & NMap::FORMAT_LINEAR) ? NOpenGL::LINEAR : ((format & NMap::FORMAT_MIPMAP) ? NOpenGL::LINEAR_MIPMAP_LINEAR : NOpenGL::NEAREST));
-    if(map.format & NMap::FORMAT_3D)
+    if(map.format & (NMap::FORMAT_3D | NMap::FORMAT_2D_ARRAY))
       gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_R, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : ((format & NMap::FORMAT_BORDER) ? NOpenGL::CLAMP_TO_BORDER : NOpenGL::REPEAT));
     gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_S, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : ((format & NMap::FORMAT_BORDER) ? NOpenGL::CLAMP_TO_BORDER : NOpenGL::REPEAT));
     gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_T, (format & NMap::FORMAT_EDGE) ? NOpenGL::CLAMP_TO_EDGE : ((format & NMap::FORMAT_BORDER) ? NOpenGL::CLAMP_TO_BORDER : NOpenGL::REPEAT));

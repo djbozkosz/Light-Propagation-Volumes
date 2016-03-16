@@ -1,16 +1,19 @@
-#version 130
+#version 150
 precision lowp float;
 
-in vec3 _vertexPosition;
-in vec3 _vertexNormal;
-in vec3 _vertexNormalTangent;
-//in vec3 _vertexNormalBitangent;
-in vec2 _vertexTexCoord;
-in vec4 _vertexColor;
+#define SHADOW_CASCADES_COUNT 1
+#define OUT_VERTICES 3 // cascades * in
 
-uniform mat4 mw;
-//uniform mat3 mwnit;
-uniform mat4 mvp;
+layout(triangles) in;
+layout(triangle_strip, max_vertices = OUT_VERTICES) out;
+
+in vec3 _positionWorld[];
+in vec3 _normal[];
+in vec2 _texCoord[];
+in vec4 _color[];
+//in mat3 _mtbnt[];
+
+uniform mat4 mvp[SHADOW_CASCADES_COUNT];
 
 out vec3 positionWorld;
 out vec3 normal;
@@ -20,11 +23,34 @@ out vec4 color;
 
 void main()
 {
-  positionWorld = vec4(mw * vec4(_vertexPosition, 1.0)).xyz;
-  normal = _vertexNormal;
-  texCoord = _vertexTexCoord;
-  color = _vertexColor;
-  //mat3 m = mat3(normalize(_vertexNormalTangent), normalize(/*_vertexNormalBitangent*/cross(_vertexNormal, _vertexNormalTangent)), normalize(_vertexNormal));
-  //mtbnt = mat3(m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2]);
-  gl_Position = mvp * vec4(_vertexPosition, 1.0);
+  for(int c = 0; c < SHADOW_CASCADES_COUNT; c++)
+  {
+    gl_Layer = c;
+
+    positionWorld = _positionWorld[0];
+    normal = _normal[0];
+    texCoord = _texCoord[0];
+    color = _color[0];
+    //mtbnt = _mtbnt[0];
+    gl_Position = mvp[c] * gl_in[0].gl_Position;
+    EmitVertex();
+
+    positionWorld = _positionWorld[1];
+    normal = _normal[1];
+    texCoord = _texCoord[1];
+    color = _color[1];
+    //mtbnt = _mtbnt[1];
+    gl_Position = mvp[c] * gl_in[1].gl_Position;
+    EmitVertex();
+
+    positionWorld = _positionWorld[2];
+    normal = _normal[2];
+    texCoord = _texCoord[2];
+    color = _color[2];
+    //mtbnt = _mtbnt[2];
+    gl_Position = mvp[c] * gl_in[2].gl_Position;
+    EmitVertex();
+
+    EndPrimitive();
+  }
 }
