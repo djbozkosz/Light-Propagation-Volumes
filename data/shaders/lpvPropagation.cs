@@ -20,6 +20,10 @@ uniform vec3 lpvCellSize;
 
 void main()
 {
+#ifndef LPV_SCATTERING
+#else
+#endif
+
   mat3 nm[6];
   nm[0] = mat3( 1, 0, 0, 0, 1, 0, 0, 0, 1);
   nm[1] = mat3(-1, 0, 0, 0, 1, 0, 0, 0,-1);

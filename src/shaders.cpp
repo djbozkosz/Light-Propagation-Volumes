@@ -115,8 +115,13 @@ std::string CShader::setES2compatible(const std::string &data)
 std::string CShader::setDefines(const std::string &data)
 {
   std::string d = data;
-
-  auto index = d.find("#define ");
+  
+  // todo: upravit an cyklus
+  auto index = d.find("//#define ");
+  if(index == std::string::npos)
+    index = d.find("/*#define ");
+  if(index == std::string::npos)
+    index = d.find("#define ");
   if(index == std::string::npos)
     index = d.find("layout ");
   if(index == std::string::npos)
