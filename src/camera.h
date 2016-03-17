@@ -29,7 +29,8 @@ class CCamera : public CEngineBase
     void setRotate();
     inline void setScale(glm::vec3 scale) { camera.scale = scale; updateMatrices(); }
     inline void resetScale() { camera.scale = glm::vec3(NCamera::SCALE_X, NCamera::SCALE_Y, NCamera::SCALE_Z); updateMatrices(); }
-    void setHover(int32 x = 0, int32 y = 0);
+    void setGridAlignedOrthoTransform(const glm::vec3 &pos, const glm::vec2 &rot, float step);
+
     inline void setSpeed(float speed = NCamera::MOVEMENT_SPEED) { camera.position.w = speed; }
     inline void setSensitivity(float sensitivity = NCamera::SENSITIVITY_SPEED) { camera.rotation.w = sensitivity; }
 
@@ -125,6 +126,24 @@ inline void CCamera::setRotate()
   if(camera.rotation.y < -NMath::PI_DEG)
     camera.rotation.y = camera.rotation.y + NMath::PI_2_DEG;
   camera.rotation.z = 0.0;
+
+  updateMatrices();
+}
+//------------------------------------------------------------------------------
+inline void CCamera::setGridAlignedOrthoTransform(const glm::vec3 &pos, const glm::vec2 &rot, float step)
+{
+  const glm::vec3 orthoScale(NCamera::ORTHO_FBO_SCALE_X, NCamera::ORTHO_FBO_SCALE_Y, NCamera::ORTHO_FBO_SCALE_Z);
+  const glm::vec3 invRotPos = glm::vec3(glm::rotate(glm::rotate(glm::mat4(1.0), rot.x, glm::vec3(1.0, 0.0, 0.0)), -rot.y, glm::vec3(0.0, 1.0, 0.0)) * glm::vec4(pos, 1.0));
+  const glm::vec3 invRotPosFloor(static_cast<float>(static_cast<int32>(invRotPos.x / step)) * step, static_cast<float>(static_cast<int32>(invRotPos.y / step)) * step, static_cast<float>(static_cast<int32>(invRotPos.z / step)) * step);
+  const glm::vec3 posFloor(glm::rotate(glm::rotate(glm::mat4(1.0), rot.y, glm::vec3(0.0, 1.0, 0.0)), -rot.x, glm::vec3(1.0, 0.0, 0.0)) * glm::vec4(invRotPosFloor, 1.0));
+
+  const glm::vec3 p(posFloor * orthoScale);
+  const glm::vec3 r(rot.x * NMath::RAD_2_DEG, -rot.y * NMath::RAD_2_DEG, 0.0f);
+  const glm::vec3 s(glm::vec3(NCamera::SCALE_X, NCamera::SCALE_Y, NCamera::SCALE_Z) * orthoScale);
+
+  camera.position.x = p.x; camera.position.y = p.y; camera.position.z = p.z;
+  camera.rotation.x = r.x; camera.rotation.y = r.y; camera.rotation.z = r.z;
+  camera.scale = s;
 
   updateMatrices();
 }

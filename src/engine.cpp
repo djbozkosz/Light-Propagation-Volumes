@@ -427,7 +427,7 @@ void CEngine::keyRelease(NEngine::EKey key)
 //------------------------------------------------------------------------------
 void CEngine::showMessage(const std::string &title, const std::string &text, bool modal) const
 {
-  context.log(CStr("%s: %s", title.c_str(), text.c_str()));
+  context.log(CStr("%s\n%s", title.c_str(), text.c_str()));
 
 #if defined(ENV_QT)
   QMessageBox *msg = new QMessageBox(window);

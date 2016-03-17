@@ -29,7 +29,7 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
 
     if(renderer.mode == NRenderer::MODE_BACKDROP)
     {
-      if((p >= NShader::PROGRAM_PER_FRAGMENT_ALPHA) && (p <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER))
+      if((p >= NShader::PROGRAM_ILLUMINATION_ALPHA) && (p <= NShader::PROGRAM_ILLUMINATION_NORMAL_SHADOW_JITTER))
         meshes[NShader::PROGRAM_BASIC_ALPHA].push_back(mesh);
       else
         meshes[NShader::PROGRAM_BASIC].push_back(mesh);

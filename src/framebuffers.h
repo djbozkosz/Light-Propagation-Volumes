@@ -45,6 +45,7 @@ class CFramebuffers : public CEngineBase
 inline void CFramebuffer::bind() const
 {
   COpenGL *gl = context->getOpenGL();
+
   gl->bindFramebuffer(NOpenGL::FRAMEBUFFER, framebuffer.fbo);
   gl->viewport(0, 0, framebuffer.width, framebuffer.height);
 }
@@ -62,8 +63,8 @@ inline CFramebuffer *CFramebuffers::addFbo(const SFramebuffer &framebuffer)
 inline void CFramebuffers::unbind() const
 {
   COpenGL *gl = context->getOpenGL();
-  gl->bindFramebuffer(NOpenGL::FRAMEBUFFER, 0);
 
+  gl->bindFramebuffer(NOpenGL::FRAMEBUFFER, 0);
   gl->viewport(0, 0, context->getCamera()->getCamera()->width, context->getCamera()->getCamera()->height);
 }
 //------------------------------------------------------------------------------

@@ -171,10 +171,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\data\shaders\basic.fs">
-      <Filter>Shader Files\Fragment</Filter>
+    <None Include="..\data\shaders\lpvClear.cs">
+      <Filter>Shader Files\Compute</Filter>
     </None>
-    <None Include="..\data\shaders\basicAlpha.fs">
+    <None Include="..\data\shaders\lpvInjection.cs">
+      <Filter>Shader Files\Compute</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvPropagation.cs">
+      <Filter>Shader Files\Compute</Filter>
+    </None>
+    <None Include="..\data\shaders\basic.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
     <None Include="..\data\shaders\color.fs">
@@ -183,17 +189,26 @@
     <None Include="..\data\shaders\depth.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
-    <None Include="..\data\shaders\perFragment.fs">
+    <None Include="..\data\shaders\illumination.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
-    <None Include="..\data\shaders\perFragmentAlpha.fs">
+    <None Include="..\data\shaders\lpvInjection.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
-    <None Include="..\data\shaders\perFragmentNormal.fs">
+    <None Include="..\data\shaders\lpvPropagation.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
-    <None Include="..\data\shaders\perFragmentNormalAlpha.fs">
-      <Filter>Shader Files\Fragment</Filter>
+    <None Include="..\data\shaders\depth.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\geometry.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvInjection.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvPropagation.gs">
+      <Filter>Shader Files\Geometry</Filter>
     </None>
     <None Include="..\data\shaders\basic.vs">
       <Filter>Shader Files\Vertex</Filter>
@@ -204,62 +219,11 @@
     <None Include="..\data\shaders\depth.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
-    <None Include="..\data\shaders\perFragment.vs">
-      <Filter>Shader Files\Vertex</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentNormal.vs">
-      <Filter>Shader Files\Vertex</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentAlphaShadow.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentAlphaShadowJitter.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentNormalAlphaShadow.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentNormalAlphaShadowJitter.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentNormalShadow.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentNormalShadowJitter.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentShadow.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentShadowJitter.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentNormalShadow.vs">
-      <Filter>Shader Files\Vertex</Filter>
-    </None>
-    <None Include="..\data\shaders\perFragmentShadow.vs">
-      <Filter>Shader Files\Vertex</Filter>
-    </None>
-    <None Include="..\data\shaders\geometry.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
     <None Include="..\data\shaders\geometry.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
-    <None Include="..\data\shaders\lpvInjection.cs">
-      <Filter>Shader Files\Compute</Filter>
-    </None>
-    <None Include="..\data\shaders\lpvClear.cs">
-      <Filter>Shader Files\Compute</Filter>
-    </None>
-    <None Include="..\data\shaders\lpvInjection.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\lpvPropagation.fs">
-      <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\lpvInjection.gs">
-      <Filter>Shader Files\Geometry</Filter>
+    <None Include="..\data\shaders\illumination.vs">
+      <Filter>Shader Files\Vertex</Filter>
     </None>
     <None Include="..\data\shaders\lpvInjection.vs">
       <Filter>Shader Files\Vertex</Filter>
@@ -267,32 +231,8 @@
     <None Include="..\data\shaders\lpvPropagation.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
-    <None Include="..\data\shaders\lpvPropagationGathering.cs">
-      <Filter>Shader Files\Compute</Filter>
-    </None>
-    <None Include="..\data\shaders\lpvPropagationGathering.gs">
-      <Filter>Shader Files\Geometry</Filter>
-    </None>
-    <None Include="..\data\shaders\lpvPropagationScattering.cs">
-      <Filter>Shader Files\Compute</Filter>
-    </None>
-    <None Include="..\data\shaders\lpvPropagationScattering.gs">
-      <Filter>Shader Files\Geometry</Filter>
-    </None>
-    <None Include="..\data\shaders\depthColorKey.fs">
+    <None Include="..\data\shaders\geometry.fs">
       <Filter>Shader Files\Fragment</Filter>
-    </None>
-    <None Include="..\data\shaders\depthCascade.gs">
-      <Filter>Shader Files\Geometry</Filter>
-    </None>
-    <None Include="..\data\shaders\geometryCascade.gs">
-      <Filter>Shader Files\Geometry</Filter>
-    </None>
-    <None Include="..\data\shaders\depthCascade.vs">
-      <Filter>Shader Files\Vertex</Filter>
-    </None>
-    <None Include="..\data\shaders\geometryCascade.vs">
-      <Filter>Shader Files\Vertex</Filter>
     </None>
   </ItemGroup>
 </Project>

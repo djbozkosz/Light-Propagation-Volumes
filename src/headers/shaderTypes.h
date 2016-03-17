@@ -21,6 +21,7 @@ namespace NShader
   static const GLint ATTRIB_UNDEFINED = -1;
   static const GLint UNIFORM_UNDEFINED = -1;
 
+  // attributes ----------------------------------------------------------------
   static const char STR_ATTRIB_VERTEX_POSITION[] = "_vertexPosition"; // precending '_' due to bug in old ATI drivers - attributes must have "lower name" in alphabet than gl_VertexID or gl_InstanceID
   static const char STR_ATTRIB_VERTEX_NORMAL[] = "_vertexNormal";
   static const char STR_ATTRIB_VERTEX_NORMAL_TANGENT[] = "_vertexNormalTangent";
@@ -28,6 +29,7 @@ namespace NShader
   static const char STR_ATTRIB_VERTEX_TEX_COORD[] = "_vertexTexCoord";
   static const char STR_ATTRIB_VERTEX_COLOR[] = "_vertexColor";
 
+  // uniforms ------------------------------------------------------------------
   static const char STR_UNIFORM_MW[] = "mw"; // model world (4x4)
   static const char STR_UNIFORM_MWNIT[] = "mwnit"; // model world normal inversed transposed (3x3)
   static const char STR_UNIFORM_MVP[] = "mvp"; // projection * view * model world (4x4)
@@ -75,60 +77,45 @@ namespace NShader
   static const char STR_UNIFORM_LPV_CELL_SIZE[] = "lpvCellSize"; // vec3[], e.g.   0.1, 0.1, 0.1,   0.3, 0.3, 0.3,   ...
   static const char STR_UNIFORM_LPV_PARAMS[] = "lpvParams"; // vec2 - propag. count, intensity
 
+  // shader files --------------------------------------------------------------
   static const char STR_SHADER_UNUSED[] = "";
 
   static const char STR_VERTEX_COLOR[] = "color.vs";
   static const char STR_VERTEX_DEPTH[] = "depth.vs";
-  static const char STR_VERTEX_DEPTH_CASCADE[] = "depthCascade.vs";
   static const char STR_VERTEX_BASIC[] = "basic.vs";
-  static const char STR_VERTEX_PER_FRAGMENT[] = "perFragment.vs";
-  static const char STR_VERTEX_PER_FRAGMENT_SHADOW[] = "perFragmentShadow.vs";
-  static const char STR_VERTEX_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.vs";
-  static const char STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.vs";
+  static const char STR_VERTEX_ILLUMINATION[] = "illumination.vs";
   static const char STR_VERTEX_GEOMETRY[] = "geometry.vs";
-  static const char STR_VERTEX_GEOMETRY_CASCADE[] = "geometryCascade.vs";
   static const char STR_VERTEX_LPV_INJECTION[] = "lpvInjection.vs";
   static const char STR_VERTEX_LPV_PROPAGATION[] = "lpvPropagation.vs";
 
-  static const char STR_GEOMETRY_DEPTH_CASCADE[] = "depthCascade.gs";
-  static const char STR_GEOMETRY_GEOMETRY_CASCADE[] = "geometryCascade.gs";
+  static const char STR_GEOMETRY_DEPTH[] = "depth.gs";
+  static const char STR_GEOMETRY_GEOMETRY[] = "geometry.gs";
   static const char STR_GEOMETRY_LPV_INJECTION[] = "lpvInjection.gs";
-  static const char STR_GEOMETRY_LPV_PROPAGATION_GATHERING[] = "lpvPropagationGathering.gs";
-  static const char STR_GEOMETRY_LPV_PROPAGATION_SCATTERING[] = "lpvPropagationScattering.gs";
+  static const char STR_GEOMETRY_LPV_PROPAGATION[] = "lpvPropagation.gs";
 
   static const char STR_FRAGMENT_COLOR[] = "color.fs";
   static const char STR_FRAGMENT_DEPTH[] = "depth.fs";
-  static const char STR_FRAGMENT_DEPTH_COLOR_KEY[] = "depthColorKey.fs";
   static const char STR_FRAGMENT_BASIC[] = "basic.fs";
-  static const char STR_FRAGMENT_BASIC_ALPHA[] = "basicAlpha.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT[] = "perFragment.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_SHADOW[] = "perFragmentShadow.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER[] = "perFragmentShadowJitter.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_ALPHA[] = "perFragmentAlpha.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW[] = "perFragmentAlphaShadow.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER[] = "perFragmentAlphaShadowJitter.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL[] = "perFragmentNormal.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW[] = "perFragmentNormalShadow.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER[] = "perFragmentNormalShadowJitter.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA[] = "perFragmentNormalAlpha.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW[] = "perFragmentNormalAlphaShadow.fs";
-  static const char STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER[] = "perFragmentNormalAlphaShadowJitter.fs";
+  static const char STR_FRAGMENT_ILLUMINATION[] = "illumination.fs";
   static const char STR_FRAGMENT_GEOMETRY[] = "geometry.fs";
   static const char STR_FRAGMENT_LPV_INJECTION[] = "lpvInjection.fs";
   static const char STR_FRAGMENT_LPV_PROPAGATION[] = "lpvPropagation.fs";
 
   static const char STR_COMPUTE_LPV_CLEAR[] = "lpvClear.cs";
   static const char STR_COMPUTE_LPV_INJECTION[] = "lpvInjection.cs";
-  static const char STR_COMPUTE_LPV_PROPAGATION_GATHERING[] = "lpvPropagationGathering.cs";
-  static const char STR_COMPUTE_LPV_PROPAGATION_SCATTERING[] = "lpvPropagationScattering.cs";
+  static const char STR_COMPUTE_LPV_PROPAGATION[] = "lpvPropagation.cs";
 
+  // other strings -------------------------------------------------------------
+  static const char STR_SHADER_NAME[] = "%s %s";
   static const char STR_ERROR_COMPILE_SKIP[] = "Shader Compilation Skip: \"%s\"!";
   static const char STR_ERROR_LINK_SKIP[] = "Program Link Skip: \"%s\"!";
+  static const char STR_WARNING_COMPILE[] = "Shader Compilation Warning: \"%s\"!\n%s";
   static const char STR_ERROR_COMPILE[] = "Shader Compilation Error: \"%s\"!";
+  static const char STR_WARNING_LINK[] = "Program Link Warning: \"%s\"!\n%s";
   static const char STR_ERROR_LINK[] = "Program Link Error: \"%s\"!";
-  //static const char STR_ERROR_VERTEX_ATTACH[] = "No Vertex Shader attached to Program: \"%s\"";
-  //static const char STR_ERROR_FRAGMENT_ATTACH[] = "No Fragment Shader attached to Program: \"%s\"";
+  static const char STR_ERROR_SHADER_ATTACH[] = "No Shader attached to Program: \"%s\"!";
 
+  // programs ------------------------------------------------------------------
   static const char *const STR_PROGRAM_LIST[] =
   {
     "Color",
@@ -138,18 +125,18 @@ namespace NShader
     "Depth Cascade Color Key",
     "Basic",
     "Basic Alpha",
-    "Per Fragment",
-    "Per Fragment Shadow",
-    "Per Fragment Shadow Jitter",
-    "Per Fragment Alpha",
-    "Per Fragment Alpha Shadow",
-    "Per Fragment Alpha Shadow Jitter",
-    "Per Fragment Normal",
-    "Per Fragment Normal Shadow",
-    "Per Fragment Normal Shadow Jitter",
-    "Per Fragment Normal Alpha",
-    "Per Fragment Normal Alpha Shadow",
-    "Per Fragment Normal Alpha Shadow Jitter",
+    "Illumination",
+    "Illumination Shadow",
+    "Illumination Shadow Jitter",
+    "Illumination Alpha",
+    "Illumination Alpha Shadow",
+    "Illumination Alpha Shadow Jitter",
+    "Illumination Normal",
+    "Illumination Normal Shadow",
+    "Illumination Normal Shadow Jitter",
+    "Illumination Normal Alpha",
+    "Illumination Normal Alpha Shadow",
+    "Illumination Normal Alpha Shadow Jitter",
     "Geometry",
     "Geometry Cascade",
     "LPV Injection Geometry",
@@ -161,265 +148,140 @@ namespace NShader
     "LPV Propagation Compute Scattering"
   };
 
-  // unique lists --------------------------------------------------------------
-  static const char *const STR_VERTEX_SHADER_LIST[] =
+  // shader lists --------------------------------------------------------------
+  static const char *const STR_VERTEX_SHADER_LIST[][2] =
   {
-    STR_VERTEX_COLOR,
-    STR_VERTEX_DEPTH,
-    STR_VERTEX_DEPTH_CASCADE,
-    STR_VERTEX_BASIC,
-    STR_VERTEX_PER_FRAGMENT,
-    STR_VERTEX_PER_FRAGMENT_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_NORMAL,
-    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_GEOMETRY,
-    STR_VERTEX_GEOMETRY_CASCADE,
-    STR_VERTEX_LPV_INJECTION,
-    STR_VERTEX_LPV_PROPAGATION
+    { STR_VERTEX_COLOR, "" },
+    { STR_VERTEX_DEPTH, "" },
+    { STR_VERTEX_DEPTH, "GS_CASCADE" },
+    { STR_VERTEX_BASIC, "" },
+    { STR_VERTEX_ILLUMINATION, "" },
+    { STR_VERTEX_ILLUMINATION, "SHAD_TEX" },
+    { STR_VERTEX_ILLUMINATION, "NOR_TEX" },
+    { STR_VERTEX_ILLUMINATION, "NOR_TEX SHAD_TEX" },
+    { STR_VERTEX_GEOMETRY, "" },
+    { STR_VERTEX_GEOMETRY, "GS_CASCADE" },
+    { STR_VERTEX_LPV_INJECTION, "" },
+    { STR_VERTEX_LPV_PROPAGATION, "" }
   };
 
-  static const char *const STR_TESSELATION_CONTROL_SHADER_LIST[] =
+  static const char *const STR_TESSELATION_CONTROL_SHADER_LIST[][2] =
   {
-    STR_SHADER_UNUSED
+    { STR_SHADER_UNUSED, "" }
   };
-  static const char *const STR_TESSELATION_EVALUATION_SHADER_LIST[] =
+  static const char *const STR_TESSELATION_EVALUATION_SHADER_LIST[][2] =
   {
-    STR_SHADER_UNUSED
-  };
-
-  static const char *const STR_GEOMETRY_SHADER_LIST[] =
-  {
-    STR_GEOMETRY_DEPTH_CASCADE,
-    STR_GEOMETRY_GEOMETRY_CASCADE,
-    STR_GEOMETRY_LPV_INJECTION,
-    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
-    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING
+    { STR_SHADER_UNUSED, "" }
   };
 
-  static const char *const STR_FRAGMENT_SHADER_LIST[] =
+  static const char *const STR_GEOMETRY_SHADER_LIST[][2] =
   {
-    STR_FRAGMENT_COLOR,
-    STR_FRAGMENT_DEPTH,
-    STR_FRAGMENT_DEPTH_COLOR_KEY,
-    STR_FRAGMENT_BASIC,
-    STR_FRAGMENT_BASIC_ALPHA,
-    STR_FRAGMENT_PER_FRAGMENT,
-    STR_FRAGMENT_PER_FRAGMENT_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER,
-    STR_FRAGMENT_PER_FRAGMENT_ALPHA,
-    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
-    STR_FRAGMENT_GEOMETRY,
-    STR_FRAGMENT_LPV_INJECTION,
-    STR_FRAGMENT_LPV_PROPAGATION
+    { STR_GEOMETRY_DEPTH, "" },
+    { STR_GEOMETRY_GEOMETRY, "" },
+    { STR_GEOMETRY_LPV_INJECTION, "" },
+    { STR_GEOMETRY_LPV_PROPAGATION, "LPV_GATHERING" },
+    { STR_GEOMETRY_LPV_PROPAGATION, "LPV_SCATTERING" }
   };
 
-  static const char *const STR_COMPUTE_SHADER_LIST[] =
+  static const char *const STR_FRAGMENT_SHADER_LIST[][2] =
   {
-    STR_COMPUTE_LPV_CLEAR,
-    STR_COMPUTE_LPV_INJECTION,
-    STR_COMPUTE_LPV_PROPAGATION_GATHERING,
-    STR_COMPUTE_LPV_PROPAGATION_SCATTERING
+    { STR_FRAGMENT_COLOR, "" },
+    { STR_FRAGMENT_DEPTH, "" },
+    { STR_FRAGMENT_DEPTH, "DIF_TEX" },
+    { STR_FRAGMENT_BASIC, "" },
+    { STR_FRAGMENT_BASIC, "ALP_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "" },
+    { STR_FRAGMENT_ILLUMINATION, "SHAD_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "SHAD_TEX SHADOW_JITTER" },
+    { STR_FRAGMENT_ILLUMINATION, "ALP_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "ALP_TEX SHAD_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "ALP_TEX SHAD_TEX SHADOW_JITTER" },
+    { STR_FRAGMENT_ILLUMINATION, "NOR_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "NOR_TEX SHAD_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "NOR_TEX SHAD_TEX SHADOW_JITTER" },
+    { STR_FRAGMENT_ILLUMINATION, "ALP_TEX NOR_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "ALP_TEX NOR_TEX SHAD_TEX" },
+    { STR_FRAGMENT_ILLUMINATION, "ALP_TEX NOR_TEX SHAD_TEX SHADOW_JITTER" },
+    { STR_FRAGMENT_GEOMETRY, "" },
+    { STR_FRAGMENT_LPV_INJECTION, "" },
+    { STR_FRAGMENT_LPV_PROPAGATION, "" }
+  };
+
+  static const char *const STR_COMPUTE_SHADER_LIST[][2] =
+  {
+    { STR_COMPUTE_LPV_CLEAR, "" },
+    { STR_COMPUTE_LPV_INJECTION, "" },
+    { STR_COMPUTE_LPV_PROPAGATION, "LPV_GATHERING" },
+    { STR_COMPUTE_LPV_PROPAGATION, "LPV_SCATTERING" }
   };
 
   // linking lists -------------------------------------------------------------
-  static const char *const STR_PROGRAM_VERTEX_SHADER_LIST[] =
+  static const int32 PROGRAM_VERTEX_SHADER_LIST[] =
   {
-    STR_VERTEX_COLOR,
-    STR_VERTEX_DEPTH,
-    STR_VERTEX_DEPTH,
-    STR_VERTEX_DEPTH_CASCADE,
-    STR_VERTEX_DEPTH_CASCADE,
-    STR_VERTEX_BASIC,
-    STR_VERTEX_BASIC,
-    STR_VERTEX_PER_FRAGMENT,
-    STR_VERTEX_PER_FRAGMENT_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_SHADOW,
-    STR_VERTEX_PER_FRAGMENT,
-    STR_VERTEX_PER_FRAGMENT_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_NORMAL,
-    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_NORMAL,
-    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_VERTEX_GEOMETRY,
-    STR_VERTEX_GEOMETRY_CASCADE,
-    STR_VERTEX_LPV_INJECTION,
-    STR_VERTEX_LPV_PROPAGATION,
-    STR_VERTEX_LPV_PROPAGATION,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED
+    0,
+    1, 1, 2, 2,
+    3, 3,
+    4, 5, 5, 4, 5, 5, 6, 7, 7, 6, 7, 7,
+    8, 9,
+    10, 11, 11,
+    -1, -1, -1, -1
   };
 
-  static const char *const STR_PROGRAM_TESSELATION_CONTROL_SHADER_LIST[] =
+  static const int32 PROGRAM_TESSELATION_CONTROL_SHADER_LIST[] =
   {
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED
+    -1,
+    -1, -1, -1, -1,
+    -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1,
+    -1, -1, -1,
+    -1, -1, -1, -1
   };
-  static const char *const STR_PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[] =
+  static const int32 PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[] =
   {
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED
+    -1,
+    -1, -1, -1, -1,
+    -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1,
+    -1, -1, -1,
+    -1, -1, -1, -1
   };
 
-  static const char *const STR_PROGRAM_GEOMETRY_SHADER_LIST[] =
+  static const int32 PROGRAM_GEOMETRY_SHADER_LIST[] =
   {
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_GEOMETRY_DEPTH_CASCADE,
-    STR_GEOMETRY_DEPTH_CASCADE,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_GEOMETRY_GEOMETRY_CASCADE,
-    STR_GEOMETRY_LPV_INJECTION,
-    STR_GEOMETRY_LPV_PROPAGATION_GATHERING,
-    STR_GEOMETRY_LPV_PROPAGATION_SCATTERING,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED
+    -1,
+    -1, -1, 0, 0,
+    -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, 1,
+    2, 3, 4,
+    -1, -1, -1, -1
   };
 
-  static const char *const STR_PROGRAM_FRAGMENT_SHADER_LIST[] =
+  static const int32 PROGRAM_FRAGMENT_SHADER_LIST[] =
   {
-    STR_FRAGMENT_COLOR,
-    STR_FRAGMENT_DEPTH,
-    STR_FRAGMENT_DEPTH_COLOR_KEY,
-    STR_FRAGMENT_DEPTH,
-    STR_FRAGMENT_DEPTH_COLOR_KEY,
-    STR_FRAGMENT_BASIC,
-    STR_FRAGMENT_BASIC_ALPHA,
-    STR_FRAGMENT_PER_FRAGMENT,
-    STR_FRAGMENT_PER_FRAGMENT_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_SHADOW_JITTER,
-    STR_FRAGMENT_PER_FRAGMENT_ALPHA,
-    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_ALPHA_SHADOW_JITTER,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    STR_FRAGMENT_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
-    STR_FRAGMENT_GEOMETRY,
-    STR_FRAGMENT_GEOMETRY,
-    STR_FRAGMENT_LPV_INJECTION,
-    STR_FRAGMENT_LPV_PROPAGATION,
-    STR_FRAGMENT_LPV_PROPAGATION,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED
+    0,
+    1, 2, 1, 2,
+    3, 4,
+    5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    17, 17,
+    18, 19, 19,
+    -1, -1, -1, -1
   };
 
-  static const char *const STR_PROGRAM_COMPUTE_SHADER_LIST[] =
+  static const int32 PROGRAM_COMPUTE_SHADER_LIST[] =
   {
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_SHADER_UNUSED,
-    STR_COMPUTE_LPV_CLEAR,
-    STR_COMPUTE_LPV_INJECTION,
-    STR_COMPUTE_LPV_PROPAGATION_GATHERING,
-    STR_COMPUTE_LPV_PROPAGATION_SCATTERING
+    -1,
+    -1, -1, -1, -1,
+    -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1,
+    -1, -1, -1,
+    0, 1, 2, 3
   };
 
+  // types ---------------------------------------------------------------------
   enum EType
   {
     TYPE_UNDEFINED = 0,
@@ -451,18 +313,18 @@ namespace NShader
     PROGRAM_DEPTH_CASCADE_COLOR_KEY,
     PROGRAM_BASIC, // vbo attribs pack:   pos, nor, tan, tex, col
     PROGRAM_BASIC_ALPHA,
-    PROGRAM_PER_FRAGMENT,
-    PROGRAM_PER_FRAGMENT_SHADOW,
-    PROGRAM_PER_FRAGMENT_SHADOW_JITTER,
-    PROGRAM_PER_FRAGMENT_ALPHA,
-    PROGRAM_PER_FRAGMENT_ALPHA_SHADOW,
-    PROGRAM_PER_FRAGMENT_ALPHA_SHADOW_JITTER,
-    PROGRAM_PER_FRAGMENT_NORMAL,
-    PROGRAM_PER_FRAGMENT_NORMAL_SHADOW,
-    PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER,
-    PROGRAM_PER_FRAGMENT_NORMAL_ALPHA,
-    PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW,
-    PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER,
+    PROGRAM_ILLUMINATION,
+    PROGRAM_ILLUMINATION_SHADOW,
+    PROGRAM_ILLUMINATION_SHADOW_JITTER,
+    PROGRAM_ILLUMINATION_ALPHA,
+    PROGRAM_ILLUMINATION_ALPHA_SHADOW,
+    PROGRAM_ILLUMINATION_ALPHA_SHADOW_JITTER,
+    PROGRAM_ILLUMINATION_NORMAL,
+    PROGRAM_ILLUMINATION_NORMAL_SHADOW,
+    PROGRAM_ILLUMINATION_NORMAL_SHADOW_JITTER,
+    PROGRAM_ILLUMINATION_NORMAL_ALPHA,
+    PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW,
+    PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER,
     PROGRAM_GEOMETRY,
     PROGRAM_GEOMETRY_CASCADE,
     PROGRAM_LPV_INJECTION_GEOMETRY, // vbo attribs pack:   reserved float
@@ -476,44 +338,44 @@ namespace NShader
 
   enum ESampler
   {
+    SAMPLER_DEPTH_COLOR_KEY_DIF = 0,
+
     SAMPLER_BASIC_DIF = 0,
 
     SAMPLER_BASIC_APLHA_DIF = 0,
     SAMPLER_BASIC_APLHA_ALP,
 
-    SAMPLER_DEPTH_COLOR_KEY_DIF = 0,
+    SAMPLER_ILLUMINATION_DIF = 0,
+    SAMPLER_ILLUMINATION_SPE,
+    SAMPLER_ILLUMINATION_DEPTH,
+    SAMPLER_ILLUMINATION_LPV0_R,
+    SAMPLER_ILLUMINATION_LPV0_G,
+    SAMPLER_ILLUMINATION_LPV0_B,
 
-    SAMPLER_PER_FRAGMENT_DIF = 0,
-    SAMPLER_PER_FRAGMENT_SPE,
-    SAMPLER_PER_FRAGMENT_DEPTH,
-    SAMPLER_PER_FRAGMENT_LPV0_R,
-    SAMPLER_PER_FRAGMENT_LPV0_G,
-    SAMPLER_PER_FRAGMENT_LPV0_B,
+    SAMPLER_ILLUMINATION_ALPHA_DIF = 0,
+    SAMPLER_ILLUMINATION_ALPHA_ALP,
+    SAMPLER_ILLUMINATION_ALPHA_SPE,
+    SAMPLER_ILLUMINATION_ALPHA_DEPTH,
+    SAMPLER_ILLUMINATION_ALPHA_LPV0_R,
+    SAMPLER_ILLUMINATION_ALPHA_LPV0_G,
+    SAMPLER_ILLUMINATION_ALPHA_LPV0_B,
 
-    SAMPLER_PER_FRAGMENT_ALPHA_DIF = 0,
-    SAMPLER_PER_FRAGMENT_ALPHA_ALP,
-    SAMPLER_PER_FRAGMENT_ALPHA_SPE,
-    SAMPLER_PER_FRAGMENT_ALPHA_DEPTH,
-    SAMPLER_PER_FRAGMENT_ALPHA_LPV0_R,
-    SAMPLER_PER_FRAGMENT_ALPHA_LPV0_G,
-    SAMPLER_PER_FRAGMENT_ALPHA_LPV0_B,
+    SAMPLER_ILLUMINATION_NORMAL_DIF = 0,
+    SAMPLER_ILLUMINATION_NORMAL_SPE,
+    SAMPLER_ILLUMINATION_NORMAL_NOR,
+    SAMPLER_ILLUMINATION_NORMAL_DEPTH,
+    SAMPLER_ILLUMINATION_NORMAL_LPV0_R,
+    SAMPLER_ILLUMINATION_NORMAL_LPV0_G,
+    SAMPLER_ILLUMINATION_NORMAL_LPV0_B,
 
-    SAMPLER_PER_FRAGMENT_NORMAL_DIF = 0,
-    SAMPLER_PER_FRAGMENT_NORMAL_SPE,
-    SAMPLER_PER_FRAGMENT_NORMAL_NOR,
-    SAMPLER_PER_FRAGMENT_NORMAL_DEPTH,
-    SAMPLER_PER_FRAGMENT_NORMAL_LPV0_R,
-    SAMPLER_PER_FRAGMENT_NORMAL_LPV0_G,
-    SAMPLER_PER_FRAGMENT_NORMAL_LPV0_B,
-
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF = 0,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV0_R,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV0_G,
-    SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_LPV0_B,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_DIF = 0,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_ALP,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_SPE,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_NOR,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_DEPTH,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_LPV0_R,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_LPV0_G,
+    SAMPLER_ILLUMINATION_NORMAL_ALPHA_LPV0_B,
 
     SAMPLER_GEOMETRY_DIF = 0,
     SAMPLER_GEOMETRY_NOR,
@@ -690,12 +552,14 @@ struct SShaderTechnique
 //------------------------------------------------------------------------------
 struct SShader
 {
+  std::string name;
   NShader::EType type;
   std::string file;
+  std::string defines;
   GLuint shader;
 
   inline SShader() : type(NShader::TYPE_UNDEFINED), shader(0) {}
-  inline SShader(NShader::EType type, const std::string &file, GLuint shader = 0) : type(type), file(file), shader(shader) {}
+  inline SShader(const std::string &name, NShader::EType type, const std::string &file, const std::string &defines = std::string(), GLuint shader = 0) : name(name), type(type), file(file), defines(defines), shader(shader) {}
 };
 
 class CShader;

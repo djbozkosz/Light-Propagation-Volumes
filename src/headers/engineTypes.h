@@ -50,7 +50,7 @@ namespace NEngine
   static const float SHADOW_CASCADES_CLIPS[SHADOW_CASCADES_COUNT * NMath::VEC2] =
   {
     10.0f, 50.0f
-    /*2.0f, 50.0f, // side, front
+    /*2.0f, 50.0f, // side, depth
     5.0f, 100.0f,
     10.0f, 150.0f,
     25.0f, 200.0f,
@@ -61,7 +61,7 @@ namespace NEngine
   static const float GEOMETRY_CASCADES_CLIPS[LPV_CASCADES_COUNT * LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2] =
   {
     16.0f * LPV_CUBE_LENGTH, 50.0f
-    /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, front
+    /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, depth
     5.0f * LPV_CUBE_LENGTH, 100.0f,
     10.0f * LPV_CUBE_LENGTH, 150.0f,
     25.0f * LPV_CUBE_LENGTH, 200.0f,
@@ -296,13 +296,13 @@ struct SEngine
 
   uint32 shadowTextureSize;
   float shadowJittering;
-  glm::vec3 shadowPoses[NEngine::SHADOW_CASCADES_COUNT];
-  glm::mat4 shadowViewProj[NEngine::SHADOW_CASCADES_COUNT]; // shadow proj * view
+  //glm::vec3 shadowPoses[NEngine::SHADOW_CASCADES_COUNT];
+  glm::mat4 shadowViewProj[NEngine::SHADOW_CASCADES_COUNT]; // shadow proj * view, used: mesh render - shadow cascade draw (mpv), out mesh draw (mpvsb[])
 
   uint32 geometryTextureSize;
-  glm::mat4 geometryViewProj[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry proj * view
+  glm::mat4 geometryViewProj[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry proj * view, used: mesh render - geom cascade draw (mvp)
 
-  float sunSkyPoses[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2];
+  float sunSkyPoses[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2]; // lpv injection, light data
   float sunSkyColors[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3];
 
   glm::vec3 lpvTextureSize;
@@ -310,7 +310,7 @@ struct SEngine
   bool lpvPropagationSwap;
   float lpvIntensity;
   glm::vec3 lpvPoses[NEngine::LPV_CASCADES_COUNT];
-  float lpvPosesOut[NEngine::LPV_CASCADES_COUNT * NMath::VEC3];
+  float lpvPosesOut[NEngine::LPV_CASCADES_COUNT * NMath::VEC3]; // lpv inject, propagate, out mesh draw
 
 #if defined(ENV_QT)
   QElapsedTimer timer;
@@ -367,13 +367,17 @@ struct SEngine
     memset(sunSkyColors, 0, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3);
     memset(lpvPosesOut, 0, sizeof(float) * NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
 
-    for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT; i++)
+    for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
     {
-      shadowPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+      //shadowPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
       shadowViewProj[i] = glm::mat4();
-      geometryViewProj[i] = glm::mat4();
-      lpvPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
     }
+
+    for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT; i++)
+      geometryViewProj[i] = glm::mat4();
+
+    for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT; i++)
+      lpvPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
   }
 };
 //-----------------------------------------------------------------------------

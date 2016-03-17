@@ -24,6 +24,7 @@ class CShader : public CEngineBase
     void compile();
 
     std::string setES2compatible(const std::string &data);
+    std::string setDefines(const std::string &data);
 
     inline const SShader *getShader() const { return &shader; }
 };
@@ -73,13 +74,13 @@ class CShaders : public CEngineBase
 //------------------------------------------------------------------------------
 inline CShader *CShaders::addShader(const SShader &shader)
 {
-  CShader *vs = getShader(shader.file);
+  CShader *vs = getShader(shader.name);
 
   if(vs)
     return vs;
 
-  shaders[shader.file] = CShader(context, shader);
-  vs = getShader(shader.file);
+  shaders[shader.name] = CShader(context, shader);
+  vs = getShader(shader.name);
   vs->compile();
 
   return vs;

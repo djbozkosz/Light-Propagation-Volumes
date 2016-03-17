@@ -93,8 +93,8 @@ void CWindow::initializeGL()
   /*glewExperimental = NOpenGL::TRUE;
   if(glewInit() != GLEW_OK)
     CEngineBase::context->getExceptions()->throwException(SException(this, NWindow::STR_ERROR_INIT_GLEW));*/
-/*#elif defined(ENV_QT)
-  emit onInitializeGL();*/
+    /*#elif defined(ENV_QT)
+      emit onInitializeGL();*/
 #endif
   CEngineBase::context->engineInitialize();
 
@@ -181,28 +181,47 @@ void CWindow::initializeGL()
   fboAttachments.clear();
 
   // shaders
-  for(uint32 i = 0; i < NShader::VERTEX_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_VERTEX_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_VERTEX, NShader::STR_VERTEX_SHADER_LIST[i]));
-  /*for(uint32 i = 0; i < NShader::TESSELATION_CONTROL_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_CONTROL, NShader::STR_TESSELATION_CONTROL_SHADER_LIST[i]));
-  for(uint32 i = 0; i < NShader::TESSELATION_EVALUATION_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_TESSELATION_EVALUATION, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[i]));*/
-  for(uint32 i = 0; i < NShader::GEOMETRY_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_GEOMETRY_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_GEOMETRY, NShader::STR_GEOMETRY_SHADER_LIST[i]));
-  for(uint32 i = 0; i < NShader::FRAGMENT_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_FRAGMENT_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_FRAGMENT, NShader::STR_FRAGMENT_SHADER_LIST[i]));
-  for(uint32 i = 0; i < NShader::COMPUTE_SHADERS_COUNT; i++)
-    s->addShader(SShader((std::string(NShader::STR_COMPUTE_SHADER_LIST[i]) == NShader::STR_SHADER_UNUSED) ? NShader::TYPE_UNDEFINED : NShader::TYPE_COMPUTE, NShader::STR_COMPUTE_SHADER_LIST[i]));
+  const uint32 shaderCounts[] =
+  {
+    NShader::PROGRAMS_COUNT, NShader::VERTEX_SHADERS_COUNT, NShader::TESSELATION_CONTROL_SHADERS_COUNT, NShader::TESSELATION_EVALUATION_SHADERS_COUNT,
+    NShader::GEOMETRY_SHADERS_COUNT, NShader::FRAGMENT_SHADERS_COUNT, NShader::COMPUTE_SHADERS_COUNT
+  };
 
-  for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
+  const char *const (*const shaderFiles[])[2] =
+  {
+    NULL, NShader::STR_VERTEX_SHADER_LIST, NShader::STR_TESSELATION_CONTROL_SHADER_LIST, NShader::STR_TESSELATION_EVALUATION_SHADER_LIST,
+    NShader::STR_GEOMETRY_SHADER_LIST, NShader::STR_FRAGMENT_SHADER_LIST, NShader::STR_COMPUTE_SHADER_LIST
+  };
+
+  for(uint32 type = NShader::TYPE_VERTEX; type <= NShader::TYPE_COMPUTE; type++)
+    for(uint32 sh = 0; sh < shaderCounts[type]; sh++)
+      s->addShader(SShader(
+        CStr(NShader::STR_SHADER_NAME, shaderFiles[type][sh][0], shaderFiles[type][sh][1]),
+        static_cast<NShader::EType>(type),
+        shaderFiles[type][sh][0],
+        shaderFiles[type][sh][1]));
+
+  for(uint32 p = 0; p < NShader::PROGRAMS_COUNT; p++)
     s->addShaderProgram(SShaderProgram(
-      static_cast<NShader::EProgram>(i),
-      s->getShader(NShader::STR_PROGRAM_VERTEX_SHADER_LIST[i]),
-      s->getShader(NShader::STR_PROGRAM_TESSELATION_CONTROL_SHADER_LIST[i]),
-      s->getShader(NShader::STR_PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[i]),
-      s->getShader(NShader::STR_PROGRAM_GEOMETRY_SHADER_LIST[i]),
-      s->getShader(NShader::STR_PROGRAM_FRAGMENT_SHADER_LIST[i]),
-      s->getShader(NShader::STR_PROGRAM_COMPUTE_SHADER_LIST[i])));
+      static_cast<NShader::EProgram>(p),
+      (NShader::PROGRAM_VERTEX_SHADER_LIST[p] == -1) ? NULL : s->getShader(CStr(NShader::STR_SHADER_NAME,
+        NShader::STR_VERTEX_SHADER_LIST[NShader::PROGRAM_VERTEX_SHADER_LIST[p]][0],
+        NShader::STR_VERTEX_SHADER_LIST[NShader::PROGRAM_VERTEX_SHADER_LIST[p]][1])),
+      (NShader::PROGRAM_TESSELATION_CONTROL_SHADER_LIST[p] == -1) ? NULL : s->getShader(CStr(NShader::STR_SHADER_NAME,
+        NShader::STR_TESSELATION_CONTROL_SHADER_LIST[NShader::PROGRAM_TESSELATION_CONTROL_SHADER_LIST[p]][0],
+        NShader::STR_TESSELATION_CONTROL_SHADER_LIST[NShader::PROGRAM_TESSELATION_CONTROL_SHADER_LIST[p]][1])),
+      (NShader::PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[p] == -1) ? NULL : s->getShader(CStr(NShader::STR_SHADER_NAME,
+        NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[NShader::PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[p]][0],
+        NShader::STR_TESSELATION_EVALUATION_SHADER_LIST[NShader::PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[p]][1])),
+      (NShader::PROGRAM_GEOMETRY_SHADER_LIST[p] == -1) ? NULL : s->getShader(CStr(NShader::STR_SHADER_NAME,
+        NShader::STR_GEOMETRY_SHADER_LIST[NShader::PROGRAM_GEOMETRY_SHADER_LIST[p]][0],
+        NShader::STR_GEOMETRY_SHADER_LIST[NShader::PROGRAM_GEOMETRY_SHADER_LIST[p]][1])),
+      (NShader::PROGRAM_FRAGMENT_SHADER_LIST[p] == -1) ? NULL : s->getShader(CStr(NShader::STR_SHADER_NAME,
+        NShader::STR_FRAGMENT_SHADER_LIST[NShader::PROGRAM_FRAGMENT_SHADER_LIST[p]][0],
+        NShader::STR_FRAGMENT_SHADER_LIST[NShader::PROGRAM_FRAGMENT_SHADER_LIST[p]][1])),
+      (NShader::PROGRAM_COMPUTE_SHADER_LIST[p] == -1) ? NULL : s->getShader(CStr(NShader::STR_SHADER_NAME,
+        NShader::STR_COMPUTE_SHADER_LIST[NShader::PROGRAM_COMPUTE_SHADER_LIST[p]][0],
+        NShader::STR_COMPUTE_SHADER_LIST[NShader::PROGRAM_COMPUTE_SHADER_LIST[p]][1]))));
 
 /*#ifdef ENV_QT
   emit onInitializeFinishGL();
@@ -216,7 +235,7 @@ void CWindow::paintGL()
   CRenderer *ren = CEngineBase::context->getRenderer();
   //CShaders *sh = CEngineBase::context->getShaders();
   //CMaps *maps = CEngineBase::context->getMaps();
-  CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
+  //CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CCamera *cam = CEngineBase::context->getCamera();
   CCulling *cul = CEngineBase::context->getCulling();
   const SCamera *c = cam->getCamera();
@@ -233,7 +252,7 @@ void CWindow::paintGL()
     const float clipNear = c->clipNear;
     const float clipFar = c->clipFar;
 
-    // sbybox
+    // backdrop
     cam->setPosition(glm::vec3());
     cam->setRange(NCamera::CLIP_BACKDROP_NEAR, NCamera::CLIP_BACKDROP_FAR);
     if(e->updateFrustum)
@@ -244,16 +263,32 @@ void CWindow::paintGL()
     ren->dispatch();
     ren->clearGroups();
 
-    // depth map
-    //CFramebuffer *fboDepth = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
-    CFramebuffer *fboGeo = fbo->getFramebuffer(NEngine::STR_GEOMETRY_FBO);
-    /*CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
-    const glm::vec3 orthoScale(NCamera::ORTHO_DEPTH_SCALE_X, NCamera::ORTHO_DEPTH_SCALE_Y, NCamera::ORTHO_DEPTH_SCALE_Z);
-    //fboDepth->setChanged(); // debug
+    // shadows
+    /*CFramebuffer *fboShadow = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
+    CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
+    if((fboShadow) && (sun))
+    {
+      for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
+      {
+        const float clipSide = NEngine::SHADOW_CASCADES_CLIPS[i * NMath::VEC2 + 0];
+        const float clipDepth = NEngine::SHADOW_CASCADES_CLIPS[i * NMath::VEC2 + 1];
+        const glm::vec2 sunRot(sun->getObject()->rotation.y, sun->getObject()->rotation.z);
 
-    if((fboDepth) && (fboGeo) && (sun) &&
-       ((fboDepth->getFrameBuffer()->changed) ||
-       (glm::length(glm::vec3(fboDepth->getFrameBuffer()->camera.position) * orthoScale - pos) > (e->orthoDepthSize * 0.1f))))
+        cam->setRange(-clipDepth, clipDepth, -clipSide, clipSide, clipSide, -clipSide);
+        cam->setGridAlignedOrthoTransform(pos, sunRot, (clipSide * 2.0) / static_cast<float>(e->shadowTextureSize));
+      }
+    }*/
+
+    /*CFramebuffer *fboShadow = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
+    CFramebuffer *fboGeometry = fbo->getFramebuffer(NEngine::STR_GEOMETRY_FBO);
+    CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
+    const glm::vec3 orthoScale(NCamera::ORTHO_FBO_SCALE_X, NCamera::ORTHO_FBO_SCALE_Y, NCamera::ORTHO_FBO_SCALE_Z);
+    fboShadow->setChanged(); // debug
+
+    if((fboShadow) && (fboGeometry) && (sun) &&
+       ((fboShadow->getFrameBuffer()->changed) ||
+       //(glm::length(glm::vec3(fboShadow->getFrameBuffer()->camera.position) * orthoScale - pos) > (e->orthoDepthSize * 0.1f))
+       ))
     {
       //std::cout << "update " << glm::to_string(glm::vec3(f->getFrameBuffer()->camera.position) * orthoScale) << " | " << glm::to_string(pos) << "\n";
       cam->setRange(-e->orthoDepthDepth, e->orthoDepthDepth, -e->orthoDepthSize, e->orthoDepthSize, e->orthoDepthSize, -e->orthoDepthSize);
@@ -371,14 +406,14 @@ void CWindow::paintGL()
     ren->dispatch();
     ren->clearGroups();
 
-    if((fboGeo) && (e->showGeometryBuffer))
+    /*if((fboGeometry) && (e->showGeometryBuffer))
     {
       const float r = c->height / c->width;
       drawTexture(fboGeo->getFrameBuffer()->attachments[0].map->getMap()->texture, 0.0f, 0.0f, 0.333f * r, 0.333f);
       drawTexture(fboGeo->getFrameBuffer()->attachments[1].map->getMap()->texture, 0.0f, 0.333f, 0.333f * r, 0.333f);
       drawTexture(fboGeo->getFrameBuffer()->attachments[2].map->getMap()->texture, 0.0f, 0.666f, 0.333f * r, 0.333f);
       //drawTexture(fboGeo->getFrameBuffer()->attachments[3].map->getMap()->texture, 0.0f, 0.666f, 0.333f * r, 0.333f, true);
-    }
+    }*/
   }
 
   std::string title = CStr(

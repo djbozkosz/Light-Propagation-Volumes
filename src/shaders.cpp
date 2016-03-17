@@ -31,7 +31,7 @@ void CShader::compile()
      ((shader.type == NShader::TYPE_TESSELATION_EVALUATION) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
      ((shader.type == NShader::TYPE_COMPUTE) && (platform < NEngine::GPU_PLATFORM_GL0403)))
   {
-    context->log(CStr(NShader::STR_ERROR_COMPILE_SKIP, shader.file.c_str()));
+    context->log(CStr(NShader::STR_ERROR_COMPILE_SKIP, shader.name.c_str()));
     return;
   }
 
@@ -45,10 +45,10 @@ void CShader::compile()
 
   if(context->engineGetEngine()->gpuPlatform == NEngine::GPU_PLATFORM_GL0200_ES)
     data = setES2compatible(data);
-
+  data = setDefines(data);
   const char *d = data.c_str();
+  //context->log(data);
 
-  //qDebug(d);
   shader.shader = gl->createShader(shaderType);
   gl->shaderSource(shader.shader, 1, &d, NULL);
   gl->compileShader(shader.shader);
@@ -59,10 +59,10 @@ void CShader::compile()
   if(infoLength)
     gl->getShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
   if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
-    context->log(log);
+    context->log(CStr(NShader::STR_WARNING_COMPILE, shader.name.c_str(), log.c_str()));
 
   if(status == NOpenGL::FALSE)
-    context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.file.c_str()), log.c_str(), false);
+    context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.name.c_str()), log.c_str(), false);
 
   f->close();
 }
@@ -77,7 +77,9 @@ std::string CShader::setES2compatible(const std::string &data)
 #endif
 
   // replace any version and precision by #version 100 - ES 2.0
-  auto index = d.find("in ");
+  auto index = d.find("layout ");
+  if(index == std::string::npos)
+    index = d.find("in ");
   if(index == std::string::npos)
     index = d.find("uniform ");
   if(index == std::string::npos)
@@ -110,6 +112,33 @@ std::string CShader::setES2compatible(const std::string &data)
   return d;
 }
 //------------------------------------------------------------------------------
+std::string CShader::setDefines(const std::string &data)
+{
+  std::string d = data;
+
+  auto index = d.find("#define ");
+  if(index == std::string::npos)
+    index = d.find("layout ");
+  if(index == std::string::npos)
+    index = d.find("in ");
+  if(index == std::string::npos)
+    index = d.find("uniform ");
+  if(index == std::string::npos)
+    index = d.find("out ");
+  if(index == std::string::npos)
+    index = d.find("void ");
+
+  std::string defines;
+  std::stringstream ss(shader.defines);
+  for(std::string d; std::getline(ss, d, ' '); defines += "#define "+d+"\r\n");
+  if(defines.length())
+    defines += "\r\n";
+
+  d.insert(index, defines);
+
+  return d;
+}
+//------------------------------------------------------------------------------
 CShaderProgram::CShaderProgram() : CEngineBase()
 {
 }
@@ -125,12 +154,12 @@ CShaderProgram::~CShaderProgram()
 void CShaderProgram::link()
 {
   /*context->log(CStr("%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n", NShader::STR_PROGRAM_LIST[program.name],
-    (program.vertexShader) ? program.vertexShader->getShader()->file.c_str() : "NULL",
-    (program.tesselationControlShader) ? program.tesselationControlShader->getShader()->file.c_str() : "NULL",
-    (program.tesselationEvaluationShader) ? program.tesselationEvaluationShader->getShader()->file.c_str() : "NULL",
-    (program.geometryShader) ? program.geometryShader->getShader()->file.c_str() : "NULL",
-    (program.fragmentShader) ? program.fragmentShader->getShader()->file.c_str() : "NULL",
-    (program.computeShader) ? program.computeShader->getShader()->file.c_str() : "NULL"));*/
+    (program.vertexShader) ? program.vertexShader->getShader()->name.c_str() : "NULL",
+    (program.tesselationControlShader) ? program.tesselationControlShader->getShader()->name.c_str() : "NULL",
+    (program.tesselationEvaluationShader) ? program.tesselationEvaluationShader->getShader()->name.c_str() : "NULL",
+    (program.geometryShader) ? program.geometryShader->getShader()->name.c_str() : "NULL",
+    (program.fragmentShader) ? program.fragmentShader->getShader()->name.c_str() : "NULL",
+    (program.computeShader) ? program.computeShader->getShader()->name.c_str() : "NULL"));*/
 
   COpenGL *gl = context->getOpenGL();
   GLint status = 0;
@@ -172,7 +201,7 @@ void CShaderProgram::link()
 
 #ifndef Q_OS_SYMBIAN
   if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
-    context->log(log);
+    context->log(CStr(NShader::STR_WARNING_LINK, NShader::STR_PROGRAM_LIST[program.name], log.c_str()));
 #endif
 
   if(status == NOpenGL::FALSE)
@@ -299,12 +328,12 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       gl->vertexAttribPointer(u->vertexTexCoord, NModel::VERTEX_SIZE_TEX_COORD, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VERTEX_PNTTC_OFFSET_TEX_COORD));
       gl->vertexAttribPointer(u->vertexColor, NModel::VERTEX_SIZE_COLOR, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VERTEX_PNTTC_OFFSET_COLOR));
     }
-    if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+    if(program.name >= NShader::PROGRAM_ILLUMINATION)
     {
       gl->enableVertexAttribArray(u->vertexNormal);
       gl->vertexAttribPointer(u->vertexNormal, NModel::VERTEX_SIZE_NORMAL, NOpenGL::FLOAT, NOpenGL::FALSE, stride, reinterpret_cast<float *>(sizeof(float) * NModel::VERTEX_PNTTC_OFFSET_NORMAL));
     }
-    if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+    if(program.name >= NShader::PROGRAM_ILLUMINATION_NORMAL)
     {
       gl->enableVertexAttribArray(u->vertexNormalTangent);
       //gl->enableVertexAttribArray(u->vertexNormalBitangent);
@@ -346,8 +375,8 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
       const SMaterial *m = technique->material;
 
       if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
-         (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
-         (program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
+         (program.name == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
+         (program.name == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA))
         glEnable(NOpenGL::BLEND);
 
       // texture samplers
@@ -364,37 +393,37 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
         setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_BASIC_APLHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_BASIC_APLHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
       }
-      else if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_SHADOW_JITTER))
+      else if((program.name >= NShader::PROGRAM_ILLUMINATION) && (program.name <= NShader::PROGRAM_ILLUMINATION_SHADOW_JITTER))
       {
-        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_PER_FRAGMENT_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        if(program.name != NShader::PROGRAM_PER_FRAGMENT)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_DEPTH);
+        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_ILLUMINATION_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_ILLUMINATION_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        if(program.name != NShader::PROGRAM_ILLUMINATION)
+          beginLPV(NShader::SAMPLER_ILLUMINATION_DEPTH);
       }
-      else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_ALPHA_SHADOW_JITTER))
+      else if((program.name >= NShader::PROGRAM_ILLUMINATION_ALPHA) && (program.name <= NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW_JITTER))
       {
-        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        if(program.name != NShader::PROGRAM_PER_FRAGMENT_ALPHA)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_ALPHA_DEPTH);
+        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_ILLUMINATION_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_ILLUMINATION_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_ILLUMINATION_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        if(program.name != NShader::PROGRAM_ILLUMINATION_ALPHA)
+          beginLPV(NShader::SAMPLER_ILLUMINATION_ALPHA_DEPTH);
       }
-      else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_SHADOW_JITTER))
+      else if((program.name >= NShader::PROGRAM_ILLUMINATION_NORMAL) && (program.name <= NShader::PROGRAM_ILLUMINATION_NORMAL_SHADOW_JITTER))
       {
-        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->normalMap, u->norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_NORMAL_DEPTH);
+        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_ILLUMINATION_NORMAL_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_ILLUMINATION_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->normalMap, u->norTex, NShader::SAMPLER_ILLUMINATION_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        if(program.name != NShader::PROGRAM_ILLUMINATION_NORMAL)
+          beginLPV(NShader::SAMPLER_ILLUMINATION_NORMAL_DEPTH);
       }
-      else if((program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER))
+      else if((program.name >= NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA) && (program.name <= NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER))
       {
-        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        setSampler(m->normalMap, u->norTex, NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
-        if(program.name != NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA)
-          beginLPV(NShader::SAMPLER_PER_FRAGMENT_NORMAL_ALPHA_DEPTH);
+        setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->specularMap, u->speTex, NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        setSampler(m->normalMap, u->norTex, NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
+        if(program.name != NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA)
+          beginLPV(NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA_DEPTH);
       }
       else if((program.name >= NShader::PROGRAM_GEOMETRY) || (program.name <= NShader::PROGRAM_GEOMETRY_CASCADE))
       {
@@ -413,7 +442,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     if(program.name == NShader::PROGRAM_COLOR)
       gl->uniform3f(u->lightAmb, technique->pickColor.x, technique->pickColor.y, technique->pickColor.z);
 
-    if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name <= NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA_SHADOW_JITTER))
+    if((program.name >= NShader::PROGRAM_ILLUMINATION) && (program.name <= NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER))
     {
       const SCamera *cam = context->getCamera()->getCamera();
 
@@ -437,7 +466,7 @@ void CShaderProgram::begin(const SShaderTechnique *technique, NRenderer::EMode m
     }
   }
 
-  if((program.name >= NShader::PROGRAM_PER_FRAGMENT) && (program.name != NShader::PROGRAM_GEOMETRY) && (program.name != NShader::PROGRAM_GEOMETRY_CASCADE))
+  if((program.name >= NShader::PROGRAM_ILLUMINATION) && (program.name != NShader::PROGRAM_GEOMETRY) && (program.name != NShader::PROGRAM_GEOMETRY_CASCADE))
   {
     gl->uniform4f(u->geomTexSize, e->geometryTextureSize, e->geometryTextureSize, 1.0f / static_cast<float>(e->geometryTextureSize), 1.0f / static_cast<float>(e->geometryTextureSize));
     gl->uniform3fv(u->lpvPos, NEngine::LPV_CASCADES_COUNT, e->lpvPosesOut);
@@ -501,8 +530,8 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
   if((technique) && (technique->material))
   {
     if((program.name == NShader::PROGRAM_BASIC_ALPHA) ||
-       (program.name == NShader::PROGRAM_PER_FRAGMENT_ALPHA) ||
-       (program.name == NShader::PROGRAM_PER_FRAGMENT_NORMAL_ALPHA))
+       (program.name == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
+       (program.name == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA))
       glDisable(NOpenGL::BLEND);
   }
 
@@ -521,9 +550,9 @@ void CShaderProgram::end(const SShaderTechnique *technique) const
       gl->disableVertexAttribArray(u->vertexTexCoord);
       gl->disableVertexAttribArray(u->vertexColor);
     }
-    if(program.name >= NShader::PROGRAM_PER_FRAGMENT)
+    if(program.name >= NShader::PROGRAM_ILLUMINATION)
       gl->disableVertexAttribArray(u->vertexNormal);
-    if(program.name >= NShader::PROGRAM_PER_FRAGMENT_NORMAL)
+    if(program.name >= NShader::PROGRAM_ILLUMINATION_NORMAL)
     {
       gl->disableVertexAttribArray(u->vertexNormalTangent);
       //gl->disableVertexAttribArray(u->vertexNormalBitangent);
