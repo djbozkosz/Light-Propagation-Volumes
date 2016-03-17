@@ -16,7 +16,7 @@ in vec4 color;
 in vec3 shadowCoord[SHADOW_CASCADES_COUNT];
 #endif
 #ifdef NOR_TEX
-in mat3 mtbnt;
+in mat3 mtbnti;
 #endif
 
 #ifndef NOR_TEX
@@ -65,6 +65,35 @@ out vec4 glFragColor;
 
 void main()
 {
+  vec4 fragDif = texture(difTex, texCoord);
+
+  if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
+    discard;
+
+#ifndef ALP_TEX
+  float alpha = 1.0;
+#else
+  vec3 fragAlp = texture(alpTex, texCoord).rgb;
+  float alpha = (fragAlp.r + fragAlp.g + fragAlp.b) * 0.3333333334 * color.a * opacity;
+
+  if(alpha == 0.0)
+    discard;
+#endif
+
+  vec3 fragSpe = texture(speTex, texCoord).rgb;
+
+#ifndef NOR_TEX
+  vec3 normalDir = normalize(mwnit * normalize(normal));
+#else
+  vec3 fragNor = texture(norTex, texCoord).rgb;
+  vec3 normalDir = normalize(mtbnti * normalize(fragNor * 2.0 - 1.0));
+#endif
+
+#ifdef NOR_TEX_DEBUG
+  glFragColor = vec4(normalDir * 0.5 + 0.5, alpha);
+  return;
+#endif
+
 #ifdef SHADOW_JITTER
   // old ati radeon fix
   vec2 poissonDisk[16];
@@ -86,16 +115,10 @@ void main()
   poissonDisk[15] = vec2(0.14383161, -0.14100790);
 #endif
 
-  vec4 fragDif = texture(difTex, texCoord);
-
-  if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
-    discard;
-
 #ifndef SHAD_TEX
   vec3 lpvColor = vec3(0.0, 0.0, 0.0);
 #else
-  vec3 n = vec3(0.0, 1.0, 0.0);//normalize(mwnit * normalize(normal));
-  vec4 sh = vec4(0.2821, -0.4886 * -n.y, 0.4886 * -n.z, -0.4886 * -n.x);
+  vec4 sh = vec4(0.2821, -0.4886 * -normalDir.y, 0.4886 * -normalDir.z, -0.4886 * -normalDir.x);
   vec3 p = (lpvPos[0].xyz + positionWorld) * lpvCellSize[0];
   vec4 lpvShR0 = texture(lpvTexR, p);
   vec4 lpvShG0 = texture(lpvTexG, p);
@@ -103,14 +126,6 @@ void main()
   vec3 lpvColor = vec3(dot(sh, lpvShR0), dot(sh, lpvShG0), dot(sh, lpvShB0)) * lpvParams.y;
   if((lpvColor.x < 0.0) || (lpvColor.y < 0.0) || (lpvColor.z < 0.0))
     lpvColor = vec3(0.0);
-#endif
-
-#ifdef ALP_TEX
-  vec3 fragAlp = texture(alpTex, texCoord).rgb;
-#endif
-  vec3 fragSpe = texture(speTex, texCoord).rgb;
-#ifdef NOR_TEX
-  vec3 fragNor = texture(norTex, texCoord).rgb;
 #endif
 
 #ifndef SHAD_TEX
@@ -134,22 +149,11 @@ void main()
 #endif
 
   float fragDist = distance(cam, positionWorld);
-  vec3 viewDirCam = normalize(cam - positionWorld);
-#ifndef NOR_TEX
-  vec3 viewDir = viewDirCam;
-  vec3 normalDir = normalize(mwnit * normalize(normal));
-#else
-  vec3 viewDir = normalize(mtbnt * viewDirCam);
-  vec3 normalDir = normalize(fragNor * 2.0 - 1.0);
-#endif
+  vec3 viewDir = normalize(cam - positionWorld);
   vec3 lightDir = lightPos - positionWorld;
 
   float lightDist = clamp((length(lightDir) - lightRange.x) / (lightRange.y - lightRange.x) * -1.0 + 1.0, 0.0, 1.0);
-#ifndef NOR_TEX
   lightDir = normalize(lightDir);
-#else
-  lightDir = normalize(mtbnt * normalize(lightDir));
-#endif
   float lightDot = max(0.0, dot(normalDir, lightDir)) * depthVis;
 
   vec3 colorDif = lightColor * lightDot * lightDist + lightAmb + lpvColor;
@@ -158,16 +162,15 @@ void main()
 #else
   float lightSpecDot = max(0.0, dot(normalDir, normalize(lightDir + viewDir))); // blinn-phong
 #endif
-  vec3 colorSpe = lightSpeColor.rgb * pow(lightSpecDot, lightSpeColor.a) * lightDot * lightDist;
+  float fresnelSpe = min(pow(1.0 - dot(viewDir, normalDir), 4.0) + 0.25, 1.0);
+  vec3 colorSpe = lightSpeColor.rgb * pow(lightSpecDot, lightSpeColor.a) * lightDot * lightDist * fresnelSpe;
 
   float fogDist = clamp((fragDist - fogRange.x) / (fogRange.y - fogRange.x), 0.0, 1.0);
-  /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDirCam)), 16.0);
+  /*float fogDot = pow(max(0.0, dot(normalize(cam - lightPos), viewDir)), 16.0);
   float fresPow = clamp(pow(1.0 - dot(viewDir, normalDir) * 0.5, 8.0), 0.0, 1.0) * 1.0;*/
 
-#ifndef ALP_TEX
-  float alpha = 1.0;
-#else
-  float alpha = (fragAlp.r + fragAlp.g + fragAlp.b) * 0.3333333334 * color.a * opacity + (colorSpe.r + colorSpe.g + colorSpe.b) * 0.3333333334;
+#ifdef ALP_TEX
+  alpha += (colorSpe.r + colorSpe.g + colorSpe.b) * 0.3333333334;
 #endif
   glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), alpha);
 }

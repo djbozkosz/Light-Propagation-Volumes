@@ -15,28 +15,31 @@
 namespace NModel
 {
   static const uint32 VERTEX_F_SIZE = 0;
-
   static const uint32 VERTEX_PT_SIZE = 5;
-  static const uint32 VERTEX_PNTTC_SIZE = 15; // PNTBTC 18
+  static const uint32 VERTEX_PNTBTC_SIZE = 18;
+
+  static const uint32 VERTEX_F_SIZE_F = sizeof(float) * VERTEX_F_SIZE;
+  static const uint32 VERTEX_PT_SIZE_F = sizeof(float) * VERTEX_PT_SIZE;
+  static const uint32 VERTEX_PNTBTC_SIZE_F = sizeof(float) * VERTEX_PNTBTC_SIZE;
 
   static const uint8 VERTEX_F_OFFSET = 0;
 
   static const uint8 VERTEX_PT_OFFSET_POSITION = 0;
   static const uint8 VERTEX_PT_OFFSET_TEX_COORD = 3;
 
-  static const uint8 VERTEX_PNTTC_OFFSET_POSITION = 0;
-  static const uint8 VERTEX_PNTTC_OFFSET_NORMAL = 3;
-  static const uint8 VERTEX_PNTTC_OFFSET_NORMAL_TANGENT = 6;
-  //static const uint8 VERTEX_PNTTC_OFFSET_NORMAL_BITANGENT = 9;
-  static const uint8 VERTEX_PNTTC_OFFSET_TEX_COORD = 9; // 12
-  static const uint8 VERTEX_PNTTC_OFFSET_COLOR = 11; // 14
+  static const uint8 VERTEX_PNTBTC_OFFSET_POSITION = 0;
+  static const uint8 VERTEX_PNTBTC_OFFSET_NORMAL = 3;
+  static const uint8 VERTEX_PNTBTC_OFFSET_NORMAL_TANGENT = 6;
+  static const uint8 VERTEX_PNTBTC_OFFSET_NORMAL_BITANGENT = 9;
+  static const uint8 VERTEX_PNTBTC_OFFSET_TEX_COORD = 12;
+  static const uint8 VERTEX_PNTBTC_OFFSET_COLOR = 14;
 
   static const uint8 VERTEX_SIZE_F = 1;
 
   static const uint8 VERTEX_SIZE_POSITION = 3;
   static const uint8 VERTEX_SIZE_NORMAL = 3;
   static const uint8 VERTEX_SIZE_NORMAL_TANGENT = 3;
-  //static const uint8 VERTEX_SIZE_NORMAL_BITANGENT = 3;
+  static const uint8 VERTEX_SIZE_NORMAL_BITANGENT = 3;
   static const uint8 VERTEX_SIZE_TEX_COORD = 2;
   static const uint8 VERTEX_SIZE_COLOR = 4;
 

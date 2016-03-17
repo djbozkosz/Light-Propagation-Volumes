@@ -63,6 +63,14 @@ void CRenderer::dispatch() const
       twoSided = true;
       gl->disable(NOpenGL::CULL_FACE);
     }
+    else if((p == NShader::PROGRAM_BASIC_ALPHA) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW_JITTER) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
+            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW) ||
+            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER))
+      glEnable(NOpenGL::BLEND);
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       gl->depthMask(NOpenGL::FALSE);*/
 
@@ -105,6 +113,14 @@ void CRenderer::dispatch() const
     }
     else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_GEOMETRY_CASCADE))
       gl->enable(NOpenGL::CULL_FACE);
+    else if((p == NShader::PROGRAM_BASIC_ALPHA) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW_JITTER) ||
+            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
+            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW) ||
+            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER))
+      gl->disable(NOpenGL::BLEND);
     /*if(p == NShader::PROGRAM_GUI_TEXT)
       gl->depthMask(NOpenGL::TRUE);*/
   }

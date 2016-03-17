@@ -2,12 +2,10 @@
 precision lowp float;
 
 in vec3 positionWorld;
-in vec3 normal;
 in vec2 texCoord;
 in vec4 color;
-//in mat3 mtbnt;
+in mat3 mtbnti;
 
-uniform mat3 mwnit;
 //uniform vec3 cam;
 
 uniform sampler2D difTex;
@@ -22,7 +20,7 @@ uniform vec3 lightColor;*/
 out vec4 glFragColor0;
 out vec4 glFragColor1Pos;
 out vec4 glFragColor2Normal;
-out float glFragColor3Depth;
+//out float glFragColor3Depth;
 
 void main()
 {
@@ -31,8 +29,10 @@ void main()
   if(((type & 0x20000000) != 0) && (fragDif.a < 0.8))
     discard;
 
+  vec3 fragNor = texture(norTex, texCoord).rgb;
+  vec3 normalDir = normalize(mtbnti * normalize(fragNor * 2.0 - 1.0));
+
   //vec3 viewDir = normalize(cam - positionWorld);
-  vec3 normalDir = normalize(mwnit * normalize(normal));
   /*vec3 lightDir = lightPos - positionWorld;
 
   float lightDist = clamp((length(lightDir) - lightRange.x) / (lightRange.y - lightRange.x) * -1.0 + 1.0, 0.0, 1.0);
@@ -44,5 +44,5 @@ void main()
   glFragColor0 = vec4(fragDif.rgb * color.rgb/* * colorDif*/, 1.0);
   glFragColor1Pos = vec4(positionWorld, 1.0);
   glFragColor2Normal = vec4(normalDir, 1.0); //vec4(mtbnt * normalize(texture(norTex, texCoord).rgb), 1.0);
-  glFragColor3Depth = gl_FragCoord.z;
+  //glFragColor3Depth = gl_FragCoord.z;
 }

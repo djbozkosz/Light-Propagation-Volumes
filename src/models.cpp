@@ -716,7 +716,7 @@ void CModel::update(NModel::EMeshUpdateType type)
               for(auto face = group->faces.begin(); face != group->faces.end(); face++)
               {
                 const uint16 v[] = { face->vertex0, face->vertex1, face->vertex2, face->vertex0, face->vertex1 };
-                for(uint8 i = 0; i < 3; i++)
+                for(uint8 i = 0; i < NModel::FACE_SIZE; i++)
                 {
                   if(!mappedVertices[v[i]])
                   {
@@ -724,72 +724,61 @@ void CModel::update(NModel::EMeshUpdateType type)
                     const SVertex *v1 = &lod->vertices[v[i + 1]];
                     const SVertex *v2 = &lod->vertices[v[i + 2]];
 
-                    glm::vec3 deltaPosition1 = v1->position - v0->position;
-                    glm::vec3 deltaPosition2 = v2->position - v0->position;
-                    glm::vec2 deltaTexCoord1 = v1->texCoord - v0->texCoord;
-                    glm::vec2 deltaTexCoord2 = v2->texCoord - v0->texCoord;
+                    const glm::vec3 dv1 = v1->position - v0->position;
+                    const glm::vec3 dv2 = v2->position - v0->position;
+                    const glm::vec2 dtex1 = v1->texCoord - v0->texCoord;
+                    const glm::vec2 dtex2 = v2->texCoord - v0->texCoord;
 
-                    /*if((!v0->texCoord.x) && (!v0->texCoord.y) && (!v1->texCoord.x) && (!v1->texCoord.y) && (!v0->texCoord.x) && (!v0->texCoord.y) && (!v2->texCoord.x) && (!v2->texCoord.y))
-                    {
-                      glm::vec3 vec1 = v1->position - v0->position;
-                      glm::vec3 vec2 = glm::cross(glm::normalize(v0->normal), glm::normalize(vec1));
-
-                      float max = vec2.x;
-                      uint8 axis = 0;
-                      if(vec2.y > max)
-                      {
-                        max = vec2.y;
-                        axis = 1;
-                      }
-                      if(vec2.z > max)
-                      {
-                        max = vec2.z;
-                        axis = 2;
-                      }
-                      if(axis == 0)
-                      {
-                        deltaTexCoord1 = glm::vec2(v1->position.y, v1->position.z) - glm::vec2(v2->position.y, v2->position.z);
-                        deltaTexCoord2 = glm::vec2(v2->position.y, v2->position.z) - glm::vec2(v2->position.y, v2->position.z);
-                      }
-                      else if(axis == 1)
-                      {
-                        deltaTexCoord1 = glm::vec2(v1->position.x, v1->position.z) - glm::vec2(v2->position.x, v2->position.z);
-                        deltaTexCoord2 = glm::vec2(v2->position.x, v2->position.z) - glm::vec2(v2->position.x, v2->position.z);
-                      }
-                      else
-                      {
-                        deltaTexCoord1 = glm::vec2(v1->position.x, v1->position.y) - glm::vec2(v2->position.x, v2->position.y);
-                        deltaTexCoord2 = glm::vec2(v2->position.x, v2->position.y) - glm::vec2(v2->position.x, v2->position.y);
-                      }
-                    }*/
-
-                    float recip = 1.0f / (deltaTexCoord1.x * deltaTexCoord2.y - deltaTexCoord1.y * deltaTexCoord2.x);
-                    v0->normalTangent = (deltaPosition1 * deltaTexCoord2.y - deltaPosition2 * deltaTexCoord1.y) * recip;
-                    v0->normalBitangent = (deltaPosition2 * deltaTexCoord1.x - deltaPosition1 * deltaTexCoord2.x) * recip;
+                    const float recip = 1.0f / (dtex1.x * dtex2.y - dtex1.y * dtex2.x);
+                    v0->normalTangent = (dv1 * dtex2.y - dv2 * dtex1.y) * recip;
+                    v0->normalBitangent = (dv2 * dtex1.x - dv1 * dtex2.x) * recip;
 
                     mappedVertices[v[i]] = true;
                   }
-
-                  /*if(model.path.find("cube") != std::string::npos)
-                  {
-                    SVertex *v0 = &lod->vertices[v[i]];
-                    std::cout
-                      << v0->position.x << ", " << v0->position.y << ", " << v0->position.z << ", "
-                      << v0->normal.x << ", " << v0->normal.y << ", " << v0->normal.z << ", "
-                      << v0->normalTangent.x << ", " << v0->normalTangent.y << ", " << v0->normalTangent.z << ", "
-                      << v0->normalBitangent.x << ", " << v0->normalBitangent.y << ", " << v0->normalBitangent.z << ", "
-                      << v0->texCoord.x << ", " << v0->texCoord.y << ", \n";
-                  }*/
                 }
               }
             }
 
-            for(auto vertex = lod->vertices.begin(); vertex != lod->vertices.end(); vertex++)
+            // orthogonalization
+            for(auto vx = lod->vertices.begin(); vx != lod->vertices.end(); vx++)
+              vx->normalTangent = glm::normalize(glm::vec3(vx->normalTangent - vx->normal * glm::dot(vx->normal, vx->normalTangent)));
+
+            // smooth not linked vertices
+            /*std::vector<bool> smoothedVertices(lod->vertices.size(), false);
+
+            for(uint32 vx = 0; vx < lod->vertices.size(); vx++)
             {
-              vertex->normalTangent = glm::normalize(vertex->normalTangent - vertex->normal * glm::dot(vertex->normal, vertex->normalTangent));
-              if(glm::dot(glm::cross(vertex->normal, vertex->normalTangent), vertex->normalBitangent) < 0.0f)
-                vertex->normalTangent = vertex->normalTangent * -1.0f;
-            }
+              if(!smoothedVertices[vx])
+              {
+                smoothedVertices[vx] = true;
+                std::vector<SVertex *>sameVx;
+                sameVx.push_back(&lod->vertices[vx]);
+                glm::vec3 t = lod->vertices[vx].normalTangent;
+                glm::vec3 b = lod->vertices[vx].normalBitangent;
+
+                for(uint32 vy = 0; vy < lod->vertices.size(); vy++)
+                {
+                  if((vx != vy) &&
+                     (lod->vertices[vx].position == lod->vertices[vy].position) &&
+                     (lod->vertices[vx].normal == lod->vertices[vy].normal) &&
+                     (lod->vertices[vx].texCoord == lod->vertices[vy].texCoord))
+                  {
+                    smoothedVertices[vy] = true;
+                    sameVx.push_back(&lod->vertices[vy]);
+                    t += lod->vertices[vy].normalTangent;
+                    b += lod->vertices[vy].normalBitangent;
+                  }
+                }
+
+                t = glm::normalize(t);
+                b = glm::normalize(b);
+                for(uint32 vy = 0; vy < sameVx.size(); vy++)
+                {
+                  sameVx[vy]->normalTangent = t;
+                  sameVx[vy]->normalBitangent = b;
+                }
+              }
+            }*/
           }
         }
       }
@@ -813,7 +802,7 @@ void CModel::update(NModel::EMeshUpdateType type)
         {
           for(auto lod = mesh->standardMesh.lods.begin(); lod != mesh->standardMesh.lods.end(); lod++)
           {
-            std::vector<float> vx(lod->vertices.size() * NModel::VERTEX_PNTTC_SIZE);
+            std::vector<float> vx(lod->vertices.size() * NModel::VERTEX_PNTBTC_SIZE);
             std::vector<float> vxs(lod->vertices.size() * NModel::VERTEX_PT_SIZE); // simple
             std::vector<uint16> in;
 
@@ -830,9 +819,9 @@ void CModel::update(NModel::EMeshUpdateType type)
               vx[i++] = vertex->normalTangent.x;
               vx[i++] = vertex->normalTangent.y;
               vx[i++] = vertex->normalTangent.z;
-              /*vx[i++] = vertex->normalBitangent.x;
+              vx[i++] = vertex->normalBitangent.x;
               vx[i++] = vertex->normalBitangent.y;
-              vx[i++] = vertex->normalBitangent.z;*/
+              vx[i++] = vertex->normalBitangent.z;
               vx[i++] = vertex->texCoord.x;
               vx[i++] = vertex->texCoord.y;
               vx[i++] = vertex->color.x;

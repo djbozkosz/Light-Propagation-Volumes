@@ -20,6 +20,9 @@ void main()
 #else
   vec3 fragAlp = texture(alpTex, texCoord).rgb;
   float alpha = color.a * (fragAlp.r + fragAlp.g + fragAlp.b) * 0.3333333334 * opacity;
+
+  if(alpha == 0.0)
+    discard;
 #endif
   glFragColor = vec4(texture(difTex, texCoord).rgb * color.rgb, alpha);
 }
