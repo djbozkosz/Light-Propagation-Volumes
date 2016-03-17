@@ -896,15 +896,15 @@ void CModel::updateSceneObject(SSceneObject *sceneObject, SSceneModel *sceneMode
   for(auto m = model.meshes.cbegin(); m != model.meshes.cend(); m++, mi++)
   {
     const SMesh *mesh = &m->second;
-    sceneModel->meshes.push_back(std::list<SShaderTechnique>());
-    std::list<SShaderTechnique> *sceneMesh = &sceneModel->meshes.back();
+    sceneModel->meshes.push_back(std::list<SShaderState>());
+    std::list<SShaderState> *sceneMesh = &sceneModel->meshes.back();
     std::vector<SBoundingBox> aabbs2(mesh->standardMesh.lods.size());
 
     uint32 lod = 0;
     for(auto l = mesh->standardMesh.lods.cbegin(); l != mesh->standardMesh.lods.cend(); l++, lod++)
     {
-      sceneMesh->push_back(SShaderTechnique());
-      SShaderTechnique *sceneLod = &sceneMesh->back();
+      sceneMesh->push_back(SShaderState());
+      SShaderState *sceneLod = &sceneMesh->back();
 
       sceneLod->mw = sceneObject->mw * mesh->transformation;
       sceneLod->mwnit = glm::mat3(glm::transpose(glm::inverse(sceneLod->mw)));
@@ -937,7 +937,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
       continue;
 
     const SMesh *mesh = &it->second;
-    const SShaderTechnique *soLod = &soMesh->front(); // todo: lod selection
+    const SShaderState *soLod = &soMesh->front(); // todo: lod selection
 
     if(!context->getCulling()->isAABBInFrustum(soLod->aabb))
       continue;

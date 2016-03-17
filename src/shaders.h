@@ -35,7 +35,7 @@ class CShaderProgram : public CEngineBase
     SShaderProgram program;
 
     void setSampler(const CMap *texture, GLuint uniform, uint8 sampler, uint32 format = NMap::FORMAT_MIPMAP) const;
-    void beginLPV(NShader::ESampler startDepthSampler) const;
+    void beginLPV(NShader::ESamplerTex startDepthSampler) const;
 
   public:
     CShaderProgram();
@@ -46,8 +46,8 @@ class CShaderProgram : public CEngineBase
     void initUniforms();
 
     void bind() const;
-    void begin(const SShaderTechnique *technique, NRenderer::EMode mode = NRenderer::MODE_STANDARD) const; // mode for backdrop, etc...
-    void end(const SShaderTechnique *technique) const;
+    void begin(const SShaderState *technique, NRenderer::EMode mode = NRenderer::MODE_STANDARD) const; // mode for backdrop, etc...
+    void end(const SShaderState *technique) const;
     void unbind() const;
     void dispatch(uint32 x, uint32 y, uint32 z, NRenderer::EMode mode, GLbitfield preSync = GL_NONE, GLbitfield postSync = GL_NONE) const;
 
@@ -109,14 +109,14 @@ inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint
     context->getMaps()->unbind(uniform, sampler, format);
 }
 //------------------------------------------------------------------------------
-inline void CShaderProgram::beginLPV(NShader::ESampler startDepthSampler) const
+inline void CShaderProgram::beginLPV(NShader::ESamplerTex startDepthSampler) const
 {
   const SShaderUniforms *u = &program.uniforms;
   const CMap *const lpvMaps[] = { u->lpvGs0MapR, u->lpvGs0MapG, u->lpvGs0MapB, u->gvGs0Map, u->lpvGs1MapR, u->lpvGs1MapG, u->lpvGs1MapB, u->gvGs1Map };
   const uint32 i = (!context->engineGetEngine()->lpvPropagationSwap) ? 0 : 4;
   uint32 filter = NMap::FORMAT_LINEAR;
 
-  if(startDepthSampler == NShader::SAMPLER_LPV_PROPAGATION_GEOMETRY_LPV_R)
+  if(startDepthSampler == NShader::SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_R)
   {
     filter = NMap::FORMAT;
     setSampler(lpvMaps[i + 3], u->gvTex, startDepthSampler + 4, filter | NMap::FORMAT_BORDER);

@@ -29,7 +29,6 @@ namespace NModel
   static const uint8 VERTEX_PNTTC_OFFSET_NORMAL_TANGENT = 6;
   //static const uint8 VERTEX_PNTTC_OFFSET_NORMAL_BITANGENT = 9;
   static const uint8 VERTEX_PNTTC_OFFSET_TEX_COORD = 9; // 12
-  static const uint8 VERTEX_PNTTC_OFFSET_TEX_COORD0 = 3;
   static const uint8 VERTEX_PNTTC_OFFSET_COLOR = 11; // 14
 
   static const uint8 VERTEX_SIZE_F = 1;

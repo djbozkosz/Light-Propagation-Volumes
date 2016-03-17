@@ -1,7 +1,9 @@
 #version 150
 precision lowp float;
 
+#ifdef DIF_TEX
 in vec2 texCoord;
+#endif
 
 #ifdef DIF_TEX
 uniform sampler2D difTex;
@@ -11,9 +13,7 @@ out float glFragColor;
 
 void main()
 {
-#ifndef DIF_TEX
-  vec2 t = texCoord; // unused
-#else
+#ifdef DIF_TEX
   if(texture(difTex, texCoord).a < 0.8)
     discard;
 #endif

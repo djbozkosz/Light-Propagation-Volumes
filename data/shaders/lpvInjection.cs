@@ -19,7 +19,7 @@ uniform vec3 lightPos;
 
 uniform vec4 fragSize;
 uniform vec4 lpvPos;
-uniform vec3 lpvSize;
+uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize;
 
 void main()
@@ -31,12 +31,12 @@ void main()
   {
     vec3 pos = imageLoad(fragPos, ivec2(x, y)).xyz;
     vec3 l = imageLoad(fragColor, ivec2(x, y)).rgb;
-    //vec3 s = 1.0 / (lpvCellSize * lpvSize); // self illum shift
+    //vec3 s = 1.0 / (lpvCellSize * lpvTexSize); // self illum shift
 
     if((pos.x != 0.0) && (pos.y != 0.0) && (pos.z != 0.0) && (l.x != 0.0) && (l.y != 0.0) && (l.z != 0.0))
     {
       vec3 n = normalize(imageLoad(fragNormal, ivec2(x, y)).xyz);
-      pos += /*n * s * 0.5 +*/ lpvSize * 0.5;
+      pos += /*n * s * 0.5 +*/ lpvTexSize * 0.5;
       float d = max(0.0, dot(n, normalize(lightPos)));
       vec3 f = l / 3.14 * d;
 

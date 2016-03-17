@@ -221,7 +221,9 @@ void CWindow::initializeGL()
         NShader::STR_FRAGMENT_SHADER_LIST[NShader::PROGRAM_FRAGMENT_SHADER_LIST[p]][1])),
       (NShader::PROGRAM_COMPUTE_SHADER_LIST[p] == -1) ? NULL : s->getShader(CStr(NShader::STR_SHADER_NAME,
         NShader::STR_COMPUTE_SHADER_LIST[NShader::PROGRAM_COMPUTE_SHADER_LIST[p]][0],
-        NShader::STR_COMPUTE_SHADER_LIST[NShader::PROGRAM_COMPUTE_SHADER_LIST[p]][1]))));
+        NShader::STR_COMPUTE_SHADER_LIST[NShader::PROGRAM_COMPUTE_SHADER_LIST[p]][1])),
+      NShader::PROGRAM_ATTRIBS_LIST[p], NShader::PROGRAM_UNIFORMS_LIST[p], NShader::PROGRAM_SAMPLERS_LIST[p], NShader::PROGRAM_RENDER_STATES_LIST[p]
+      ));
 
 /*#ifdef ENV_QT
   emit onInitializeFinishGL();

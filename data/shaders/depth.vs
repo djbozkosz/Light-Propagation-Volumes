@@ -2,7 +2,9 @@
 precision lowp float;
 
 in vec3 _vertexPosition;
+#ifdef DIF_TEX
 in vec2 _vertexTexCoord;
+#endif
 
 #ifndef GS_CASCADE
 uniform mat4 mvp;
@@ -16,10 +18,14 @@ flat out int instanceID;
 void main()
 {
 #ifndef GS_CASCADE
+#ifdef DIF_TEX
   texCoord = _vertexTexCoord;
+#endif
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 #else
+#ifdef DIF_TEX
   _texCoord = _vertexTexCoord;
+#endif
   instanceID = gl_InstanceID;
   gl_Position = vec4(_vertexPosition, 1.0);
 #endif

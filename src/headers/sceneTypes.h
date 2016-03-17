@@ -63,7 +63,7 @@ struct SSceneModel
   CModel *model;
   SBoundingBox aabb;
   bool backdrop;
-  std::list<std::list<SShaderTechnique> > meshes; // lods, meshes
+  std::list<std::list<SShaderState> > meshes; // lods, meshes
 
   inline SSceneModel() : model(NULL), backdrop(false) {}
   inline SSceneModel(CModel *model, bool backdrop = false) : model(model), backdrop(backdrop) {}

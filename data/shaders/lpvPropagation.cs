@@ -15,7 +15,7 @@ layout(r32i) uniform image3D lpvOutImgG;
 layout(r32i) uniform image3D lpvOutImgB;
 
 uniform vec4 lpvPos;
-uniform vec3 lpvSize;
+uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize;
 
 void main()
@@ -38,7 +38,7 @@ void main()
 
   const uint x = gl_GlobalInvocationID.x;
   const uint y = gl_GlobalInvocationID.y;
-  const uvec3 s = uvec3(lpvSize);
+  const uvec3 s = uvec3(lpvTexSize);
 
   if((x < (s.x * s.y)) && (y < s.z))
   {

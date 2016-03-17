@@ -11,13 +11,13 @@ layout(r32i) uniform image3D lpv1ImgG;
 layout(r32i) uniform image3D lpv1ImgB;
 layout(r32i) uniform image3D gvImgA0;
 
-uniform vec3 lpvSize;
+uniform vec3 lpvTexSize;
 
 void main()
 {
   const uint x = gl_GlobalInvocationID.x;
   const uint y = gl_GlobalInvocationID.y;
-  const uvec3 s = uvec3(lpvSize);
+  const uvec3 s = uvec3(lpvTexSize);
 
   if((x < (s.x * s.y)) && (y < s.z))
   {

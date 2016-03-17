@@ -31,6 +31,15 @@ mvp shad cas
 mvp geom
 mvp geom cas
 mvpsb shadow bias
+type
+opacity
+shadow tex size
+lamb pick color
+lamp geo, lpos geo
+lamb, lpos
+lrange, lcolor, lspec, frange, fcolor
+geomsize
+lpvpos, lpvsize, lpvcellsize, lpvparams
 
 samplers:
 depth color key
@@ -50,3 +59,9 @@ gs prop
 cs clean
 cs inject
 cs prop
+
+gl states:
+blend
+culling
+polygon offset
+depth mask
