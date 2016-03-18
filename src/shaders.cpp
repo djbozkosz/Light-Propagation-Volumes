@@ -14,10 +14,10 @@ CShader::~CShader()
 {
 }
 //------------------------------------------------------------------------------
-void CShader::compile()
+bool CShader::compile()
 {
   if(shader.type == NShader::TYPE_UNDEFINED)
-    return;
+    return false;
 
   COpenGL *gl = context->getOpenGL();
   const GLenum shaderType = NShader::TYPE_SHADERS[shader.type];
@@ -32,16 +32,17 @@ void CShader::compile()
      ((shader.type == NShader::TYPE_COMPUTE) && (platform < NEngine::GPU_PLATFORM_GL0403)))
   {
     context->log(CStr(NShader::STR_ERROR_COMPILE_SKIP, shader.name.c_str()));
-    return;
+    return false;
   }
 
   CFile *f = context->getFilesystem()->open(SFile(std::string(NFile::STR_DATA_SHADERS)+shader.file));
 
   if(!f)
-    return;
+    return false;
 
   std::string data(f->size(), ' ');
   f->read(&data[0], data.length());
+  f->close();
 
   if(context->engineGetEngine()->gpuPlatform == NEngine::GPU_PLATFORM_GL0200_ES)
     data = setES2compatible(data);
@@ -69,9 +70,12 @@ void CShader::compile()
     context->log(CStr(NShader::STR_WARNING_COMPILE, shader.name.c_str(), log.c_str()));
 
   if(status == NOpenGL::FALSE)
+  {
     context->engineShowMessage(CStr(NShader::STR_ERROR_COMPILE, shader.name.c_str()), log.c_str(), false);
+    return false;
+  }
 
-  f->close();
+  return true;
 }
 //------------------------------------------------------------------------------
 std::string CShader::setES2compatible(const std::string &data)
@@ -157,7 +161,7 @@ CShaderProgram::~CShaderProgram()
 {
 }
 //------------------------------------------------------------------------------
-void CShaderProgram::link()
+bool CShaderProgram::link()
 {
   /*context->log(CStr("%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n", NShader::STR_PROGRAM_LIST[program.name],
     (program.vertexShader) ? program.vertexShader->getShader()->name.c_str() : "NULL",
@@ -173,17 +177,16 @@ void CShaderProgram::link()
   std::string log;
   const NEngine::EGPUPlatform platform = context->engineGetEngine()->gpuPlatform;
 
-  program.program = gl->createProgram();
-
   if(((program.tesselationControlShader) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
      ((program.tesselationEvaluationShader) && (platform < NEngine::GPU_PLATFORM_GL0400)) ||
      ((program.geometryShader) && (platform < NEngine::GPU_PLATFORM_GL0302)) ||
      ((program.computeShader) && (platform < NEngine::GPU_PLATFORM_GL0403)))
   {
     context->log(CStr(NShader::STR_ERROR_LINK_SKIP, NShader::STR_PROGRAM_LIST[program.name]));
-    return;
+    return false;
   }
 
+  program.program = gl->createProgram();
   if(program.vertexShader)
     gl->attachShader(program.program, program.vertexShader->getShader()->shader);
   if(program.tesselationControlShader)
@@ -217,7 +220,12 @@ void CShaderProgram::link()
 #endif
 
   if(status == NOpenGL::FALSE)
+  {
     context->engineShowMessage(CStr(NShader::STR_ERROR_LINK, NShader::STR_PROGRAM_LIST[program.name]), log.c_str(), false);
+    return false;
+  }
+
+  return true;
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::initUniforms()

@@ -21,7 +21,7 @@ class CShader : public CEngineBase
     CShader(CContext *context, const SShader &shader);
     ~CShader();
 
-    void compile();
+    bool compile();
 
     std::string setES2compatible(const std::string &data);
     std::string setDefines(const std::string &data);
@@ -42,7 +42,7 @@ class CShaderProgram : public CEngineBase
     CShaderProgram(CContext *context, const SShaderProgram &shaderProgram);
     ~CShaderProgram();
 
-    void link();
+    bool link();
     void initUniforms();
 
     void bind() const;
@@ -95,8 +95,8 @@ inline CShaderProgram *CShaders::addShaderProgram(const SShaderProgram &shaderPr
 
   programs[shaderProgram.name] = CShaderProgram(context, shaderProgram);
   sp = getProgram(shaderProgram.name);
-  sp->link();
-  sp->initUniforms();
+  if(sp->link())
+    sp->initUniforms();
 
   return sp;
 }

@@ -288,7 +288,7 @@ void CWindow::paintGL()
       fboShadow->bind();
       gl->clear(NOpenGL::DEPTH_BUFFER_BIT);
 
-      ren->setMode(NRenderer::MODE_DEPTH);
+      ren->setMode(NRenderer::MODE_DEPTH_CASCADE);
       s->render();
       ren->dispatch();
       ren->clearGroups();
