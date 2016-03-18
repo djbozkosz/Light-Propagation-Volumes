@@ -917,7 +917,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
   const SCamera *c = context->getCamera()->getCamera();
 
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
-  bool mergedMeshes = ((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH)) ? true : false;
+  bool mergedMeshes = ((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE)) ? true : false;
   auto soMesh = sceneModel->meshes.cbegin();
 
   for(auto it = model.meshes.cbegin(); it != model.meshes.cend(); it++, soMesh++)
@@ -932,9 +932,11 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
       continue;
 
     soLod->mvp = c->viewProjection * soLod->mw;
-    if(mode == NRenderer::MODE_DEPTH)
+    if((mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE))
     {
-      for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
+      const uint32 c = (mode == NRenderer::MODE_DEPTH) ? 1 : NEngine::SHADOW_CASCADES_COUNT;
+
+      for(uint32 i = 0; i < c; i++)
       {
         const glm::mat4 shadowMvp(e->shadowViewProj[i] * soLod->mw);
         const glm::mat4 shadowMvpBias(glm::mat4(0.5f, 0.0f, 0.0f, 0.0f,   0.0f, 0.5f, 0.0f, 0.0f,   0.0f, 0.0f, 0.5f, 0.0f,   0.5f, 0.5f, 0.5f, 1.0f) * shadowMvp);
@@ -942,9 +944,11 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
         memcpy(&soLod->mvpsb[NMath::MAT4 * i], glm::value_ptr(shadowMvpBias), sizeof(float) * NMath::MAT4);
       }
     }
-    else if(mode == NRenderer::MODE_GEOMETRY)
+    else if((mode == NRenderer::MODE_GEOMETRY) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
     {
-      for(uint32 i = 0; i < (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT); i++)
+      const uint32 c = (mode == NRenderer::MODE_GEOMETRY) ? 1 : (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT);
+
+      for(uint32 i = 0; i < c; i++)
       {
         const glm::mat4 geometryMvp(e->geometryViewProj[i] * soLod->mw);
         memcpy(&soLod->mvpg[NMath::MAT4 * i], glm::value_ptr(geometryMvp), sizeof(float) * NMath::MAT4);

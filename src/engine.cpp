@@ -32,7 +32,22 @@ CEngine::CEngine(
   //engine.lpvIntensity = 1.0f;
 
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
-  context.setEngineCallbacks(&staticInitialize, &staticInitializeFinish, &staticShowMessage, &staticSetPlatform, &staticIncDrawCalls, &staticClearDrawCalls, &staticSwapLPV, &staticGetClassName, &staticGetEngine);
+  context.setEngineCallbacks(
+    &staticInitialize,
+    &staticInitializeFinish,
+    &staticShowMessage,
+    &staticSetPlatform,
+    &staticIncDrawCalls,
+    &staticClearDrawCalls,
+    &setShadowViewProj,
+    &setGeometryViewProj,
+    &setSunSkyPose,
+    &setSunSkyColor,
+    &setLpvPose,
+    &setLpvPoseOut,
+    &staticSwapLPV,
+    &staticGetClassName,
+    &staticGetEngine);
 
   window = new CWindow(&context
 #ifdef ENV_QT
@@ -394,6 +409,11 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFERS)
   {
     engine.showGeometryBuffer = !engine.showGeometryBuffer;
+    window->repaint();
+  }
+  else if(key & NEngine::KEY_SHOW_SHADOW_BUFFERS)
+  {
+    engine.showShadowBuffer = !engine.showShadowBuffer;
     window->repaint();
   }
 

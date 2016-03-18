@@ -237,7 +237,7 @@ void CWindow::paintGL()
   CRenderer *ren = CEngineBase::context->getRenderer();
   //CShaders *sh = CEngineBase::context->getShaders();
   //CMaps *maps = CEngineBase::context->getMaps();
-  //CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
+  CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CCamera *cam = CEngineBase::context->getCamera();
   CCulling *cul = CEngineBase::context->getCulling();
   const SCamera *c = cam->getCamera();
@@ -265,21 +265,43 @@ void CWindow::paintGL()
     ren->dispatch();
     ren->clearGroups();
 
-    // shadows
-    /*CFramebuffer *fboShadow = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
+    CFramebuffer *fboShadow = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
+    CFramebuffer *fboGeometry = fbo->getFramebuffer(NEngine::STR_GEOMETRY_FBO);
     CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
+
     if((fboShadow) && (sun))
-    {
+    { // shadow map
       for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
       {
         const float clipSide = NEngine::SHADOW_CASCADES_CLIPS[i * NMath::VEC2 + 0];
         const float clipDepth = NEngine::SHADOW_CASCADES_CLIPS[i * NMath::VEC2 + 1];
         const glm::vec2 sunRot(sun->getObject()->rotation.y, sun->getObject()->rotation.z);
 
-        cam->setRange(-clipDepth, clipDepth, -clipSide, clipSide, clipSide, -clipSide);
-        cam->setGridAlignedOrthoTransform(pos, sunRot, (clipSide * 2.0) / static_cast<float>(e->shadowTextureSize));
+        cam->setRange(-clipDepth, clipDepth, -clipSide, clipSide, clipSide, -clipSide); // sets orthographic projection
+        cam->setGridAlignedOrthoTransform(pos, sunRot, (clipSide * 2.0f) / static_cast<float>(e->shadowTextureSize));
+        CEngineBase::context->engineSetShadowViewProj(i, c->viewProjection);
+
+        if((i == (NEngine::SHADOW_CASCADES_COUNT - 1)) && (e->updateFrustum))
+          cul->updateFrustum();
       }
-    }*/
+
+      fboShadow->bind();
+      gl->clear(NOpenGL::DEPTH_BUFFER_BIT);
+
+      ren->setMode(NRenderer::MODE_DEPTH);
+      s->render();
+      ren->dispatch();
+      ren->clearGroups();
+
+      fbo->unbind();
+      fboShadow->setChanged(false);
+    }
+
+    if((fboGeometry) && (sun))
+    { // geometry map
+      CEngineBase::context->engineSetSunSkyPose(0, glm::vec2(sun->getObject()->rotation.y, sun->getObject()->rotation.z));
+      CEngineBase::context->engineSetSunSkyColor(0, glm::vec3(sun->getLight()->color));
+    }
 
     /*CFramebuffer *fboShadow = fbo->getFramebuffer(NEngine::STR_SUN_SHADOW_FBO);
     CFramebuffer *fboGeometry = fbo->getFramebuffer(NEngine::STR_GEOMETRY_FBO);
@@ -388,19 +410,6 @@ void CWindow::paintGL()
     cam->setRange(clipNear, clipFar);
     if(e->updateFrustum)
       cul->updateFrustum();
-    
-    // geo camera
-    /*fboGeo->setCamera(*c);
-    fboGeo->bind();
-    gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
-
-    ren->setMode(NRenderer::MODE_LPV_INJECTION);
-    s->render();
-    ren->dispatch();
-    ren->clearGroups();
-
-    fbo->unbind();
-    fboGeo->setChanged(false);*/
 
     // standard
     ren->setMode(NRenderer::MODE_STANDARD);
@@ -408,14 +417,20 @@ void CWindow::paintGL()
     ren->dispatch();
     ren->clearGroups();
 
-    /*if((fboGeometry) && (e->showGeometryBuffer))
+    if((fboShadow) && (e->showShadowBuffer))
     {
       const float r = c->height / c->width;
-      drawTexture(fboGeo->getFrameBuffer()->attachments[0].map->getMap()->texture, 0.0f, 0.0f, 0.333f * r, 0.333f);
-      drawTexture(fboGeo->getFrameBuffer()->attachments[1].map->getMap()->texture, 0.0f, 0.333f, 0.333f * r, 0.333f);
-      drawTexture(fboGeo->getFrameBuffer()->attachments[2].map->getMap()->texture, 0.0f, 0.666f, 0.333f * r, 0.333f);
-      //drawTexture(fboGeo->getFrameBuffer()->attachments[3].map->getMap()->texture, 0.0f, 0.666f, 0.333f * r, 0.333f, true);
-    }*/
+      drawTexture(fboShadow->getFrameBuffer()->attachments[0].map->getMap()->texture, NOpenGL::TEXTURE_2D_ARRAY, 0.0f, 0.0f, 0.0f, 0.333f * r, 0.333f, true);
+    }
+
+    if((fboGeometry) && (e->showGeometryBuffer))
+    {
+      const float r = c->height / c->width;
+      drawTexture(fboGeometry->getFrameBuffer()->attachments[0].map->getMap()->texture, NOpenGL::TEXTURE_2D_ARRAY, 0.0f, 0.0f, 0.0f, 0.333f * r, 0.333f);
+      drawTexture(fboGeometry->getFrameBuffer()->attachments[1].map->getMap()->texture, NOpenGL::TEXTURE_2D_ARRAY, 0.0f, 0.0f, 0.333f, 0.333f * r, 0.333f);
+      drawTexture(fboGeometry->getFrameBuffer()->attachments[2].map->getMap()->texture, NOpenGL::TEXTURE_2D_ARRAY, 0.0f, 0.0f, 0.666f, 0.333f * r, 0.333f);
+      //drawTexture(fboGeo->getFrameBuffer()->attachments[3].map->getMap()->texture, NOpenGL::TEXTURE_2D_ARRAY, 0.0f, 0.0f, 0.666f, 0.333f * r, 0.333f, true);
+    }
   }
 
   std::string title = CStr(
@@ -512,22 +527,22 @@ NEngine::EKey CWindow::getKey(int32 key) const
   return it->second;
 }
 //------------------------------------------------------------------------------
-void CWindow::drawTexture(GLuint texture, float x, float y, float w, float h, bool isShadow)
+void CWindow::drawTexture(GLuint texture, GLenum type, float level, float x, float y, float w, float h, bool isShadow)
 {
   COpenGL *gl = CEngineBase::context->getOpenGL();
 
   gl->useProgram(0);
-  gl->enable(NOpenGL::TEXTURE_2D);
+  gl->enable(type);
   gl->activeTexture(NOpenGL::TEXTURE3);
-  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->bindTexture(type, 0);
   gl->activeTexture(NOpenGL::TEXTURE2);
-  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->bindTexture(type, 0);
   gl->activeTexture(NOpenGL::TEXTURE1);
-  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
+  gl->bindTexture(type, 0);
   gl->activeTexture(NOpenGL::TEXTURE0);
-  gl->bindTexture(NOpenGL::TEXTURE_2D, texture);
+  gl->bindTexture(type, texture);
   if(isShadow)
-    gl->texParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);
+    gl->texParameteri(type, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);
   //gl->depthMask(NOpenGL::FALSE);
   gl->disable(NOpenGL::DEPTH_TEST);
   gl->disable(NOpenGL::BLEND);
@@ -536,22 +551,22 @@ void CWindow::drawTexture(GLuint texture, float x, float y, float w, float h, bo
 
   glBegin(NOpenGL::QUADS);
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-  glTexCoord2f(0.0f, 1.0f);
+  glTexCoord3f(0.0f, 1.0f, level);
   glVertex3f(vx[0], vx[1], 1.0f);
-  glTexCoord2f(1.0f, 1.0f);
+  glTexCoord3f(1.0f, 1.0f, level);
   glVertex3f(vx[2], vx[1], 1.0f);
-  glTexCoord2f(1.0f, 0.0f);
+  glTexCoord3f(1.0f, 0.0f, level);
   glVertex3f(vx[2], vx[3], 1.0f);
-  glTexCoord2f(0.0f, 0.0f);
+  glTexCoord3f(0.0f, 0.0f, level);
   glVertex3f(vx[0], vx[3], 1.0f);
   glEnd();
 
   if(isShadow)
-    gl->texParameteri(NOpenGL::TEXTURE_2D, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);
-  gl->bindTexture(NOpenGL::TEXTURE_2D, 0);
+    gl->texParameteri(type, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::COMPARE_REF_TO_TEXTURE);
+  gl->bindTexture(type, 0);
   //gl->depthMask(NOpenGL::TRUE);
   gl->enable(NOpenGL::DEPTH_TEST);
-  gl->disable(NOpenGL::TEXTURE_2D);
+  gl->disable(type);
 }
 //------------------------------------------------------------------------------
 //test debug, don't panic !

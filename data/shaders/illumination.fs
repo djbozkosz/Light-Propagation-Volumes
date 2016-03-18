@@ -33,7 +33,7 @@ uniform sampler2D speTex;
 uniform sampler2D norTex;
 #endif
 #ifdef SHAD_TEX
-uniform sampler2DShadow shadTex;
+uniform sampler2DArrayShadow shadTex;
 uniform sampler3D lpvTexR;
 uniform sampler3D lpvTexG;
 uniform sampler3D lpvTexB;
@@ -132,9 +132,7 @@ void main()
   float depthVis = 1.0;
 #else
 //#ifndef SHADOW_JITTER
-  float depthVis = texture(shadTex, shadowCoord[0]);
-  depthVis = 1.0;
-  // debug
+  float depthVis = texture(shadTex, vec4(shadowCoord[0].x, shadowCoord[0].y, 0.0, shadowCoord[0].z));
 /*#else
   float depthVis = 0.0;
   const int jitterSamples = 8;

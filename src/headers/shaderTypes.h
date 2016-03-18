@@ -11,7 +11,7 @@ namespace NShader
   static const uint32 VERTEX_SHADERS_COUNT = 14;
   static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 0;
   static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 0;
-  static const uint32 GEOMETRY_SHADERS_COUNT = 5;
+  static const uint32 GEOMETRY_SHADERS_COUNT = 6;
   static const uint32 FRAGMENT_SHADERS_COUNT = 20;
   static const uint32 COMPUTE_SHADERS_COUNT = 4;
   static const uint32 PROGRAMS_COUNT = 28;
@@ -179,6 +179,7 @@ namespace NShader
   static const char *const STR_GEOMETRY_SHADER_LIST[][2] =
   {
     { STR_GEOMETRY_DEPTH, "" },
+    { STR_GEOMETRY_DEPTH, "DIF_TEX" },
     { STR_GEOMETRY_GEOMETRY, "" },
     { STR_GEOMETRY_LPV_INJECTION, "" },
     { STR_GEOMETRY_LPV_PROPAGATION, "" },
@@ -253,11 +254,11 @@ namespace NShader
   static const int32 PROGRAM_GEOMETRY_SHADER_LIST[] =
   {
     -1,
-    -1, -1, 0, 0,
+    -1, -1, 0, 1,
     -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, 1,
-    2, 3, 4,
+    -1, 2,
+    3, 4, 5,
     -1, -1, -1, -1
   };
 

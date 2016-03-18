@@ -9,9 +9,13 @@ in vec2 _vertexTexCoord;
 #ifndef GS_CASCADE
 uniform mat4 mvp;
 
+#ifdef DIF_TEX
 out vec2 texCoord;
+#endif
 #else
+#ifdef DIF_TEX
 out vec2 _texCoord;
+#endif
 flat out int instanceID;
 #endif
 

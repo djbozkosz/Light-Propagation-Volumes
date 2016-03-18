@@ -49,7 +49,7 @@ namespace NEngine
 
   static const float SHADOW_CASCADES_CLIPS[SHADOW_CASCADES_COUNT * NMath::VEC2] =
   {
-    10.0f, 50.0f
+    2.0f, 50.0f
     /*2.0f, 50.0f, // side, depth
     5.0f, 100.0f,
     10.0f, 150.0f,
@@ -67,6 +67,16 @@ namespace NEngine
     25.0f * LPV_CUBE_LENGTH, 200.0f,
     80.0f * LPV_CUBE_LENGTH, 250.0f,
     160.0f * LPV_CUBE_LENGTH, 300.0f*/
+  };
+
+  static const float SUN_SKY_POSES[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2] =
+  {
+    0.0f, 0.0f
+  };
+
+  static const float SUN_SKY_COLORS[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3] =
+  {
+    0.0f, 0.0f, 0.0f
   };
 
   static const float LPV_CELL_SIZES[LPV_CASCADES_COUNT * NMath::VEC3] =
@@ -363,8 +373,8 @@ struct SEngine
 #endif
     waitForFlushTimers(false)
   {
-    memset(sunSkyPoses, 0, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2);
-    memset(sunSkyColors, 0, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3);
+    memcpy(sunSkyPoses, NEngine::SUN_SKY_POSES, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2);
+    memcpy(sunSkyColors, NEngine::SUN_SKY_COLORS, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3);
     memset(lpvPosesOut, 0, sizeof(float) * NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
 
     for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)

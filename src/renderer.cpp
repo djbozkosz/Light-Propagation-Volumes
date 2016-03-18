@@ -21,8 +21,12 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
     meshes[NShader::PROGRAM_COLOR].push_back(mesh);
   else if(renderer.mode == NRenderer::MODE_DEPTH)
     meshes[NShader::PROGRAM_DEPTH].push_back(mesh);
+  else if(renderer.mode == NRenderer::MODE_DEPTH_CASCADE)
+    meshes[NShader::PROGRAM_DEPTH_CASCADE].push_back(mesh);
   else if(renderer.mode == NRenderer::MODE_GEOMETRY)
     meshes[NShader::PROGRAM_GEOMETRY].push_back(mesh);
+  else if(renderer.mode == NRenderer::MODE_GEOMETRY_CASCADE)
+    meshes[NShader::PROGRAM_GEOMETRY_CASCADE].push_back(mesh);
   else if((mesh.material) && (mesh.material->program))
   {
     NShader::EProgram p = mesh.material->program->getProgram()->name;
@@ -48,33 +52,22 @@ void CRenderer::dispatch() const
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
   {
-    const NShader::EProgram p = static_cast<NShader::EProgram>(i);
+    const CShaderProgram *prog = context->getShaders()->getProgram(static_cast<NShader::EProgram>(i));
+    const SShaderProgram *p = prog->getProgram();
     bool twoSided = false;
 
-    if((p == NShader::PROGRAM_COLOR) || ((p >= NShader::PROGRAM_DEPTH) && (p <= NShader::PROGRAM_DEPTH_CASCADE_COLOR_KEY)))
+    if(p->fRenderStates & NShader::REN_STATE_CULL)
     {
       twoSided = true;
       gl->disable(NOpenGL::CULL_FACE);
+    }
+    if(p->fRenderStates & NShader::REN_STATE_POLYOF)
+    {
       gl->enable(NOpenGL::POLYGON_OFFSET_FILL);
       gl->polygonOffset(context->engineGetEngine()->shadowJittering * 0.5f + 1.5f, 1.0f);
     }
-    else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_GEOMETRY_CASCADE))
-    {
-      twoSided = true;
-      gl->disable(NOpenGL::CULL_FACE);
-    }
-    else if((p == NShader::PROGRAM_BASIC_ALPHA) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW_JITTER) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
-            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW) ||
-            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER))
-      glEnable(NOpenGL::BLEND);
-    /*if(p == NShader::PROGRAM_GUI_TEXT)
-      gl->depthMask(NOpenGL::FALSE);*/
-
-    const CShaderProgram *prog = context->getShaders()->getProgram(static_cast<NShader::EProgram>(i));
+    if(p->fRenderStates & NShader::REN_STATE_BLEND)
+      gl->enable(NOpenGL::BLEND);
 
     prog->bind();
 
@@ -105,24 +98,15 @@ void CRenderer::dispatch() const
       gl->bindBuffer(NOpenGL::ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    if((p == NShader::PROGRAM_COLOR) || ((p >= NShader::PROGRAM_DEPTH) && (p <= NShader::PROGRAM_DEPTH_CASCADE_COLOR_KEY)))
+    if(p->fRenderStates & NShader::REN_STATE_CULL)
+      gl->enable(NOpenGL::CULL_FACE);
+    if(p->fRenderStates & NShader::REN_STATE_POLYOF)
     {
       gl->polygonOffset(0.0f, 0.0f);
       gl->disable(NOpenGL::POLYGON_OFFSET_FILL);
-      gl->enable(NOpenGL::CULL_FACE);
     }
-    else if((p >= NShader::PROGRAM_GEOMETRY) && (p <= NShader::PROGRAM_GEOMETRY_CASCADE))
-      gl->enable(NOpenGL::CULL_FACE);
-    else if((p == NShader::PROGRAM_BASIC_ALPHA) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW_JITTER) ||
-            (p == NShader::PROGRAM_ILLUMINATION_ALPHA) ||
-            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW) ||
-            (p == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER))
+    if(p->fRenderStates & NShader::REN_STATE_BLEND)
       gl->disable(NOpenGL::BLEND);
-    /*if(p == NShader::PROGRAM_GUI_TEXT)
-      gl->depthMask(NOpenGL::TRUE);*/
   }
 
   if(renderer.mode == NRenderer::MODE_BACKDROP)

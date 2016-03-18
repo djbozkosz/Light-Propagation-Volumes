@@ -47,6 +47,7 @@ void CShader::compile()
     data = setES2compatible(data);
   data = setDefines(data);
   const char *d = data.c_str();
+  //context->log(shader.name);
   //context->log(data);
 
   shader.shader = gl->createShader(shaderType);
@@ -58,7 +59,13 @@ void CShader::compile()
   log.resize(infoLength);
   if(infoLength)
     gl->getShaderInfoLog(shader.shader, infoLength, &infoLength, &log[0]);
-  if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
+  if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("no error") != std::string::npos))
+    log = CStr::replaceAll(log, "no error", "");
+  if((&log[0]) && (status == NOpenGL::TRUE) &&
+     ((log.find("warning") != std::string::npos) ||
+      (log.find("WARNING") != std::string::npos) ||
+      (log.find("error") != std::string::npos) ||
+      (log.find("ERROR") != std::string::npos)))
     context->log(CStr(NShader::STR_WARNING_COMPILE, shader.name.c_str(), log.c_str()));
 
   if(status == NOpenGL::FALSE)
@@ -114,13 +121,18 @@ std::string CShader::setES2compatible(const std::string &data)
 //------------------------------------------------------------------------------
 std::string CShader::setDefines(const std::string &data)
 {
-  const char *const startTokens[] = { "//#define ", "/*#define ", "#define ", "layout ", "in ", "uniform ", "out ", "void " };
+  const uint32 tokensCount = 9;
+  const char *const startTokens[] = { "//", "/*", "#if", "#define", "layout ", "in ", "uniform ", "out ", "void " };
+  uint32 tokenIndex[tokensCount];
   std::string d = data;
-  auto index = d.find(startTokens[0]);
+  uint32 index = std::string::npos;
 
-  for(uint32 i = 1; (i < 8) && (index == std::string::npos); index = d.find(startTokens[i++]));
-  if(index == std::string::npos)
-    index = 0;
+  for(uint32 i = 0; i < tokensCount; tokenIndex[i] = d.find(startTokens[i]), i++);
+  for(uint32 i = 0; i < tokensCount; i++)
+  {
+    if((index > tokenIndex[i]) && (tokenIndex[i] != std::string::npos))
+      index = tokenIndex[i];
+  }
 
   std::string defines;
   std::stringstream ss(shader.defines);
@@ -194,7 +206,13 @@ void CShaderProgram::link()
     gl->getProgramInfoLog(program.program, infoLength, &infoLength, &log[0]);
 
 #ifndef Q_OS_SYMBIAN
-  if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("warning") != std::string::npos))
+  if((&log[0]) && (status == NOpenGL::TRUE) && (log.find("no error") != std::string::npos))
+    log = CStr::replaceAll(log, "no error", "");
+  if((&log[0]) && (status == NOpenGL::TRUE) &&
+     ((log.find("warning") != std::string::npos) ||
+      (log.find("WARNING") != std::string::npos) ||
+      (log.find("error") != std::string::npos) ||
+      (log.find("ERROR") != std::string::npos)))
     context->log(CStr(NShader::STR_WARNING_LINK, NShader::STR_PROGRAM_LIST[program.name], log.c_str()));
 #endif
 

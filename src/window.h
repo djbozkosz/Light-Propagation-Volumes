@@ -47,7 +47,7 @@ class CWindow : public
 
   protected:
     virtual void paintGL();
-    void drawTexture(GLuint texture, float x, float y, float w, float h, bool isShadow = false);
+    void drawTexture(GLuint texture, GLenum type, float level, float x, float y, float w, float h, bool isShadow = false);
 
 #ifdef ENV_SDL
   public:

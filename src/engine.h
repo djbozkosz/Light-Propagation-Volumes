@@ -44,6 +44,12 @@ class CEngine
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
     static inline void staticSetPlatform(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { context->getEngine()->setPlatform(gpuPlatform, lpvMode, lpvTechnique); }
     static inline void staticClearDrawCalls(CContext *context) { context->getEngine()->clearDrawCalls(); }
+    static inline void setShadowViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setShadowViewProj(index, m); }
+    static inline void setGeometryViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setGeometryViewProj(index, m); }
+    static inline void setSunSkyPose(CContext *context, uint32 index, const glm::vec2 &v) { context->getEngine()->setSunSkyPose(index, v); }
+    static inline void setSunSkyColor(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setSunSkyColor(index, v); }
+    static inline void setLpvPose(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPose(index, v); }
+    static inline void setLpvPoseOut(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPoseOut(index, v); }
     static inline void staticSwapLPV(CContext *context) { context->getEngine()->swapLPV(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
     static inline const SEngine *staticGetEngine(const CContext *context) { return context->getEngine()->getEngine(); }
@@ -94,6 +100,12 @@ class CEngine
     inline void setPlatform(NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { engine.gpuPlatform = gpuPlatform; engine.lpvMode = lpvMode; engine.lpvTechnique = lpvTechnique; }
     inline void incDrawCalls() { engine.drawCalls++; }
     inline void clearDrawCalls() { engine.drawCalls = 0; }
+    inline void setShadowViewProj(uint32 index, const glm::mat4 &m) { engine.shadowViewProj[index] = m; }
+    inline void setGeometryViewProj(uint32 index, const glm::mat4 &m) { engine.geometryViewProj[index] = m; }
+    inline void setSunSkyPose(uint32 index, const glm::vec2 &v) { engine.sunSkyPoses[index * NMath::VEC2 + 0] = v.x; engine.sunSkyPoses[index * NMath::VEC2 + 1] = v.y; }
+    inline void setSunSkyColor(uint32 index, const glm::vec3 &v) { engine.sunSkyColors[index * NMath::VEC3 + 0] = v.x; engine.sunSkyColors[index * NMath::VEC3 + 1] = v.y; engine.sunSkyColors[index * NMath::VEC3 + 2] = v.z; }
+    inline void setLpvPose(uint32 index, const glm::vec3 &v) { engine.lpvPoses[index] = v; }
+    inline void setLpvPoseOut(uint32 index, const glm::vec3 &v) { engine.lpvPosesOut[index * NMath::VEC3 + 0] = v.x; engine.lpvPosesOut[index * NMath::VEC3 + 1] = v.y; engine.lpvPosesOut[index * NMath::VEC3 + 2] = v.z; }
     inline void swapLPV() { engine.lpvPropagationSwap = !engine.lpvPropagationSwap; }
     void updateTicks();
 

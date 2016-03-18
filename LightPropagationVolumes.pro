@@ -48,7 +48,6 @@ HEADERS += \
     src/matrix.h \
     src/vector.h \
     src/string.h \
-    src/headers/windowTypes.h \
     src/headers/sceneTypes.h \
     src/headers/modelTypes.h \
     src/headers/rendererTypes.h \

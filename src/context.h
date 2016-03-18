@@ -57,7 +57,13 @@ class CContext
     void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique);
     void (*fncEngineIncDrawCalls)(CContext *context);
     void (*fncEngineClearDrawCalls)(CContext *context);
-    void(*fncEngineSwapLPV)(CContext *context);
+    void (*fncEngineSetShadowViewProj)(CContext *context, uint32 index, const glm::mat4 &m);
+    void (*fncEngineSetGeometryViewProj)(CContext *context, uint32 index, const glm::mat4 &m);
+    void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec2 &v);
+    void (*fncEngineSetSunSkyColor)(CContext *context, uint32 index, const glm::vec3 &v);
+    void (*fncEngineSetLpvPose)(CContext *context, uint32 index, const glm::vec3 &v);
+    void (*fncEngineSetLpvPoseOut)(CContext *context, uint32 index, const glm::vec3 &v);
+    void (*fncEngineSwapLPV)(CContext *context);
     std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object);
     const SEngine *(*fncEngineGetEngine)(const CContext *context);
 
@@ -84,6 +90,12 @@ class CContext
       fncEngineSetPlatform(NULL),
       fncEngineIncDrawCalls(NULL),
       fncEngineClearDrawCalls(NULL),
+      fncEngineSetShadowViewProj(NULL),
+      fncEngineSetGeometryViewProj(NULL),
+      fncEngineSetSunSkyPose(NULL),
+      fncEngineSetSunSkyColor(NULL),
+      fncEngineSetLpvPose(NULL),
+      fncEngineSetLpvPoseOut(NULL),
       fncEngineSwapLPV(NULL),
       fncEngineGetClassName(NULL),
       fncEngineGetEngine(NULL) {}
@@ -124,6 +136,12 @@ class CContext
         fncEngineSetPlatform(NULL),
         fncEngineIncDrawCalls(NULL),
         fncEngineClearDrawCalls(NULL),
+        fncEngineSetShadowViewProj(NULL),
+        fncEngineSetGeometryViewProj(NULL),
+        fncEngineSetSunSkyPose(NULL),
+        fncEngineSetSunSkyColor(NULL),
+        fncEngineSetLpvPose(NULL),
+        fncEngineSetLpvPoseOut(NULL),
         fncEngineSwapLPV(NULL),
         fncEngineGetClassName(NULL),
         fncEngineGetEngine(NULL) {}
@@ -169,19 +187,31 @@ class CContext
       void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique),
       void (*fncEngineIncDrawCalls)(CContext *context),
       void (*fncEngineClearDrawCalls)(CContext *context),
+      void (*fncEngineSetShadowViewProj)(CContext *context, uint32 index, const glm::mat4 &m),
+      void (*fncEngineSetGeometryViewProj)(CContext *context, uint32 index, const glm::mat4 &m),
+      void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec2 &v),
+      void (*fncEngineSetSunSkyColor)(CContext *context, uint32 index, const glm::vec3 &v),
+      void (*fncEngineSetLpvPose)(CContext *context, uint32 index, const glm::vec3 &v),
+      void (*fncEngineSetLpvPoseOut)(CContext *context, uint32 index, const glm::vec3 &v),
       void (*fncEngineSwapLPV)(CContext *context),
       std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object),
       const SEngine *(*fncEngineGetEngine)(const CContext *context))
     {
-      if(fncInitialize)           this->fncInitialize = fncInitialize;
-      if(fncInitializeFinish)     this->fncInitializeFinish = fncInitializeFinish;
-      if(fncEngineShowMessage)    this->fncEngineShowMessage = fncEngineShowMessage;
-      if(fncEngineSetPlatform)    this->fncEngineSetPlatform = fncEngineSetPlatform;
-      if(fncEngineIncDrawCalls)   this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
-      if(fncEngineClearDrawCalls) this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
-      if(fncEngineSwapLPV)        this->fncEngineSwapLPV = fncEngineSwapLPV;
-      if(fncEngineGetClassName)   this->fncEngineGetClassName = fncEngineGetClassName;
-      if(fncEngineGetEngine)      this->fncEngineGetEngine = fncEngineGetEngine;
+      if(fncInitialize)             this->fncInitialize = fncInitialize;
+      if(fncInitializeFinish)       this->fncInitializeFinish = fncInitializeFinish;
+      if(fncEngineShowMessage)      this->fncEngineShowMessage = fncEngineShowMessage;
+      if(fncEngineSetPlatform)      this->fncEngineSetPlatform = fncEngineSetPlatform;
+      if(fncEngineIncDrawCalls)     this->fncEngineIncDrawCalls = fncEngineIncDrawCalls;
+      if(fncEngineClearDrawCalls)   this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
+      if(fncEngineSetShadowViewProj)   this->fncEngineSetShadowViewProj = fncEngineSetShadowViewProj;
+      if(fncEngineSetGeometryViewProj) this->fncEngineSetGeometryViewProj = fncEngineSetGeometryViewProj;
+      if(fncEngineSetSunSkyPose)       this->fncEngineSetSunSkyPose = fncEngineSetSunSkyPose;
+      if(fncEngineSetSunSkyColor)      this->fncEngineSetSunSkyColor = fncEngineSetSunSkyColor;
+      if(fncEngineSetLpvPose)          this->fncEngineSetLpvPose = fncEngineSetLpvPose;
+      if(fncEngineSetLpvPoseOut)       this->fncEngineSetLpvPoseOut = fncEngineSetLpvPoseOut;
+      if(fncEngineSwapLPV)          this->fncEngineSwapLPV = fncEngineSwapLPV;
+      if(fncEngineGetClassName)     this->fncEngineGetClassName = fncEngineGetClassName;
+      if(fncEngineGetEngine)        this->fncEngineGetEngine = fncEngineGetEngine;
     }
 //------------------------------------------------------------------------------
 
@@ -192,6 +222,12 @@ class CContext
     inline void engineSetPlatform(NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { if(fncEngineSetPlatform) fncEngineSetPlatform(this, gpuPlatform, lpvMode, lpvTechnique); }
     inline void engineIncDrawCalls() { if(fncEngineIncDrawCalls) fncEngineIncDrawCalls(this); }
     inline void engineClearDrawCalls() { if(fncEngineClearDrawCalls) fncEngineClearDrawCalls(this); }
+    inline void engineSetShadowViewProj(uint32 index, const glm::mat4 &m) { if(fncEngineSetShadowViewProj) fncEngineSetShadowViewProj(this, index, m); }
+    inline void engineSetGeometryViewProj(uint32 index, const glm::mat4 &m) { if(fncEngineSetGeometryViewProj) fncEngineSetGeometryViewProj(this, index, m); }
+    inline void engineSetSunSkyPose(uint32 index, const glm::vec2 &v) { if(fncEngineSetSunSkyPose) fncEngineSetSunSkyPose(this, index, v); }
+    inline void engineSetSunSkyColor(uint32 index, const glm::vec3 &v) { if(fncEngineSetSunSkyColor) fncEngineSetSunSkyColor(this, index, v); }
+    inline void engineSetLpvPose(uint32 index, const glm::vec3 &v) { if(fncEngineSetLpvPose) fncEngineSetLpvPose(this, index, v); }
+    inline void engineSetLpvPoseOut(uint32 index, const glm::vec3 &v) { if(fncEngineSetLpvPoseOut) fncEngineSetLpvPoseOut(this, index, v); }
     inline void engineSwapLPV() { if(fncEngineSwapLPV) fncEngineSwapLPV(this); }
     inline std::string engineGetClassName(const CEngineBase *object) { if(fncEngineGetClassName) return fncEngineGetClassName(this, object); return std::string(); }
     inline const SEngine *engineGetEngine() const { if(fncEngineGetEngine) return fncEngineGetEngine(this); return NULL; }
