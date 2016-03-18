@@ -19,9 +19,6 @@ in vec3 shadowCoord[SHADOW_CASCADES_COUNT];
 in mat3 mtbnti;
 #endif
 
-#ifndef NOR_TEX
-uniform mat3 mwnit;
-#endif
 uniform vec3 cam;
 
 uniform sampler2D difTex;
@@ -83,7 +80,7 @@ void main()
   vec3 fragSpe = texture(speTex, texCoord).rgb;
 
 #ifndef NOR_TEX
-  vec3 normalDir = normalize(mwnit * normalize(normal));
+  vec3 normalDir = normalize(normal);
 #else
   vec3 fragNor = texture(norTex, texCoord).rgb;
   vec3 normalDir = normalize(mtbnti * normalize(fragNor * 2.0 - 1.0));

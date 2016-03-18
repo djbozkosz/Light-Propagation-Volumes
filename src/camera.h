@@ -47,8 +47,8 @@ inline void CCamera::updateMatrices()
   camera.view = glm::scale(
     glm::translate(
       glm::rotate(
-        glm::rotate(glm::mat4(1.0), camera.rotation.x * NMath::DEG_2_RAD, glm::vec3(1.0, 0.0, 0.0)),
-        (camera.rotation.y + NMath::PI_DEG) * NMath::DEG_2_RAD, glm::vec3(0.0, 1.0, 0.0)),
+        glm::rotate(glm::mat4(1.0f), camera.rotation.x * NMath::DEG_2_RAD, glm::vec3(1.0f, 0.0f, 0.0f)),
+        (camera.rotation.y + NMath::PI_DEG) * NMath::DEG_2_RAD, glm::vec3(0.0f, 1.0f, 0.0f)),
       glm::vec3(camera.position.x * -NCamera::SCALE_X, camera.position.y * -NCamera::SCALE_Y, camera.position.z * -NCamera::SCALE_Z)),
     camera.scale);
 
@@ -133,9 +133,9 @@ inline void CCamera::setRotate()
 inline void CCamera::setGridAlignedOrthoTransform(const glm::vec3 &pos, const glm::vec2 &rot, float step)
 {
   const glm::vec3 orthoScale(NCamera::ORTHO_FBO_SCALE_X, NCamera::ORTHO_FBO_SCALE_Y, NCamera::ORTHO_FBO_SCALE_Z);
-  const glm::vec3 invRotPos = glm::vec3(glm::rotate(glm::rotate(glm::mat4(1.0), rot.x, glm::vec3(1.0, 0.0, 0.0)), -rot.y, glm::vec3(0.0, 1.0, 0.0)) * glm::vec4(pos, 1.0));
+  const glm::vec3 invRotPos = glm::vec3(glm::rotate(glm::rotate(glm::mat4(1.0f), rot.x, glm::vec3(1.0f, 0.0f, 0.0f)), -rot.y, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(pos, 1.0f));
   const glm::vec3 invRotPosFloor(static_cast<float>(static_cast<int32>(invRotPos.x / step)) * step, static_cast<float>(static_cast<int32>(invRotPos.y / step)) * step, static_cast<float>(static_cast<int32>(invRotPos.z / step)) * step);
-  const glm::vec3 posFloor(glm::rotate(glm::rotate(glm::mat4(1.0), rot.y, glm::vec3(0.0, 1.0, 0.0)), -rot.x, glm::vec3(1.0, 0.0, 0.0)) * glm::vec4(invRotPosFloor, 1.0));
+  const glm::vec3 posFloor(glm::rotate(glm::rotate(glm::mat4(1.0f), rot.y, glm::vec3(0.0f, 1.0f, 0.0f)), -rot.x, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(invRotPosFloor, 1.0f));
 
   const glm::vec3 p(posFloor * orthoScale);
   const glm::vec3 r(rot.x * NMath::RAD_2_DEG, -rot.y * NMath::RAD_2_DEG, 0.0f);

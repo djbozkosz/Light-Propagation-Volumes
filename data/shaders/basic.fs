@@ -4,10 +4,18 @@ precision lowp float;
 in vec2 texCoord;
 in vec4 color;
 
+#if defined(DIF_2D_ARRAY)
+uniform sampler2DArray difTex;
+#elif defined(DIF_3D)
+uniform sampler3D difTex;
+#else
 uniform sampler2D difTex;
+#endif
 #ifdef ALP_TEX
 uniform sampler2D alpTex;
+#endif
 
+#if defined(DIF_2D_ARRAY) || defined(DIF_3D) || defined(ALP_TEX)
 uniform float opacity;
 #endif
 
@@ -24,5 +32,12 @@ void main()
   if(alpha == 0.0)
     discard;
 #endif
-  glFragColor = vec4(texture(difTex, texCoord).rgb * color.rgb, alpha);
+
+#if defined(DIF_2D_ARRAY) || defined(DIF_3D)
+  vec3 t = vec3(texCoord, opacity);
+#else
+  vec2 t = texCoord;
+#endif
+
+  glFragColor = vec4(texture(difTex, t).rgb * color.rgb, alpha);
 }

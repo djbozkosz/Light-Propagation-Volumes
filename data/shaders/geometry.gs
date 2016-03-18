@@ -8,6 +8,7 @@ layout(triangles) in;
 layout(triangle_strip, max_vertices = OUT_VERTICES) out;
 
 in vec3 _positionWorld[];
+in vec3 _normal[];
 in vec2 _texCoord[];
 in vec4 _color[];
 in mat3 _mtbnti[];
@@ -16,6 +17,7 @@ flat in int instanceID[];
 uniform mat4 mvp[LPV_CASCADES_COUNT];
 
 out vec3 positionWorld;
+out vec3 normal;
 out vec2 texCoord;
 out vec4 color;
 out mat3 mtbnti;
@@ -26,6 +28,7 @@ void main()
   gl_Layer = c;
 
   positionWorld = _positionWorld[0];
+  normal = _normal[0];
   texCoord = _texCoord[0];
   color = _color[0];
   mtbnti = _mtbnti[0];
@@ -33,6 +36,7 @@ void main()
   EmitVertex();
 
   positionWorld = _positionWorld[1];
+  normal = _normal[1];
   texCoord = _texCoord[1];
   color = _color[1];
   mtbnti = _mtbnti[1];
@@ -40,6 +44,7 @@ void main()
   EmitVertex();
 
   positionWorld = _positionWorld[2];
+  normal = _normal[2];
   texCoord = _texCoord[2];
   color = _color[2];
   mtbnti = _mtbnti[2];

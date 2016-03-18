@@ -14,7 +14,9 @@ flat in int instanceID[];
 
 uniform mat4 mvp[SHADOW_CASCADES_COUNT];
 
+#ifdef DIF_TEX
 out vec2 texCoord;
+#endif
 
 void main()
 {

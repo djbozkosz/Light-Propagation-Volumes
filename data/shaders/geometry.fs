@@ -2,6 +2,7 @@
 precision lowp float;
 
 in vec3 positionWorld;
+in vec3 normal;
 in vec2 texCoord;
 in vec4 color;
 in mat3 mtbnti;
@@ -30,7 +31,12 @@ void main()
     discard;
 
   vec3 fragNor = texture(norTex, texCoord).rgb;
-  vec3 normalDir = normalize(mtbnti * normalize(fragNor * 2.0 - 1.0));
+  vec3 normalDir;
+
+  if((fragNor.r == 0.0) && (fragNor.g == 0.0) && (fragNor.b == 0.0))
+    normalDir = normalize(normal);
+  else
+    normalDir = normalize(mtbnti * normalize(fragNor * 2.0 - 1.0));
 
   //vec3 viewDir = normalize(cam - positionWorld);
   /*vec3 lightDir = lightPos - positionWorld;

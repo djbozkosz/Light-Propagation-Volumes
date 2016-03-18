@@ -49,7 +49,7 @@ namespace NEngine
 
   static const float SHADOW_CASCADES_CLIPS[SHADOW_CASCADES_COUNT * NMath::VEC2] =
   {
-    2.0f, 50.0f
+    10.0f, 50.0f
     /*2.0f, 50.0f, // side, depth
     5.0f, 100.0f,
     10.0f, 150.0f,

@@ -43,11 +43,14 @@ class CWindow : public
 #endif
 
     GLuint vboGeoPoints;
+    GLuint vboQuad;
     std::vector<float> lpvClearData;
+    SMaterial quadMaterial;
+    SShaderState quadTechnique;
 
   protected:
     virtual void paintGL();
-    void drawTexture(GLuint texture, GLenum type, float level, float x, float y, float w, float h, bool isShadow = false);
+    void drawTexture(float x, float y, float w, float h, const CMap *texture, uint32 level = 0, bool isShadow = false);
 
 #ifdef ENV_SDL
   public:

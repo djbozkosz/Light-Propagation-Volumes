@@ -14,18 +14,20 @@ uniform mat3 mwnit;
 uniform mat4 mvp;
 
 out vec3 positionWorld;
+out vec3 normal;
 out vec2 texCoord;
 out vec4 color;
 out mat3 mtbnti;
 #else
 out vec3 _positionWorld;
+out vec3 _normal;
 out vec2 _texCoord;
 out vec4 _color;
 out mat3 _mtbnti;
 flat out int instanceID;
 #endif
 
-mat3 inverse(mat3 m)
+mat3 inv(mat3 m)
 {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
   float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
@@ -46,15 +48,17 @@ void main()
 {
 #ifndef GS_CASCADE
   positionWorld = vec4(mw * vec4(_vertexPosition, 1.0)).xyz;
+  normal = mwnit * _vertexNormal;
   texCoord = _vertexTexCoord;
   color = _vertexColor;
-  mtbnti = inverse(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
+  mtbnti = inv(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 #else
   _positionWorld = vec4(mw * vec4(_vertexPosition, 1.0)).xyz;
+  _normal = _vertexNormal;
   _texCoord = _vertexTexCoord;
   _color = _vertexColor;
-  _mtbnti = inverse(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
+  _mtbnti = inv(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
   instanceID = gl_InstanceID;
   gl_Position = vec4(_vertexPosition, 1.0);
 #endif

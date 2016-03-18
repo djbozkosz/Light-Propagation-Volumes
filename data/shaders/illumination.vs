@@ -13,9 +13,7 @@ in vec2 _vertexTexCoord;
 in vec4 _vertexColor;
 
 uniform mat4 mw;
-#ifdef NOR_TEX
 uniform mat3 mwnit;
-#endif
 uniform mat4 mvp;
 #ifdef SHAD_TEX
 uniform mat4 mvpsb[SHADOW_CASCADES_COUNT];
@@ -35,7 +33,7 @@ out mat3 mtbnti;
 #endif
 
 #ifdef NOR_TEX
-mat3 inverse(mat3 m)
+mat3 inv(mat3 m)
 {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
   float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
@@ -57,7 +55,7 @@ void main()
 {
   positionWorld = vec4(mw * vec4(_vertexPosition, 1.0)).xyz;
 #ifndef NOR_TEX
-  normal = _vertexNormal;
+  normal = mwnit * _vertexNormal;
 #endif
   texCoord = _vertexTexCoord;
   color = _vertexColor;
@@ -65,7 +63,7 @@ void main()
   shadowCoord[0] = vec4(mvpsb[0] * vec4(_vertexPosition, 1.0)).xyz;
 #endif
 #ifdef NOR_TEX
-  mtbnti = inverse(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
+  mtbnti = inv(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
 #endif
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 }
