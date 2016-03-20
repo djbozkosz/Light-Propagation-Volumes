@@ -3,8 +3,8 @@ precision lowp float;
 
 #define BLINN_PHONG
 
-#define SHADOW_CASCADES_COUNT 1
-#define LPV_CASCADES_COUNT 1
+#define SHADOW_CASCADES_COUNT
+#define LPV_CASCADES_COUNT
 
 in vec3 positionWorld;
 #ifndef NOR_TEX
@@ -39,6 +39,11 @@ uniform sampler3D lpvTexB;
 uniform int type;
 #ifdef ALP_TEX
 uniform float opacity;
+#endif
+#ifdef SHAD_TEX
+uniform vec4 tiles;
+uniform int tileInstances;
+uniform vec2 shadowClips[SHADOW_CASCADES_COUNT];
 #endif
 #ifdef SHADOW_JITTER
 uniform vec3 shadowTexSize;
@@ -125,11 +130,31 @@ void main()
     lpvColor = vec3(0.0);
 #endif
 
+  float fragDist = distance(cam, positionWorld);
+
 #ifndef SHAD_TEX
   float depthVis = 1.0;
 #else
 //#ifndef SHADOW_JITTER
-  float depthVis = texture(shadTex, shadowCoord[0]);
+  vec3 sCoord[SHADOW_CASCADES_COUNT];
+  for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
+    sCoord[i] = shadowCoord[i];
+
+  int shadowIndex = 0;
+  for(shadowIndex = 0; shadowIndex < SHADOW_CASCADES_COUNT; shadowIndex++)
+  {
+    if(fragDist <= shadowClips[shadowIndex])
+      break;
+  }
+
+  float depthVis = 1.0;
+  if(shadowIndex < SHADOW_CASCADES_COUNT)
+  {
+    int x = shadowIndex % int(tiles.x);
+    int y = shadowIndex / int(tiles.x);
+    vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+    depthVis = texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin, sCoord[shadowIndex].z));
+  }
 /*#else
   float depthVis = 0.0;
   const int jitterSamples = 8;
@@ -143,7 +168,6 @@ void main()
 #endif*/
 #endif
 
-  float fragDist = distance(cam, positionWorld);
   vec3 viewDir = normalize(cam - positionWorld);
   vec3 lightDir = lightPos - positionWorld;
 

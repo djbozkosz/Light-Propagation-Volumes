@@ -1,7 +1,7 @@
 #version 150
 precision lowp float;
 
-#define SHADOW_CASCADES_COUNT 1
+#define SHADOW_CASCADES_COUNT
 
 in vec3 _vertexPosition;
 in vec3 _vertexNormal;
@@ -60,7 +60,8 @@ void main()
   texCoord = _vertexTexCoord;
   color = _vertexColor;
 #ifdef SHAD_TEX
-  shadowCoord[0] = vec4(mvpsb[0] * vec4(_vertexPosition, 1.0)).xyz;
+  for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
+    shadowCoord[i] = vec4(mvpsb[i] * vec4(_vertexPosition, 1.0)).xyz;
 #endif
 #ifdef NOR_TEX
   mtbnti = inv(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));

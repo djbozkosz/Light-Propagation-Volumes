@@ -146,6 +146,9 @@ std::string CShader::setDefines(const std::string &data)
 
   d.insert(index, defines);
 
+  d = CStr::replaceAll(d, "#define SHADOW_CASCADES_COUNT", CStr("#define SHADOW_CASCADES_COUNT %d", NEngine::SHADOW_CASCADES_COUNT));
+  d = CStr::replaceAll(d, "#define LPV_CASCADES_COUNT", CStr("#define LPV_CASCADES_COUNT %d", NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT));
+
   return d;
 }
 //------------------------------------------------------------------------------
@@ -275,6 +278,7 @@ void CShaderProgram::initUniforms()
   u->tiles = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_TILES);
   u->tileInstances = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_TILE_INSTANCES);
   u->shadowTexSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SHADOW_TEX_SIZE);
+  u->shadowClips = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SHADOW_CLIPS);
   u->lightAmb = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_AMB);
   u->lightPos = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_POS);
   u->lightRange = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_RANGE);
@@ -433,10 +437,12 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
       gl->uniform4f(u->tiles, e->shadowTiles.x, e->shadowTiles.y, 1.0f / e->shadowTiles.x, 1.0f / e->shadowTiles.y);
     else if(program.fUniforms & NShader::UNIFORM_TILE_GEOM)
       gl->uniform4f(u->tiles, e->geometryTiles.x, e->geometryTiles.y, 1.0f / e->geometryTiles.x, 1.0f / e->geometryTiles.y);
-    if(program.fUniforms & NShader::UNIFORM_TILE_INST_OFF)
+    if(program.fUniforms & NShader::UNIFORM_TILE_INST)
       gl->uniform1i(u->tileInstances, technique->tileInstances);
     if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
       gl->uniform3f(u->shadowTexSize, 0.5f / static_cast<float>(e->shadowTextureSize), 0.5f / static_cast<float>(e->shadowTextureSize), context->engineGetEngine()->shadowJittering);
+    if(program.fUniforms & NShader::UNIFORM_SHAD_CLIPS)
+      gl->uniform2fv(u->shadowClips, NEngine::SHADOW_CASCADES_COUNT, NEngine::SHADOW_CASCADES_CLIPS);
     if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS)
     { gl->uniform3f(u->lightAmb, technique->lightAmb.x, technique->lightAmb.y, technique->lightAmb.z);
       gl->uniform3f(u->lightPos, technique->lights[0].pos.x, technique->lights[0].pos.y, technique->lights[0].pos.z); }

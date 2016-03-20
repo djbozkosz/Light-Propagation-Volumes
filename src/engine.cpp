@@ -23,7 +23,7 @@ CEngine::CEngine(
   engine.multisampling = 1;
 
   engine.maxTextureSize = 256;
-  //engine.shadowTextureSize = 1024;
+  engine.shadowTextureSize = 512;
   engine.shadowJittering = 0.0f;
   //engine.geometryTextureSize = 256;
 

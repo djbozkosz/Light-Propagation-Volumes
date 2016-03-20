@@ -71,8 +71,6 @@ OTHER_FILES += \
     data/shaders/geometry.vs \
     data/shaders/lpvInjection.vs \
     data/shaders/lpvPropagation.vs \
-    data/shaders/depth.gs \
-    data/shaders/geometry.gs \
     data/shaders/lpvInjection.gs \
     data/shaders/lpvPropagation.gs \
     data/shaders/color.fs \

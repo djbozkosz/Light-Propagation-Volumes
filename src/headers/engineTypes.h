@@ -29,8 +29,8 @@ namespace NEngine
   static const uint32 DEFAULT_MULTISAMPLING = 4;
   static const uint32 MAX_TEXTURE_SIZE = 0;
 
-  static const uint32 SHADOW_TEXTURE_SIZE = 256;
-  static const uint32 SHADOW_CASCADES_COUNT = 1;
+  static const uint32 SHADOW_TEXTURE_SIZE = 1024;
+  static const uint32 SHADOW_CASCADES_COUNT = 6;
   static const uint32 SHADOW_TILES_X = 3;
   static const uint32 SHADOW_TILES_Y = 2;
   static const float SHADOW_JITTERING = 2.0f;
@@ -51,18 +51,17 @@ namespace NEngine
   static const uint32 LPV_SUN_SKY_DIRS_COUNT = 1; // sun + sky
   static const float LPV_CUBE_LENGTH = 1.74f;
 
-  static const float SHADOW_CASCADES_CLIPS[SHADOW_CASCADES_COUNT * NMath::VEC2] =
+  static const float SHADOW_CASCADES_CLIPS[/*SHADOW_CASCADES_COUNT * NMath::VEC2*/] =
   {
-    10.0f, 50.0f
-    /*2.0f, 50.0f, // side, depth
-    5.0f, 100.0f,
-    10.0f, 150.0f,
-    25.0f, 200.0f,
-    80.0f, 250.0f,
-    160.0f, 300.0f*/
+    2.0f, 50.0f, // side, depth
+    7.0f, 100.0f,
+    20.0f, 150.0f,
+    50.0f, 200.0f,
+    150.0f, 250.0f,
+    400.0f, 300.0f
   };
 
-  static const float GEOMETRY_CASCADES_CLIPS[LPV_CASCADES_COUNT * LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2] =
+  static const float GEOMETRY_CASCADES_CLIPS[/*LPV_CASCADES_COUNT * LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
   {
     16.0f * LPV_CUBE_LENGTH, 50.0f
     /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, depth
@@ -73,17 +72,17 @@ namespace NEngine
     160.0f * LPV_CUBE_LENGTH, 300.0f*/
   };
 
-  static const float SUN_SKY_POSES[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2] =
+  static const float SUN_SKY_POSES[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
   {
     0.0f, 0.0f
   };
 
-  static const float SUN_SKY_COLORS[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3] =
+  static const float SUN_SKY_COLORS[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3*/] =
   {
     0.0f, 0.0f, 0.0f
   };
 
-  static const float LPV_CELL_SIZES[LPV_CASCADES_COUNT * NMath::VEC3] =
+  static const float LPV_CELL_SIZES[/*LPV_CASCADES_COUNT * NMath::VEC3*/] =
   {
     1.0f, 1.0f, 1.0f
     /*0.1f, 0.1f, 0.1f,

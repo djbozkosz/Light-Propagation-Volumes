@@ -95,7 +95,7 @@ void CRenderer::dispatch() const
       prog->begin(mesh->technique, renderer.mode);
 
       if(p->fRenderStates & NShader::REN_STATE_INSTANCE)
-        gl->drawElements/*Instanced*/(NOpenGL::TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, NOpenGL::UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE)/*, mesh->instances*/);
+        gl->drawElementsInstanced(NOpenGL::TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, NOpenGL::UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE), mesh->instances);
       else
         gl->drawElements(NOpenGL::TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, NOpenGL::UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE));
       prog->end(mesh->technique);

@@ -169,7 +169,7 @@ void CWindow::initializeGL()
 
   // shadow framebuffer
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
-  fbo->addFbo(SFramebuffer(NEngine::STR_SUN_SHADOW_FBO, fboAttachments, NMap::RBO, e->shadowTextureSize, e->shadowTextureSize, NEngine::SHADOW_CASCADES_COUNT));
+  fbo->addFbo(SFramebuffer(NEngine::STR_SUN_SHADOW_FBO, fboAttachments, NMap::RBO, e->shadowTextureSize * e->shadowTiles.x, e->shadowTextureSize * e->shadowTiles.y, NEngine::SHADOW_CASCADES_COUNT));
   fboAttachments.clear();
 
   // geometry framebuffer
@@ -297,10 +297,8 @@ void CWindow::paintGL()
         CEngineBase::context->engineSetShadowViewProj(i, c->viewProjection);
 
         if(e->updateFrustum)
-        {
           cul->updateFrustum();
-          CEngineBase::context->engineSetShadowFrustum(i, *cul->getFrustum());
-        }
+        CEngineBase::context->engineSetShadowFrustum(i, *cul->getFrustum());
       }
 
       fboShadow->bind();
@@ -315,7 +313,7 @@ void CWindow::paintGL()
       fboShadow->setChanged(false);
     }
 
-    if((fboGeometry) && (sun))
+    /*if((fboGeometry) && (sun))
     { // geometry map
       CEngineBase::context->engineSetSunSkyPose(0, glm::vec2(sun->getObject()->rotation.y, sun->getObject()->rotation.z)); // update sun for inject
       CEngineBase::context->engineSetSunSkyColor(0, glm::vec3(sun->getLight()->color));
@@ -332,23 +330,21 @@ void CWindow::paintGL()
         CEngineBase::context->engineSetGeometryViewProj(i, c->viewProjection);
 
         if(e->updateFrustum)
-        {
           cul->updateFrustum();
-          CEngineBase::context->engineSetGeometryFrustum(i, *cul->getFrustum());
-        }
+        CEngineBase::context->engineSetGeometryFrustum(i, *cul->getFrustum());
       }
 
       fboGeometry->bind();
       gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
 
-      ren->setMode(NRenderer::MODE_GEOMETRY_CASCADE);
+      ren->setMode(NRenderer::MODE_GEOMETRY);
       s->render();
       ren->dispatch();
       ren->clearGroups();
 
       fbo->unbind();
       fboGeometry->setChanged(false);
-    }
+    }*/
 
     /*if((e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302) && (e->gpuPlatform < NEngine::GPU_PLATFORM_GL0403))
     {
@@ -411,7 +407,9 @@ void CWindow::paintGL()
     if((fboShadow) && (e->showShadowBuffer))
     {
       const float r = c->height / c->width;
-      drawTexture(0.0f, 0.0f, 0.333f * r, 0.333f, fboShadow->getFrameBuffer()->attachments[0].map, 0, true);
+      const CMap *m = fboShadow->getFrameBuffer()->attachments[0].map;
+      const float r2 = static_cast<float>(m->getMap()->width) / static_cast<float>(m->getMap()->height);
+      drawTexture(0.0f, 0.0f, 0.333f * r2 * r, 0.333f, m, 0, true);
     }
 
     if((fboGeometry) && (e->showGeometryBuffer))
