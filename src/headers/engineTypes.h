@@ -13,7 +13,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-#include "types.h"
+#include "cullingTypes.h"
 
 //-----------------------------------------------------------------------------
 namespace NEngine
@@ -31,9 +31,13 @@ namespace NEngine
 
   static const uint32 SHADOW_TEXTURE_SIZE = 256;
   static const uint32 SHADOW_CASCADES_COUNT = 1;
+  static const uint32 SHADOW_TILES_X = 3;
+  static const uint32 SHADOW_TILES_Y = 2;
   static const float SHADOW_JITTERING = 2.0f;
 
   static const uint32 GEOMETRY_TEXTURE_SIZE = 32;
+  static const uint32 GEOMETRY_TILES_X = 3;
+  static const uint32 GEOMETRY_TILES_Y = 2;
 
   static const float LPV_TEXTURE_SIZE_X = 32.0f;
   static const float LPV_TEXTURE_SIZE_Y = 32.0f;
@@ -306,11 +310,15 @@ struct SEngine
 
   uint32 shadowTextureSize;
   float shadowJittering;
+  glm::vec2 shadowTiles;
   //glm::vec3 shadowPoses[NEngine::SHADOW_CASCADES_COUNT];
   glm::mat4 shadowViewProj[NEngine::SHADOW_CASCADES_COUNT]; // shadow proj * view, used: mesh render - shadow cascade draw (mpv), out mesh draw (mpvsb[])
+  SFrustum shadowFrustum[NEngine::SHADOW_CASCADES_COUNT];
 
   uint32 geometryTextureSize;
+  glm::vec2 geometryTiles;
   glm::mat4 geometryViewProj[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry proj * view, used: mesh render - geom cascade draw (mvp)
+  SFrustum geometryFrustum[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT];
 
   float sunSkyPoses[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2]; // lpv injection, light data
   float sunSkyColors[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3];
@@ -359,8 +367,10 @@ struct SEngine
 
     shadowTextureSize(NEngine::SHADOW_TEXTURE_SIZE),
     shadowJittering(NEngine::SHADOW_JITTERING),
+    shadowTiles(NEngine::SHADOW_TILES_X, NEngine::SHADOW_TILES_Y),
 
     geometryTextureSize(NEngine::GEOMETRY_TEXTURE_SIZE),
+    geometryTiles(NEngine::GEOMETRY_TILES_X, NEngine::GEOMETRY_TILES_Y),
 
     lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
     lpvPropagationSteps(NEngine::LPV_PROPAGATION_STEPS),

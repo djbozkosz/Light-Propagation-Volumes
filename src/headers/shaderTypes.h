@@ -11,7 +11,7 @@ namespace NShader
   static const uint32 VERTEX_SHADERS_COUNT = 14;
   static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 0;
   static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 0;
-  static const uint32 GEOMETRY_SHADERS_COUNT = 6;
+  static const uint32 GEOMETRY_SHADERS_COUNT = 3;
   static const uint32 FRAGMENT_SHADERS_COUNT = 22;
   static const uint32 COMPUTE_SHADERS_COUNT = 4;
   static const uint32 PROGRAMS_COUNT = 30;
@@ -61,6 +61,8 @@ namespace NShader
 
   static const char STR_UNIFORM_TYPE[] = "type";
   static const char STR_UNIFORM_OPACITY[] = "opacity";
+  static const char STR_UNIFORM_TILES[] = "tiles"; // vec4: x, y, 1/x, 1/y
+  static const char STR_UNIFORM_TILE_INSTANCES[] = "tileInstances";
   static const char STR_UNIFORM_SHADOW_TEX_SIZE[] = "shadowTexSize"; // vec3, e.g. 1/512, 1/512, jitter
 
   static const char STR_UNIFORM_LIGHT_AMB[] = "lightAmb"; // or array for geometry render
@@ -88,8 +90,6 @@ namespace NShader
   static const char STR_VERTEX_LPV_INJECTION[] = "lpvInjection.vs";
   static const char STR_VERTEX_LPV_PROPAGATION[] = "lpvPropagation.vs";
 
-  static const char STR_GEOMETRY_DEPTH[] = "depth.gs";
-  static const char STR_GEOMETRY_GEOMETRY[] = "geometry.gs";
   static const char STR_GEOMETRY_LPV_INJECTION[] = "lpvInjection.gs";
   static const char STR_GEOMETRY_LPV_PROPAGATION[] = "lpvPropagation.gs";
 
@@ -183,9 +183,6 @@ namespace NShader
   enum EShaderGeometry
   {
     GEO_UNUSED = -1,
-    GEO_DEPTH,
-    GEO_DEPTH_DIF,
-    GEO_GEOMETRY,
     GEO_LPV_INJECT,
     GEO_LPV_PROP,
     GEO_LPV_PROP_LPV_SCAT
@@ -232,15 +229,15 @@ namespace NShader
     { STR_VERTEX_COLOR, "" },
     { STR_VERTEX_DEPTH, "" },
     { STR_VERTEX_DEPTH, "DIF_TEX" },
-    { STR_VERTEX_DEPTH, "GS_CASCADE" },
-    { STR_VERTEX_DEPTH, "GS_CASCADE DIF_TEX" },
+    { STR_VERTEX_DEPTH, "CASCADE" },
+    { STR_VERTEX_DEPTH, "CASCADE DIF_TEX" },
     { STR_VERTEX_BASIC, "" },
     { STR_VERTEX_ILLUMINATION, "" },
     { STR_VERTEX_ILLUMINATION, "SHAD_TEX" },
     { STR_VERTEX_ILLUMINATION, "NOR_TEX" },
     { STR_VERTEX_ILLUMINATION, "NOR_TEX SHAD_TEX" },
     { STR_VERTEX_GEOMETRY, "" },
-    { STR_VERTEX_GEOMETRY, "GS_CASCADE" },
+    { STR_VERTEX_GEOMETRY, "CASCADE" },
     { STR_VERTEX_LPV_INJECTION, "" },
     { STR_VERTEX_LPV_PROPAGATION, "" }
   };
@@ -256,9 +253,6 @@ namespace NShader
 
   static const char *const STR_GEOMETRY_SHADER_LIST[][2] =
   {
-    { STR_GEOMETRY_DEPTH, "" },
-    { STR_GEOMETRY_DEPTH, "DIF_TEX" },
-    { STR_GEOMETRY_GEOMETRY, "" },
     { STR_GEOMETRY_LPV_INJECTION, "" },
     { STR_GEOMETRY_LPV_PROPAGATION, "" },
     { STR_GEOMETRY_LPV_PROPAGATION, "LPV_SCATTERING" }
@@ -334,10 +328,10 @@ namespace NShader
   static const int32 PROGRAM_GEOMETRY_SHADER_LIST[] =
   {
     GEO_UNUSED,
-    GEO_UNUSED, GEO_UNUSED, GEO_DEPTH, GEO_DEPTH_DIF,
+    GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED,
     GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED,
     GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED,
-    GEO_UNUSED, GEO_GEOMETRY,
+    GEO_UNUSED, GEO_UNUSED,
     GEO_LPV_INJECT, GEO_LPV_PROP, GEO_LPV_PROP_LPV_SCAT,
     GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED
   };
@@ -450,14 +444,17 @@ namespace NShader
     UNIFORM_MVPSB                     = 0x00000100,
     UNIFORM_TYPE                      = 0x00000200,
     UNIFORM_OPACITY                   = 0x00000400,
-    UNIFORM_SHAD_TEX_SIZE             = 0x00000800,
-    UNIFORM_LAMB_COLOR                = 0x00001000,
-    UNIFORM_LAMB_PICK                 = 0x00002000,
-    UNIFORM_LAMB_LPOS                 = 0x00004000,
-    UNIFORM_LAMB_LPOS_INJECT          = 0x00008000,
-    UNIFORM_LRAN_LCOL_LSPEC_FRAN_FCOL = 0x00010000,
-    UNIFORM_GEOM_TEX_SIZE             = 0x00020000,
-    UNIFORM_LPV_POS_TEXS_CELLS_PARAMS = 0x00040000
+    UNIFORM_TILE_SHAD                 = 0x00000800,
+    UNIFORM_TILE_GEOM                 = 0x00001000,
+    UNIFORM_TILE_INST_OFF             = 0x00002000,
+    UNIFORM_SHAD_TEX_SIZE             = 0x00004000,
+    UNIFORM_LAMB_COLOR                = 0x00008000,
+    UNIFORM_LAMB_PICK                 = 0x00010000,
+    UNIFORM_LAMB_LPOS                 = 0x00020000,
+    UNIFORM_LAMB_LPOS_INJECT          = 0x00040000,
+    UNIFORM_LRAN_LCOL_LSPEC_FRAN_FCOL = 0x00080000,
+    UNIFORM_GEOM_TEX_SIZE             = 0x00100000,
+    UNIFORM_LPV_POS_TEXS_CELLS_PARAMS = 0x00200000
   };
 
   enum ESampler
@@ -484,11 +481,13 @@ namespace NShader
 
   enum ERenderStates
   {
-    REN_STATE        = 0x00,
-    REN_STATE_BLEND  = 0x01,
-    REN_STATE_CULL   = 0x02,
-    REN_STATE_POLYOF = 0x04,
-    REN_STATE_DEPTH  = 0x08
+    REN_STATE          = 0x00,
+    REN_STATE_BLEND    = 0x01,
+    REN_STATE_CULL     = 0x02,
+    REN_STATE_POLYOF   = 0x04,
+    REN_STATE_DEPTH    = 0x08,
+    REN_STATE_TILE     = 0x10,
+    REN_STATE_INSTANCE = 0x20
   };
 
   static const uint32 PROGRAM_ATTRIBS_LIST[] =
@@ -530,8 +529,8 @@ namespace NShader
     UNIFORM_MVP | UNIFORM_LAMB_COLOR,
     UNIFORM_MVP_SHAD,
     UNIFORM_MVP_SHAD,
-    UNIFORM_MVP_SHAD_CASCADE,
-    UNIFORM_MVP_SHAD_CASCADE,
+    UNIFORM_MVP_SHAD_CASCADE | UNIFORM_TILE_SHAD | UNIFORM_TILE_INST_OFF,
+    UNIFORM_MVP_SHAD_CASCADE | UNIFORM_TILE_SHAD | UNIFORM_TILE_INST_OFF,
     UNIFORM_MVP,
     UNIFORM_MVP,
     UNIFORM_MVP,
@@ -549,7 +548,7 @@ namespace NShader
     UNIFORM_MVP | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_MVPSB | UNIFORM_CAM | UNIFORM_TYPE | UNIFORM_LAMB_LPOS | UNIFORM_LRAN_LCOL_LSPEC_FRAN_FCOL | UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
     UNIFORM_MVP | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_MVPSB | UNIFORM_CAM | UNIFORM_TYPE | UNIFORM_SHAD_TEX_SIZE | UNIFORM_LAMB_LPOS | UNIFORM_LRAN_LCOL_LSPEC_FRAN_FCOL | UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
     UNIFORM_MVP_GEOM | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_TYPE,
-    UNIFORM_MVP_GEOM_CASCADE | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_TYPE,
+    UNIFORM_MVP_GEOM_CASCADE | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_TILE_GEOM | UNIFORM_TILE_INST_OFF | UNIFORM_TYPE,
     UNIFORM_LAMB_LPOS_INJECT | UNIFORM_GEOM_TEX_SIZE | UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
     UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
     UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
@@ -598,8 +597,8 @@ namespace NShader
     REN_STATE_CULL,
     REN_STATE_CULL | REN_STATE_POLYOF,
     REN_STATE_CULL | REN_STATE_POLYOF,
-    REN_STATE_CULL | REN_STATE_POLYOF,
-    REN_STATE_CULL | REN_STATE_POLYOF,
+    REN_STATE_CULL | REN_STATE_POLYOF | REN_STATE_TILE | REN_STATE_INSTANCE,
+    REN_STATE_CULL | REN_STATE_POLYOF | REN_STATE_TILE | REN_STATE_INSTANCE,
     REN_STATE,
     REN_STATE,
     REN_STATE,
@@ -618,9 +617,9 @@ namespace NShader
     REN_STATE_BLEND,
     REN_STATE_CULL,
     REN_STATE_CULL,
+    REN_STATE_CULL,
     REN_STATE_DEPTH,
-    REN_STATE_DEPTH,
-    REN_STATE_DEPTH,
+    REN_STATE_DEPTH | REN_STATE_TILE | REN_STATE_INSTANCE,
     REN_STATE,
     REN_STATE,
     REN_STATE,
@@ -752,6 +751,8 @@ struct SShaderUniforms
 
   GLint type;
   GLint opacity;
+  GLint tiles;
+  GLint tileInstances;
   GLint shadowTexSize;
 
   GLint lightAmb;
@@ -797,7 +798,7 @@ struct SShaderUniforms
     difTex(0), alpTex(0), speTex(0), norTex(0), /*envTex(0), */shadTex(0),
     geomColorTex(0), geomPosTex(0), geomNormalTex(0), /*geomDepthTex(0),*/
     lpvTexR(0), lpvTexG(0), lpvTexB(0), gvTex(0), lpv0TexR(0), lpv0TexG(0), lpv0TexB(0), lpv1TexR(0), lpv1TexG(0), lpv1TexB(0),
-    type(0), opacity(0), shadowTexSize(0),
+    type(0), opacity(0), tiles(0), tileInstances(0), shadowTexSize(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
     geomTexSize(0), lpvPos(0), lpvTexSize(0), lpvCellSize(0), lpvParams(0),
@@ -828,6 +829,8 @@ struct SShaderState
   mutable float mvpsb[NMath::MAT4 * NEngine::SHADOW_CASCADES_COUNT]; // shadow mvps biased
   mutable float mvpg[NMath::MAT4 * NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry mvps
   mutable glm::vec3 cam;
+  mutable uint32 instances;
+  mutable uint32 tileInstances;
 
   mutable const SMaterial *material;
 
@@ -839,7 +842,7 @@ struct SShaderState
   glm::vec2 fogRange;
   glm::vec3 fogColor;
 
-  inline SShaderState() : material(NULL) {}
+  inline SShaderState() : instances(0), tileInstances(0), material(NULL) {}
 };
 //------------------------------------------------------------------------------
 struct SShader

@@ -913,11 +913,15 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
   if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()) || (!context->getCulling()->isAABBInFrustum(sceneModel->aabb)))
     return;
 
+  CCulling *cul = context->getCulling();
   const SEngine *e = context->engineGetEngine();
   const SCamera *c = context->getCamera()->getCamera();
 
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
-  bool mergedMeshes = ((mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE)) ? true : false;
+  bool mergedMeshes = (
+    (mode == NRenderer::MODE_PICK) ||
+    (mode == NRenderer::MODE_DEPTH) ||
+    (mode == NRenderer::MODE_DEPTH_CASCADE)) ? true : false;
   auto soMesh = sceneModel->meshes.cbegin();
 
   for(auto it = model.meshes.cbegin(); it != model.meshes.cend(); it++, soMesh++)
@@ -928,7 +932,44 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     const SMesh *mesh = &it->second;
     const SShaderState *soLod = &soMesh->front(); // todo: lod selection
 
-    if(!context->getCulling()->isAABBInFrustum(soLod->aabb))
+    soLod->instances = 0;
+    soLod->tileInstances = 0;
+
+    if(mode == NRenderer::MODE_DEPTH_CASCADE)
+    {
+      const SFrustum f = *cul->getFrustum();
+      for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
+      {
+        cul->setFrustum(e->shadowFrustum[i]);
+        if(cul->isAABBInFrustum(soLod->aabb))
+        {
+          soLod->instances++;
+          soLod->tileInstances |= 1 << i;
+        }
+      }
+      cul->setFrustum(f);
+
+      if(!soLod->tileInstances)
+        continue;
+    }
+    else if(mode == NRenderer::MODE_GEOMETRY_CASCADE)
+    {
+      const SFrustum f = *cul->getFrustum();
+      for(uint32 i = 0; i < (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT); i++)
+      {
+        cul->setFrustum(e->geometryFrustum[i]);
+        if(cul->isAABBInFrustum(soLod->aabb))
+        {
+          soLod->instances++;
+          soLod->tileInstances |= 1 << i;
+        }
+      }
+      cul->setFrustum(f);
+
+      if(!soLod->tileInstances)
+        continue;
+    }
+    else if(!cul->isAABBInFrustum(soLod->aabb))
       continue;
 
     soLod->mvp = c->viewProjection * soLod->mw;
@@ -975,7 +1016,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
             if((!mergedMeshes) || (faceGroup == last))
             {
               context->getRenderer()->addMesh(SRenderMesh(
-                (mergedMeshes) ? lod->vboSimpleVertices : lod->vboVertices, lod->vboIndices,
+                (mergedMeshes) ? lod->vboSimpleVertices : lod->vboVertices, lod->vboIndices, soLod->instances,
                 (mergedMeshes) ? 0 : faceStart,
                 ((mergedMeshes) ? faceStart : 0) + faceGroup->faces.size(),
                 &(*soLod),

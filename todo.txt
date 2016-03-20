@@ -7,6 +7,14 @@ point SM
 cascaded LPV
 inject GV
 
+tilované kaskády s instancingem:
+  vypočítat a uložit si frusta pro kaskády
+  při renderu meshe projet aabb přes všechny frusta - pozpátku
+  a najít úrovně kdy je ještě vidět a kdy ne
+  vykreslit počet instancí, kolik jich je ještě vidět
+  do vs hodit uniform na počet dělení tilů
+  dle čísla instance pak zvolit ořezání
+
 lpv vstup:
   g-buffer: (amb, pos, normal) 2d tex array - x * y * 6*sun/sky dirs		3 textury
 

@@ -22,6 +22,8 @@ class CCulling : public CEngineBase
     bool isSphereInFrustum(const glm::vec3 &pos, float radius) const;
     bool isAABBInFrustum(const SBoundingBox &aabb) const;
 
+    inline void setFrustum(const SFrustum &f) { frustum = f; }
+
     inline const SFrustum *getFrustum() const { return &frustum; }
 };
 //------------------------------------------------------------------------------

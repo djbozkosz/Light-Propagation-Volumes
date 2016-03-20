@@ -168,14 +168,14 @@ void CWindow::initializeGL()
   memset(&lpvClearData[0], 0, sizeof(float) * lpvClearData.size());
 
   // shadow framebuffer
-  fboAttachments.push_back(NMap::FORMAT_2D_ARRAY | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
   fbo->addFbo(SFramebuffer(NEngine::STR_SUN_SHADOW_FBO, fboAttachments, NMap::RBO, e->shadowTextureSize, e->shadowTextureSize, NEngine::SHADOW_CASCADES_COUNT));
   fboAttachments.clear();
 
   // geometry framebuffer
-  fboAttachments.push_back(NMap::FORMAT_2D_ARRAY | NMap::FORMAT_BORDER); // amb
-  fboAttachments.push_back(NMap::FORMAT_2D_ARRAY | NMap::FORMAT_BORDER); // pos
-  fboAttachments.push_back(NMap::FORMAT_2D_ARRAY | NMap::FORMAT_BORDER); // normal
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_BORDER); // amb
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_BORDER); // pos
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_BORDER); // normal
   //fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER); // depth
   fbo->addFbo(SFramebuffer(NEngine::STR_GEOMETRY_FBO, fboAttachments, NMap::RBO_DEPTH, e->geometryTextureSize, e->geometryTextureSize, NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT));
   fboAttachments.clear();
@@ -296,14 +296,17 @@ void CWindow::paintGL()
         cam->setGridAlignedOrthoTransform(pos, sunRot, (clipSide * 2.0f) / static_cast<float>(e->shadowTextureSize));
         CEngineBase::context->engineSetShadowViewProj(i, c->viewProjection);
 
-        if((i == (NEngine::SHADOW_CASCADES_COUNT - 1)) && (e->updateFrustum))
+        if(e->updateFrustum)
+        {
           cul->updateFrustum();
+          CEngineBase::context->engineSetShadowFrustum(i, *cul->getFrustum());
+        }
       }
 
       fboShadow->bind();
       gl->clear(NOpenGL::DEPTH_BUFFER_BIT);
 
-      ren->setMode(NRenderer::MODE_DEPTH);
+      ren->setMode(NRenderer::MODE_DEPTH_CASCADE);
       s->render();
       ren->dispatch();
       ren->clearGroups();
@@ -328,14 +331,17 @@ void CWindow::paintGL()
         cam->setGridAlignedOrthoTransform(pos, sunSkyRot, (clipSide * 2.0f) / static_cast<float>(e->geometryTextureSize));
         CEngineBase::context->engineSetGeometryViewProj(i, c->viewProjection);
 
-        if((i == (maxC - 1)) && (e->updateFrustum))
+        if(e->updateFrustum)
+        {
           cul->updateFrustum();
+          CEngineBase::context->engineSetGeometryFrustum(i, *cul->getFrustum());
+        }
       }
 
       fboGeometry->bind();
       gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
 
-      ren->setMode(NRenderer::MODE_GEOMETRY);
+      ren->setMode(NRenderer::MODE_GEOMETRY_CASCADE);
       s->render();
       ren->dispatch();
       ren->clearGroups();

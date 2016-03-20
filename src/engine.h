@@ -45,7 +45,9 @@ class CEngine
     static inline void staticSetPlatform(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { context->getEngine()->setPlatform(gpuPlatform, lpvMode, lpvTechnique); }
     static inline void staticClearDrawCalls(CContext *context) { context->getEngine()->clearDrawCalls(); }
     static inline void setShadowViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setShadowViewProj(index, m); }
+    static inline void setShadowFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setShadowFrustum(index, f); }
     static inline void setGeometryViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setGeometryViewProj(index, m); }
+    static inline void setGeometryFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setGeometryFrustum(index, f); }
     static inline void setSunSkyPose(CContext *context, uint32 index, const glm::vec2 &v) { context->getEngine()->setSunSkyPose(index, v); }
     static inline void setSunSkyColor(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setSunSkyColor(index, v); }
     static inline void setLpvPose(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPose(index, v); }
@@ -101,7 +103,9 @@ class CEngine
     inline void incDrawCalls() { engine.drawCalls++; }
     inline void clearDrawCalls() { engine.drawCalls = 0; }
     inline void setShadowViewProj(uint32 index, const glm::mat4 &m) { engine.shadowViewProj[index] = m; }
+    inline void setShadowFrustum(uint32 index, const SFrustum &f) { engine.shadowFrustum[index] = f; }
     inline void setGeometryViewProj(uint32 index, const glm::mat4 &m) { engine.geometryViewProj[index] = m; }
+    inline void setGeometryFrustum(uint32 index, const SFrustum &f) { engine.shadowFrustum[index] = f; }
     inline void setSunSkyPose(uint32 index, const glm::vec2 &v) { engine.sunSkyPoses[index * NMath::VEC2 + 0] = v.x; engine.sunSkyPoses[index * NMath::VEC2 + 1] = v.y; }
     inline void setSunSkyColor(uint32 index, const glm::vec3 &v) { engine.sunSkyColors[index * NMath::VEC3 + 0] = v.x; engine.sunSkyColors[index * NMath::VEC3 + 1] = v.y; engine.sunSkyColors[index * NMath::VEC3 + 2] = v.z; }
     inline void setLpvPose(uint32 index, const glm::vec3 &v) { engine.lpvPoses[index] = v; }

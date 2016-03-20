@@ -272,6 +272,8 @@ void CShaderProgram::initUniforms()
 
   u->type = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_TYPE);
   u->opacity = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_OPACITY);
+  u->tiles = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_TILES);
+  u->tileInstances = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_TILE_INSTANCES);
   u->shadowTexSize = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SHADOW_TEX_SIZE);
   u->lightAmb = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_AMB);
   u->lightPos = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LIGHT_POS);
@@ -420,13 +422,19 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
         gl->uniform1f(u->opacity, m->opacity);
 
       context->getMaps()->finishBind();
-    }
+    } // end material
 
     // pick
     if(program.fUniforms & NShader::UNIFORM_LAMB_PICK)
       gl->uniform3f(u->lightAmb, technique->pickColor.x, technique->pickColor.y, technique->pickColor.z);
 
     // lights
+    if(program.fUniforms & NShader::UNIFORM_TILE_SHAD)
+      gl->uniform4f(u->tiles, e->shadowTiles.x, e->shadowTiles.y, 1.0f / e->shadowTiles.x, 1.0f / e->shadowTiles.y);
+    else if(program.fUniforms & NShader::UNIFORM_TILE_GEOM)
+      gl->uniform4f(u->tiles, e->geometryTiles.x, e->geometryTiles.y, 1.0f / e->geometryTiles.x, 1.0f / e->geometryTiles.y);
+    if(program.fUniforms & NShader::UNIFORM_TILE_INST_OFF)
+      gl->uniform1i(u->tileInstances, technique->tileInstances);
     if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
       gl->uniform3f(u->shadowTexSize, 0.5f / static_cast<float>(e->shadowTextureSize), 0.5f / static_cast<float>(e->shadowTextureSize), context->engineGetEngine()->shadowJittering);
     if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS)

@@ -198,12 +198,6 @@
     <None Include="..\data\shaders\lpvPropagation.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
-    <None Include="..\data\shaders\depth.gs">
-      <Filter>Shader Files\Geometry</Filter>
-    </None>
-    <None Include="..\data\shaders\geometry.gs">
-      <Filter>Shader Files\Geometry</Filter>
-    </None>
     <None Include="..\data\shaders\lpvInjection.gs">
       <Filter>Shader Files\Geometry</Filter>
     </None>

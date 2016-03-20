@@ -66,6 +66,13 @@ void CRenderer::dispatch() const
       gl->enable(NOpenGL::POLYGON_OFFSET_FILL);
       gl->polygonOffset(context->engineGetEngine()->shadowJittering * 0.5f + 1.5f, 1.0f);
     }
+    if(p->fRenderStates & NShader::REN_STATE_TILE)
+    {
+      gl->enable(NOpenGL::CLIP_DISTANCE0);
+      gl->enable(NOpenGL::CLIP_DISTANCE1);
+      gl->enable(NOpenGL::CLIP_DISTANCE2);
+      gl->enable(NOpenGL::CLIP_DISTANCE3);
+    }
     if(p->fRenderStates & NShader::REN_STATE_BLEND)
       gl->enable(NOpenGL::BLEND);
 
@@ -86,7 +93,11 @@ void CRenderer::dispatch() const
         gl->disable(NOpenGL::CULL_FACE);
 
       prog->begin(mesh->technique, renderer.mode);
-      gl->drawElements(NOpenGL::TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, NOpenGL::UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE));
+
+      if(p->fRenderStates & NShader::REN_STATE_INSTANCE)
+        gl->drawElements/*Instanced*/(NOpenGL::TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, NOpenGL::UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE)/*, mesh->instances*/);
+      else
+        gl->drawElements(NOpenGL::TRIANGLES, mesh->facesCount * NModel::FACE_SIZE, NOpenGL::UNSIGNED_SHORT, reinterpret_cast<uint16 *>(sizeof(uint16) * mesh->faceStart * NModel::FACE_SIZE));
       prog->end(mesh->technique);
 
       context->engineIncDrawCalls();
@@ -104,6 +115,13 @@ void CRenderer::dispatch() const
     {
       gl->polygonOffset(0.0f, 0.0f);
       gl->disable(NOpenGL::POLYGON_OFFSET_FILL);
+    }
+    if(p->fRenderStates & NShader::REN_STATE_TILE)
+    {
+      gl->disable(NOpenGL::CLIP_DISTANCE0);
+      gl->disable(NOpenGL::CLIP_DISTANCE1);
+      gl->disable(NOpenGL::CLIP_DISTANCE2);
+      gl->disable(NOpenGL::CLIP_DISTANCE3);
     }
     if(p->fRenderStates & NShader::REN_STATE_BLEND)
       gl->disable(NOpenGL::BLEND);

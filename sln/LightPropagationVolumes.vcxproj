@@ -71,10 +71,8 @@
     <None Include="..\data\shaders\color.fs" />
     <None Include="..\data\shaders\color.vs" />
     <None Include="..\data\shaders\depth.fs" />
-    <None Include="..\data\shaders\depth.gs" />
     <None Include="..\data\shaders\depth.vs" />
     <None Include="..\data\shaders\geometry.fs" />
-    <None Include="..\data\shaders\geometry.gs" />
     <None Include="..\data\shaders\geometry.vs" />
     <None Include="..\data\shaders\illumination.fs" />
     <None Include="..\data\shaders\illumination.vs" />
