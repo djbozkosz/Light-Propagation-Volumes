@@ -309,13 +309,16 @@ struct SEngine
 
   uint32 shadowTextureSize;
   float shadowJittering;
+  uint32 shadowCascadesCount;
   glm::vec2 shadowTiles;
+  std::vector<float> shadowCascadesClips;
   //glm::vec3 shadowPoses[NEngine::SHADOW_CASCADES_COUNT];
   glm::mat4 shadowViewProj[NEngine::SHADOW_CASCADES_COUNT]; // shadow proj * view, used: mesh render - shadow cascade draw (mpv), out mesh draw (mpvsb[])
   SFrustum shadowFrustum[NEngine::SHADOW_CASCADES_COUNT];
 
   uint32 geometryTextureSize;
   glm::vec2 geometryTiles;
+  std::vector<float> geometryCascadesClips;
   glm::mat4 geometryViewProj[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry proj * view, used: mesh render - geom cascade draw (mvp)
   SFrustum geometryFrustum[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT];
 
@@ -323,9 +326,14 @@ struct SEngine
   float sunSkyColors[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3];
 
   glm::vec3 lpvTextureSize;
+  uint32 lpvCascadesCount;
+  uint32 lpvSunSkyCount;
   uint32 lpvPropagationSteps;
   bool lpvPropagationSwap;
   float lpvIntensity;
+  //std::vector<float> sunSkyPoses;
+  //std::vector<float> sunSkyColors;
+  std::vector<float> lpvCellSizes;
   glm::vec3 lpvPoses[NEngine::LPV_CASCADES_COUNT];
   float lpvPosesOut[NEngine::LPV_CASCADES_COUNT * NMath::VEC3]; // lpv inject, propagate, out mesh draw
 
