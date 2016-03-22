@@ -374,6 +374,7 @@ struct SEngine
 
     shadowTextureSize(NEngine::SHADOW_TEXTURE_SIZE),
     shadowJittering(NEngine::SHADOW_JITTERING),
+    shadowCascadesCount(NEngine::SHADOW_CASCADES_COUNT),
     shadowTiles(NEngine::SHADOW_TILES_X, NEngine::SHADOW_TILES_Y),
 
     geometryTextureSize(NEngine::GEOMETRY_TEXTURE_SIZE),
@@ -394,6 +395,8 @@ struct SEngine
     memcpy(sunSkyColors, NEngine::SUN_SKY_COLORS, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3);
     memset(lpvPosesOut, 0, sizeof(float) * NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
 
+    shadowCascadesClips.resize(NEngine::SHADOW_CASCADES_COUNT * NMath::VEC2);
+    memcpy(&shadowCascadesClips[0], NEngine::SHADOW_CASCADES_CLIPS, sizeof(float) * shadowCascadesClips.size());
     for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
     {
       //shadowPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
