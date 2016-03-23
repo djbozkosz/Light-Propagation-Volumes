@@ -202,7 +202,7 @@ void CEngine::onTimeoutInit()
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true));
     s->addSceneObjectModel(
       SSceneObject("scene"),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"white_box.4ds"))));
   }
 
   window->repaint();

@@ -53,12 +53,12 @@ namespace NEngine
 
   static const float SHADOW_CASCADES_CLIPS[/*SHADOW_CASCADES_COUNT * NMath::VEC2*/] =
   {
-    2.0f, 50.0f, // side, depth
-    7.0f, 100.0f,
-    20.0f, 150.0f,
-    50.0f, 200.0f,
-    150.0f, 250.0f,
-    400.0f, 300.0f
+    2.0f, 200.0f, // side, depth
+    7.0f, 200.0f,
+    20.0f, 300.0f,
+    50.0f, 400.0f,
+    150.0f, 500.0f,
+    400.0f, 600.0f
   };
 
   static const float GEOMETRY_CASCADES_CLIPS[/*LPV_CASCADES_COUNT * LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
