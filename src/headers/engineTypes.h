@@ -403,6 +403,8 @@ struct SEngine
       shadowViewProj[i] = glm::mat4();
     }
 
+    geometryCascadesClips.resize(NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT);
+    memcpy(&geometryCascadesClips[0], NEngine::GEOMETRY_CASCADES_CLIPS, sizeof(float) * geometryCascadesClips.size());
     for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT; i++)
       geometryViewProj[i] = glm::mat4();
 
