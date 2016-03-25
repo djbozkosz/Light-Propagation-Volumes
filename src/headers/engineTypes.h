@@ -403,8 +403,10 @@ struct SEngine
       shadowViewProj[i] = glm::mat4();
     }
 
-    geometryCascadesClips.resize(NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT);
+    geometryCascadesClips.resize(NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2);
+    lpvCellSizes.resize(NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
     memcpy(&geometryCascadesClips[0], NEngine::GEOMETRY_CASCADES_CLIPS, sizeof(float) * geometryCascadesClips.size());
+    memcpy(&lpvCellSizes[0], NEngine::LPV_CELL_SIZES, sizeof(float) * lpvCellSizes.size());
     for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT; i++)
       geometryViewProj[i] = glm::mat4();
 
