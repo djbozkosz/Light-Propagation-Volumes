@@ -143,7 +143,7 @@ void main()
   int shadowIndex = 0;
   for(shadowIndex = 0; shadowIndex < SHADOW_CASCADES_COUNT; shadowIndex++)
   {
-    if(fragDist <= shadowClips[shadowIndex])
+    if(fragDist <= shadowClips[shadowIndex].x)
       break;
   }
 

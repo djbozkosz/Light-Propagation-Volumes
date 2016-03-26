@@ -179,11 +179,14 @@ void CEngine::initializeFinish()
 //------------------------------------------------------------------------------
 void CEngine::onTimeoutInit()
 {
-  context.log("Loading Scene...");
-
 #ifdef ENV_SDL
   SDL_RemoveTimer(engine.initSceneTimer);
 #endif
+
+  if(scenes.getActiveScene())
+    return;
+
+  context.log("Loading Scene...");
 
   camera.setRange(0.01f, 200.0f);
   camera.setSpeed(5.0f);
