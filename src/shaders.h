@@ -116,17 +116,20 @@ inline void CShaderProgram::beginLPV(NShader::ESamplerTex startDepthSampler) con
   const uint32 i = (!context->engineGetEngine()->lpvPropagationSwap) ? 0 : 4;
   uint32 filter = NMap::FORMAT_LINEAR;
 
-  if(startDepthSampler == NShader::SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_R)
+  /*if(startDepthSampler == NShader::SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_R)
   {
     filter = NMap::FORMAT;
     setSampler(lpvMaps[i + 3], u->gvTex, startDepthSampler + 4, filter | NMap::FORMAT_BORDER);
   }
-  else
-    setSampler(u->shadowMap, u->shadTex, startDepthSampler, filter | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
+  else*/
+  setSampler(u->shadowMap, u->shadTex, startDepthSampler, filter | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
 
   setSampler(lpvMaps[i + 0], u->lpvTexR, startDepthSampler + 1, filter | NMap::FORMAT_BORDER);
   setSampler(lpvMaps[i + 1], u->lpvTexG, startDepthSampler + 2, filter | NMap::FORMAT_BORDER);
   setSampler(lpvMaps[i + 2], u->lpvTexB, startDepthSampler + 3, filter | NMap::FORMAT_BORDER);
+
+  if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
+    setSampler(u->shadowDepthMap, u->shadDepthTex, startDepthSampler + 4, filter | NMap::FORMAT_BORDER);
 }
 //------------------------------------------------------------------------------
 #endif // SHADERS_H

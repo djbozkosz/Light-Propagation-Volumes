@@ -169,6 +169,7 @@ void CWindow::initializeGL()
 
   // shadow framebuffer
   fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
+  fboAttachments.push_back(NMap::FORMAT_2D | NMap::FORMAT_BORDER);
   fbo->addFbo(SFramebuffer(NEngine::STR_SUN_SHADOW_FBO, fboAttachments, NMap::RBO, e->shadowTextureSize * e->shadowTiles.x, e->shadowTextureSize * e->shadowTiles.y, NEngine::SHADOW_CASCADES_COUNT));
   fboAttachments.clear();
 

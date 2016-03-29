@@ -41,7 +41,8 @@ namespace NShader
   static const char STR_UNIFORM_SPE_TEX[] = "speTex";
   static const char STR_UNIFORM_NOR_TEX[] = "norTex";
   //static const char STR_UNIFORM_ENV_TEX[] = "envTex";
-  static const char STR_UNIFORM_SHAD_TEX[] = "shadTex"; // shadow texture array
+  static const char STR_UNIFORM_SHAD_TEX[] = "shadTex"; // shadow texture
+  static const char STR_UNIFORM_SHAD_DEPTH_TEX[] = "shadDepthTex";
 
   static const char STR_UNIFORM_GEOM_COLOR_TEX[] = "geomColorTex"; // geometry texture arrays, gs in, cs in
   static const char STR_UNIFORM_GEOM_POS_TEX[] = "geomPosTex";
@@ -640,35 +641,23 @@ namespace NShader
 
     SAMPLER_TEX_ILLUMINATION_DIF = 0,
     SAMPLER_TEX_ILLUMINATION_SPE,
-    SAMPLER_TEX_ILLUMINATION_DEPTH,
-    SAMPLER_TEX_ILLUMINATION_LPV0_R,
-    SAMPLER_TEX_ILLUMINATION_LPV0_G,
-    SAMPLER_TEX_ILLUMINATION_LPV0_B,
+    SAMPLER_TEX_ILLUMINATION_SHAD, // + lpv rgb, shad depth
 
     SAMPLER_TEX_ILLUMINATION_ALPHA_DIF = 0,
     SAMPLER_TEX_ILLUMINATION_ALPHA_ALP,
     SAMPLER_TEX_ILLUMINATION_ALPHA_SPE,
-    SAMPLER_TEX_ILLUMINATION_ALPHA_DEPTH,
-    SAMPLER_TEX_ILLUMINATION_ALPHA_LPV0_R,
-    SAMPLER_TEX_ILLUMINATION_ALPHA_LPV0_G,
-    SAMPLER_TEX_ILLUMINATION_ALPHA_LPV0_B,
+    SAMPLER_TEX_ILLUMINATION_ALPHA_SHAD, // + lpv rgb, shad depth
 
     SAMPLER_TEX_ILLUMINATION_NORMAL_DIF = 0,
     SAMPLER_TEX_ILLUMINATION_NORMAL_SPE,
     SAMPLER_TEX_ILLUMINATION_NORMAL_NOR,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_DEPTH,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_LPV0_R,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_LPV0_G,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_LPV0_B,
+    SAMPLER_TEX_ILLUMINATION_NORMAL_SHAD, // + lpv rgb, shad depth
 
     SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_DIF = 0,
     SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_ALP,
     SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_SPE,
     SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_NOR,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_DEPTH,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_LPV0_R,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_LPV0_G,
-    SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_LPV0_B,
+    SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_SHAD, // + lpv rgb, shad depth
 
     SAMPLER_TEX_GEOMETRY_DIF = 0,
     SAMPLER_TEX_GEOMETRY_NOR,
@@ -734,6 +723,7 @@ struct SShaderUniforms
   GLint norTex;
   //GLint envTex;
   GLint shadTex;
+  GLint shadDepthTex;
 
   GLint geomColorTex;
   GLint geomPosTex;
@@ -773,7 +763,8 @@ struct SShaderUniforms
   GLint lpvCellSize;
   GLint lpvParams;
 
-  const CMap *shadowMap; // out shadow
+  const CMap *shadowMap; // shadow
+  const CMap *shadowDepthMap; // depth
   const CMap *geomColorMap; // lpv in geometry
   const CMap *geomPosMap;
   const CMap *geomNormalMap;
@@ -798,14 +789,14 @@ struct SShaderUniforms
 
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), vertexNormalBitangent(0), vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), mvpsb(0), cam(0),
-    difTex(0), alpTex(0), speTex(0), norTex(0), /*envTex(0), */shadTex(0),
+    difTex(0), alpTex(0), speTex(0), norTex(0), /*envTex(0), */shadTex(0), shadDepthTex(0),
     geomColorTex(0), geomPosTex(0), geomNormalTex(0), /*geomDepthTex(0),*/
     lpvTexR(0), lpvTexG(0), lpvTexB(0), gvTex(0), lpv0TexR(0), lpv0TexG(0), lpv0TexB(0), lpv1TexR(0), lpv1TexG(0), lpv1TexB(0),
     type(0), opacity(0), tiles(0), tileInstances(0), shadowTexSize(0), shadowClips(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
     geomTexSize(0), lpvPos(0), lpvTexSize(0), lpvCellSize(0), lpvParams(0),
-    shadowMap(NULL), geomColorMap(NULL), geomPosMap(NULL), geomNormalMap(NULL), /*geomDepthMap(NULL),*/
+    shadowMap(NULL), shadowDepthMap(NULL), geomColorMap(NULL), geomPosMap(NULL), geomNormalMap(NULL), /*geomDepthMap(NULL),*/
     lpvGs0MapR(NULL), lpvGs0MapG(NULL), lpvGs0MapB(NULL), gvGs0Map(NULL), 
     lpvGs1MapR(NULL), lpvGs1MapG(NULL), lpvGs1MapB(NULL), gvGs1Map(NULL),
     lpvCs0MapR(NULL), lpvCs0MapG(NULL), lpvCs0MapB(NULL), lpvCs1MapR(NULL), lpvCs1MapG(NULL), lpvCs1MapB(NULL), gvCsMap(NULL)

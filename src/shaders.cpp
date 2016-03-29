@@ -256,6 +256,7 @@ void CShaderProgram::initUniforms()
   u->norTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_NOR_TEX);
   //u->envTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_ENV_TEX);
   u->shadTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SHAD_TEX);
+  u->shadDepthTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SHAD_DEPTH_TEX);
 
   u->geomColorTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_GEOM_COLOR_TEX);
   u->geomPosTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_GEOM_POS_TEX);
@@ -294,6 +295,7 @@ void CShaderProgram::initUniforms()
   u->lpvParams = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_PARAMS);
 
   u->shadowMap = maps->getMap(NEngine::STR_SUN_SHADOW_FBO_MAP);
+  u->shadowDepthMap = maps->getMap(NEngine::STR_SUN_SHADOW_FBO_DEPTH_MAP);
   u->geomColorMap = maps->getMap(NEngine::STR_GEOMETRY_FBO_AMB_MAP);
   u->geomPosMap = maps->getMap(NEngine::STR_GEOMETRY_FBO_POS_MAP);
   u->geomNormalMap = maps->getMap(NEngine::STR_GEOMETRY_FBO_NORMAL_MAP);
@@ -395,26 +397,26 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
       { setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_TEX_ILLUMINATION_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_TEX_ILLUMINATION_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.fSamplers & NShader::SAMPLER_ILLUMINATION_SHADOW)
-          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_DEPTH); }
+          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_SHAD); }
       else if(program.fSamplers & (NShader::SAMPLER_ILLUMINATION_ALPHA | NShader::SAMPLER_ILLUMINATION_ALPHA_SHADOW))
       { setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_TEX_ILLUMINATION_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_TEX_ILLUMINATION_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_TEX_ILLUMINATION_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.fSamplers & NShader::SAMPLER_ILLUMINATION_ALPHA_SHADOW)
-          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_ALPHA_DEPTH); }
+          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_ALPHA_SHAD); }
       else if(program.fSamplers & (NShader::SAMPLER_ILLUMINATION_NORMAL | NShader::SAMPLER_ILLUMINATION_NORMAL_SHADOW))
       { setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->normalMap, u->norTex, NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.fSamplers & NShader::SAMPLER_ILLUMINATION_NORMAL_SHADOW)
-          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_DEPTH); }
+          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_SHAD); }
       else if(program.fSamplers & (NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA | NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA_SHADOW))
       { setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->alphaMap, u->alpTex, NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_ALP, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->specularMap, u->speTex, NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_SPE, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->normalMap, u->norTex, NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         if(program.fSamplers & NShader::SAMPLER_ILLUMINATION_NORMAL_ALPHA_SHADOW)
-          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_DEPTH); }
+          beginLPV(NShader::SAMPLER_TEX_ILLUMINATION_NORMAL_ALPHA_SHAD); }
       else if(program.fSamplers & NShader::SAMPLER_GEOMETRY)
       { setSampler(m->diffuseMap, u->difTex, NShader::SAMPLER_TEX_GEOMETRY_DIF, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR);
         setSampler(m->normalMap, u->norTex, NShader::SAMPLER_TEX_GEOMETRY_NOR, m->type & NModel::MATERIAL_MIP_MAPPING ? NMap::FORMAT_MIPMAP : NMap::FORMAT_LINEAR); }

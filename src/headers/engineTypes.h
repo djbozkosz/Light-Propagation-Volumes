@@ -100,6 +100,7 @@ namespace NEngine
 
   static const char STR_SUN_SHADOW_FBO[] = "sunShadow";
   static const char STR_SUN_SHADOW_FBO_MAP[] = "sunShadow_0";
+  static const char STR_SUN_SHADOW_FBO_DEPTH_MAP[] = "sunShadow_1";
   static const char STR_GEOMETRY_FBO[] = "geometry";
   static const char STR_GEOMETRY_FBO_AMB_MAP[] = "geometry_0";
   static const char STR_GEOMETRY_FBO_POS_MAP[] = "geometry_1";

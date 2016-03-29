@@ -7,7 +7,8 @@ in vec2 texCoord;
 uniform sampler2D difTex;
 #endif
 
-out float glFragColor;
+out float glFragColor0;
+out float glFragColor1;
 
 void main()
 {
@@ -16,5 +17,6 @@ void main()
     discard;
 #endif
 
-  glFragColor = gl_FragCoord.z;
+  glFragColor0 = gl_FragCoord.z;
+  glFragColor1 = gl_FragCoord.z;
 }
