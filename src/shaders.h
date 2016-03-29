@@ -129,7 +129,7 @@ inline void CShaderProgram::beginLPV(NShader::ESamplerTex startDepthSampler) con
   setSampler(lpvMaps[i + 2], u->lpvTexB, startDepthSampler + 3, filter | NMap::FORMAT_BORDER);
 
   if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
-    setSampler(u->shadowDepthMap, u->shadDepthTex, startDepthSampler + 4, filter | NMap::FORMAT_BORDER);
+    setSampler(u->shadowDepthMap, u->shadDepthTex, startDepthSampler + 4, /*filter | */NMap::FORMAT_BORDER);
 }
 //------------------------------------------------------------------------------
 #endif // SHADERS_H

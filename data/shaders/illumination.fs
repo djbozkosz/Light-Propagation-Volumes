@@ -137,14 +137,28 @@ void main()
     vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
     depthVis = texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin, sCoord[shadowIndex].z));
 #else
-    int x = shadowIndex % int(tiles.x);
-    int y = shadowIndex / int(tiles.x);
-    vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
-    depthVis = texture(shadDepthTex, sCoord[shadowIndex].xy * tiles.zw + tileMin).r;
-    /*for(; shadowIndex < SHADOW_CASCADES_COUNT; shadowIndex++)
+    for(int i = 2; i < 4/*SHADOW_CASCADES_COUNT*/; i++)
     {
-      //
-    }*/
+      if(shadowIndex > i)
+        continue;
+
+      int x = i % int(tiles.x);
+      int y = i / int(tiles.x);
+      vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+      /*float depthStart = 0.1 * float(i);
+      float depthEnd = 0.1 * float(i + 1);*/
+      float depthStart = 0.0;
+      float depthEnd = 1.3;
+      if(i == 3)
+      {
+        depthStart = 1.0;
+        depthEnd = 50.0;
+      }
+      float penumbraVisOffset = (sCoord[i].z - texture(shadDepthTex, sCoord[i].xy * tiles.zw + tileMin).r) * shadowClips[i].y;
+      if((penumbraVisOffset >= depthStart) && (penumbraVisOffset < depthEnd))
+        depthVis -= 1.0 - texture(shadTex, vec3(sCoord[i].xy * tiles.zw + tileMin, sCoord[i].z));
+    }
+    depthVis = max(0.0, depthVis);
 #endif
   }
 #endif
