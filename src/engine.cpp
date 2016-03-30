@@ -398,12 +398,12 @@ void CEngine::keyPress(NEngine::EKey key)
     engine.lpvIntensity *= 2.0f;
   else if(key & NEngine::KEY_SHADOW_JITTERING_DOWN)
   {
-    engine.shadowJittering -= 1.0f;
+    engine.shadowJittering -= 8.0f;
     if(engine.shadowJittering < 0.0f)
       engine.shadowJittering = 0.0;
   }
   else if(key & NEngine::KEY_SHADOW_JITTERING_UP)
-    engine.shadowJittering += 1.0f;
+    engine.shadowJittering += 8.0f;
   else if(key & NEngine::KEY_FRUSTUM_UPDATE)
   {
     engine.updateFrustum = !engine.updateFrustum;
