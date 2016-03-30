@@ -442,7 +442,7 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
     if(program.fUniforms & NShader::UNIFORM_TILE_INST)
       gl->uniform1i(u->tileInstances, technique->tileInstances);
     if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
-      gl->uniform3f(u->shadowTexSize, 0.5f / static_cast<float>(e->shadowTextureSize), 0.5f / static_cast<float>(e->shadowTextureSize), context->engineGetEngine()->shadowJittering);
+      gl->uniform3f(u->shadowTexSize, 0.5f / static_cast<float>(u->shadowMap->getMap()->width), 0.5f / static_cast<float>(u->shadowMap->getMap()->height), context->engineGetEngine()->shadowJittering);
     if(program.fUniforms & NShader::UNIFORM_SHAD_CLIPS)
       gl->uniform2fv(u->shadowClips, NEngine::SHADOW_CASCADES_COUNT, NEngine::SHADOW_CASCADES_CLIPS);
     if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS)
