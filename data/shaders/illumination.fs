@@ -122,6 +122,8 @@ void main()
   for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
     sCoord[i] = shadowCoord[i];
 
+  // toho interpolace mezi kaskadama
+
   int shadowIndex = 0;
   for(shadowIndex = 0; shadowIndex < SHADOW_CASCADES_COUNT; shadowIndex++)
   {
