@@ -130,7 +130,7 @@ void main()
 #if !defined(SHADOW_JITTER) || defined(SHADOW_JITTER_CASCADES)
     if(fragDist <= shadowClips[shadowIndex].x)
 #else
-    if(fragDist <= (shadowClips[shadowIndex].x - shadowTexSize.xy * shadowTexSize.z * shadowClips[shadowIndex].x * 10.0))
+    if(fragDist <= (shadowClips[shadowIndex].x - shadowTexSize.x * shadowTexSize.z * shadowClips[shadowIndex].x))
 #endif
       break;
   }
