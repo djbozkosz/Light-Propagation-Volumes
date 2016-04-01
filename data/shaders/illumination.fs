@@ -3,6 +3,7 @@ precision lowp float;
 
 #define BLINN_PHONG
 //#define SHADOW_JITTER_CASCADES
+#define SHADOW_CASCADES_BLEND_RATIO 0.5
 
 #define SHADOW_CASCADES_COUNT
 #define LPV_CASCADES_COUNT
@@ -122,108 +123,127 @@ void main()
   for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
     sCoord[i] = shadowCoord[i];
 
-  // toho interpolace mezi kaskadama
-
   int shadowIndex = 0;
+  float shadowEnd = 0.0;
+  float shadowStart = 0.0;
+
   for(shadowIndex = 0; shadowIndex < SHADOW_CASCADES_COUNT; shadowIndex++)
   {
+    shadowStart = shadowEnd;
 #if !defined(SHADOW_JITTER) || defined(SHADOW_JITTER_CASCADES)
-    if(fragDist <= shadowClips[shadowIndex].x)
+    shadowEnd = shadowClips[shadowIndex].x;
 #else
-    if(fragDist <= (shadowClips[shadowIndex].x - shadowTexSize.x * shadowTexSize.z * shadowClips[shadowIndex].x))
+    shadowEnd = shadowClips[shadowIndex].x - shadowTexSize.x * shadowTexSize.z * shadowClips[shadowIndex].x;
 #endif
+
+    if(fragDist <= shadowEnd)
       break;
   }
 
-  float depthVis = 1.0;
-  if(shadowIndex < SHADOW_CASCADES_COUNT)
+  float shadowRange = shadowEnd - shadowStart;
+  float depthVis = 0.0;
+
+  for(int semiCas = 0; semiCas < 2; semiCas++, shadowIndex++)
   {
+    float dVis = 1.0;
+
+    if(shadowIndex < SHADOW_CASCADES_COUNT)
+    {
+      if((semiCas == 1) && (fragDist < (shadowRange * SHADOW_CASCADES_BLEND_RATIO + shadowStart)))
+        break;
+
 #ifndef SHADOW_JITTER
-    int x = shadowIndex % int(tiles.x);
-    int y = shadowIndex / int(tiles.x);
-    vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
-    depthVis = texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin, sCoord[shadowIndex].z));
+      int x = shadowIndex % int(tiles.x);
+      int y = shadowIndex / int(tiles.x);
+      vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+      dVis = texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin, sCoord[shadowIndex].z));
 #else
 #ifdef SHADOW_JITTER_CASCADES
-    float depthStart = 0.0;
-    float depthCenter = 0.0;
-    float kernelOffset[3];
-    kernelOffset[0] = -1.0; kernelOffset[1] = 0.0; kernelOffset[2] = 1.0;
+      float depthStart = 0.0;
+      float depthCenter = 0.0;
+      float kernelOffset[3];
+      kernelOffset[0] = -1.0; kernelOffset[1] = 0.0; kernelOffset[2] = 1.0;
 
-    for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
-    {
-      if(shadowIndex > i)
-        continue;
-
-      int x = i % int(tiles.x);
-      int y = i / int(tiles.x);
-      vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
-      float depthEnd = shadowClips[i].x * ((i == (SHADOW_CASCADES_COUNT - 1)) ? 1.0 : 0.25);
-
-      for(int j = 0; j < 9; j++)
+      for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
       {
-        float penumbraVisOffset = (sCoord[i].z - texture(shadDepthTex, sCoord[i].xy * tiles.zw + tileMin + shadowTexSize.xy * vec2(kernelOffset[j % 3], kernelOffset[j / 3])).r) * shadowClips[i].y;
+        if(shadowIndex > i)
+          continue;
 
-        if((penumbraVisOffset >= depthStart) && (penumbraVisOffset < depthEnd))
+        int x = i % int(tiles.x);
+        int y = i / int(tiles.x);
+        vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+        float depthEnd = shadowClips[i].x * ((i == (SHADOW_CASCADES_COUNT - 1)) ? 1.0 : 0.25);
+
+        for(int j = 0; j < 9; j++)
         {
-          depthVis -= 1.0 - texture(shadTex, vec3(sCoord[i].xy * tiles.zw + tileMin, sCoord[i].z));
-          break;
+          float penumbraVisOffset = (sCoord[i].z - texture(shadDepthTex, sCoord[i].xy * tiles.zw + tileMin + shadowTexSize.xy * vec2(kernelOffset[j % 3], kernelOffset[j / 3])).r) * shadowClips[i].y;
+
+          if((penumbraVisOffset >= depthStart) && (penumbraVisOffset < depthEnd))
+          {
+            dVis -= 1.0 - texture(shadTex, vec3(sCoord[i].xy * tiles.zw + tileMin, sCoord[i].z));
+            break;
+          }
         }
+
+        depthStart = depthEnd - (depthEnd - depthCenter) * 0.5;
+        depthCenter = depthEnd;
       }
-
-      depthStart = depthEnd - (depthEnd - depthCenter) * 0.5;
-      depthCenter = depthEnd;
-    }
-    depthVis = max(0.0, depthVis);
+      dVis = clamp(dVis, 0.0, 1.0);
 #else
-    int x = shadowIndex % int(tiles.x);
-    int y = shadowIndex / int(tiles.x);
-    vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+      int x = shadowIndex % int(tiles.x);
+      int y = shadowIndex / int(tiles.x);
+      vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
 
-    vec2 kernel[16];
-    kernel[0] = vec2(0.0, 1.0);
-    kernel[1] = vec2(0.382683, 0.92388);
-    kernel[2] = vec2(0.707107, 0.707107);
-    kernel[3] = vec2(0.92388, 0.382683);
-    kernel[4] = vec2(1.0, 0.0);
-    kernel[5] = vec2(0.92388, -0.382684);
-    kernel[6] = vec2(0.707107, -0.707107);
-    kernel[7] = vec2(0.382683, -0.92388);
-    kernel[8] = vec2(-8.74228e-008, -1.0);
-    kernel[9] = vec2(-0.382683, -0.92388);
-    kernel[10] = vec2(-0.707107, -0.707107);
-    kernel[11] = vec2(-0.92388, -0.382683);
-    kernel[12] = vec2(-1, 0.0);
-    kernel[13] = vec2(-0.923879, 0.382684);
-    kernel[14] = vec2(-0.707107, 0.707107);
-    kernel[15] = vec2(-0.382683, 0.92388);
-    const float ikern = 0.0625;
-    vec2 kernSize = shadowTexSize.xy * shadowTexSize.z * (shadowClips[0].x / shadowClips[shadowIndex].x);
+      vec2 kernel[16];
+      kernel[0] = vec2(0.0, 1.0);
+      kernel[1] = vec2(0.382683, 0.92388);
+      kernel[2] = vec2(0.707107, 0.707107);
+      kernel[3] = vec2(0.92388, 0.382683);
+      kernel[4] = vec2(1.0, 0.0);
+      kernel[5] = vec2(0.92388, -0.382684);
+      kernel[6] = vec2(0.707107, -0.707107);
+      kernel[7] = vec2(0.382683, -0.92388);
+      kernel[8] = vec2(-8.74228e-008, -1.0);
+      kernel[9] = vec2(-0.382683, -0.92388);
+      kernel[10] = vec2(-0.707107, -0.707107);
+      kernel[11] = vec2(-0.92388, -0.382683);
+      kernel[12] = vec2(-1, 0.0);
+      kernel[13] = vec2(-0.923879, 0.382684);
+      kernel[14] = vec2(-0.707107, 0.707107);
+      kernel[15] = vec2(-0.382683, 0.92388);
+      const float ikern = 0.0625;
+      vec2 kernSize = shadowTexSize.xy * shadowTexSize.z * (shadowClips[0].x / shadowClips[shadowIndex].x);
 
-    float nearestDepth = 0.0;
-    depthVis = 0.0;
+      float nearestDepth = 0.0;
+      dVis = 0.0;
 
-    for(int i = 0; i < 16; i++)
-    {
-      float vis = texture(shadDepthTex, sCoord[shadowIndex].xy * tiles.zw + tileMin + kernel[i] * kernSize).r;
+      for(int i = 0; i < 16; i++)
+      {
+        float vis = texture(shadDepthTex, sCoord[shadowIndex].xy * tiles.zw + tileMin + kernel[i] * kernSize).r;
 
-      //if((i == 0) || (vis < nearestDepth))
+        //if((i == 0) || (vis < nearestDepth))
         nearestDepth += vis * ikern;
 
-      if((vis - sCoord[shadowIndex].z) >= 0.0)
-        depthVis += ikern;
-    }
+        if((vis - sCoord[shadowIndex].z) >= 0.0)
+          dVis += ikern;
+      }
 
-    if((depthVis > 0.01) && (depthVis < 0.99))
-    {
-      float penumbraRatio = clamp((sCoord[shadowIndex].z - nearestDepth) * shadowClips[shadowIndex].y * 0.2, 0.0, 1.0);
+      if((dVis > 0.01) && (dVis < 0.99))
+      {
+        float penumbraRatio = clamp((sCoord[shadowIndex].z - nearestDepth) * shadowClips[shadowIndex].y * 0.2, 0.0, 1.0);
 
-      depthVis = 0.0;
-      for(int i = 0; i < 16; i++)
-        depthVis += texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin + kernel[i] * kernSize * penumbraRatio, sCoord[shadowIndex].z)) * ikern;
-    }
+        dVis = 0.0;
+        for(int i = 0; i < 16; i++)
+          dVis += texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin + kernel[i] * kernSize * penumbraRatio, sCoord[shadowIndex].z)) * ikern;
+      }
 #endif
 #endif
+    }
+
+    if(semiCas == 0)
+      depthVis = dVis;
+    else
+      depthVis = mix(depthVis, dVis, (fragDist - shadowStart - shadowRange * SHADOW_CASCADES_BLEND_RATIO) / (shadowRange * (1.0 - SHADOW_CASCADES_BLEND_RATIO)));
   }
 #endif
 
