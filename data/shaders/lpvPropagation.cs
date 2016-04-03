@@ -3,7 +3,7 @@ precision lowp float;
 
 layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
 
-layout(r32i) uniform image3D lpv0ImgR;
+/*layout(r32i) uniform image3D lpv0ImgR;
 layout(r32i) uniform image3D lpv0ImgG;
 layout(r32i) uniform image3D lpv0ImgB;
 layout(r32i) uniform image3D lpv1ImgR;
@@ -16,7 +16,7 @@ layout(r32i) uniform image3D lpvOutImgB;
 
 uniform vec4 lpvPos;
 uniform vec3 lpvTexSize;
-uniform vec3 lpvCellSize;
+uniform vec3 lpvCellSize;*/
 
 void main()
 {
@@ -24,7 +24,7 @@ void main()
 #else
 #endif
 
-  mat3 nm[6];
+  /*mat3 nm[6];
   nm[0] = mat3( 1, 0, 0, 0, 1, 0, 0, 0, 1);
   nm[1] = mat3(-1, 0, 0, 0, 1, 0, 0, 0,-1);
   nm[2] = mat3(0, 0, -1, 0, 1, 0, 1, 0, 0);
@@ -80,5 +80,5 @@ void main()
     imageStore(lpvImgR0, i, shR0 + imageLoad(lpvImgR0, i));
     imageStore(lpvImgG0, i, shG0 + imageLoad(lpvImgG0, i));
     imageStore(lpvImgB0, i, shB0 + imageLoad(lpvImgB0, i));
-  }
+  }*/
 }

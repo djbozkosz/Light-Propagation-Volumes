@@ -47,7 +47,6 @@ uniform float opacity;
 #endif
 #ifdef SHAD_TEX
 uniform vec4 tiles;
-uniform int tileInstances;
 uniform vec2 shadowClips[SHADOW_CASCADES_COUNT];
 #endif
 #ifdef SHADOW_JITTER
@@ -245,6 +244,8 @@ void main()
     else
       depthVis = mix(depthVis, dVis, (fragDist - shadowStart - shadowRange * SHADOW_CASCADES_BLEND_RATIO) / (shadowRange * (1.0 - SHADOW_CASCADES_BLEND_RATIO)));
   }
+
+  depthVis = clamp(depthVis, 0.0, 1.0);
 #endif
 
   vec3 viewDir = normalize(cam - positionWorld);

@@ -20,20 +20,28 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
   if(renderer.mode == NRenderer::MODE_PICK)
     meshes[NShader::PROGRAM_COLOR].push_back(mesh);
   else if(renderer.mode == NRenderer::MODE_DEPTH)
-    meshes[NShader::PROGRAM_DEPTH].push_back(mesh);
+  {
+    if((mesh.material) && (mesh.material->program))
+      meshes[NShader::PROGRAM_DEPTH_COLOR_KEY].push_back(mesh);
+    else
+      meshes[NShader::PROGRAM_DEPTH].push_back(mesh);
+  }
   else if(renderer.mode == NRenderer::MODE_DEPTH_CASCADE)
-    meshes[NShader::PROGRAM_DEPTH_CASCADE].push_back(mesh);
+  {
+    if((mesh.material) && (mesh.material->program))
+      meshes[NShader::PROGRAM_DEPTH_CASCADE_COLOR_KEY].push_back(mesh);
+    else
+      meshes[NShader::PROGRAM_DEPTH_CASCADE].push_back(mesh);
+  }
   else if(renderer.mode == NRenderer::MODE_GEOMETRY)
     meshes[NShader::PROGRAM_GEOMETRY].push_back(mesh);
   else if(renderer.mode == NRenderer::MODE_GEOMETRY_CASCADE)
     meshes[NShader::PROGRAM_GEOMETRY_CASCADE].push_back(mesh);
   else if((mesh.material) && (mesh.material->program))
   {
-    NShader::EProgram p = mesh.material->program->getProgram()->name;
-
     if(renderer.mode == NRenderer::MODE_BACKDROP)
     {
-      if((p >= NShader::PROGRAM_ILLUMINATION_ALPHA) && (p <= NShader::PROGRAM_ILLUMINATION_NORMAL_SHADOW_JITTER))
+      if(mesh.material->program->getProgram()->fUniforms & NShader::UNIFORM_OPACITY)
         meshes[NShader::PROGRAM_BASIC_ALPHA].push_back(mesh);
       else
         meshes[NShader::PROGRAM_BASIC].push_back(mesh);

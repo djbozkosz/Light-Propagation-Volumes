@@ -910,14 +910,40 @@ void CModel::updateSceneObject(SSceneObject *sceneObject, SSceneModel *sceneMode
 //------------------------------------------------------------------------------
 void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneModel) const
 {
-  if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()) || (!context->getCulling()->isAABBInFrustum(sceneModel->aabb)))
+  if((!sceneObject) || (!sceneModel) || (sceneModel->meshes.size() != model.meshes.size()))
     return;
 
   CCulling *cul = context->getCulling();
   const SEngine *e = context->engineGetEngine();
   const SCamera *c = context->getCamera()->getCamera();
-
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
+
+  const uint culCascades = (mode == NRenderer::MODE_DEPTH_CASCADE) ? NEngine::SHADOW_CASCADES_COUNT : (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT);
+  const SFrustum *culFrustum = (mode == NRenderer::MODE_DEPTH_CASCADE) ? e->shadowFrustum : e->geometryFrustum;
+
+  if((mode == NRenderer::MODE_DEPTH_CASCADE) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
+  {
+    const SFrustum f = *cul->getFrustum();
+    bool isInAny = false;
+
+    for(uint32 i = 0; i < culCascades; i++)
+    {
+      cul->setFrustum(culFrustum[i]);
+
+      if(cul->isAABBInFrustum(sceneModel->aabb))
+      {
+        isInAny = true;
+        break;
+      }
+    }
+    cul->setFrustum(f);
+
+    if(!isInAny)
+      return;
+  }
+  else if(!cul->isAABBInFrustum(sceneModel->aabb))
+    return;
+
   bool mergedMeshes = (
     (mode == NRenderer::MODE_PICK) ||
     (mode == NRenderer::MODE_DEPTH) ||
@@ -933,47 +959,32 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     const SShaderState *soLod = &soMesh->front(); // todo: lod selection
 
     soLod->instances = 0;
-    soLod->tileInstances = 0;
+    int32 *tileInstances = (mode == NRenderer::MODE_DEPTH_CASCADE) ? soLod->tileShadowInstances : soLod->tileGeometryInstances;
 
-    if(mode == NRenderer::MODE_DEPTH_CASCADE)
+    if((mode == NRenderer::MODE_DEPTH_CASCADE) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
     {
       const SFrustum f = *cul->getFrustum();
-      for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
+      for(uint32 i = 0; i < culCascades; i++)
       {
-        cul->setFrustum(e->shadowFrustum[i]);
+        cul->setFrustum(culFrustum[i]);
         if(cul->isAABBInFrustum(soLod->aabb))
         {
+          tileInstances[soLod->instances] = i;
           soLod->instances++;
-          soLod->tileInstances |= 1 << i;
         }
       }
       cul->setFrustum(f);
 
-      if(!soLod->tileInstances)
-        continue;
-    }
-    else if(mode == NRenderer::MODE_GEOMETRY_CASCADE)
-    {
-      const SFrustum f = *cul->getFrustum();
-      for(uint32 i = 0; i < (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT); i++)
-      {
-        cul->setFrustum(e->geometryFrustum[i]);
-        if(cul->isAABBInFrustum(soLod->aabb))
-        {
-          soLod->instances++;
-          soLod->tileInstances |= 1 << i;
-        }
-      }
-      cul->setFrustum(f);
-
-      if(!soLod->tileInstances)
+      if(!soLod->instances)
         continue;
     }
     else if(!cul->isAABBInFrustum(soLod->aabb))
       continue;
 
     soLod->mvp = c->viewProjection * soLod->mw;
-    if((mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE))
+
+    const bool depthMode = (mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE);
+    if(depthMode)
     {
       const uint32 c = (mode == NRenderer::MODE_DEPTH) ? 1 : NEngine::SHADOW_CASCADES_COUNT;
 
@@ -1008,19 +1019,29 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
         if(const SStandardMeshLod *lod = getLod(mesh, soLod->cam))
         {
           uint32 faceStart = 0;
-          auto last = lod->faceGroups.cend();
-          last--;
+          uint32 faceCnt = 0;
+          auto last = lod->faceGroups.cend(); last--;
 
-          for(auto faceGroup = lod->faceGroups.cbegin(); faceGroup != lod->faceGroups.cend(); faceStart += faceGroup->faces.size(), faceGroup++)
+          for(auto faceGroup = lod->faceGroups.cbegin(); faceGroup != lod->faceGroups.cend(); faceGroup++)
           {
-            if((!mergedMeshes) || (faceGroup == last))
+            auto g = faceGroup; g++;
+            faceCnt += faceGroup->faces.size();
+
+            if(!mergedMeshes)
             {
-              context->getRenderer()->addMesh(SRenderMesh(
-                (mergedMeshes) ? lod->vboSimpleVertices : lod->vboVertices, lod->vboIndices, soLod->instances,
-                (mergedMeshes) ? 0 : faceStart,
-                ((mergedMeshes) ? faceStart : 0) + faceGroup->faces.size(),
-                &(*soLod),
-                (mergedMeshes) ? NULL : faceGroup->material));
+              context->getRenderer()->addMesh(SRenderMesh(lod->vboVertices, lod->vboIndices, soLod->instances, faceStart, faceCnt, &(*soLod), faceGroup->material));
+              faceStart += faceCnt;
+              faceCnt = 0;
+            }
+            else if((faceGroup == last) ||
+                    ((depthMode) && (
+                      ((faceGroup->material) && (faceGroup->material->type & NModel::MATERIAL_COLOR_KEY)) ||
+                      ((g != lod->faceGroups.cend()) && (g->material) && (g->material->type & NModel::MATERIAL_COLOR_KEY)))))
+            {
+              context->getRenderer()->addMesh(SRenderMesh(lod->vboSimpleVertices, lod->vboIndices, soLod->instances, faceStart, faceCnt, &(*soLod),
+                ((depthMode) && (faceGroup->material) && (faceGroup->material->type & NModel::MATERIAL_COLOR_KEY)) ? faceGroup->material : NULL));
+              faceStart += faceCnt;
+              faceCnt = 0;
             }
           }
         }

@@ -18,7 +18,7 @@ out vec2 texCoord;
 uniform mat4 mvp[SHADOW_CASCADES_COUNT];
 
 uniform vec4 tiles;
-uniform int tileInstances;
+uniform int tileInstances[SHADOW_CASCADES_COUNT];
 
 #ifdef DIF_TEX
 out vec2 texCoord;
@@ -36,17 +36,7 @@ void main()
 #ifdef DIF_TEX
   texCoord = _vertexTexCoord;
 #endif
-  int t = tileInstances;
-  int ti = 0;
-  for(int i = 0; i < SHADOW_CASCADES_COUNT; i++, t >>= 1)
-  {
-    if((t & 1) != 0)
-    {
-      if(ti == gl_InstanceID)
-        break;
-      ti++;
-    }
-  }
+  int ti = tileInstances[gl_InstanceID];
   int x = ti % int(tiles.x);
   int y = ti / int(tiles.x);
   vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;

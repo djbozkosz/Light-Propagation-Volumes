@@ -272,7 +272,7 @@ void CEngine::simulationStep()
       {
         const SSceneObject *o = sun->getObject();
         glm::quat r = o->rotation;
-        const float d = NMath::PI / 72.0f; // 5 deg
+        const float d = NMath::PI / 360.0f; // 2 deg
 
         if(engine.keys & NEngine::KEY_SPECIAL_FRONT)
         {

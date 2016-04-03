@@ -436,11 +436,15 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
 
     // lights
     if(program.fUniforms & NShader::UNIFORM_TILE_SHAD)
+    {
       gl->uniform4f(u->tiles, e->shadowTiles.x, e->shadowTiles.y, 1.0f / e->shadowTiles.x, 1.0f / e->shadowTiles.y);
+      gl->uniform1iv(u->tileInstances, NEngine::SHADOW_CASCADES_COUNT, technique->tileShadowInstances);
+    }
     else if(program.fUniforms & NShader::UNIFORM_TILE_GEOM)
+    {
       gl->uniform4f(u->tiles, e->geometryTiles.x, e->geometryTiles.y, 1.0f / e->geometryTiles.x, 1.0f / e->geometryTiles.y);
-    if(program.fUniforms & NShader::UNIFORM_TILE_INST)
-      gl->uniform1i(u->tileInstances, technique->tileInstances);
+      gl->uniform1iv(u->tileInstances, NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT, technique->tileGeometryInstances);
+    }
     if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
       gl->uniform3f(u->shadowTexSize, 0.5f / static_cast<float>(u->shadowMap->getMap()->width), 0.5f / static_cast<float>(u->shadowMap->getMap()->height), context->engineGetEngine()->shadowJittering);
     if(program.fUniforms & NShader::UNIFORM_SHAD_CLIPS)
