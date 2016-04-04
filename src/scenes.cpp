@@ -22,7 +22,7 @@ CSceneObject::~CSceneObject()
 {
 }
 //------------------------------------------------------------------------------
-void CSceneObject::update(NScene::ESceneUpdateType type)
+void CSceneObject::update(uint8 type)
 {
   UNUSED(type);
 

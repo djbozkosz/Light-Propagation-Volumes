@@ -195,17 +195,23 @@ void CEngine::onTimeoutInit()
   if(CScene *s = scenes.setActiveScene("scene"))
   {
     const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87f);
-    const glm::vec3 sunPos = glm::vec3(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y)) * NScene::SUN_DIR_MUL;
+    const glm::vec3 sunPos(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y));
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_AMB), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.1f, 0.2f, 0.3f)));
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_FOG), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
-    s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_SUN, sunPos, sunRot), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(1.6f, 1.35f, 1.2f) * 1.0f, glm::vec2(9999999.0f, 10000000.0f), glm::vec4(10.0f, 10.0f, 10.0f, 32.0f)));
+    s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_SUN, sunPos * NScene::SUN_DIR_MUL, sunRot), SSceneLight(NScene::OBJECT_LIGHT_TYPE_POINT, glm::vec3(1.6f, 1.35f, 1.2f) * 1.0f, glm::vec2(9999999.0f, 10000000.0f), glm::vec4(10.0f, 10.0f, 10.0f, 32.0f)));
 
     s->addSceneObjectModel(
-      SSceneObject("sky", glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
+      SSceneObject(NScene::STR_OBJECT_BG_SKY, glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true));
     s->addSceneObjectModel(
+      SSceneObject(NScene::STR_OBJECT_BG_SUN, sunPos * NScene::SUN_MUL),
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere00.4ds")), true));
+    s->addSceneObjectModel(
       SSceneObject("scene"),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"white_box.4ds"))));
+
+    CModel *tree = models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"));
+    s->addSceneObjectModel(SSceneObject("tree00", glm::vec3(-5.17f, 0.0f, 3.69f), glm::quat(glm::vec3(0.0f, 20.0f * NMath::DEG_2_RAD, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f)), SSceneModel(tree));
   }
 
   window->repaint();
@@ -291,8 +297,10 @@ void CEngine::simulationStep()
         else if(engine.keys & NEngine::KEY_SPECIAL_RIGHT)
           r.z += d;
 
-        sun->setPosition(glm::vec3(sinf(r.z) * cosf(r.y), sinf(r.y), cosf(r.z) * cosf(r.y)) * NScene::SUN_DIR_MUL);
+        const glm::vec3 pos(sinf(r.z) * cosf(r.y), sinf(r.y), cosf(r.z) * cosf(r.y));
+        sun->setPosition(pos * NScene::SUN_DIR_MUL);
         sun->setRotation(r);
+        s->getSceneObject(NScene::STR_OBJECT_BG_SUN)->setPosition(pos * NScene::SUN_MUL);
         if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
           f->setChanged();
         //std::cout << "sun " << o->position.x << " " << o->position.y << " " << o->position.z << ", " << (r.y * NMath::RAD_2_DEG) << " " << (r.z * NMath::RAD_2_DEG) << "\n";

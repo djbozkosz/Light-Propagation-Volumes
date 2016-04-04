@@ -8,10 +8,13 @@
 namespace NScene
 {
   static const float SUN_DIR_MUL = 100000.0f;
+  static const float SUN_MUL = 20.0f;
 
   static const char STR_OBJECT_LIGHT_AMB[] = "light_amb";
   static const char STR_OBJECT_LIGHT_FOG[] = "light_fog";
   static const char STR_OBJECT_LIGHT_SUN[] = "light_sun";
+  static const char STR_OBJECT_BG_SKY[] = "bg_sky";
+  static const char STR_OBJECT_BG_SUN[] = "bg_sun";
 
   enum ESceneObjectType
   {

@@ -1,6 +1,8 @@
 #version 150
 precision lowp float;
 
+#define LPV_CASCADES_COUNT
+
 in vec3 _vertexPosition;
 in vec3 _vertexNormal;
 in vec3 _vertexNormalTangent;
@@ -10,22 +12,21 @@ in vec4 _vertexColor;
 
 uniform mat4 mw;
 uniform mat3 mwnit;
-#ifndef GS_CASCADE
+
+#ifndef CASCADE
 uniform mat4 mvp;
+#else
+uniform mat4 mvp[LPV_CASCADES_COUNT];
+
+uniform vec4 tiles;
+uniform int tileInstances[LPV_CASCADES_COUNT];
+#endif
 
 out vec3 positionWorld;
 out vec3 normal;
 out vec2 texCoord;
 out vec4 color;
 out mat3 mtbnti;
-#else
-out vec3 _positionWorld;
-out vec3 _normal;
-out vec2 _texCoord;
-out vec4 _color;
-out mat3 _mtbnti;
-flat out int instanceID;
-#endif
 
 mat3 inv(mat3 m)
 {
@@ -46,20 +47,26 @@ mat3 inv(mat3 m)
 
 void main()
 {
-#ifndef GS_CASCADE
   positionWorld = vec4(mw * vec4(_vertexPosition, 1.0)).xyz;
   normal = mwnit * _vertexNormal;
   texCoord = _vertexTexCoord;
   color = _vertexColor;
   mtbnti = inv(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
+
+#ifndef CASCADE
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 #else
-  _positionWorld = vec4(mw * vec4(_vertexPosition, 1.0)).xyz;
-  _normal = _vertexNormal;
-  _texCoord = _vertexTexCoord;
-  _color = _vertexColor;
-  _mtbnti = inv(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));
-  instanceID = gl_InstanceID;
-  gl_Position = vec4(_vertexPosition, 1.0);
+  int ti = tileInstances[gl_InstanceID];
+  int x = ti % int(tiles.x);
+  int y = ti / int(tiles.x);
+  vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+  vec4 p = mvp[ti] * vec4(_vertexPosition, 1.0);
+  vec2 clip = (p.xy * 0.5 + 0.5) * tiles.zw + tileMin;
+
+  gl_ClipDistance[0] = clip.x - tileMin.x;
+  gl_ClipDistance[1] = tiles.z - clip.x + tileMin.x;
+  gl_ClipDistance[2] = clip.y - tileMin.y;
+  gl_ClipDistance[3] = tiles.w - clip.y + tileMin.y;
+  gl_Position = vec4(clip * 2.0 - 1.0, p.z, p.w);
 #endif
 }

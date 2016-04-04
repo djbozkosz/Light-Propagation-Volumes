@@ -21,13 +21,13 @@ class CSceneObject : public CEngineBase
     CSceneObject(CContext *context, const SSceneObject &object, const SSceneText &text);
     ~CSceneObject();
 
-    void update(NScene::ESceneUpdateType type = NScene::UPDATE_ALL);
+    void update(uint8 type = NScene::UPDATE_ALL);
 
     void render() const;
 
-    inline void setPosition(const glm::vec3 &position) { object.position = position; update(NScene::UPDATE_TRANSFORMATION); }
-    inline void setRotation(const glm::quat &rotation) { object.rotation = rotation; update(NScene::UPDATE_TRANSFORMATION); }
-    inline void setScale(const glm::vec3 &scale) { object.scale = scale; update(NScene::UPDATE_TRANSFORMATION); }
+    inline void setPosition(const glm::vec3 &position) { object.position = position; update(NScene::UPDATE_TRANSFORMATION | NScene::UPDATE_MODEL); }
+    inline void setRotation(const glm::quat &rotation) { object.rotation = rotation; update(NScene::UPDATE_TRANSFORMATION | NScene::UPDATE_MODEL); }
+    inline void setScale(const glm::vec3 &scale) { object.scale = scale; update(NScene::UPDATE_TRANSFORMATION | NScene::UPDATE_MODEL); }
     inline void setModel(const SSceneModel &model) { this->model = model; object.type = NScene::OBJECT_TYPE_MODEL; update(); }
     void setLight(const SSceneLight &light);
 
@@ -55,7 +55,7 @@ class CScene : public CEngineBase
 
     inline void setChanged(bool changed) { scene.changed = changed; }
 
-    void update(NScene::ESceneUpdateType type = NScene::UPDATE_ALL) { for(auto it = sceneObjects.begin(); it != sceneObjects.end(); it++) it->second.update(type); }
+    void update(uint8 type = NScene::UPDATE_ALL) { for(auto it = sceneObjects.begin(); it != sceneObjects.end(); it++) it->second.update(type); }
     inline void clear() { sceneObjects.clear(); }
     void render() const { for(auto it = sceneObjects.cbegin(); it != sceneObjects.cend(); it++) it->second.render(); }
 

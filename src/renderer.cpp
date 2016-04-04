@@ -41,7 +41,7 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
   {
     if(renderer.mode == NRenderer::MODE_BACKDROP)
     {
-      if(mesh.material->program->getProgram()->fUniforms & NShader::UNIFORM_OPACITY)
+      if(mesh.material->program->getProgram()->fSamplers & NShader::SAMPLER_ILLUMINATION_ALPHA_SHADOW)
         meshes[NShader::PROGRAM_BASIC_ALPHA].push_back(mesh);
       else
         meshes[NShader::PROGRAM_BASIC].push_back(mesh);

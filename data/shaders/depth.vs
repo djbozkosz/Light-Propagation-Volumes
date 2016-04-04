@@ -27,15 +27,13 @@ out vec2 texCoord;
 
 void main()
 {
-#ifndef CASCADE
 #ifdef DIF_TEX
   texCoord = _vertexTexCoord;
 #endif
+
+#ifndef CASCADE
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 #else
-#ifdef DIF_TEX
-  texCoord = _vertexTexCoord;
-#endif
   int ti = tileInstances[gl_InstanceID];
   int x = ti % int(tiles.x);
   int y = ti / int(tiles.x);
