@@ -4,6 +4,7 @@ precision lowp float;
 #define BLINN_PHONG
 //#define SHADOW_JITTER_CASCADES
 #define SHADOW_CASCADES_BLEND_RATIO 0.5
+#define LPV_CASCADES_BLEND_RATIO 0.5
 
 #define SHADOW_CASCADES_COUNT
 #define LPV_CASCADES_COUNT
@@ -63,6 +64,7 @@ uniform vec3 fogColor;
 
 #ifdef SHAD_TEX
 uniform vec4 lpvPos[LPV_CASCADES_COUNT];
+uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize[LPV_CASCADES_COUNT];
 uniform vec2 lpvParams;
 #endif
@@ -100,20 +102,54 @@ void main()
   return;
 #endif
 
-#ifndef SHAD_TEX
+  float fragDist = distance(cam, positionWorld);
   vec3 lpvColor = vec3(0.0, 0.0, 0.0);
-#else
-  vec4 sh = vec4(0.2821, -0.4886 * -normalDir.y, 0.4886 * -normalDir.z, -0.4886 * -normalDir.x);
+
+#ifdef SHAD_TEX
+  /*vec4 sh = vec4(0.2821, -0.4886 * -normalDir.y, 0.4886 * -normalDir.z, -0.4886 * -normalDir.x);
   vec3 p = (lpvPos[0].xyz + positionWorld) * lpvCellSize[0];
   vec4 lpvShR0 = texture(lpvTexR, p);
   vec4 lpvShG0 = texture(lpvTexG, p);
   vec4 lpvShB0 = texture(lpvTexB, p);
-  vec3 lpvColor = vec3(dot(sh, lpvShR0), dot(sh, lpvShG0), dot(sh, lpvShB0)) * lpvParams.y;
+  lpvColor = vec3(dot(sh, lpvShR0), dot(sh, lpvShG0), dot(sh, lpvShB0)) * lpvParams.y;
   if((lpvColor.x < 0.0) || (lpvColor.y < 0.0) || (lpvColor.z < 0.0))
-    lpvColor = vec3(0.0);
-#endif
+    lpvColor = vec3(0.0);*/
 
-  float fragDist = distance(cam, positionWorld);
+  int lpvIndex = 0;
+  float lpvEnd = 0.0;
+  float lpvStart = 0.0;
+
+  for(lpvIndex = 0; lpvIndex < LPV_CASCADES_COUNT; lpvIndex++)
+  {
+    lpvStart = lpvEnd;
+    lpvEnd = lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5;
+
+    if(fragDist <= lpvEnd)
+      break;
+  }
+
+  float lpvRange = lpvEnd - lpvStart;
+
+  for(int semiCascade = 0; semiCascade < 2; semiCascade++, lpvIndex++)
+  {
+    vec3 lpvColor2 = vec3(0.0, 0.0, 0.0);
+
+    if(lpvIndex < LPV_CASCADES_COUNT)
+    {
+      if((semiCascade == 1) && (fragDist < (lpvRange * LPV_CASCADES_BLEND_RATIO + lpvStart)))
+        break;
+
+      vec3 lpvP = positionWorld / ((semiCascade == 0) ? lpvEnd : (lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5)) * 0.5 + 0.5;
+      lpvP.x = (lpvP.x + float(lpvIndex)) / float(LPV_CASCADES_COUNT);
+      lpvColor2 = texture(lpvTexR, lpvP).rgb;
+    }
+
+    if(semiCascade == 0)
+      lpvColor = lpvColor2;
+    else
+      lpvColor = mix(lpvColor, lpvColor2, clamp((fragDist - lpvStart - lpvRange * LPV_CASCADES_BLEND_RATIO) / (lpvRange * (1.0 - LPV_CASCADES_BLEND_RATIO)), 0.0, 1.0));
+  }
+#endif
 
 #ifndef SHAD_TEX
   float depthVis = 1.0;
@@ -132,7 +168,7 @@ void main()
 #if !defined(SHADOW_JITTER) || defined(SHADOW_JITTER_CASCADES)
     shadowEnd = shadowClips[shadowIndex].x;
 #else
-    shadowEnd = shadowClips[shadowIndex].x - shadowTexSize.x * shadowTexSize.z * shadowClips[shadowIndex].x;
+    shadowEnd = shadowClips[shadowIndex].x - shadowTexSize.x * 0.5 * shadowTexSize.z * shadowClips[shadowIndex].x;
 #endif
 
     if(fragDist <= shadowEnd)
@@ -142,19 +178,17 @@ void main()
   float shadowRange = shadowEnd - shadowStart;
   float depthVis = 0.0;
 
-  for(int semiCas = 0; semiCas < 2; semiCas++, shadowIndex++)
+  for(int semiCascade = 0; semiCascade < 2; semiCascade++, shadowIndex++)
   {
     float dVis = 1.0;
 
     if(shadowIndex < SHADOW_CASCADES_COUNT)
     {
-      if((semiCas == 1) && (fragDist < (shadowRange * SHADOW_CASCADES_BLEND_RATIO + shadowStart)))
+      if((semiCascade == 1) && (fragDist < (shadowRange * SHADOW_CASCADES_BLEND_RATIO + shadowStart)))
         break;
 
 #ifndef SHADOW_JITTER
-      int x = shadowIndex % int(tiles.x);
-      int y = shadowIndex / int(tiles.x);
-      vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+      vec2 tileMin = vec2(float(shadowIndex % int(tiles.x)), float(shadowIndex / int(tiles.x))) * tiles.zw;
       dVis = texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin, sCoord[shadowIndex].z));
 #else
 #ifdef SHADOW_JITTER_CASCADES
@@ -168,14 +202,12 @@ void main()
         if(shadowIndex > i)
           continue;
 
-        int x = i % int(tiles.x);
-        int y = i / int(tiles.x);
-        vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+        vec2 tileMin = vec2(float(i % int(tiles.x)), float(i / int(tiles.x))) * tiles.zw;
         float depthEnd = shadowClips[i].x * ((i == (SHADOW_CASCADES_COUNT - 1)) ? 1.0 : 0.25);
 
         for(int j = 0; j < 9; j++)
         {
-          float penumbraVisOffset = (sCoord[i].z - texture(shadDepthTex, sCoord[i].xy * tiles.zw + tileMin + shadowTexSize.xy * vec2(kernelOffset[j % 3], kernelOffset[j / 3])).r) * shadowClips[i].y;
+          float penumbraVisOffset = (sCoord[i].z - texture(shadDepthTex, sCoord[i].xy * tiles.zw + tileMin + shadowTexSize.xy * 0.5 * vec2(kernelOffset[j % 3], kernelOffset[j / 3])).r) * shadowClips[i].y;
 
           if((penumbraVisOffset >= depthStart) && (penumbraVisOffset < depthEnd))
           {
@@ -189,9 +221,7 @@ void main()
       }
       dVis = clamp(dVis, 0.0, 1.0);
 #else
-      int x = shadowIndex % int(tiles.x);
-      int y = shadowIndex / int(tiles.x);
-      vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+      vec2 tileMin = vec2(float(shadowIndex % int(tiles.x)), float(shadowIndex / int(tiles.x))) * tiles.zw;
 
       vec2 kernel[16];
       kernel[0] = vec2(0.0, 1.0);
@@ -211,7 +241,7 @@ void main()
       kernel[14] = vec2(-0.707107, 0.707107);
       kernel[15] = vec2(-0.382683, 0.92388);
       const float ikern = 0.0625;
-      vec2 kernSize = shadowTexSize.xy * shadowTexSize.z * (shadowClips[0].x / shadowClips[shadowIndex].x);
+      vec2 kernSize = shadowTexSize.xy * 0.5 * shadowTexSize.z * (shadowClips[0].x / shadowClips[shadowIndex].x);
 
       float nearestDepth = 0.0;
       dVis = 0.0;
@@ -239,13 +269,11 @@ void main()
 #endif
     }
 
-    if(semiCas == 0)
+    if(semiCascade == 0)
       depthVis = dVis;
     else
-      depthVis = mix(depthVis, dVis, (fragDist - shadowStart - shadowRange * SHADOW_CASCADES_BLEND_RATIO) / (shadowRange * (1.0 - SHADOW_CASCADES_BLEND_RATIO)));
+      depthVis = mix(depthVis, dVis, clamp((fragDist - shadowStart - shadowRange * SHADOW_CASCADES_BLEND_RATIO) / (shadowRange * (1.0 - SHADOW_CASCADES_BLEND_RATIO)), 0.0, 1.0));
   }
-
-  depthVis = clamp(depthVis, 0.0, 1.0);
 #endif
 
   vec3 viewDir = normalize(cam - positionWorld);

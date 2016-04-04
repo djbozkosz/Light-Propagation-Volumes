@@ -25,7 +25,7 @@ CEngine::CEngine(
   engine.maxTextureSize = 256;
   engine.shadowTextureSize = 512;
   engine.shadowJittering = 0.0f;
-  //engine.geometryTextureSize = 256;
+  //engine.geometryTextureSize = 128;
 
   //engine.lpvTextureSize = glm::vec3(32.0f);
   engine.lpvPropagationSteps = 0;

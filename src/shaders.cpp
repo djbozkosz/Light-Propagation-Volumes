@@ -147,7 +147,9 @@ std::string CShader::setDefines(const std::string &data)
   d.insert(index, defines);
 
   d = CStr::replaceAll(d, "#define SHADOW_CASCADES_COUNT", CStr("#define SHADOW_CASCADES_COUNT %d", NEngine::SHADOW_CASCADES_COUNT));
-  d = CStr::replaceAll(d, "#define LPV_CASCADES_COUNT", CStr("#define LPV_CASCADES_COUNT %d", NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT));
+  d = CStr::replaceAll(d, "#define LPV_CASCADES_COUNT", CStr("#define LPV_CASCADES_COUNT %d", NEngine::LPV_CASCADES_COUNT));
+  d = CStr::replaceAll(d, "#define LPV_SUN_SKY_CASCADES_COUNT", CStr("#define LPV_SUN_SKY_CASCADES_COUNT %d", NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT));
+  d = CStr::replaceAll(d, "#define LPV_SUN_SKY_DIRS_COUNT", CStr("#define LPV_SUN_SKY_DIRS_COUNT %d", NEngine::LPV_SUN_SKY_DIRS_COUNT));
 
   return d;
 }
@@ -446,7 +448,7 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
       gl->uniform1iv(u->tileInstances, NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT, technique->tileGeometryInstances);
     }
     if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
-      gl->uniform3f(u->shadowTexSize, 0.5f / static_cast<float>(u->shadowMap->getMap()->width), 0.5f / static_cast<float>(u->shadowMap->getMap()->height), context->engineGetEngine()->shadowJittering);
+      gl->uniform3f(u->shadowTexSize, 1.0f / static_cast<float>(e->shadowTextureSize * e->shadowTiles.x), 1.0f / static_cast<float>(e->shadowTextureSize * e->shadowTiles.y), context->engineGetEngine()->shadowJittering);
     if(program.fUniforms & NShader::UNIFORM_SHAD_CLIPS)
       gl->uniform2fv(u->shadowClips, NEngine::SHADOW_CASCADES_COUNT, NEngine::SHADOW_CASCADES_CLIPS);
     if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS)
@@ -466,10 +468,10 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
 
   // lpv params
   if(program.fUniforms & NShader::UNIFORM_GEOM_TEX_SIZE)
-    gl->uniform4f(u->geomTexSize, e->geometryTextureSize, e->geometryTextureSize, 1.0f / static_cast<float>(e->geometryTextureSize), 1.0f / static_cast<float>(e->geometryTextureSize));
+    gl->uniform4f(u->geomTexSize, e->geometryTextureSize * e->geometryTiles.x, e->geometryTextureSize * e->geometryTiles.y, 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.x), 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.y));
   if(program.fUniforms & NShader::UNIFORM_LPV_POS_TEXS_CELLS_PARAMS)
   { gl->uniform3fv(u->lpvPos, NEngine::LPV_CASCADES_COUNT, e->lpvPosesOut);
-    gl->uniform3f(u->lpvTexSize, e->lpvTextureSize.x, e->lpvTextureSize.y, e->lpvTextureSize.z);
+    gl->uniform3f(u->lpvTexSize, e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z);
     gl->uniform3fv(u->lpvCellSize, NEngine::LPV_CASCADES_COUNT, NEngine::LPV_CELL_SIZES);
     gl->uniform2f(u->lpvParams, e->lpvPropagationSteps, e->lpvIntensity); }
 

@@ -1,7 +1,7 @@
 #version 150
 precision lowp float;
 
-#define LPV_CASCADES_COUNT
+#define LPV_SUN_SKY_CASCADES_COUNT
 
 in vec3 _vertexPosition;
 in vec3 _vertexNormal;
@@ -16,10 +16,10 @@ uniform mat3 mwnit;
 #ifndef CASCADE
 uniform mat4 mvp;
 #else
-uniform mat4 mvp[LPV_CASCADES_COUNT];
+uniform mat4 mvp[LPV_SUN_SKY_CASCADES_COUNT];
 
 uniform vec4 tiles;
-uniform int tileInstances[LPV_CASCADES_COUNT];
+uniform int tileInstances[LPV_SUN_SKY_CASCADES_COUNT];
 #endif
 
 out vec3 positionWorld;
@@ -57,9 +57,7 @@ void main()
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 #else
   int ti = tileInstances[gl_InstanceID];
-  int x = ti % int(tiles.x);
-  int y = ti / int(tiles.x);
-  vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+  vec2 tileMin = vec2(float(ti % int(tiles.x)), float(ti / int(tiles.x))) * tiles.zw;
   vec4 p = mvp[ti] * vec4(_vertexPosition, 1.0);
   vec2 clip = (p.xy * 0.5 + 0.5) * tiles.zw + tileMin;
 

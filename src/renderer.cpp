@@ -88,7 +88,6 @@ void CRenderer::dispatch() const
 
     for(auto mesh = meshes[i].cbegin(); mesh != meshes[i].cend(); mesh++)
     {
-      //const SRenderMesh *mesh;
       if(!mesh->technique)
         continue;
 

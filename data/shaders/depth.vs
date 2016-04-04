@@ -35,9 +35,7 @@ void main()
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 #else
   int ti = tileInstances[gl_InstanceID];
-  int x = ti % int(tiles.x);
-  int y = ti / int(tiles.x);
-  vec2 tileMin = vec2(float(x), float(y)) * tiles.zw;
+  vec2 tileMin = vec2(float(ti % int(tiles.x)), float(ti / int(tiles.x))) * tiles.zw;
   vec4 p = mvp[ti] * vec4(_vertexPosition, 1.0);
   vec2 clip = (p.xy * 0.5 + 0.5) * tiles.zw + tileMin;
 

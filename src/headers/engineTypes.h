@@ -36,7 +36,7 @@ namespace NEngine
   static const float SHADOW_JITTERING = 2.0f;
 
   static const uint32 GEOMETRY_TEXTURE_SIZE = 32;
-  static const uint32 GEOMETRY_TILES_X = 3;
+  static const uint32 GEOMETRY_TILES_X = 2;
   static const uint32 GEOMETRY_TILES_Y = 2;
 
   static const float LPV_TEXTURE_SIZE_X = 32.0f;
@@ -47,8 +47,8 @@ namespace NEngine
   static const uint32 LPV_MODES_COUNT = 3;
   static const uint32 LPV_TECHNIQUES_COUNT = 2;
   static const uint32 LPV_SH_COUNT = 4;
-  static const uint32 LPV_CASCADES_COUNT = 1;
-  static const uint32 LPV_SUN_SKY_DIRS_COUNT = 1; // sun + sky
+  static const uint32 LPV_CASCADES_COUNT = 2;
+  static const uint32 LPV_SUN_SKY_DIRS_COUNT = 2; // sun + sky
   static const float LPV_CUBE_LENGTH = 1.74f;
 
   static const float SHADOW_CASCADES_CLIPS[/*SHADOW_CASCADES_COUNT * NMath::VEC2*/] =
@@ -61,9 +61,10 @@ namespace NEngine
     400.0f, 600.0f
   };
 
-  static const float GEOMETRY_CASCADES_CLIPS[/*LPV_CASCADES_COUNT * LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
+  static const float GEOMETRY_CASCADES_CLIPS[/*LPV_CASCADES_COUNT * NMath::VEC2*/] =
   {
-    16.0f * LPV_CUBE_LENGTH, 50.0f
+    16.0f * LPV_CUBE_LENGTH, 200.0f,
+    50.0f * LPV_CUBE_LENGTH, 200.0f
     /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, depth
     5.0f * LPV_CUBE_LENGTH, 100.0f,
     10.0f * LPV_CUBE_LENGTH, 150.0f,
@@ -74,17 +75,20 @@ namespace NEngine
 
   static const float SUN_SKY_POSES[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
   {
-    0.0f, 0.0f
+    0.0f, 0.0f,
+    90.0f * NMath::DEG_2_RAD, 0.0f
   };
 
   static const float SUN_SKY_COLORS[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3*/] =
   {
-    0.0f, 0.0f, 0.0f
+    0.0f, 0.0f, 0.0f,
+    0.3f, 0.4f, 0.5f
   };
 
   static const float LPV_CELL_SIZES[/*LPV_CASCADES_COUNT * NMath::VEC3*/] =
   {
-    1.0f, 1.0f, 1.0f
+    1.0f, 1.0f, 1.0f,
+    3.0f, 3.0f, 3.0f
     /*0.1f, 0.1f, 0.1f,
     0.3f, 0.3f, 0.3f,
     0.8f, 0.8f, 0.8f,
@@ -404,7 +408,7 @@ struct SEngine
       shadowViewProj[i] = glm::mat4();
     }
 
-    geometryCascadesClips.resize(NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2);
+    geometryCascadesClips.resize(NEngine::LPV_CASCADES_COUNT * NMath::VEC2);
     lpvCellSizes.resize(NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
     memcpy(&geometryCascadesClips[0], NEngine::GEOMETRY_CASCADES_CLIPS, sizeof(float) * geometryCascadesClips.size());
     memcpy(&lpvCellSizes[0], NEngine::LPV_CELL_SIZES, sizeof(float) * lpvCellSizes.size());

@@ -105,7 +105,7 @@ class CEngine
     inline void setShadowViewProj(uint32 index, const glm::mat4 &m) { engine.shadowViewProj[index] = m; }
     inline void setShadowFrustum(uint32 index, const SFrustum &f) { engine.shadowFrustum[index] = f; }
     inline void setGeometryViewProj(uint32 index, const glm::mat4 &m) { engine.geometryViewProj[index] = m; }
-    inline void setGeometryFrustum(uint32 index, const SFrustum &f) { engine.shadowFrustum[index] = f; }
+    inline void setGeometryFrustum(uint32 index, const SFrustum &f) { engine.geometryFrustum[index] = f; }
     inline void setSunSkyPose(uint32 index, const glm::vec2 &v) { engine.sunSkyPoses[index * NMath::VEC2 + 0] = v.x; engine.sunSkyPoses[index * NMath::VEC2 + 1] = v.y; }
     inline void setSunSkyColor(uint32 index, const glm::vec3 &v) { engine.sunSkyColors[index * NMath::VEC3 + 0] = v.x; engine.sunSkyColors[index * NMath::VEC3 + 1] = v.y; engine.sunSkyColors[index * NMath::VEC3 + 2] = v.z; }
     inline void setLpvPose(uint32 index, const glm::vec3 &v) { engine.lpvPoses[index] = v; }
