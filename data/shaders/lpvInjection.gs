@@ -27,36 +27,35 @@ void main()
 {
   int x = vertexID[0] % int(geomTexSize.x);
   int y = vertexID[0] / int(geomTexSize.x);
-  int cascade = x / int(tiles.x);
+  int cascade = y / int(geomTexSize.y * tiles.w);
+  vec2 tex = vec2(float(x), float(y)) * geomTexSize.zw;
 
-  vec2 tex = vec2(float(x), float(y)) * geomTexSize.zw + gl_in[0].gl_Position.xy; // zeros
-  vec3 light = texture(geomColorTex, tex).xyz;
-
-  if(length(light) > 0.0)
+  if(length(texture(geomColorTex, tex).rgb) > 0.0)
   {
     vec3 pos = texture(geomPosTex, tex).xyz;
-    vec3 lpvPos = vec3(pos.xy / (lpvTexSize.xy * 0.5), pos.z + lpvTexSize.z * 0.5);
+    vec3 lpvPos = vec3(pos.xy / (lpvTexSize.y * 0.5), pos.z + lpvTexSize.z * 0.5);
+    lpvPos.x = ((lpvPos.x * 0.5 + 0.5 + float(cascade)) * tiles.w) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc
 
-    if((lpvPos.x > -1.0) && (lpvPos.x < 1.0) &&
-       (lpvPos.y > -1.0) && (lpvPos.y < 1.0) &&
-       (lpvPos.z > 0.0) && (lpvPos.z < lpvTexSize.z))
-    {
-      lpvPos.x = ((lpvPos.x * 0.5 + 0.5 + float(cascade)) / float(tiles.x)) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc
-      texPos = vec2(float(x), float(y));
-      gl_Layer = int(lpvPos.z);
-      gl_Position = vec4(lpvPos.xy, 0.0, 1.0);
-      EmitVertex();
-    }
+    texPos = vec2(float(x), float(y));
+    gl_Layer = int(lpvPos.z);
+    gl_Position = gl_in[0].gl_Position + vec4(lpvPos.xy, 0.0, 1.0);
+    EmitVertex();
   }
 
   EndPrimitive();
 
-  /*texPos = vec2(0.0, 0.0);
+  /*int x = vertexID[0] % int(geomTexSize.x);
+  int y = vertexID[0] / int(geomTexSize.y);
+  texPos = texture(geomPosTex, vec2(float(x) * geomTexSize.z, float(y) * geomTexSize.w)).rg;
   gl_Layer = 16;
-  gl_Position = gl_in[0].gl_Position + vec4(float(vertexID[0]) * geomTexSize.z * 2.0 - 1.0, 0.0, 0.0, 1.0); EmitVertex();
-  //gl_Position = vec4(-1.0,  1.0, 0.5, 1.0); EmitVertex();
-  //gl_Position = vec4( 1.0,  1.0, 0.5, 1.0); EmitVertex();
-  //gl_Position = vec4(-1.0, -1.0, 0.5, 1.0); EmitVertex();
-  //gl_Position = vec4( 1.0, -1.0, 0.5, 1.0); EmitVertex();
+  gl_Position = gl_in[0].gl_Position + vec4(float(x) * geomTexSize.z * 2.0 - 1.0, float(y) * geomTexSize.w * 2.0 - 1.0, 0.0, 1.0) * vec4(1.0, 2.0, 0.0, 1.0);
+  EmitVertex();
+  EndPrimitive();*/
+
+  /*gl_Layer = 16;
+  texPos = vec2(-1.0, 1.0); gl_Position = vec4(-1.0, 1.0, 0.0, 1.0); EmitVertex();
+  texPos = vec2(1.0, 1.0); gl_Position = vec4( 1.0,  1.0, 0.0, 1.0); EmitVertex();
+  texPos = vec2(-1.0, -1.0); gl_Position = vec4(-1.0, -1.0, 0.0, 1.0); EmitVertex();
+  texPos = vec2(1.0, -1.0); gl_Position = vec4( 1.0, -1.0, 0.0, 1.0); EmitVertex();
   EndPrimitive();*/
 }

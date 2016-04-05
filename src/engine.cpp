@@ -25,7 +25,7 @@ CEngine::CEngine(
   engine.maxTextureSize = 256;
   engine.shadowTextureSize = 512;
   engine.shadowJittering = 0.0f;
-  //engine.geometryTextureSize = 128;
+  engine.geometryTextureSize = 64;
 
   //engine.lpvTextureSize = glm::vec3(32.0f);
   engine.lpvPropagationSteps = 0;
@@ -189,7 +189,7 @@ void CEngine::onTimeoutInit()
   context.log("Loading Scene...");
 
   camera.setRange(0.01f, 200.0f);
-  camera.setSpeed(5.0f);
+  camera.setSpeed(10.0f);
 
   scenes.addScene(SScene("scene"));
   if(CScene *s = scenes.setActiveScene("scene"))
@@ -208,10 +208,10 @@ void CEngine::onTimeoutInit()
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere00.4ds")), true));
     s->addSceneObjectModel(
       SSceneObject("scene"),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"white_box.4ds"))));
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
 
-    CModel *tree = models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"));
-    s->addSceneObjectModel(SSceneObject("tree00", glm::vec3(-5.17f, 0.0f, 3.69f), glm::quat(glm::vec3(0.0f, 20.0f * NMath::DEG_2_RAD, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f)), SSceneModel(tree));
+    //CModel *tree = models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"));
+    //s->addSceneObjectModel(SSceneObject("tree00", glm::vec3(-5.17f, 0.0f, 3.69f), glm::quat(glm::vec3(0.0f, 20.0f * NMath::DEG_2_RAD, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f)), SSceneModel(tree));
   }
 
   window->repaint();

@@ -425,6 +425,10 @@ void CWindow::paintGL()
       drawTexture(0.0f, 0.333f, 0.333f * r, 0.333f, fboGeometry->getFrameBuffer()->attachments[1].map);
       drawTexture(0.0f, 0.666f, 0.333f * r, 0.333f, fboGeometry->getFrameBuffer()->attachments[2].map);
       //drawTexture(0.0f, 0.666f, 0.333f * r, 0.333f, fboGeometry->getFrameBuffer()->attachments[3].map);
+
+      m = fbo->getFramebuffer(NEngine::STR_LPV0_GS_FBO)->getFrameBuffer()->attachments[0].map;
+      for(uint8 i = 0; i < 8; i++)
+        drawTexture(0.8f, static_cast<float>(i) * 0.11f, 0.2f, 0.1f, m, i * 4);
     }
   }
 
@@ -535,7 +539,16 @@ void CWindow::drawTexture(float x, float y, float w, float h, const CMap *textur
   quadTechnique.mvp = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(x * 2.0f - 1.0f, 1.0f - y * 2.0f, 0.0f)), glm::vec3(w, h, 1.0f));
   quadMaterial.diffuseMap = texture;
   quadMaterial.program->begin(&quadTechnique);
-  gl->uniform1f(quadMaterial.program->getProgram()->uniforms.opacity, static_cast<float>(level) / static_cast<float>(texture->getMap()->width));
+  if(texture->getMap()->depth)
+    gl->uniform1f(quadMaterial.program->getProgram()->uniforms.opacity, (static_cast<float>(level) + 0.5f) / static_cast<float>(texture->getMap()->depth));
+
+  //gl->texParameteri(texFormat, NOpenGL::TEXTURE_MAG_FILTER, NOpenGL::NEAREST);
+  //gl->texParameteri(texFormat, NOpenGL::TEXTURE_MIN_FILTER, NOpenGL::NEAREST);
+  if(format & (NMap::FORMAT_3D | NMap::FORMAT_2D_ARRAY))
+    gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_R, NOpenGL::CLAMP_TO_EDGE);
+  gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_S, NOpenGL::CLAMP_TO_EDGE);
+  gl->texParameteri(texFormat, NOpenGL::TEXTURE_WRAP_T, NOpenGL::CLAMP_TO_EDGE);
+
   gl->depthMask(NOpenGL::FALSE);
   if(isShadow)
     gl->texParameteri(texFormat, NOpenGL::TEXTURE_COMPARE_MODE, NOpenGL::NONE);

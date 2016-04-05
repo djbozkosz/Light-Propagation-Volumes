@@ -468,7 +468,8 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
 
   // lpv params
   if(program.fUniforms & NShader::UNIFORM_GEOM_TEX_SIZE)
-    gl->uniform4f(u->geomTexSize, e->geometryTextureSize * e->geometryTiles.x, e->geometryTextureSize * e->geometryTiles.y, 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.x), 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.y));
+  { gl->uniform4f(u->tiles, e->geometryTiles.x, e->geometryTiles.y, 1.0f / e->geometryTiles.x, 1.0f / e->geometryTiles.y); 
+    gl->uniform4f(u->geomTexSize, e->geometryTextureSize * e->geometryTiles.x, e->geometryTextureSize * e->geometryTiles.y, 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.x), 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.y)); }
   if(program.fUniforms & NShader::UNIFORM_LPV_POS_TEXS_CELLS_PARAMS)
   { gl->uniform3fv(u->lpvPos, NEngine::LPV_CASCADES_COUNT, e->lpvPosesOut);
     gl->uniform3f(u->lpvTexSize, e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z);

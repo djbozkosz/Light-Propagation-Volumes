@@ -4,7 +4,7 @@ precision lowp float;
 #define BLINN_PHONG
 //#define SHADOW_JITTER_CASCADES
 #define SHADOW_CASCADES_BLEND_RATIO 0.5
-#define LPV_CASCADES_BLEND_RATIO 0.5
+#define LPV_CASCADES_BLEND_RATIO 0.9
 
 #define SHADOW_CASCADES_COUNT
 #define LPV_CASCADES_COUNT
@@ -257,14 +257,14 @@ void main()
           dVis += ikern;
       }
 
-      if((dVis > 0.01) && (dVis < 0.99))
-      {
+      //if((dVis > 0.01) && (dVis < 0.99))
+      //{
         float penumbraRatio = clamp((sCoord[shadowIndex].z - nearestDepth) * shadowClips[shadowIndex].y * 0.2, 0.0, 1.0);
 
         dVis = 0.0;
         for(int i = 0; i < 16; i++)
           dVis += texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin + kernel[i] * kernSize * penumbraRatio, sCoord[shadowIndex].z)) * ikern;
-      }
+      //}
 #endif
 #endif
     }

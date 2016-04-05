@@ -63,8 +63,8 @@ namespace NEngine
 
   static const float GEOMETRY_CASCADES_CLIPS[/*LPV_CASCADES_COUNT * NMath::VEC2*/] =
   {
-    16.0f * LPV_CUBE_LENGTH, 200.0f,
-    50.0f * LPV_CUBE_LENGTH, 200.0f
+    5.0f * LPV_CUBE_LENGTH, 200.0f,
+    100.0f * LPV_CUBE_LENGTH, 200.0f
     /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, depth
     5.0f * LPV_CUBE_LENGTH, 100.0f,
     10.0f * LPV_CUBE_LENGTH, 150.0f,

@@ -16,7 +16,6 @@ uniform vec3 lightPos[LPV_SUN_SKY_DIRS_COUNT];
 
 uniform vec4 tiles;
 uniform vec4 geomTexSize;
-uniform vec3 lpvPos[LPV_CASCADES_COUNT];
 uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize[LPV_CASCADES_COUNT];
 
@@ -27,12 +26,15 @@ out vec4 glFragColor3Gv;
 
 void main()
 {
-  int x = int(texPos.x) % int(geomTexSize.x);
-  int y = int(texPos.y) / int(geomTexSize.x);
-  int cascade = x / int(tiles.x);
-  int sunSkyLight = y / int(tiles.y);
+  int x = int(texPos.x);
+  int y = int(texPos.y);
+  int sunSkyLight = x / int(geomTexSize.x * tiles.z);
+  vec2 tex = vec2(float(x), float(y)) * geomTexSize.zw;
 
-  glFragColor0LpvR = vec4(2.0, 0.0, 0.0, 1.0);
+  vec3 light = texture(geomColorTex, tex).rgb;
+
+  glFragColor0LpvR = vec4(light/* * lightAmb[0]*/, 1.0);
+  //glFragColor0LpvR = vec4(1.0, 0.0, 0.0, 1.0);
   glFragColor1LpvG = vec4(0.33, 0.0, 0.0, 1.0);
   glFragColor2LpvB = vec4(0.34, 0.0, 0.0, 1.0);
   glFragColor3Gv = vec4(0.0, 0.0, 0.0, 1.0);

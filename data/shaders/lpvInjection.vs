@@ -8,5 +8,5 @@ flat out int vertexID;
 void main()
 {
   vertexID = gl_VertexID;
-  gl_Position = vec4(_vertexPosition, _vertexPosition, _vertexPosition, 1.0);
+  gl_Position = vec4(_vertexPosition);
 }
