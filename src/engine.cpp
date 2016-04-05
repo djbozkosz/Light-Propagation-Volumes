@@ -46,7 +46,6 @@ CEngine::CEngine(
     &setSunSkyPose,
     &setSunSkyColor,
     &setLpvPose,
-    &setLpvPoseOut,
     &staticSwapLPV,
     &staticGetClassName,
     &staticGetEngine);
@@ -99,6 +98,7 @@ CEngine::CEngine(
   engine.keysMap[Qt::Key_F] = NEngine::KEY_FRUSTUM_UPDATE;
   engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
   engine.keysMap[Qt::Key_H] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
+  engine.keysMap[Qt::Key_M] = NEngine::KEY_LPV_SPHERE_UPDATE;
 
   engine.keysMap[Qt::Key_Escape] = NEngine::KEY_QUIT;
 
@@ -133,6 +133,7 @@ CEngine::CEngine(
   engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
   engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
   engine.keysMap[SDLK_h] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
+  engine.keysMap[SDLK_m] = NEngine::KEY_LPV_SPHERE_UPDATE;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 #endif
@@ -189,7 +190,7 @@ void CEngine::onTimeoutInit()
   context.log("Loading Scene...");
 
   camera.setRange(0.01f, 200.0f);
-  camera.setSpeed(10.0f);
+  camera.setSpeed(25.0f);
 
   scenes.addScene(SScene("scene"));
   if(CScene *s = scenes.setActiveScene("scene"))
@@ -210,8 +211,13 @@ void CEngine::onTimeoutInit()
       SSceneObject("scene"),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
 
-    //CModel *tree = models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"));
-    //s->addSceneObjectModel(SSceneObject("tree00", glm::vec3(-5.17f, 0.0f, 3.69f), glm::quat(glm::vec3(0.0f, 20.0f * NMath::DEG_2_RAD, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f)), SSceneModel(tree));
+    /*s->addSceneObjectModel(
+      SSceneObject("tree00", glm::vec3(-5.17f, 0.0f, 3.69f), glm::quat(glm::vec3(0.0f, 20.0f * NMath::DEG_2_RAD, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f)),
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));*/
+
+    s->addSceneObjectModel(
+      SSceneObject(NScene::STR_OBJECT_LPV_SPHERE, glm::vec3(0.0f, 1.0f, 0.0f), glm::quat(), glm::vec3(0.2f, 0.2f, 0.2f)),
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere01.4ds"))));
   }
 
   window->repaint();
@@ -278,7 +284,7 @@ void CEngine::simulationStep()
       {
         const SSceneObject *o = sun->getObject();
         glm::quat r = o->rotation;
-        const float d = NMath::PI / 360.0f; // 2 deg
+        const float d = NMath::PI / 72.0f; // 5 deg //360.0f; // 2 deg
 
         if(engine.keys & NEngine::KEY_SPECIAL_FRONT)
         {
@@ -427,6 +433,11 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & NEngine::KEY_SHOW_SHADOW_BUFFERS)
   {
     engine.showShadowBuffer = !engine.showShadowBuffer;
+    window->repaint();
+  }
+  else if(key & NEngine::KEY_LPV_SPHERE_UPDATE)
+  {
+    scenes.getActiveScene()->getSceneObject(NScene::STR_OBJECT_LPV_SPHERE)->setPosition(glm::vec3(camera.getCamera()->position));
     window->repaint();
   }
 

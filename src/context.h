@@ -61,10 +61,9 @@ class CContext
     void (*fncEngineSetShadowFrustum)(CContext *context, uint32 index, const SFrustum &f);
     void (*fncEngineSetGeometryViewProj)(CContext *context, uint32 index, const glm::mat4 &m);
     void (*fncEngineSetGeometryFrustum)(CContext *context, uint32 index, const SFrustum &f);
-    void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec2 &v);
+    void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r);
     void (*fncEngineSetSunSkyColor)(CContext *context, uint32 index, const glm::vec3 &v);
     void (*fncEngineSetLpvPose)(CContext *context, uint32 index, const glm::vec3 &v);
-    void (*fncEngineSetLpvPoseOut)(CContext *context, uint32 index, const glm::vec3 &v);
     void (*fncEngineSwapLPV)(CContext *context);
     std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object);
     const SEngine *(*fncEngineGetEngine)(const CContext *context);
@@ -99,7 +98,6 @@ class CContext
       fncEngineSetSunSkyPose(NULL),
       fncEngineSetSunSkyColor(NULL),
       fncEngineSetLpvPose(NULL),
-      fncEngineSetLpvPoseOut(NULL),
       fncEngineSwapLPV(NULL),
       fncEngineGetClassName(NULL),
       fncEngineGetEngine(NULL) {}
@@ -147,7 +145,6 @@ class CContext
         fncEngineSetSunSkyPose(NULL),
         fncEngineSetSunSkyColor(NULL),
         fncEngineSetLpvPose(NULL),
-        fncEngineSetLpvPoseOut(NULL),
         fncEngineSwapLPV(NULL),
         fncEngineGetClassName(NULL),
         fncEngineGetEngine(NULL) {}
@@ -197,10 +194,9 @@ class CContext
       void (*fncEngineSetShadowFrustum)(CContext *context, uint32 index, const SFrustum &f),
       void (*fncEngineSetGeometryViewProj)(CContext *context, uint32 index, const glm::mat4 &m),
       void (*fncEngineSetGeometryFrustum)(CContext *context, uint32 index, const SFrustum &f),
-      void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec2 &v),
+      void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r),
       void (*fncEngineSetSunSkyColor)(CContext *context, uint32 index, const glm::vec3 &v),
       void (*fncEngineSetLpvPose)(CContext *context, uint32 index, const glm::vec3 &v),
-      void (*fncEngineSetLpvPoseOut)(CContext *context, uint32 index, const glm::vec3 &v),
       void (*fncEngineSwapLPV)(CContext *context),
       std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object),
       const SEngine *(*fncEngineGetEngine)(const CContext *context))
@@ -218,7 +214,6 @@ class CContext
       if(fncEngineSetSunSkyPose)       this->fncEngineSetSunSkyPose = fncEngineSetSunSkyPose;
       if(fncEngineSetSunSkyColor)      this->fncEngineSetSunSkyColor = fncEngineSetSunSkyColor;
       if(fncEngineSetLpvPose)          this->fncEngineSetLpvPose = fncEngineSetLpvPose;
-      if(fncEngineSetLpvPoseOut)       this->fncEngineSetLpvPoseOut = fncEngineSetLpvPoseOut;
       if(fncEngineSwapLPV)             this->fncEngineSwapLPV = fncEngineSwapLPV;
       if(fncEngineGetClassName)        this->fncEngineGetClassName = fncEngineGetClassName;
       if(fncEngineGetEngine)           this->fncEngineGetEngine = fncEngineGetEngine;
@@ -236,10 +231,9 @@ class CContext
     inline void engineSetShadowFrustum(uint32 index, const SFrustum &f) { fncEngineSetShadowFrustum(this, index, f); }
     inline void engineSetGeometryViewProj(uint32 index, const glm::mat4 &m) { fncEngineSetGeometryViewProj(this, index, m); }
     inline void engineSetGeometryFrustum(uint32 index, const SFrustum &f) { fncEngineSetGeometryFrustum(this, index, f); }
-    inline void engineSetSunSkyPose(uint32 index, const glm::vec2 &v) { fncEngineSetSunSkyPose(this, index, v); }
+    inline void engineSetSunSkyPose(uint32 index, const glm::vec3 &p, const glm::vec2 &r) { fncEngineSetSunSkyPose(this, index, p, r); }
     inline void engineSetSunSkyColor(uint32 index, const glm::vec3 &v) { fncEngineSetSunSkyColor(this, index, v); }
     inline void engineSetLpvPose(uint32 index, const glm::vec3 &v) { fncEngineSetLpvPose(this, index, v); }
-    inline void engineSetLpvPoseOut(uint32 index, const glm::vec3 &v) { fncEngineSetLpvPoseOut(this, index, v); }
     inline void engineSwapLPV() { fncEngineSwapLPV(this); }
     inline std::string engineGetClassName(const CEngineBase *object) { return fncEngineGetClassName(this, object); return std::string(); }
     inline const SEngine *engineGetEngine() const { return fncEngineGetEngine(this); return NULL; }

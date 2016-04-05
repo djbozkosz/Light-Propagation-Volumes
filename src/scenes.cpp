@@ -30,7 +30,7 @@ void CSceneObject::update(uint8 type)
   {
     if(type & NScene::UPDATE_TRANSFORMATION)
       object.mw = SMatrix::composeTransformation(object.position, object.rotation, object.scale);
-    if(type & NScene::UPDATE_MODEL)
+    if(type & (NScene::UPDATE_MODEL | NScene::UPDATE_TRANSFORMATION))
     {
       model.model->updateSceneObject(&object, &model);
 
@@ -40,7 +40,7 @@ void CSceneObject::update(uint8 type)
           lod->pickColor = object.pickColor.toVec3();
       }
     }
-    if(type & NScene::UPDATE_LIGHTING)
+    if(type & (NScene::UPDATE_LIGHTING | NScene::UPDATE_TRANSFORMATION | NScene::UPDATE_MODEL))
     {
       for(auto mesh = model.meshes.begin(); mesh != model.meshes.end(); mesh++)
       {

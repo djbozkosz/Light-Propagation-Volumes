@@ -2,9 +2,10 @@
 precision lowp float;
 
 #define BLINN_PHONG
+//#define NOR_TEX_DEBUG
 //#define SHADOW_JITTER_CASCADES
 #define SHADOW_CASCADES_BLEND_RATIO 0.5
-#define LPV_CASCADES_BLEND_RATIO 0.9
+#define LPV_CASCADES_BLEND_RATIO 0.95
 
 #define SHADOW_CASCADES_COUNT
 #define LPV_CASCADES_COUNT
@@ -37,6 +38,9 @@ uniform sampler2DShadow shadTex;
 uniform sampler3D lpvTexR;
 uniform sampler3D lpvTexG;
 uniform sampler3D lpvTexB;
+uniform sampler3D skyTexR;
+uniform sampler3D skyTexG;
+uniform sampler3D skyTexB;
 #endif
 #ifdef SHADOW_JITTER
 uniform sampler2D shadDepthTex;
@@ -63,7 +67,7 @@ uniform vec2 fogRange;
 uniform vec3 fogColor;
 
 #ifdef SHAD_TEX
-uniform vec4 lpvPos[LPV_CASCADES_COUNT];
+uniform vec3 lpvPos[LPV_CASCADES_COUNT];
 uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize[LPV_CASCADES_COUNT];
 uniform vec2 lpvParams;
@@ -97,24 +101,15 @@ void main()
   vec3 normalDir = normalize(mtbnti * normalize(fragNor * 2.0 - 1.0));
 #endif
 
-#ifdef NOR_TEX_DEBUG
+/*#ifdef NOR_TEX_DEBUG
   glFragColor = vec4(normalDir * 0.5 + 0.5, alpha);
   return;
-#endif
+#endif*/
 
   float fragDist = distance(cam, positionWorld);
   vec3 lpvColor = vec3(0.0, 0.0, 0.0);
 
 #ifdef SHAD_TEX
-  /*vec4 sh = vec4(0.2821, -0.4886 * -normalDir.y, 0.4886 * -normalDir.z, -0.4886 * -normalDir.x);
-  vec3 p = (lpvPos[0].xyz + positionWorld) * lpvCellSize[0];
-  vec4 lpvShR0 = texture(lpvTexR, p);
-  vec4 lpvShG0 = texture(lpvTexG, p);
-  vec4 lpvShB0 = texture(lpvTexB, p);
-  lpvColor = vec3(dot(sh, lpvShR0), dot(sh, lpvShG0), dot(sh, lpvShB0)) * lpvParams.y;
-  if((lpvColor.x < 0.0) || (lpvColor.y < 0.0) || (lpvColor.z < 0.0))
-    lpvColor = vec3(0.0);*/
-
   int lpvIndex = 0;
   float lpvEnd = 0.0;
   float lpvStart = 0.0;
@@ -139,9 +134,23 @@ void main()
       if((semiCascade == 1) && (fragDist < (lpvRange * LPV_CASCADES_BLEND_RATIO + lpvStart)))
         break;
 
-      vec3 lpvP = positionWorld / ((semiCascade == 0) ? lpvEnd : (lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5)) * 0.5 + 0.5;
+      float lpvE = (semiCascade == 0) ? lpvEnd : (lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5);
+      vec3 lpvP = (positionWorld/* - lpvPos[lpvIndex]*/) / lpvE * 0.5 + 0.5;
       lpvP.x = (lpvP.x + float(lpvIndex)) / float(LPV_CASCADES_COUNT);
-      lpvColor2 = texture(lpvTexR, lpvP).rgb;
+
+      vec4 shBase = vec4(0.2821, -0.4886, 0.4886, -0.4886);
+      //vec4 shBase = vec4(0.8862, -1.0233, 1.0233, -1.0233);
+      vec4 shNormal = shBase * vec4(1.0, -normalDir.y, -normalDir.z, -normalDir.x);
+      vec4 lpvShR = texture(lpvTexR, lpvP);
+      vec4 lpvShG = texture(lpvTexG, lpvP);
+      vec4 lpvShB = texture(lpvTexB, lpvP);
+      lpvColor2 = vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * lpvParams.y;
+
+      vec4 shNormalSky = shBase * vec4(1.0, normalDir.y, normalDir.z, normalDir.x);
+      vec4 skyShR = texture(skyTexR, lpvP);
+      vec4 skyShG = texture(skyTexG, lpvP);
+      vec4 skyShB = texture(skyTexB, lpvP);
+      lpvColor2 += vec3(max(0.0, dot(shNormalSky, skyShR)), max(0.0, dot(shNormalSky, skyShG)), max(0.0, dot(shNormalSky, skyShB))) * lpvParams.y;
     }
 
     if(semiCascade == 0)
@@ -300,4 +309,8 @@ void main()
   alpha += (colorSpe.r + colorSpe.g + colorSpe.b) * 0.3333333334;
 #endif
   glFragColor = vec4(mix(fragDif.rgb * color.rgb * colorDif + fragSpe * colorSpe/* + fresPow * fogColor*/, fogColor/* + fogDot * lightColor*/, fogDist), alpha);
+
+#ifdef NOR_TEX_DEBUG
+  glFragColor = vec4(normalDir * 0.5 + 0.5, alpha);
+#endif
 }

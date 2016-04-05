@@ -17,7 +17,7 @@ uniform sampler2D geomNormalTex;
 
 uniform vec4 tiles;
 uniform vec4 geomTexSize;
-uniform vec3 lpvPos[LPV_CASCADES_COUNT];
+//uniform vec3 lpvPos[LPV_CASCADES_COUNT];
 uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize[LPV_CASCADES_COUNT];
 
@@ -33,12 +33,12 @@ void main()
   if(length(texture(geomColorTex, tex).rgb) > 0.0)
   {
     vec3 pos = texture(geomPosTex, tex).xyz;
-    vec3 lpvPos = vec3(pos.xy / (lpvTexSize.y * 0.5), pos.z + lpvTexSize.z * 0.5);
-    lpvPos.x = ((lpvPos.x * 0.5 + 0.5 + float(cascade)) * tiles.w) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc
+    vec3 lpvP = vec3(pos.xy / (lpvTexSize.y * lpvCellSize[cascade].xy * 0.5), pos.z + lpvTexSize.z * lpvCellSize[cascade].z * 0.5);
+    lpvP.x = ((lpvP.x * 0.5 + 0.5 + float(cascade)) * tiles.w) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc
 
     texPos = vec2(float(x), float(y));
-    gl_Layer = int(lpvPos.z);
-    gl_Position = gl_in[0].gl_Position + vec4(lpvPos.xy, 0.0, 1.0);
+    gl_Layer = int(lpvP.z);
+    gl_Position = gl_in[0].gl_Position + vec4(lpvP.xy, 0.0, 1.0);
     EmitVertex();
   }
 

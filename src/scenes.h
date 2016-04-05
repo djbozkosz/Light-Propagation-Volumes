@@ -25,9 +25,9 @@ class CSceneObject : public CEngineBase
 
     void render() const;
 
-    inline void setPosition(const glm::vec3 &position) { object.position = position; update(NScene::UPDATE_TRANSFORMATION | NScene::UPDATE_MODEL); }
-    inline void setRotation(const glm::quat &rotation) { object.rotation = rotation; update(NScene::UPDATE_TRANSFORMATION | NScene::UPDATE_MODEL); }
-    inline void setScale(const glm::vec3 &scale) { object.scale = scale; update(NScene::UPDATE_TRANSFORMATION | NScene::UPDATE_MODEL); }
+    inline void setPosition(const glm::vec3 &position) { object.position = position; update(NScene::UPDATE_TRANSFORMATION); }
+    inline void setRotation(const glm::quat &rotation) { object.rotation = rotation; update(NScene::UPDATE_TRANSFORMATION); }
+    inline void setScale(const glm::vec3 &scale) { object.scale = scale; update(NScene::UPDATE_TRANSFORMATION); }
     inline void setModel(const SSceneModel &model) { this->model = model; object.type = NScene::OBJECT_TYPE_MODEL; update(); }
     void setLight(const SSceneLight &light);
 

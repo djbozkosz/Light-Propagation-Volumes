@@ -269,6 +269,9 @@ void CShaderProgram::initUniforms()
   u->lpvTexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_G);
   u->lpvTexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_TEX_B);
   u->gvTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_GV_TEX);
+  u->skyTexR = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SKY_TEX_R);
+  u->skyTexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SKY_TEX_G);
+  u->skyTexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_SKY_TEX_B);
   u->lpv0TexR = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_TEX_R);
   u->lpv0TexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_TEX_G);
   u->lpv0TexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_TEX_B);
@@ -307,10 +310,16 @@ void CShaderProgram::initUniforms()
   u->lpvGs0MapG = maps->getMap(NEngine::STR_LPV0_GS_MAP_G);
   u->lpvGs0MapB = maps->getMap(NEngine::STR_LPV0_GS_MAP_B);
   u->gvGs0Map = maps->getMap(NEngine::STR_GV0_GS_MAP);
+  u->skyGs0MapR = maps->getMap(NEngine::STR_SKY0_GS_MAP_R);
+  u->skyGs0MapG = maps->getMap(NEngine::STR_SKY0_GS_MAP_G);
+  u->skyGs0MapB = maps->getMap(NEngine::STR_SKY0_GS_MAP_B);
   u->lpvGs1MapR = maps->getMap(NEngine::STR_LPV1_GS_MAP_R);
   u->lpvGs1MapG = maps->getMap(NEngine::STR_LPV1_GS_MAP_G);
   u->lpvGs1MapB = maps->getMap(NEngine::STR_LPV1_GS_MAP_B);
   u->gvGs1Map = maps->getMap(NEngine::STR_GV1_GS_MAP);
+  u->skyGs1MapR = maps->getMap(NEngine::STR_SKY1_GS_MAP_R);
+  u->skyGs1MapG = maps->getMap(NEngine::STR_SKY1_GS_MAP_G);
+  u->skyGs1MapB = maps->getMap(NEngine::STR_SKY1_GS_MAP_B);
   u->lpvCs0MapR = maps->getMap(NEngine::STR_LPV0_CS_IMG_R);
   u->lpvCs0MapG = maps->getMap(NEngine::STR_LPV0_CS_IMG_G);
   u->lpvCs0MapB = maps->getMap(NEngine::STR_LPV0_CS_IMG_B);
@@ -318,6 +327,9 @@ void CShaderProgram::initUniforms()
   u->lpvCs1MapG = maps->getMap(NEngine::STR_LPV1_CS_IMG_G);
   u->lpvCs1MapB = maps->getMap(NEngine::STR_LPV1_CS_IMG_B);
   u->gvCsMap = maps->getMap(NEngine::STR_GV_CS_IMG);
+  u->skyCsMapR = maps->getMap(NEngine::STR_SKY_CS_IMG_R);
+  u->skyCsMapG = maps->getMap(NEngine::STR_SKY_CS_IMG_G);
+  u->skyCsMapB = maps->getMap(NEngine::STR_SKY_CS_IMG_B);
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::bind() const
@@ -453,10 +465,7 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
       gl->uniform2fv(u->shadowClips, NEngine::SHADOW_CASCADES_COUNT, NEngine::SHADOW_CASCADES_CLIPS);
     if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS)
     { gl->uniform3f(u->lightAmb, technique->lightAmb.x, technique->lightAmb.y, technique->lightAmb.z);
-      gl->uniform3f(u->lightPos, technique->lights[0].pos.x, technique->lights[0].pos.y, technique->lights[0].pos.z); }
-    else if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS_INJECT)
-    { gl->uniform3fv(u->lightAmb, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyColors);
-      gl->uniform3fv(u->lightPos, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyPoses); }
+      gl->uniform3f(u->lightPos, technique->lights[0].pos.x, technique->lights[0].pos.y, technique->lights[0].pos.z);  }
     if(program.fUniforms & NShader::UNIFORM_LRAN_LCOL_LSPEC_FRAN_FCOL)
     { const SCamera *cam = context->getCamera()->getCamera();
       gl->uniform2f(u->lightRange, technique->lights[0].range.x, technique->lights[0].range.y);
@@ -467,11 +476,14 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
   } // end technique
 
   // lpv params
+  if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS_INJECT)
+  { gl->uniform3fv(u->lightAmb, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyColors);
+    gl->uniform3fv(u->lightPos, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyPoses); }
   if(program.fUniforms & NShader::UNIFORM_GEOM_TEX_SIZE)
   { gl->uniform4f(u->tiles, e->geometryTiles.x, e->geometryTiles.y, 1.0f / e->geometryTiles.x, 1.0f / e->geometryTiles.y); 
     gl->uniform4f(u->geomTexSize, e->geometryTextureSize * e->geometryTiles.x, e->geometryTextureSize * e->geometryTiles.y, 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.x), 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.y)); }
   if(program.fUniforms & NShader::UNIFORM_LPV_POS_TEXS_CELLS_PARAMS)
-  { gl->uniform3fv(u->lpvPos, NEngine::LPV_CASCADES_COUNT, e->lpvPosesOut);
+  { gl->uniform3fv(u->lpvPos, NEngine::LPV_CASCADES_COUNT, e->lpvPoses);
     gl->uniform3f(u->lpvTexSize, e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z);
     gl->uniform3fv(u->lpvCellSize, NEngine::LPV_CASCADES_COUNT, NEngine::LPV_CELL_SIZES);
     gl->uniform2f(u->lpvParams, e->lpvPropagationSteps, e->lpvIntensity); }
@@ -491,7 +503,10 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
     setSampler(u->lpvCs1MapR, u->lpv1TexR, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_W);
     setSampler(u->lpvCs1MapG, u->lpv1TexG, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_W);
     setSampler(u->lpvCs1MapB, u->lpv1TexB, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W); }
+    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
+    setSampler(u->skyCsMapR, u->gvTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_SKY_R, NMap::FORMAT_IMAGE_W);
+    setSampler(u->skyCsMapG, u->gvTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_SKY_G, NMap::FORMAT_IMAGE_W);
+    setSampler(u->skyCsMapB, u->gvTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_SKY_B, NMap::FORMAT_IMAGE_W); }
   else if(program.fSamplers & NShader::IMAGE_LPV_INJECTION_COMPUTE)
   { setSampler(u->geomColorMap, u->geomColorTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_COLOR, NMap::FORMAT_IMAGE_R);
     setSampler(u->geomPosMap, u->geomPosTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_POS, NMap::FORMAT_IMAGE_R);
@@ -500,12 +515,18 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
     setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
     setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
     setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_W); }
+    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_W);
+    setSampler(u->skyCsMapR, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_SKY_R, NMap::FORMAT_IMAGE_W);
+    setSampler(u->skyCsMapG, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_SKY_G, NMap::FORMAT_IMAGE_W); 
+    setSampler(u->skyCsMapB, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_SKY_B, NMap::FORMAT_IMAGE_W); }
   else if(program.fSamplers & NShader::IMAGE_LPV_PROPAGATION_COMPUTE)
   { setSampler(u->lpvGs0MapR, u->lpvTexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
     setSampler(u->lpvGs0MapG, u->lpvTexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
     setSampler(u->lpvGs0MapB, u->lpvTexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
     setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_R);
+    setSampler(u->skyCsMapR, u->gvTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_SKY_R, NMap::FORMAT_IMAGE_R);
+    setSampler(u->skyCsMapG, u->gvTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_SKY_G, NMap::FORMAT_IMAGE_R);
+    setSampler(u->skyCsMapB, u->gvTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_SKY_B, NMap::FORMAT_IMAGE_R);
     setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
     setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
     setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);

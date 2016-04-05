@@ -48,10 +48,9 @@ class CEngine
     static inline void setShadowFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setShadowFrustum(index, f); }
     static inline void setGeometryViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setGeometryViewProj(index, m); }
     static inline void setGeometryFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setGeometryFrustum(index, f); }
-    static inline void setSunSkyPose(CContext *context, uint32 index, const glm::vec2 &v) { context->getEngine()->setSunSkyPose(index, v); }
+    static inline void setSunSkyPose(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r) { context->getEngine()->setSunSkyPose(index, p, r); }
     static inline void setSunSkyColor(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setSunSkyColor(index, v); }
     static inline void setLpvPose(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPose(index, v); }
-    static inline void setLpvPoseOut(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPoseOut(index, v); }
     static inline void staticSwapLPV(CContext *context) { context->getEngine()->swapLPV(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
     static inline const SEngine *staticGetEngine(const CContext *context) { return context->getEngine()->getEngine(); }
@@ -106,10 +105,9 @@ class CEngine
     inline void setShadowFrustum(uint32 index, const SFrustum &f) { engine.shadowFrustum[index] = f; }
     inline void setGeometryViewProj(uint32 index, const glm::mat4 &m) { engine.geometryViewProj[index] = m; }
     inline void setGeometryFrustum(uint32 index, const SFrustum &f) { engine.geometryFrustum[index] = f; }
-    inline void setSunSkyPose(uint32 index, const glm::vec2 &v) { engine.sunSkyPoses[index * NMath::VEC2 + 0] = v.x; engine.sunSkyPoses[index * NMath::VEC2 + 1] = v.y; }
+    inline void setSunSkyPose(uint32 index, const glm::vec3 &p, const glm::vec2 &r) { float pp[] = { p.x, p.y, p.z }; float rr[] = { r.x, r.y }; memcpy(&engine.sunSkyPoses[index * NMath::VEC3], pp, sizeof(float) * 3); memcpy(&engine.sunSkyRots[index * NMath::VEC2], rr, sizeof(float) * 2); }
     inline void setSunSkyColor(uint32 index, const glm::vec3 &v) { engine.sunSkyColors[index * NMath::VEC3 + 0] = v.x; engine.sunSkyColors[index * NMath::VEC3 + 1] = v.y; engine.sunSkyColors[index * NMath::VEC3 + 2] = v.z; }
-    inline void setLpvPose(uint32 index, const glm::vec3 &v) { engine.lpvPoses[index] = v; }
-    inline void setLpvPoseOut(uint32 index, const glm::vec3 &v) { engine.lpvPosesOut[index * NMath::VEC3 + 0] = v.x; engine.lpvPosesOut[index * NMath::VEC3 + 1] = v.y; engine.lpvPosesOut[index * NMath::VEC3 + 2] = v.z; }
+    inline void setLpvPose(uint32 index, const glm::vec3 &v) { engine.lpvPoses[index * NMath::VEC3 + 0] = v.x; engine.lpvPoses[index * NMath::VEC3 + 1] = v.y; engine.lpvPoses[index * NMath::VEC3 + 2] = v.z; }
     inline void swapLPV() { engine.lpvPropagationSwap = !engine.lpvPropagationSwap; }
     void updateTicks();
 

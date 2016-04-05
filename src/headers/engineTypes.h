@@ -63,8 +63,8 @@ namespace NEngine
 
   static const float GEOMETRY_CASCADES_CLIPS[/*LPV_CASCADES_COUNT * NMath::VEC2*/] =
   {
-    5.0f * LPV_CUBE_LENGTH, 200.0f,
-    100.0f * LPV_CUBE_LENGTH, 200.0f
+    1.6f, 200.0f,
+    16.0f, 200.0f
     /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, depth
     5.0f * LPV_CUBE_LENGTH, 100.0f,
     10.0f * LPV_CUBE_LENGTH, 150.0f,
@@ -73,7 +73,13 @@ namespace NEngine
     160.0f * LPV_CUBE_LENGTH, 300.0f*/
   };
 
-  static const float SUN_SKY_POSES[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
+  static const float SUN_SKY_POSES[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3*/] =
+  {
+    0.0f, 0.0f, 0.0f,
+    0.0f, 100000.0f, 0.0f
+  };
+
+  static const float SUN_SKY_ROTS[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
   {
     0.0f, 0.0f,
     90.0f * NMath::DEG_2_RAD, 0.0f
@@ -82,13 +88,13 @@ namespace NEngine
   static const float SUN_SKY_COLORS[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3*/] =
   {
     0.0f, 0.0f, 0.0f,
-    0.3f, 0.4f, 0.5f
+    0.6f, 0.75f, 0.9f
   };
 
   static const float LPV_CELL_SIZES[/*LPV_CASCADES_COUNT * NMath::VEC3*/] =
   {
-    1.0f, 1.0f, 1.0f,
-    3.0f, 3.0f, 3.0f
+    0.1f, 0.1f, 0.1f,
+    1.0f, 1.0f, 1.0f
     /*0.1f, 0.1f, 0.1f,
     0.3f, 0.3f, 0.3f,
     0.8f, 0.8f, 0.8f,
@@ -121,6 +127,12 @@ namespace NEngine
   static const char STR_LPV1_GS_MAP_B[] = "lpv1Tex_2";
   static const char STR_GV0_GS_MAP[] = "lpv0Tex_3";
   static const char STR_GV1_GS_MAP[] = "lpv1Tex_3";
+  static const char STR_SKY0_GS_MAP_R[] = "lpv0Tex_4";
+  static const char STR_SKY0_GS_MAP_G[] = "lpv0Tex_5";
+  static const char STR_SKY0_GS_MAP_B[] = "lpv0Tex_6";
+  static const char STR_SKY1_GS_MAP_R[] = "lpv1Tex_4";
+  static const char STR_SKY1_GS_MAP_G[] = "lpv1Tex_5";
+  static const char STR_SKY1_GS_MAP_B[] = "lpv1Tex_6";
 
   static const char STR_LPV0_CS_IMG_R[] = "lpv0Img_0"; // gl 4.3 swap propagation images - 2
   static const char STR_LPV0_CS_IMG_G[] = "lpv0Img_1";
@@ -129,6 +141,9 @@ namespace NEngine
   static const char STR_LPV1_CS_IMG_G[] = "lpv1Img_1";
   static const char STR_LPV1_CS_IMG_B[] = "lpv1Img_2";
   static const char STR_GV_CS_IMG[] = "lpvImg_3";
+  static const char STR_SKY_CS_IMG_R[] = "lpvImg_4";
+  static const char STR_SKY_CS_IMG_G[] = "lpvImg_5";
+  static const char STR_SKY_CS_IMG_B[] = "lpvImg_6";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
   static const char STR_SELECT_GL_PLATFORM[] = "Selected OpenGL version: %s.";
@@ -241,6 +256,7 @@ namespace NEngine
     KEY_SHADOW_JITTERING_DOWN = 0x00040000,
     KEY_SHADOW_JITTERING_UP   = 0x00080000,
 
+    KEY_LPV_SPHERE_UPDATE     = 0x08000000,
     KEY_FRUSTUM_UPDATE        = 0x10000000,
     KEY_SHOW_GEOMETRY_BUFFERS = 0x20000000,
     KEY_SHOW_SHADOW_BUFFERS   = 0x40000000,
@@ -327,7 +343,8 @@ struct SEngine
   glm::mat4 geometryViewProj[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry proj * view, used: mesh render - geom cascade draw (mvp)
   SFrustum geometryFrustum[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT];
 
-  float sunSkyPoses[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2]; // lpv injection, light data
+  float sunSkyPoses[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3]; // lpv injection, light data
+  float sunSkyRots[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2];
   float sunSkyColors[NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3];
 
   glm::vec3 lpvTextureSize;
@@ -339,8 +356,7 @@ struct SEngine
   //std::vector<float> sunSkyPoses;
   //std::vector<float> sunSkyColors;
   std::vector<float> lpvCellSizes;
-  glm::vec3 lpvPoses[NEngine::LPV_CASCADES_COUNT];
-  float lpvPosesOut[NEngine::LPV_CASCADES_COUNT * NMath::VEC3]; // lpv inject, propagate, out mesh draw
+  float lpvPoses[NEngine::LPV_CASCADES_COUNT * NMath::VEC3]; // lpv inject, propagate, out mesh draw
 
 #if defined(ENV_QT)
   QElapsedTimer timer;
@@ -396,9 +412,10 @@ struct SEngine
 #endif
     waitForFlushTimers(false)
   {
-    memcpy(sunSkyPoses, NEngine::SUN_SKY_POSES, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2);
+    memcpy(sunSkyPoses, NEngine::SUN_SKY_POSES, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3);
+    memcpy(sunSkyRots, NEngine::SUN_SKY_ROTS, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2);
     memcpy(sunSkyColors, NEngine::SUN_SKY_COLORS, sizeof(float) * NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3);
-    memset(lpvPosesOut, 0, sizeof(float) * NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
+    memset(lpvPoses, 0, sizeof(float) * NEngine::LPV_CASCADES_COUNT * NMath::VEC3);
 
     shadowCascadesClips.resize(NEngine::SHADOW_CASCADES_COUNT * NMath::VEC2);
     memcpy(&shadowCascadesClips[0], NEngine::SHADOW_CASCADES_CLIPS, sizeof(float) * shadowCascadesClips.size());
@@ -414,9 +431,6 @@ struct SEngine
     memcpy(&lpvCellSizes[0], NEngine::LPV_CELL_SIZES, sizeof(float) * lpvCellSizes.size());
     for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT; i++)
       geometryViewProj[i] = glm::mat4();
-
-    for(uint32 i = 0; i < NEngine::LPV_CASCADES_COUNT; i++)
-      lpvPoses[i] = glm::vec3(0.0f, 0.0f, 0.0f);
   }
 };
 //-----------------------------------------------------------------------------
