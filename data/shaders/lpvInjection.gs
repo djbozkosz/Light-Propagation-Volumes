@@ -17,7 +17,7 @@ uniform sampler2D geomNormalTex;
 
 uniform vec4 tiles;
 uniform vec4 geomTexSize;
-//uniform vec3 lpvPos[LPV_CASCADES_COUNT];
+uniform vec3 lpvPos[LPV_CASCADES_COUNT];
 uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize[LPV_CASCADES_COUNT];
 
@@ -33,7 +33,10 @@ void main()
   if(length(texture(geomColorTex, tex).rgb) > 0.0)
   {
     vec3 pos = texture(geomPosTex, tex).xyz;
-    vec3 lpvP = vec3(pos.xy / (lpvTexSize.y * lpvCellSize[cascade].xy * 0.5), pos.z + lpvTexSize.z * lpvCellSize[cascade].z * 0.5);
+    vec3 normal = normalize(texture(geomNormalTex, tex).xyz);
+    pos += normal * lpvCellSize[cascade] * 0.5; // self illum shift
+
+    vec3 lpvP = vec3((pos.xy - lpvPos[cascade].xy) / (lpvTexSize.y * lpvCellSize[cascade].xy * 0.5), ((pos.z - lpvPos[cascade].z) / (lpvTexSize.z * lpvCellSize[cascade].z * 0.5) * 0.5 + 0.5) * lpvTexSize.z);
     lpvP.x = ((lpvP.x * 0.5 + 0.5 + float(cascade)) * tiles.w) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc
 
     texPos = vec2(float(x), float(y));

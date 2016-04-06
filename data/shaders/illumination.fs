@@ -135,7 +135,7 @@ void main()
         break;
 
       float lpvE = (semiCascade == 0) ? lpvEnd : (lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5);
-      vec3 lpvP = (positionWorld/* - lpvPos[lpvIndex]*/) / lpvE * 0.5 + 0.5;
+      vec3 lpvP = (positionWorld - lpvPos[lpvIndex]) / lpvE * 0.5 + 0.5;
       lpvP.x = (lpvP.x + float(lpvIndex)) / float(LPV_CASCADES_COUNT);
 
       vec4 shBase = vec4(0.2821, -0.4886, 0.4886, -0.4886);

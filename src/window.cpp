@@ -333,9 +333,9 @@ void CWindow::paintGL()
         cam->setRange(-clipDepth, clipDepth, -clipSide, clipSide, clipSide, -clipSide); // sets orthographic projection
 
         CEngineBase::context->engineSetLpvPose(cascade, glm::vec3(
-          static_cast<float>(static_cast<int32>(c->position.x / e->lpvCellSizes[cascade * NMath::VEC3 + 0])) * e->lpvCellSizes[cascade * NMath::VEC3 + 0],
-          static_cast<float>(static_cast<int32>(c->position.y / e->lpvCellSizes[cascade * NMath::VEC3 + 1])) * e->lpvCellSizes[cascade * NMath::VEC3 + 1],
-          static_cast<float>(static_cast<int32>(c->position.z / e->lpvCellSizes[cascade * NMath::VEC3 + 2])) * e->lpvCellSizes[cascade * NMath::VEC3 + 2]));
+          static_cast<float>(static_cast<int32>(pos.x / e->lpvCellSizes[cascade * NMath::VEC3 + 0])) * e->lpvCellSizes[cascade * NMath::VEC3 + 0],
+          static_cast<float>(static_cast<int32>(pos.y / e->lpvCellSizes[cascade * NMath::VEC3 + 1])) * e->lpvCellSizes[cascade * NMath::VEC3 + 1],
+          static_cast<float>(static_cast<int32>(pos.z / e->lpvCellSizes[cascade * NMath::VEC3 + 2])) * e->lpvCellSizes[cascade * NMath::VEC3 + 2]));
 
         for(uint32 dir = 0; dir < NEngine::LPV_SUN_SKY_DIRS_COUNT; dir++)
         {
