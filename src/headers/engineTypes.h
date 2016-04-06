@@ -42,7 +42,7 @@ namespace NEngine
   static const float LPV_TEXTURE_SIZE_Z = 32.0f;
   static const uint32 LPV_PROPAGATION_STEPS = 5;
   static const float LPV_INTENSITY = 1.0f;
-  static const uint32 LPV_MODES_COUNT = 2;
+  static const uint32 LPV_MODES_COUNT = 3;
   static const uint32 LPV_TECHNIQUES_COUNT = 2;
   static const uint32 LPV_SH_COUNT = 4;
   static const uint32 LPV_CASCADES_COUNT = 4;

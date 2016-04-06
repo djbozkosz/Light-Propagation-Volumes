@@ -320,7 +320,7 @@ void CWindow::paintGL()
       fboShadow->setChanged(false);
     }
 
-    if((fboGeometry) && (sun))
+    if((fboGeometry) && (sun) && (e->lpvMode != NEngine::LPV_MODE_DISABLED))
     { // geometry map
       CEngineBase::context->engineSetSunSkyPose(0, sun->getObject()->position, glm::vec2(sun->getObject()->rotation.y, sun->getObject()->rotation.z)); // update sun for inject
       CEngineBase::context->engineSetSunSkyColor(0, glm::vec3(sun->getLight()->color));
@@ -363,7 +363,7 @@ void CWindow::paintGL()
     }
 
     // todo: ošetřit pokud fbo neexistují
-    if((e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302) && (e->gpuPlatform < NEngine::GPU_PLATFORM_GL0403))
+    if((e->lpvMode == NEngine::LPV_MODE_GEOMETRY) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
     {
       maps->getMap(NEngine::STR_LPV0_GS_MAP_R)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_LPV0_GS_MAP_G)->fill(&lpvClearData[0]);
@@ -400,18 +400,18 @@ void CWindow::paintGL()
       gl->depthMask(NOpenGL::TRUE);
       fbo->unbind();
     }
-    /*else if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
+    else if((e->lpvMode == NEngine::LPV_MODE_COMPUTE) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
     {
       // todo try gl->clearTexImage();
 
-      sh->getProgram(NShader::PROGRAM_LPV_CLEAR_COMPUTE)->
+      /*sh->getProgram(NShader::PROGRAM_LPV_CLEAR_COMPUTE)->
         dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR_COMPUTE);
       sh->getProgram(NShader::PROGRAM_LPV_INJECTION_COMPUTE)->
         dispatch(e->geometryTextureSize, e->geometryTextureSize, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
       for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
         sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_COMPUTE)->
-        dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_PROPAGATION_COMPUTE);
-    }*/
+        dispatch(e->lpvTextureSize.x * e->lpvTextureSize.y, e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_PROPAGATION_COMPUTE);*/
+    }
     
     // standard
     cam->setPosition(pos);

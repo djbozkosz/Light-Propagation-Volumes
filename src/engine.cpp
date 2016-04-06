@@ -387,7 +387,7 @@ void CEngine::keyPress(NEngine::EKey key)
   else if(key & NEngine::KEY_LPV_TECHNIQUE)
   {
     engine.lpvTechnique = static_cast<NEngine::ELPVTechnique>((static_cast<uint32>(engine.lpvTechnique) + 1) % NEngine::LPV_TECHNIQUES_COUNT);
-    context.log(CStr("LPV Technique: %s", NEngine::STR_LPV_MODES[engine.lpvMode]));
+    context.log(CStr("LPV Technique: %s", NEngine::STR_LPV_TECHNIQUES[engine.lpvTechnique]));
     if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
       f->setChanged();
     window->repaint();

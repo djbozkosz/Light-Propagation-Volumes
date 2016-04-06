@@ -3,6 +3,9 @@ precision lowp float;
 
 layout(points) in;
 layout(points, max_vertices = 1) out;
+//layout(triangle_strip, max_vertices = 4) out;
+
+flat in int vertexID[];
 
 void main()
 {
