@@ -125,6 +125,7 @@ std::string CShader::setES2compatible(const std::string &data)
 //------------------------------------------------------------------------------
 std::string CShader::setDefines(const std::string &data)
 {
+  const SEngine *e = context->engineGetEngine();
   const uint32 tokensCount = 9;
   const char *const startTokens[] = { "//", "/*", "#if", "#define", "layout ", "in ", "uniform ", "out ", "void " };
   uint32 tokenIndex[tokensCount];
@@ -146,10 +147,10 @@ std::string CShader::setDefines(const std::string &data)
 
   d.insert(index, defines);
 
-  d = CStr::replaceAll(d, "#define SHADOW_CASCADES_COUNT", CStr("#define SHADOW_CASCADES_COUNT %d", NEngine::SHADOW_CASCADES_COUNT));
-  d = CStr::replaceAll(d, "#define LPV_CASCADES_COUNT", CStr("#define LPV_CASCADES_COUNT %d", NEngine::LPV_CASCADES_COUNT));
-  d = CStr::replaceAll(d, "#define LPV_SUN_SKY_CASCADES_COUNT", CStr("#define LPV_SUN_SKY_CASCADES_COUNT %d", NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT));
-  d = CStr::replaceAll(d, "#define LPV_SUN_SKY_DIRS_COUNT", CStr("#define LPV_SUN_SKY_DIRS_COUNT %d", NEngine::LPV_SUN_SKY_DIRS_COUNT));
+  d = CStr::replaceAll(d, "#define SHADOW_CASCADES_COUNT", CStr("#define SHADOW_CASCADES_COUNT %d", e->shadowCascadesCount));
+  d = CStr::replaceAll(d, "#define LPV_CASCADES_COUNT", CStr("#define LPV_CASCADES_COUNT %d", e->lpvCascadesCount));
+  d = CStr::replaceAll(d, "#define LPV_SUN_SKY_CASCADES_COUNT", CStr("#define LPV_SUN_SKY_CASCADES_COUNT %d", e->lpvCascadesCount * e->lpvSunSkyCount));
+  d = CStr::replaceAll(d, "#define LPV_SUN_SKY_DIRS_COUNT", CStr("#define LPV_SUN_SKY_DIRS_COUNT %d", e->lpvSunSkyCount));
 
   return d;
 }
@@ -382,15 +383,15 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
     if(program.fUniforms & NShader::UNIFORM_MVP)
       gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, glm::value_ptr(technique->mvp));
     else if(program.fUniforms & NShader::UNIFORM_MVP_SHAD)
-      gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, technique->mvps);
+      gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, &technique->mvps[0]);
     else if(program.fUniforms & NShader::UNIFORM_MVP_SHAD_CASCADE)
-      gl->uniformMatrix4fv(u->mvp, NEngine::SHADOW_CASCADES_COUNT, NOpenGL::FALSE, technique->mvps);
+      gl->uniformMatrix4fv(u->mvp, e->shadowCascadesCount, NOpenGL::FALSE, &technique->mvps[0]);
     else if(program.fUniforms & NShader::UNIFORM_MVP_GEOM)
-      gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, technique->mvpg);
+      gl->uniformMatrix4fv(u->mvp, 1, NOpenGL::FALSE, &technique->mvpg[0]);
     else if(program.fUniforms & NShader::UNIFORM_MVP_GEOM_CASCADE)
-      gl->uniformMatrix4fv(u->mvp, NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT, NOpenGL::FALSE, technique->mvpg);
+      gl->uniformMatrix4fv(u->mvp, e->lpvCascadesCount * e->lpvSunSkyCount, NOpenGL::FALSE, &technique->mvpg[0]);
     if(program.fUniforms & NShader::UNIFORM_MVPSB)
-      gl->uniformMatrix4fv(u->mvpsb, NEngine::SHADOW_CASCADES_COUNT, NOpenGL::FALSE, technique->mvpsb);
+      gl->uniformMatrix4fv(u->mvpsb, e->shadowCascadesCount, NOpenGL::FALSE, &technique->mvpsb[0]);
 
     if(program.fUniforms & NShader::UNIFORM_CAM)
       gl->uniform3f(u->cam, technique->cam.x, technique->cam.y, technique->cam.z);
@@ -452,17 +453,17 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
     if(program.fUniforms & NShader::UNIFORM_TILE_SHAD)
     {
       gl->uniform4f(u->tiles, e->shadowTiles.x, e->shadowTiles.y, 1.0f / e->shadowTiles.x, 1.0f / e->shadowTiles.y);
-      gl->uniform1iv(u->tileInstances, NEngine::SHADOW_CASCADES_COUNT, technique->tileShadowInstances);
+      gl->uniform1iv(u->tileInstances, e->shadowCascadesCount, &technique->tileShadowInstances[0]);
     }
     else if(program.fUniforms & NShader::UNIFORM_TILE_GEOM)
     {
       gl->uniform4f(u->tiles, e->geometryTiles.x, e->geometryTiles.y, 1.0f / e->geometryTiles.x, 1.0f / e->geometryTiles.y);
-      gl->uniform1iv(u->tileInstances, NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT, technique->tileGeometryInstances);
+      gl->uniform1iv(u->tileInstances, e->lpvCascadesCount * e->lpvSunSkyCount, &technique->tileGeometryInstances[0]);
     }
     if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
       gl->uniform3f(u->shadowTexSize, 1.0f / static_cast<float>(e->shadowTextureSize * e->shadowTiles.x), 1.0f / static_cast<float>(e->shadowTextureSize * e->shadowTiles.y), context->engineGetEngine()->shadowJittering);
     if(program.fUniforms & NShader::UNIFORM_SHAD_CLIPS)
-      gl->uniform2fv(u->shadowClips, NEngine::SHADOW_CASCADES_COUNT, NEngine::SHADOW_CASCADES_CLIPS);
+      gl->uniform2fv(u->shadowClips, e->shadowCascadesCount, &e->shadowCascadesClips[0]);
     if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS)
     { gl->uniform3f(u->lightAmb, technique->lightAmb.x, technique->lightAmb.y, technique->lightAmb.z);
       gl->uniform3f(u->lightPos, technique->lights[0].pos.x, technique->lights[0].pos.y, technique->lights[0].pos.z);  }
@@ -477,15 +478,15 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
 
   // lpv params
   if(program.fUniforms & NShader::UNIFORM_LAMB_LPOS_INJECT)
-  { gl->uniform3fv(u->lightAmb, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyColors);
-    gl->uniform3fv(u->lightPos, NEngine::LPV_SUN_SKY_DIRS_COUNT, e->sunSkyPoses); }
+  { gl->uniform3fv(u->lightAmb, e->lpvSunSkyCount, &e->sunSkyColors[0]);
+    gl->uniform3fv(u->lightPos, e->lpvSunSkyCount, &e->sunSkyPoses[0]); }
   if(program.fUniforms & NShader::UNIFORM_GEOM_TEX_SIZE)
   { gl->uniform4f(u->tiles, e->geometryTiles.x, e->geometryTiles.y, 1.0f / e->geometryTiles.x, 1.0f / e->geometryTiles.y); 
     gl->uniform4f(u->geomTexSize, e->geometryTextureSize * e->geometryTiles.x, e->geometryTextureSize * e->geometryTiles.y, 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.x), 1.0f / static_cast<float>(e->geometryTextureSize * e->geometryTiles.y)); }
   if(program.fUniforms & NShader::UNIFORM_LPV_POS_TEXS_CELLS_PARAMS)
-  { gl->uniform3fv(u->lpvPos, NEngine::LPV_CASCADES_COUNT, e->lpvPoses);
-    gl->uniform3f(u->lpvTexSize, e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z);
-    gl->uniform3fv(u->lpvCellSize, NEngine::LPV_CASCADES_COUNT, NEngine::LPV_CELL_SIZES);
+  { gl->uniform3fv(u->lpvPos, e->lpvCascadesCount, &e->lpvPoses[0]);
+    gl->uniform3f(u->lpvTexSize, e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z);
+    gl->uniform3fv(u->lpvCellSize, e->lpvCascadesCount, &e->lpvCellSizes[0]);
     gl->uniform2f(u->lpvParams, e->lpvPropagationSteps, e->lpvIntensity); }
 
   // lpv samplers, images

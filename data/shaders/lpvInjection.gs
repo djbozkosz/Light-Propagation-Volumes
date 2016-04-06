@@ -1,6 +1,8 @@
 #version 150
 precision lowp float;
 
+#define INJECT_SHIFT 1.0
+
 #define LPV_CASCADES_COUNT
 #define LPV_SUN_SKY_DIRS_COUNT
 
@@ -34,7 +36,7 @@ void main()
   {
     vec3 pos = texture(geomPosTex, tex).xyz;
     vec3 normal = normalize(texture(geomNormalTex, tex).xyz);
-    pos += normal * lpvCellSize[cascade] * 0.5; // self illum shift
+    pos += normal * lpvCellSize[cascade] * INJECT_SHIFT; // self illum shift
 
     vec3 lpvP = vec3((pos.xy - lpvPos[cascade].xy) / (lpvTexSize.y * lpvCellSize[cascade].xy * 0.5), ((pos.z - lpvPos[cascade].z) / (lpvTexSize.z * lpvCellSize[cascade].z * 0.5) * 0.5 + 0.5) * lpvTexSize.z);
     lpvP.x = ((lpvP.x * 0.5 + 0.5 + float(cascade)) * tiles.w) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc

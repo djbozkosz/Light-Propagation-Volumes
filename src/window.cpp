@@ -139,8 +139,8 @@ void CWindow::initializeGL()
     fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // sky r
     fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // sky g
     fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // sky b
-    fbo->addFbo(SFramebuffer(NEngine::STR_LPV0_GS_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    fbo->addFbo(SFramebuffer(NEngine::STR_LPV1_GS_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    fbo->addFbo(SFramebuffer(NEngine::STR_LPV0_GS_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    fbo->addFbo(SFramebuffer(NEngine::STR_LPV1_GS_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     fboAttachments.clear();
 
     std::vector<float> vboGeoData(e->geometryTextureSize * e->geometryTiles.x * e->geometryTextureSize * e->geometryTiles.y);
@@ -152,24 +152,24 @@ void CWindow::initializeGL()
   }
   else if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
   {
-    maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_GV_CS_IMG, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_GV_CS_IMG, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
   }
 
   // lpv test
-  lpvClearData.resize(e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
+  lpvClearData.resize(e->lpvTextureSize.x * e->lpvCascadesCount * e->lpvTextureSize.y * e->lpvTextureSize.z * NMap::RGBA_SIZE);
   /*for(auto it = lpvClearData.begin(); it != lpvClearData.end(); it++)
     *it = static_cast<float>((rand() % 2000) - 1000) * 0.002f;
   gl->bindTexture(NOpenGL::TEXTURE_3D, maps->getMap(NEngine::STR_SKY0_GS_MAP_R)->getMap()->texture);
-  gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x * NEngine::LPV_CASCADES_COUNT, e->lpvTextureSize.y, e->lpvTextureSize.z, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvClearData[0]);
+  gl->texSubImage3D(NOpenGL::TEXTURE_3D, 0, 0, 0, 0, e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z, NOpenGL::RGBA, NOpenGL::FLOAT, &lpvClearData[0]);
   gl->bindTexture(NOpenGL::TEXTURE_3D, 0);*/
   memset(&lpvClearData[0], 0, sizeof(float) * lpvClearData.size());
 
@@ -293,10 +293,10 @@ void CWindow::paintGL()
 
     if((fboShadow) && (sun))
     { // shadow map
-      for(uint32 i = 0; i < NEngine::SHADOW_CASCADES_COUNT; i++)
+      for(uint32 i = 0; i < e->shadowCascadesCount; i++)
       {
-        const float clipSide = NEngine::SHADOW_CASCADES_CLIPS[i * NMath::VEC2 + 0];
-        const float clipDepth = NEngine::SHADOW_CASCADES_CLIPS[i * NMath::VEC2 + 1];
+        const float clipSide = e->shadowCascadesClips[i * NMath::VEC2 + 0];
+        const float clipDepth = e->shadowCascadesClips[i * NMath::VEC2 + 1];
         const glm::vec2 sunRot(sun->getObject()->rotation.y, sun->getObject()->rotation.z);
 
         cam->setRange(-clipDepth, clipDepth, -clipSide, clipSide, clipSide, -clipSide); // sets orthographic projection
@@ -325,10 +325,10 @@ void CWindow::paintGL()
       CEngineBase::context->engineSetSunSkyPose(0, sun->getObject()->position, glm::vec2(sun->getObject()->rotation.y, sun->getObject()->rotation.z)); // update sun for inject
       CEngineBase::context->engineSetSunSkyColor(0, glm::vec3(sun->getLight()->color));
 
-      for(uint32 cascade = 0; cascade < NEngine::LPV_CASCADES_COUNT; cascade++)
+      for(uint32 cascade = 0; cascade < e->lpvCascadesCount; cascade++)
       {
-        const float clipSide = NEngine::GEOMETRY_CASCADES_CLIPS[cascade * NMath::VEC2 + 0];
-        const float clipDepth = NEngine::GEOMETRY_CASCADES_CLIPS[cascade * NMath::VEC2 + 1];
+        const float clipSide = e->geometryCascadesClips[cascade * NMath::VEC2 + 0];
+        const float clipDepth = e->geometryCascadesClips[cascade * NMath::VEC2 + 1];
 
         cam->setRange(-clipDepth, clipDepth, -clipSide, clipSide, clipSide, -clipSide); // sets orthographic projection
 
@@ -337,16 +337,16 @@ void CWindow::paintGL()
           static_cast<float>(static_cast<int32>(pos.y / e->lpvCellSizes[cascade * NMath::VEC3 + 1])) * e->lpvCellSizes[cascade * NMath::VEC3 + 1],
           static_cast<float>(static_cast<int32>(pos.z / e->lpvCellSizes[cascade * NMath::VEC3 + 2])) * e->lpvCellSizes[cascade * NMath::VEC3 + 2]));
 
-        for(uint32 dir = 0; dir < NEngine::LPV_SUN_SKY_DIRS_COUNT; dir++)
+        for(uint32 dir = 0; dir < e->lpvSunSkyCount; dir++)
         {
           const glm::vec2 sunSkyRot(e->sunSkyRots[dir * NMath::VEC2 + 0], e->sunSkyRots[dir * NMath::VEC2 + 1]);
 
           cam->setGridAlignedOrthoTransform(pos, sunSkyRot, (clipSide * 2.0f) / static_cast<float>(e->geometryTextureSize));
-          CEngineBase::context->engineSetGeometryViewProj(cascade * NEngine::LPV_SUN_SKY_DIRS_COUNT + dir, c->viewProjection);
+          CEngineBase::context->engineSetGeometryViewProj(cascade * e->lpvSunSkyCount + dir, c->viewProjection);
 
           if(e->updateFrustum)
             cul->updateFrustum();
-          CEngineBase::context->engineSetGeometryFrustum(cascade * NEngine::LPV_SUN_SKY_DIRS_COUNT + dir, *cul->getFrustum());
+          CEngineBase::context->engineSetGeometryFrustum(cascade * e->lpvSunSkyCount + dir, *cul->getFrustum());
         }
       }
 

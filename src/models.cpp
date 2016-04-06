@@ -892,7 +892,7 @@ void CModel::updateSceneObject(SSceneObject *sceneObject, SSceneModel *sceneMode
     uint32 lod = 0;
     for(auto l = mesh->standardMesh.lods.cbegin(); l != mesh->standardMesh.lods.cend(); l++, lod++)
     {
-      sceneMesh->push_back(SShaderState());
+      sceneMesh->push_back(SShaderState(context->engineGetEngine()));
       SShaderState *sceneLod = &sceneMesh->back();
 
       sceneLod->mw = sceneObject->mw * mesh->transformation;
@@ -918,8 +918,8 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
   const SCamera *c = context->getCamera()->getCamera();
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
 
-  const uint culCascades = (mode == NRenderer::MODE_DEPTH_CASCADE) ? NEngine::SHADOW_CASCADES_COUNT : (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT);
-  const SFrustum *culFrustum = (mode == NRenderer::MODE_DEPTH_CASCADE) ? e->shadowFrustum : e->geometryFrustum;
+  const uint culCascades = (mode == NRenderer::MODE_DEPTH_CASCADE) ? e->shadowCascadesCount : (e->lpvCascadesCount * e->lpvSunSkyCount);
+  const SFrustum *culFrustum = (mode == NRenderer::MODE_DEPTH_CASCADE) ? &e->shadowFrustum[0] : &e->geometryFrustum[0];
 
   if((mode == NRenderer::MODE_DEPTH_CASCADE) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
   {
@@ -959,7 +959,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     const SShaderState *soLod = &soMesh->front(); // todo: lod selection
 
     soLod->instances = 0;
-    int32 *tileInstances = (mode == NRenderer::MODE_DEPTH_CASCADE) ? soLod->tileShadowInstances : soLod->tileGeometryInstances;
+    int32 *tileInstances = (mode == NRenderer::MODE_DEPTH_CASCADE) ? &soLod->tileShadowInstances[0] : &soLod->tileGeometryInstances[0];
 
     if((mode == NRenderer::MODE_DEPTH_CASCADE) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
     {
@@ -986,7 +986,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     const bool depthMode = (mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE);
     if(depthMode)
     {
-      const uint32 c = (mode == NRenderer::MODE_DEPTH) ? 1 : NEngine::SHADOW_CASCADES_COUNT;
+      const uint32 c = (mode == NRenderer::MODE_DEPTH) ? 1 : e->shadowCascadesCount;
 
       for(uint32 i = 0; i < c; i++)
       {
@@ -998,7 +998,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
     }
     else if((mode == NRenderer::MODE_GEOMETRY) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
     {
-      const uint32 c = (mode == NRenderer::MODE_GEOMETRY) ? 1 : (NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT);
+      const uint32 c = (mode == NRenderer::MODE_GEOMETRY) ? 1 : (e->lpvCascadesCount * e->lpvSunSkyCount);
 
       for(uint32 i = 0; i < c; i++)
       {

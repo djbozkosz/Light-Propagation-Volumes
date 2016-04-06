@@ -845,25 +845,34 @@ struct SShaderState
   glm::mat4 mw; // trochu špatně modelované -> dupliticní pro lody, ale dejme tomu
   glm::mat3 mwnit;
   mutable glm::mat4 mvp;
-  mutable float mvps[NMath::MAT4 * NEngine::SHADOW_CASCADES_COUNT]; // shadow mvps
-  mutable float mvpsb[NMath::MAT4 * NEngine::SHADOW_CASCADES_COUNT]; // shadow mvps biased
-  mutable float mvpg[NMath::MAT4 * NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT]; // geometry mvps
+  mutable std::vector<float> mvps; // shadow mvps
+  mutable std::vector<float> mvpsb; // shadow mvps biased
+  mutable std::vector<float> mvpg; // geometry mvps
   mutable glm::vec3 cam;
   mutable uint32 instances;
-  mutable int32 tileShadowInstances[NEngine::SHADOW_CASCADES_COUNT];
-  mutable int32 tileGeometryInstances[NEngine::LPV_CASCADES_COUNT * NEngine::LPV_SUN_SKY_DIRS_COUNT];
+  mutable std::vector<int32> tileShadowInstances;
+  mutable std::vector<int32> tileGeometryInstances;
 
   mutable const SMaterial *material;
 
   SBoundingBox aabb;
   glm::vec3 pickColor;
   glm::vec3 lightAmb;
-  SShaderLight lights[NEngine::LPV_SUN_SKY_DIRS_COUNT];
+  std::vector<SShaderLight> lights;
 
   glm::vec2 fogRange;
   glm::vec3 fogColor;
 
   inline SShaderState() : instances(0), material(NULL) {}
+  inline SShaderState(const SEngine *e) : instances(0), material(NULL)
+  {
+    mvps.resize(e->shadowCascadesCount * NMath::MAT4);
+    mvpsb.resize(e->shadowCascadesCount * NMath::MAT4);
+    mvpg.resize(e->lpvCascadesCount * e->lpvSunSkyCount * NMath::MAT4);
+    tileShadowInstances.resize(e->shadowCascadesCount);
+    tileGeometryInstances.resize(e->lpvCascadesCount * e->lpvSunSkyCount * NMath::MAT4);
+    lights.resize(e->lpvSunSkyCount);
+  }
 };
 //------------------------------------------------------------------------------
 struct SShader

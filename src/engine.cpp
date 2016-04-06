@@ -25,11 +25,8 @@ CEngine::CEngine(
   engine.maxTextureSize = 256;
   engine.shadowTextureSize = 512;
   engine.shadowJittering = 0.0f;
-  engine.geometryTextureSize = 64;
 
-  //engine.lpvTextureSize = glm::vec3(32.0f);
   engine.lpvPropagationSteps = 0;
-  //engine.lpvIntensity = 1.0f;
 
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
   context.setEngineCallbacks(
