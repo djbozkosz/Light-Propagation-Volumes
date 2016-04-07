@@ -22,10 +22,10 @@ uniform vec4 geomTexSize;
 out vec4 glFragColor0LpvR;
 out vec4 glFragColor1LpvG;
 out vec4 glFragColor2LpvB;
-out vec4 glFragColor3Gv;
-out vec4 glFragColor4SkyR;
-out vec4 glFragColor5SkyG;
-out vec4 glFragColor6SkyB;
+out vec4 glFragColor3LpvAccumR;
+out vec4 glFragColor4LpvAccumG;
+out vec4 glFragColor5LpvAccumB;
+out vec4 glFragColor6Gv;
 
 void main()
 {
@@ -43,18 +43,22 @@ void main()
   vec4 cosineLobe = vec4(0.8862, -1.0233, 1.0233, -1.0233);
   vec4 shNormal = cosineLobe * vec4(1.0, normal.y, normal.z, normal.x);
 
-  glFragColor0LpvR = shNormal * light.r;
-  glFragColor1LpvG = shNormal * light.g;
-  glFragColor2LpvB = shNormal * light.b;
-  glFragColor3Gv = vec4(0.0, 0.0, 0.0, 1.0);
-  glFragColor4SkyR = vec4(0.0, 0.0, 0.0, 0.0);
-  glFragColor5SkyG = vec4(0.0, 0.0, 0.0, 0.0);
-  glFragColor6SkyB = vec4(0.0, 0.0, 0.0, 0.0);
+  vec4 shR = shNormal * light.r;
+  vec4 shG = shNormal * light.g;
+  vec4 shB = shNormal * light.b;
 
-  if(sunSkyLight > 0)
+  glFragColor0LpvR = shR;
+  glFragColor1LpvG = shG;
+  glFragColor2LpvB = shB;
+  glFragColor3LpvAccumR = shR;
+  glFragColor4LpvAccumG = shG;
+  glFragColor5LpvAccumB = shB;
+  glFragColor6Gv = shNormal;
+
+  /*if(sunSkyLight > 0)
   {
     glFragColor4SkyR = shNormal * light.r;
     glFragColor5SkyG = shNormal * light.g;
     glFragColor6SkyB = shNormal * light.b;
-  }
+  }*/
 }

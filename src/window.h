@@ -43,6 +43,8 @@ class CWindow : public
 #endif
 
     GLuint vboGeoPoints;
+    GLuint vboLPVGathPoints;
+    GLuint vboLPVScatPoints;
     GLuint vboQuad;
     std::vector<float> lpvClearData;
     SMaterial quadMaterial;

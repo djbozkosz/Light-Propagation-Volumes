@@ -19,7 +19,10 @@ CWindow::CWindow(CContext *context
 #ifdef ENV_SDL
   , SDLwindow(NULL)
 #endif
-  , vboGeoPoints(0)
+  , vboGeoPoints(0),
+  vboLPVGathPoints(0),
+  vboLPVScatPoints(0),
+  vboQuad(0)
 {
 #if defined(ENV_QT)
   const SEngine *e = CEngineBase::context->engineGetEngine();
@@ -135,19 +138,30 @@ void CWindow::initializeGL()
     fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // lpv r
     fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // lpv g
     fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // lpv b
+    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // accum lpv r
+    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // accum lpv g
+    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // accum lpv b
     fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // gv
-    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // sky r
-    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // sky g
-    fboAttachments.push_back(NMap::FORMAT_3D | NMap::FORMAT_LINEAR | NMap::FORMAT_BORDER); // sky b
     fbo->addFbo(SFramebuffer(NEngine::STR_LPV0_GS_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     fbo->addFbo(SFramebuffer(NEngine::STR_LPV1_GS_FBO, fboAttachments, NMap::RBO, e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     fboAttachments.clear();
 
+    // lpv vbo data
     std::vector<float> vboGeoData(e->geometryTextureSize * e->geometryTiles.x * e->geometryTextureSize * e->geometryTiles.y);
+    std::vector<float> vboLPVData(e->lpvTextureSize.x * e->lpvCascadesCount * e->lpvTextureSize.y * e->lpvTextureSize.z);
     memset(&vboGeoData[0], 0, sizeof(float) * vboGeoData.size());
+    memset(&vboLPVData[0], 0, sizeof(float) * vboLPVData.size());
     gl->genBuffers(1, &vboGeoPoints);
     gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboGeoPoints);
     gl->bufferData(NOpenGL::ARRAY_BUFFER, sizeof(float) * vboGeoData.size(), &vboGeoData[0], NOpenGL::STATIC_DRAW);
+    gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
+    gl->genBuffers(1, &vboLPVGathPoints);
+    gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboLPVGathPoints);
+    gl->bufferData(NOpenGL::ARRAY_BUFFER, sizeof(float) * e->lpvTextureSize.z, &vboLPVData[0], NOpenGL::STATIC_DRAW);
+    gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
+    gl->genBuffers(1, &vboLPVScatPoints);
+    gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboLPVScatPoints);
+    gl->bufferData(NOpenGL::ARRAY_BUFFER, sizeof(float) * vboLPVData.size(), &vboLPVData[0], NOpenGL::STATIC_DRAW);
     gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
   }
   else if(e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403)
@@ -155,13 +169,16 @@ void CWindow::initializeGL()
     maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     maps->addMap(SMap(NEngine::STR_LPV0_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV0_ACCUM_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV0_ACCUM_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV0_ACCUM_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     maps->addMap(SMap(NEngine::STR_LPV1_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV1_ACCUM_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV1_ACCUM_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
+    maps->addMap(SMap(NEngine::STR_LPV1_ACCUM_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
     maps->addMap(SMap(NEngine::STR_GV_CS_IMG, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NEngine::LPV_SH_COUNT * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_R, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_G, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
-    maps->addMap(SMap(NEngine::STR_SKY_CS_IMG_B, NMap::FORMAT_3D | NMap::FORMAT_BORDER | NMap::FORMAT_INT, e->lpvTextureSize.x * NMath::VEC4 * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z));
   }
 
   // lpv test
@@ -362,46 +379,106 @@ void CWindow::paintGL()
       fboGeometry->setChanged(false);
     }
 
-    // todo: ošetřit pokud fbo neexistují
-    if((e->lpvMode == NEngine::LPV_MODE_GEOMETRY) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
-    {
+    // lpv
+    CFramebuffer *fboLpvGs0 = fbo->getFramebuffer(NEngine::STR_LPV0_GS_FBO);
+    CFramebuffer *fboLpvGs1 = fbo->getFramebuffer(NEngine::STR_LPV1_GS_FBO);
+    CShaderProgram *shaderlpvGsInject = sh->getProgram(NShader::PROGRAM_LPV_INJECTION_GEOMETRY);
+    CShaderProgram *shaderlpvGsPropGath = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_GEOMETRY_GATHERING);
+    CShaderProgram *shaderlpvGsPropScat = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_GEOMETRY_SCATTERING);
+
+    if((fboLpvGs0) && (fboLpvGs1) && (shaderlpvGsInject) && (shaderlpvGsPropGath) && (shaderlpvGsPropScat) &&
+       (e->lpvMode == NEngine::LPV_MODE_GEOMETRY) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
+    { // gl 3.2
       maps->getMap(NEngine::STR_LPV0_GS_MAP_R)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_LPV0_GS_MAP_G)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_LPV0_GS_MAP_B)->fill(&lpvClearData[0]);
+      maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
+      maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
+      maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_GV0_GS_MAP)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_SKY0_GS_MAP_R)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_SKY0_GS_MAP_G)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_SKY0_GS_MAP_B)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_LPV1_GS_MAP_R)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_LPV1_GS_MAP_G)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_LPV1_GS_MAP_B)->fill(&lpvClearData[0]);
+      maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
+      maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
+      maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
       maps->getMap(NEngine::STR_GV1_GS_MAP)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_SKY1_GS_MAP_R)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_SKY1_GS_MAP_G)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_SKY1_GS_MAP_B)->fill(&lpvClearData[0]);
 
-      CShaderProgram *lpvInject = sh->getProgram(NShader::PROGRAM_LPV_INJECTION_GEOMETRY);
-
-      fbo->getFramebuffer(NEngine::STR_LPV0_GS_FBO)->bind();
       gl->depthMask(NOpenGL::FALSE); // proceed all fragments
       gl->enable(NOpenGL::BLEND);
       gl->blendFunc(NOpenGL::ONE, NOpenGL::ONE); // pseudo imageAtomicAdd() with floats
-      lpvInject->bind(); // shader with random access writing
+
+      // injection
+      fboLpvGs0->bind();
+      shaderlpvGsInject->bind(); // shader with random access writing
       gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboGeoPoints);
-
-      lpvInject->begin(NULL, NRenderer::MODE_LPV_INJECTION_GEOMETRY);
+      shaderlpvGsInject->begin(NULL, NRenderer::MODE_LPV_INJECTION_GEOMETRY);
       gl->drawArrays(NOpenGL::POINTS, 0, e->geometryTextureSize * e->geometryTiles.x * e->geometryTextureSize * e->geometryTiles.y);
-      lpvInject->end(NULL);
-
+      shaderlpvGsInject->end(NULL);
       gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
-      lpvInject->unbind();
+      shaderlpvGsInject->unbind();
+      fbo->unbind();
+
+      // propagation
+      if(e->lpvPropagationSwap)
+        CEngineBase::context->engineSwapLPV();
+
+      for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
+      {
+        if(!e->lpvPropagationSwap)
+        {
+          maps->getMap(NEngine::STR_LPV1_GS_MAP_R)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV1_GS_MAP_G)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV1_GS_MAP_B)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_GV1_GS_MAP)->fill(&lpvClearData[0]);
+          fboLpvGs1->bind();
+        }
+        else
+        {
+          maps->getMap(NEngine::STR_LPV0_GS_MAP_R)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV0_GS_MAP_G)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV0_GS_MAP_B)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
+          maps->getMap(NEngine::STR_GV0_GS_MAP)->fill(&lpvClearData[0]);
+          fboLpvGs0->bind();
+        }
+
+        if(e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING)
+        {
+          shaderlpvGsPropGath->bind();
+          gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboLPVGathPoints);
+          shaderlpvGsPropGath->begin(NULL, NRenderer::MODE_LPV_PROPAGATION_GEOMETRY_GATHERING);
+          gl->drawArrays(NOpenGL::POINTS, 0, e->lpvTextureSize.z);
+          shaderlpvGsPropGath->end(NULL);
+          gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
+          shaderlpvGsPropGath->unbind();
+        }
+        else
+        {
+          shaderlpvGsPropScat->bind();
+          gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboLPVScatPoints);
+          shaderlpvGsPropScat->begin(NULL, NRenderer::MODE_LPV_PROPAGATION_GEOMETRY_SCATTERING);
+          //gl->drawArrays(NOpenGL::POINTS, 0, e->lpvTextureSize.x * e->lpvCascadesCount * e->lpvTextureSize.y * e->lpvTextureSize.z);
+          shaderlpvGsPropScat->end(NULL);
+          gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
+          shaderlpvGsPropScat->unbind();
+        }
+
+        fbo->unbind();
+        CEngineBase::context->engineSwapLPV();
+      }
+
       gl->disable(NOpenGL::BLEND);
       gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA);
       gl->depthMask(NOpenGL::TRUE);
-      fbo->unbind();
     }
     else if((e->lpvMode == NEngine::LPV_MODE_COMPUTE) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
-    {
+    { // gl 4.3
       // todo try gl->clearTexImage();
 
       /*sh->getProgram(NShader::PROGRAM_LPV_CLEAR_COMPUTE)->

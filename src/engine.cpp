@@ -206,11 +206,11 @@ void CEngine::onTimeoutInit()
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere00.4ds")), true));
     s->addSceneObjectModel(
       SSceneObject("scene"),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"white_box.4ds"))));
 
-    /*s->addSceneObjectModel(
+    s->addSceneObjectModel(
       SSceneObject("tree00", glm::vec3(-5.17f, 0.0f, 3.69f), glm::quat(glm::vec3(0.0f, 20.0f * NMath::DEG_2_RAD, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f)),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));*/
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
 
     s->addSceneObjectModel(
       SSceneObject(NScene::STR_OBJECT_LPV_SPHERE, glm::vec3(0.0f, 1.0f, 0.0f), glm::quat(), glm::vec3(0.2f, 0.2f, 0.2f)),

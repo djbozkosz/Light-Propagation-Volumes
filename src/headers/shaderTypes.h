@@ -52,16 +52,22 @@ namespace NShader
   static const char STR_UNIFORM_LPV_TEX_R[] = "lpvTexR"; // gs in, cs out, out draw in
   static const char STR_UNIFORM_LPV_TEX_G[] = "lpvTexG";
   static const char STR_UNIFORM_LPV_TEX_B[] = "lpvTexB";
+  static const char STR_UNIFORM_LPV_ACCUM_TEX_R[] = "lpvAccumTexR"; // gs in, cs out, out draw in
+  static const char STR_UNIFORM_LPV_ACCUM_TEX_G[] = "lpvAccumTexG";
+  static const char STR_UNIFORM_LPV_ACCUM_TEX_B[] = "lpvAccumTexB";
   static const char STR_UNIFORM_GV_TEX[] = "gvTex"; // gs in, cs in
-  static const char STR_UNIFORM_SKY_TEX_R[] = "skyTexR";
-  static const char STR_UNIFORM_SKY_TEX_G[] = "skyTexG";
-  static const char STR_UNIFORM_SKY_TEX_B[] = "skyTexB";
   static const char STR_UNIFORM_LPV0_TEX_R[] = "lpv0TexR"; // cs swap in
   static const char STR_UNIFORM_LPV0_TEX_G[] = "lpv0TexG";
   static const char STR_UNIFORM_LPV0_TEX_B[] = "lpv0TexB";
+  static const char STR_UNIFORM_LPV0_ACCUM_TEX_R[] = "lpv0AccumTexR";
+  static const char STR_UNIFORM_LPV0_ACCUM_TEX_G[] = "lpv0AccumTexG";
+  static const char STR_UNIFORM_LPV0_ACCUM_TEX_B[] = "lpv0AccumTexB";
   static const char STR_UNIFORM_LPV1_TEX_R[] = "lpv1TexR"; // cs swap out
   static const char STR_UNIFORM_LPV1_TEX_G[] = "lpv1TexG";
   static const char STR_UNIFORM_LPV1_TEX_B[] = "lpv1TexB";
+  static const char STR_UNIFORM_LPV1_ACCUM_TEX_R[] = "lpv1AccumTexR";
+  static const char STR_UNIFORM_LPV1_ACCUM_TEX_G[] = "lpv1AccumTexG";
+  static const char STR_UNIFORM_LPV1_ACCUM_TEX_B[] = "lpv1AccumTexB";
 
   static const char STR_UNIFORM_TYPE[] = "type";
   static const char STR_UNIFORM_OPACITY[] = "opacity";
@@ -259,7 +265,7 @@ namespace NShader
   static const char *const STR_GEOMETRY_SHADER_LIST[][2] =
   {
     { STR_GEOMETRY_LPV_INJECTION, "" },
-    { STR_GEOMETRY_LPV_PROPAGATION, "" },
+    { STR_GEOMETRY_LPV_PROPAGATION, "LPV_GATHERING" },
     { STR_GEOMETRY_LPV_PROPAGATION, "LPV_SCATTERING" }
   };
 
@@ -293,7 +299,7 @@ namespace NShader
   {
     { STR_COMPUTE_LPV_CLEAR, "" },
     { STR_COMPUTE_LPV_INJECTION, "" },
-    { STR_COMPUTE_LPV_PROPAGATION, "" },
+    { STR_COMPUTE_LPV_PROPAGATION, "LPV_GATHERING" },
     { STR_COMPUTE_LPV_PROPAGATION, "LPV_SCATTERING" }
   };
 
@@ -670,22 +676,25 @@ namespace NShader
 
     SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_R = 0, // swap in
     SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_G,
-    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_B,
+    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_B,    
+    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_ACCUM_R,
+    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_ACCUM_G,
+    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_ACCUM_B,
     SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_GV,
-    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_SKY_R,
-    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_SKY_G,
-    SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_SKY_B,
 
     IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_R = 0,
     IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_G,
     IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_B,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_R,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_G,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_B,
     IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_R,
     IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_G,
     IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_B,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_R,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_G,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_B,
     IMAGE_TEX_LPV_CLEAR_COMPUTE_GV,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_SKY_R,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_SKY_G,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_SKY_B,
 
     IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_COLOR = 0,
     IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_POS,
@@ -694,24 +703,27 @@ namespace NShader
     IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_R, // out
     IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_G,
     IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_B,
+    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_R,
+    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_G,
+    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_B,
     IMAGE_TEX_LPV_INJECTION_COMPUTE_GV,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_SKY_R,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_SKY_G,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_SKY_B,
 
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_R = 0, // out
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_G,
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_B,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_GV, // static
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_SKY_R, // static
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_SKY_G, // static
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_SKY_B, // static
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_R, // swap in
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_G,
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_B,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_R,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_G,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_B,
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_R, // swap out
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_G,
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_B,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_R,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_G,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_B,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_GV // static
   };
 }
 //------------------------------------------------------------------------------
@@ -746,16 +758,22 @@ struct SShaderUniforms
   GLint lpvTexR;
   GLint lpvTexG;
   GLint lpvTexB;
+  GLint lpvAccumTexR;
+  GLint lpvAccumTexG;
+  GLint lpvAccumTexB;
   GLint gvTex;
-  GLint skyTexR;
-  GLint skyTexG;
-  GLint skyTexB;
   GLint lpv0TexR;
   GLint lpv0TexG;
   GLint lpv0TexB;
+  GLint lpv0AccumTexR;
+  GLint lpv0AccumTexG;
+  GLint lpv0AccumTexB;
   GLint lpv1TexR;
   GLint lpv1TexG;
   GLint lpv1TexB;
+  GLint lpv1AccumTexR;
+  GLint lpv1AccumTexG;
+  GLint lpv1AccumTexB;
 
   GLint type;
   GLint opacity;
@@ -789,43 +807,49 @@ struct SShaderUniforms
   const CMap *lpvGs0MapR; // gl32 fbo swap textures, out lpv
   const CMap *lpvGs0MapG;
   const CMap *lpvGs0MapB;
+  const CMap *lpvAccumGs0MapR;
+  const CMap *lpvAccumGs0MapG;
+  const CMap *lpvAccumGs0MapB;
   const CMap *gvGs0Map;
-  const CMap *skyGs0MapR;
-  const CMap *skyGs0MapG;
-  const CMap *skyGs0MapB;
   const CMap *lpvGs1MapR;
   const CMap *lpvGs1MapG;
   const CMap *lpvGs1MapB;
+  const CMap *lpvAccumGs1MapR;
+  const CMap *lpvAccumGs1MapG;
+  const CMap *lpvAccumGs1MapB;
   const CMap *gvGs1Map;
-  const CMap *skyGs1MapR;
-  const CMap *skyGs1MapG;
-  const CMap *skyGs1MapB;
 
   const CMap *lpvCs0MapR; // gl43 swap images
   const CMap *lpvCs0MapG;
   const CMap *lpvCs0MapB;
+  const CMap *lpvAccumCs0MapR;
+  const CMap *lpvAccumCs0MapG;
+  const CMap *lpvAccumCs0MapB;
   const CMap *lpvCs1MapR;
   const CMap *lpvCs1MapG;
   const CMap *lpvCs1MapB;
+  const CMap *lpvAccumCs1MapR;
+  const CMap *lpvAccumCs1MapG;
+  const CMap *lpvAccumCs1MapB;
   const CMap *gvCsMap;
-  const CMap *skyCsMapR;
-  const CMap *skyCsMapG;
-  const CMap *skyCsMapB;
 
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), vertexNormalBitangent(0), vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), mvpsb(0), cam(0),
     difTex(0), alpTex(0), speTex(0), norTex(0), /*envTex(0), */shadTex(0), shadDepthTex(0),
     geomColorTex(0), geomPosTex(0), geomNormalTex(0), /*geomDepthTex(0),*/
-    lpvTexR(0), lpvTexG(0), lpvTexB(0), gvTex(0), skyTexR(0), skyTexG(0), skyTexB(0),
-    lpv0TexR(0), lpv0TexG(0), lpv0TexB(0), lpv1TexR(0), lpv1TexG(0), lpv1TexB(0),
+    lpvTexR(0), lpvTexG(0), lpvTexB(0), lpvAccumTexR(0), lpvAccumTexG(0), lpvAccumTexB(0), gvTex(0),
+    lpv0TexR(0), lpv0TexG(0), lpv0TexB(0), lpv0AccumTexR(0), lpv0AccumTexG(0), lpv0AccumTexB(0),
+    lpv1TexR(0), lpv1TexG(0), lpv1TexB(0), lpv1AccumTexR(0), lpv1AccumTexG(0), lpv1AccumTexB(0),
     type(0), opacity(0), tiles(0), tileInstances(0), shadowTexSize(0), shadowClips(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
     geomTexSize(0), lpvPos(0), lpvTexSize(0), lpvCellSize(0), lpvParams(0),
     shadowMap(NULL), shadowDepthMap(NULL), geomColorMap(NULL), geomPosMap(NULL), geomNormalMap(NULL), /*geomDepthMap(NULL),*/
-    lpvGs0MapR(NULL), lpvGs0MapG(NULL), lpvGs0MapB(NULL), gvGs0Map(NULL), skyGs0MapR(NULL), skyGs0MapG(NULL), skyGs0MapB(NULL),
-    lpvGs1MapR(NULL), lpvGs1MapG(NULL), lpvGs1MapB(NULL), gvGs1Map(NULL), skyGs1MapR(NULL), skyGs1MapG(NULL), skyGs1MapB(NULL),
-    lpvCs0MapR(NULL), lpvCs0MapG(NULL), lpvCs0MapB(NULL), lpvCs1MapR(NULL), lpvCs1MapG(NULL), lpvCs1MapB(NULL), gvCsMap(NULL), skyCsMapR(NULL), skyCsMapG(NULL), skyCsMapB(NULL)
+    lpvGs0MapR(NULL), lpvGs0MapG(NULL), lpvGs0MapB(NULL), lpvAccumGs0MapR(NULL), lpvAccumGs0MapG(NULL), lpvAccumGs0MapB(NULL), gvGs0Map(NULL),
+    lpvGs1MapR(NULL), lpvGs1MapG(NULL), lpvGs1MapB(NULL), lpvAccumGs1MapR(NULL), lpvAccumGs1MapG(NULL), lpvAccumGs1MapB(NULL), gvGs1Map(NULL),
+    lpvCs0MapR(NULL), lpvCs0MapG(NULL), lpvCs0MapB(NULL), lpvAccumCs0MapR(NULL), lpvAccumCs0MapG(NULL), lpvAccumCs0MapB(NULL),
+    lpvCs1MapR(NULL), lpvCs1MapG(NULL), lpvCs1MapB(NULL), lpvAccumCs1MapR(NULL), lpvAccumCs1MapG(NULL), lpvAccumCs1MapB(NULL),
+    gvCsMap(NULL)
   {
   }
 };

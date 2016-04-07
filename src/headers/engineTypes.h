@@ -46,7 +46,7 @@ namespace NEngine
   static const uint32 LPV_TECHNIQUES_COUNT = 2;
   static const uint32 LPV_SH_COUNT = 4;
   static const uint32 LPV_CASCADES_COUNT = 4;
-  static const uint32 LPV_SUN_SKY_DIRS_COUNT = 2; // sun + sky
+  static const uint32 LPV_SUN_SKY_DIRS_COUNT = 1; // sun + sky
 
   static const float SHADOW_CASCADES_CLIPS[/*SHADOW_CASCADES_COUNT * NMath::VEC2*/] =
   {
@@ -123,28 +123,31 @@ namespace NEngine
   static const char STR_LPV0_GS_MAP_R[] = "lpv0Tex_0";
   static const char STR_LPV0_GS_MAP_G[] = "lpv0Tex_1";
   static const char STR_LPV0_GS_MAP_B[] = "lpv0Tex_2";
+  static const char STR_LPV0_ACCUM_GS_MAP_R[] = "lpv0Tex_3";
+  static const char STR_LPV0_ACCUM_GS_MAP_G[] = "lpv0Tex_4";
+  static const char STR_LPV0_ACCUM_GS_MAP_B[] = "lpv0Tex_5";
+  static const char STR_GV0_GS_MAP[] = "lpv0Tex_6";
   static const char STR_LPV1_GS_MAP_R[] = "lpv1Tex_0";
   static const char STR_LPV1_GS_MAP_G[] = "lpv1Tex_1";
   static const char STR_LPV1_GS_MAP_B[] = "lpv1Tex_2";
-  static const char STR_GV0_GS_MAP[] = "lpv0Tex_3";
-  static const char STR_GV1_GS_MAP[] = "lpv1Tex_3";
-  static const char STR_SKY0_GS_MAP_R[] = "lpv0Tex_4";
-  static const char STR_SKY0_GS_MAP_G[] = "lpv0Tex_5";
-  static const char STR_SKY0_GS_MAP_B[] = "lpv0Tex_6";
-  static const char STR_SKY1_GS_MAP_R[] = "lpv1Tex_4";
-  static const char STR_SKY1_GS_MAP_G[] = "lpv1Tex_5";
-  static const char STR_SKY1_GS_MAP_B[] = "lpv1Tex_6";
+  static const char STR_LPV1_ACCUM_GS_MAP_R[] = "lpv1Tex_3";
+  static const char STR_LPV1_ACCUM_GS_MAP_G[] = "lpv1Tex_4";
+  static const char STR_LPV1_ACCUM_GS_MAP_B[] = "lpv1Tex_5";
+  static const char STR_GV1_GS_MAP[] = "lpv1Tex_6";
 
   static const char STR_LPV0_CS_IMG_R[] = "lpv0Img_0"; // gl 4.3 swap propagation images - 2
   static const char STR_LPV0_CS_IMG_G[] = "lpv0Img_1";
   static const char STR_LPV0_CS_IMG_B[] = "lpv0Img_2";
+  static const char STR_LPV0_ACCUM_CS_IMG_R[] = "lpv0Img_3";
+  static const char STR_LPV0_ACCUM_CS_IMG_G[] = "lpv0Img_4";
+  static const char STR_LPV0_ACCUM_CS_IMG_B[] = "lpv0Img_5";
   static const char STR_LPV1_CS_IMG_R[] = "lpv1Img_0";
   static const char STR_LPV1_CS_IMG_G[] = "lpv1Img_1";
   static const char STR_LPV1_CS_IMG_B[] = "lpv1Img_2";
-  static const char STR_GV_CS_IMG[] = "lpvImg_3";
-  static const char STR_SKY_CS_IMG_R[] = "lpvImg_4";
-  static const char STR_SKY_CS_IMG_G[] = "lpvImg_5";
-  static const char STR_SKY_CS_IMG_B[] = "lpvImg_6";
+  static const char STR_LPV1_ACCUM_CS_IMG_R[] = "lpv1Img_3";
+  static const char STR_LPV1_ACCUM_CS_IMG_G[] = "lpv1Img_4";
+  static const char STR_LPV1_ACCUM_CS_IMG_B[] = "lpv1Img_5";
+  static const char STR_GV_CS_IMG[] = "lpvImg_6";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
   static const char STR_SELECT_GL_PLATFORM[] = "Selected OpenGL version: %s.";

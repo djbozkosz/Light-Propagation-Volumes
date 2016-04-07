@@ -35,12 +35,9 @@ uniform sampler2D norTex;
 #endif
 #ifdef SHAD_TEX
 uniform sampler2DShadow shadTex;
-uniform sampler3D lpvTexR;
-uniform sampler3D lpvTexG;
-uniform sampler3D lpvTexB;
-uniform sampler3D skyTexR;
-uniform sampler3D skyTexG;
-uniform sampler3D skyTexB;
+uniform sampler3D lpvAccumTexR;
+uniform sampler3D lpvAccumTexG;
+uniform sampler3D lpvAccumTexB;
 #endif
 #ifdef SHADOW_JITTER
 uniform sampler2D shadDepthTex;
@@ -141,16 +138,10 @@ void main()
       vec4 shBase = vec4(0.2821, -0.4886, 0.4886, -0.4886);
       //vec4 shBase = vec4(0.8862, -1.0233, 1.0233, -1.0233);
       vec4 shNormal = shBase * vec4(1.0, -normalDir.y, -normalDir.z, -normalDir.x);
-      vec4 lpvShR = texture(lpvTexR, lpvP);
-      vec4 lpvShG = texture(lpvTexG, lpvP);
-      vec4 lpvShB = texture(lpvTexB, lpvP);
+      vec4 lpvShR = texture(lpvAccumTexR, lpvP);
+      vec4 lpvShG = texture(lpvAccumTexG, lpvP);
+      vec4 lpvShB = texture(lpvAccumTexB, lpvP);
       lpvColor2 = vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * lpvParams.y;
-
-      vec4 shNormalSky = shBase * vec4(1.0, normalDir.y, normalDir.z, normalDir.x);
-      vec4 skyShR = texture(skyTexR, lpvP);
-      vec4 skyShG = texture(skyTexG, lpvP);
-      vec4 skyShB = texture(skyTexB, lpvP);
-      lpvColor2 += vec3(max(0.0, dot(shNormalSky, skyShR)), max(0.0, dot(shNormalSky, skyShG)), max(0.0, dot(shNormalSky, skyShB))) * lpvParams.y;
     }
 
     if(semiCascade == 0)

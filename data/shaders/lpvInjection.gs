@@ -39,12 +39,18 @@ void main()
     pos += normal * lpvCellSize[cascade] * INJECT_SHIFT; // self illum shift
 
     vec3 lpvP = vec3((pos.xy - lpvPos[cascade].xy) / (lpvTexSize.y * lpvCellSize[cascade].xy * 0.5), ((pos.z - lpvPos[cascade].z) / (lpvTexSize.z * lpvCellSize[cascade].z * 0.5) * 0.5 + 0.5) * lpvTexSize.z);
-    lpvP.x = ((lpvP.x * 0.5 + 0.5 + float(cascade)) * tiles.w) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc
 
-    texPos = vec2(float(x), float(y));
-    gl_Layer = int(lpvP.z);
-    gl_Position = gl_in[0].gl_Position + vec4(lpvP.xy, 0.0, 1.0);
-    EmitVertex();
+    if((lpvP.x >= -1.0) && (lpvP.x <= 1.0) &&
+       (lpvP.y >= -1.0) && (lpvP.y <= 1.0) &&
+       (lpvP.z >= 0.0) && (lpvP.z < lpvTexSize.z))
+    { // clip
+      lpvP.x = ((lpvP.x * 0.5 + 0.5 + float(cascade)) * tiles.w) * 2.0 - 1.0; // place X into correct lpv cascade: ndc -> 0..1 -> shift, normalize -> ndc
+
+      texPos = vec2(float(x), float(y));
+      gl_Layer = int(lpvP.z);
+      gl_Position = gl_in[0].gl_Position + vec4(lpvP.xy, 0.0, 1.0);
+      EmitVertex();
+    }
   }
 
   EndPrimitive();
@@ -55,12 +61,5 @@ void main()
   gl_Layer = 16;
   gl_Position = gl_in[0].gl_Position + vec4(float(x) * geomTexSize.z * 2.0 - 1.0, float(y) * geomTexSize.w * 2.0 - 1.0, 0.0, 1.0) * vec4(1.0, 2.0, 0.0, 1.0);
   EmitVertex();
-  EndPrimitive();*/
-
-  /*gl_Layer = 16;
-  texPos = vec2(-1.0, 1.0); gl_Position = vec4(-1.0, 1.0, 0.0, 1.0); EmitVertex();
-  texPos = vec2(1.0, 1.0); gl_Position = vec4( 1.0,  1.0, 0.0, 1.0); EmitVertex();
-  texPos = vec2(-1.0, -1.0); gl_Position = vec4(-1.0, -1.0, 0.0, 1.0); EmitVertex();
-  texPos = vec2(1.0, -1.0); gl_Position = vec4( 1.0, -1.0, 0.0, 1.0); EmitVertex();
   EndPrimitive();*/
 }
