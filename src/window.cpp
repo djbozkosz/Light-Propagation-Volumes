@@ -148,7 +148,7 @@ void CWindow::initializeGL()
 
     // lpv vbo data
     std::vector<float> vboGeoData(e->geometryTextureSize * e->geometryTiles.x * e->geometryTextureSize * e->geometryTiles.y);
-    std::vector<float> vboLPVData(e->lpvTextureSize.x * e->lpvCascadesCount * e->lpvTextureSize.y * e->lpvTextureSize.z);
+    std::vector<float> vboLPVData(65536);
     memset(&vboGeoData[0], 0, sizeof(float) * vboGeoData.size());
     memset(&vboLPVData[0], 0, sizeof(float) * vboLPVData.size());
     gl->genBuffers(1, &vboGeoPoints);
@@ -460,10 +460,21 @@ void CWindow::paintGL()
         }
         else
         {
+          const GLint u = shaderlpvGsPropScat->getProgram()->uniforms.lpvParams;
+          int32 cells = e->lpvTextureSize.x * e->lpvCascadesCount * e->lpvTextureSize.y * e->lpvTextureSize.z;
+
           shaderlpvGsPropScat->bind();
           gl->bindBuffer(NOpenGL::ARRAY_BUFFER, vboLPVScatPoints);
           shaderlpvGsPropScat->begin(NULL, NRenderer::MODE_LPV_PROPAGATION_GEOMETRY_SCATTERING);
-          //gl->drawArrays(NOpenGL::POINTS, 0, e->lpvTextureSize.x * e->lpvCascadesCount * e->lpvTextureSize.y * e->lpvTextureSize.z);
+
+          for(uint32 c = 0; cells >= 65536; cells -= 65536, c++)
+          { // draw each 65536 points from lpv cells
+            gl->uniform2f(u, c, 0);
+            gl->drawArrays(NOpenGL::POINTS, 0, 65536);
+          }
+          if(cells > 0) // render last reimaining points
+            gl->drawArrays(NOpenGL::POINTS, 0, cells);
+
           shaderlpvGsPropScat->end(NULL);
           gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
           shaderlpvGsPropScat->unbind();
@@ -520,7 +531,7 @@ void CWindow::paintGL()
       drawTexture(0.0f, 0.666f, 0.333f * r, 0.333f, fboGeometry->getFrameBuffer()->attachments[2].map);
       //drawTexture(0.0f, 0.666f, 0.333f * r, 0.333f, fboGeometry->getFrameBuffer()->attachments[3].map);
 
-      m = fbo->getFramebuffer(NEngine::STR_LPV0_GS_FBO)->getFrameBuffer()->attachments[4].map;
+      m = fbo->getFramebuffer((!e->lpvPropagationSwap) ? NEngine::STR_LPV0_GS_FBO : NEngine::STR_LPV1_GS_FBO)->getFrameBuffer()->attachments[4].map;
       for(uint8 i = 0; i < 8; i++)
         drawTexture(0.8f, static_cast<float>(i) * 0.11f, 0.2f, 0.1f, m, i * 4);
     }

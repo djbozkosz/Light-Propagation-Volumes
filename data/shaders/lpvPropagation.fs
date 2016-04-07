@@ -4,6 +4,7 @@ precision lowp float;
 #ifdef LPV_GATHERING
 in float texPos;
 #else
+in vec3 texPos;
 #endif
 
 uniform sampler3D lpvTexR;
@@ -25,22 +26,20 @@ out vec4 glFragColor6Gv;
 void main()
 {
 #ifdef LPV_GATHERING
-  float a = texPos;
-
-  glFragColor0LpvR = vec4(1.0);
-  glFragColor1LpvG = vec4(1.0);
-  glFragColor2LpvB = vec4(1.0);
-  glFragColor3LpvAccumR = vec4(1.0);
-  glFragColor4LpvAccumG = vec4(1.0);
-  glFragColor5LpvAccumB = vec4(1.0);
+  glFragColor0LpvR = vec4(0.1) + texPos * 0.0;
+  glFragColor1LpvG = vec4(0.1);
+  glFragColor2LpvB = vec4(0.1);
+  glFragColor3LpvAccumR = vec4(0.1);
+  glFragColor4LpvAccumG = vec4(0.1);
+  glFragColor5LpvAccumB = vec4(0.1);
   glFragColor6Gv = vec4(0.0);
 #else
-  glFragColor0LpvR = vec4(0.0);
-  glFragColor1LpvG = vec4(0.0);
-  glFragColor2LpvB = vec4(0.0);
-  glFragColor3LpvAccumR = vec4(0.0);
-  glFragColor4LpvAccumG = vec4(0.0);
-  glFragColor5LpvAccumB = vec4(0.0);
+  glFragColor0LpvR = vec4(0.1) + texPos.x * 0.0;
+  glFragColor1LpvG = vec4(0.1);
+  glFragColor2LpvB = vec4(0.1);
+  glFragColor3LpvAccumR = vec4(0.1);
+  glFragColor4LpvAccumG = vec4(0.1);
+  glFragColor5LpvAccumB = vec4(0.1);
   glFragColor6Gv = vec4(0.0);
 #endif
 }
