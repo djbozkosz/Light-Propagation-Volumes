@@ -90,7 +90,20 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, uint32 format) const
 inline void CMap::clear()
 {
   COpenGL *gl = context->getOpenGL();
-  gl->clearTexImage(map.texture, 0, NOpenGL::RGBA, NOpenGL::FLOAT, NULL);
+  if(gl->getStatusClearTexImage() != NOpenGLProc::TYPE_NOT_LOADED)
+    gl->clearTexImage(map.texture, 0, NOpenGL::RGBA, NOpenGL::FLOAT, NULL);
+  else
+  {
+    const GLenum texFormat = (map.format & NMap::FORMAT_3D) ? NOpenGL::TEXTURE_3D : ((map.format & NMap::FORMAT_2D_ARRAY) ? NOpenGL::TEXTURE_2D_ARRAY : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D));
+    std::vector<float> d(map.width * map.height * ((map.depth) ? map.depth : 1) * NMap::RGBA_SIZE);
+    memset(&d[0], 0, sizeof(float) * d.size());
+    gl->bindTexture(texFormat, map.texture);
+    if(map.format & (NMap::FORMAT_2D_ARRAY | NMap::FORMAT_3D))
+      gl->texSubImage3D(texFormat, 0, 0, 0, 0, map.width, map.height, map.depth, NOpenGL::RGBA, NOpenGL::FLOAT, &d[0]);
+    else
+      gl->texSubImage2D(texFormat, 0, 0, 0, map.width, map.height, NOpenGL::RGBA, NOpenGL::FLOAT, &d[0]);
+    gl->bindTexture(texFormat, 0);
+  }
 }
 //------------------------------------------------------------------------------
 inline void CMap::fill(const void *data)

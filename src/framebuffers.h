@@ -19,6 +19,7 @@ class CFramebuffer : public CEngineBase
     inline void setChanged(bool changed = true) { framebuffer.changed = changed; }
 
     void bind() const;
+    void clear();
 
     inline const SFramebuffer *getFrameBuffer() const { return &framebuffer; }
     inline const SFramebufferAttachment *getAttachment(uint32 index) const { if(index >= framebuffer.attachments.size()) return NULL; return &framebuffer.attachments[index]; }
@@ -48,6 +49,32 @@ inline void CFramebuffer::bind() const
 
   gl->bindFramebuffer(NOpenGL::FRAMEBUFFER, framebuffer.fbo);
   gl->viewport(0, 0, framebuffer.width, framebuffer.height);
+}
+//------------------------------------------------------------------------------
+inline void CFramebuffer::clear()
+{
+  if(!framebuffer.attachments.size())
+    return;
+
+  const uint32 format = framebuffer.attachments[0].format;
+  COpenGL *gl = context->getOpenGL();
+  bind();
+
+  if(format & (NMap::FORMAT_2D_ARRAY | NMap::FORMAT_3D))
+  {
+    for(uint32 layer = 0; layer < framebuffer.depth; layer++)
+    {
+      for(uint32 att = 0; att < framebuffer.attachments.size(); att++)
+        gl->framebufferTextureLayer(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + att, framebuffer.attachments[att].map->getMap()->texture, 0, layer);
+      gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
+    }
+    for(uint32 att = 0; att < framebuffer.attachments.size(); att++)
+      gl->framebufferTexture(NOpenGL::FRAMEBUFFER, NOpenGL::COLOR_ATTACHMENT0 + att, framebuffer.attachments[att].map->getMap()->texture, 0);
+  }
+  else
+    gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
+
+  context->getFramebuffers()->unbind();
 }
 //------------------------------------------------------------------------------
 inline CFramebuffer *CFramebuffers::addFbo(const SFramebuffer &framebuffer)

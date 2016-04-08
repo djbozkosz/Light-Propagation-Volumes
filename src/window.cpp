@@ -427,24 +427,12 @@ void CWindow::paintGL()
       {
         if(!e->lpvPropagationSwap)
         {
-          maps->getMap(NEngine::STR_LPV1_GS_MAP_R)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV1_GS_MAP_G)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV1_GS_MAP_B)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_GV1_GS_MAP)->fill(&lpvClearData[0]);
+          fboLpvGs1->clear();
           fboLpvGs1->bind();
         }
         else
         {
-          maps->getMap(NEngine::STR_LPV0_GS_MAP_R)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV0_GS_MAP_G)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV0_GS_MAP_B)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
-          maps->getMap(NEngine::STR_GV0_GS_MAP)->fill(&lpvClearData[0]);
+          fboLpvGs0->clear();
           fboLpvGs0->bind();
         }
 
