@@ -275,7 +275,7 @@ void CWindow::paintGL()
   COpenGL *gl = CEngineBase::context->getOpenGL();
   CRenderer *ren = CEngineBase::context->getRenderer();
   CShaders *sh = CEngineBase::context->getShaders();
-  CMaps *maps = CEngineBase::context->getMaps();
+  //CMaps *maps = CEngineBase::context->getMaps();
   CFramebuffers *fbo = CEngineBase::context->getFramebuffers();
   CCamera *cam = CEngineBase::context->getCamera();
   CCulling *cul = CEngineBase::context->getCulling();
@@ -389,20 +389,8 @@ void CWindow::paintGL()
     if((fboLpvGs0) && (fboLpvGs1) && (shaderlpvGsInject) && (shaderlpvGsPropGath) && (shaderlpvGsPropScat) &&
        (e->lpvMode == NEngine::LPV_MODE_GEOMETRY) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
     { // gl 3.2
-      maps->getMap(NEngine::STR_LPV0_GS_MAP_R)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV0_GS_MAP_G)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV0_GS_MAP_B)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV0_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_GV0_GS_MAP)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV1_GS_MAP_R)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV1_GS_MAP_G)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV1_GS_MAP_B)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_R)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_G)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_B)->fill(&lpvClearData[0]);
-      maps->getMap(NEngine::STR_GV1_GS_MAP)->fill(&lpvClearData[0]);
+      fboLpvGs0->clear();
+      fboLpvGs1->clear();
 
       gl->depthMask(NOpenGL::FALSE); // proceed all fragments
       gl->enable(NOpenGL::BLEND);
@@ -418,6 +406,12 @@ void CWindow::paintGL()
       gl->bindBuffer(NOpenGL::ARRAY_BUFFER, 0);
       shaderlpvGsInject->unbind();
       fbo->unbind();
+
+      if(e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING)
+      {
+        gl->disable(NOpenGL::BLEND);
+        gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA);
+      }
 
       // propagation
       if(e->lpvPropagationSwap)
@@ -472,8 +466,11 @@ void CWindow::paintGL()
         CEngineBase::context->engineSwapLPV();
       }
 
-      gl->disable(NOpenGL::BLEND);
-      gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA);
+      if(e->lpvTechnique == NEngine::LPV_TECHNIQUE_SCATTERING)
+      {
+        gl->disable(NOpenGL::BLEND);
+        gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA);
+      }
       gl->depthMask(NOpenGL::TRUE);
     }
     else if((e->lpvMode == NEngine::LPV_MODE_COMPUTE) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
@@ -519,9 +516,12 @@ void CWindow::paintGL()
       drawTexture(0.0f, 0.666f, 0.333f * r, 0.333f, fboGeometry->getFrameBuffer()->attachments[2].map);
       //drawTexture(0.0f, 0.666f, 0.333f * r, 0.333f, fboGeometry->getFrameBuffer()->attachments[3].map);
 
-      m = fbo->getFramebuffer((!e->lpvPropagationSwap) ? NEngine::STR_LPV0_GS_FBO : NEngine::STR_LPV1_GS_FBO)->getFrameBuffer()->attachments[4].map;
+      m = fbo->getFramebuffer((!e->lpvPropagationSwap) ? NEngine::STR_LPV0_GS_FBO : NEngine::STR_LPV1_GS_FBO)->getFrameBuffer()->attachments[0].map;
       for(uint8 i = 0; i < 8; i++)
-        drawTexture(0.8f, static_cast<float>(i) * 0.11f, 0.2f, 0.1f, m, i * 4);
+        drawTexture(0.595f, static_cast<float>(i) * 0.125f, 0.2f, 0.12f, m, i * 4);
+      m = fbo->getFramebuffer((!e->lpvPropagationSwap) ? NEngine::STR_LPV0_GS_FBO : NEngine::STR_LPV1_GS_FBO)->getFrameBuffer()->attachments[3].map;
+      for(uint8 i = 0; i < 8; i++)
+        drawTexture(0.8f, static_cast<float>(i) * 0.125f, 0.2f, 0.12f, m, i * 4);
     }
   }
 

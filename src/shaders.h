@@ -112,8 +112,8 @@ inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint
 inline void CShaderProgram::beginLPV(NShader::ESamplerTex startDepthSampler) const
 {
   const SShaderUniforms *u = &program.uniforms;
-  const CMap *const lpvMaps[] = { u->lpvGs0MapR, u->lpvGs0MapG, u->lpvGs0MapB, u->lpvGs1MapR, u->lpvGs1MapG, u->lpvGs1MapB };
-  //const CMap *const lpvMaps[] = { u->lpvAccumGs0MapR, u->lpvAccumGs0MapG, u->lpvAccumGs0MapB, u->lpvAccumGs1MapR, u->lpvAccumGs1MapG, u->lpvAccumGs1MapB };
+  //const CMap *const lpvMaps[] = { u->lpvGs0MapR, u->lpvGs0MapG, u->lpvGs0MapB, u->lpvGs1MapR, u->lpvGs1MapG, u->lpvGs1MapB };
+  const CMap *const lpvMaps[] = { u->lpvAccumGs0MapR, u->lpvAccumGs0MapG, u->lpvAccumGs0MapB, u->lpvAccumGs1MapR, u->lpvAccumGs1MapG, u->lpvAccumGs1MapB };
 
   const uint32 i = (!context->engineGetEngine()->lpvPropagationSwap) ? 0 : 3;
   uint32 filter = NMap::FORMAT_LINEAR;
