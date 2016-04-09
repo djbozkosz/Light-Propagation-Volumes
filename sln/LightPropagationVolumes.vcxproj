@@ -77,6 +77,9 @@
     <None Include="..\data\shaders\illumination.fs" />
     <None Include="..\data\shaders\illumination.vs" />
     <None Include="..\data\shaders\lpvClear.cs" />
+    <None Include="..\data\shaders\lpvClear.fs" />
+    <None Include="..\data\shaders\lpvClear.gs" />
+    <None Include="..\data\shaders\lpvClear.vs" />
     <None Include="..\data\shaders\lpvInjection.cs" />
     <None Include="..\data\shaders\lpvInjection.fs" />
     <None Include="..\data\shaders\lpvInjection.gs" />

@@ -272,19 +272,10 @@ void CShaderProgram::initUniforms()
   u->lpvAccumTexR = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_ACCUM_TEX_R);
   u->lpvAccumTexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_ACCUM_TEX_G);
   u->lpvAccumTexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_ACCUM_TEX_B);
+  u->lpv0Tex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_TEX);
+  u->lpv1Tex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV1_TEX);
+  u->lpvAccumTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV_ACCUM_TEX);
   u->gvTex = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_GV_TEX);
-  u->lpv0TexR = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_TEX_R);
-  u->lpv0TexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_TEX_G);
-  u->lpv0TexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_TEX_B);
-  u->lpv0AccumTexR = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_ACCUM_TEX_R);
-  u->lpv0AccumTexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_ACCUM_TEX_G);
-  u->lpv0AccumTexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV0_ACCUM_TEX_B);
-  u->lpv1TexR = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV1_TEX_R);
-  u->lpv1TexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV1_TEX_G);
-  u->lpv1TexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV1_TEX_B);
-  u->lpv1AccumTexR = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV1_ACCUM_TEX_R);
-  u->lpv1AccumTexG = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV1_ACCUM_TEX_G);
-  u->lpv1AccumTexB = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_LPV1_ACCUM_TEX_B);
 
   u->type = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_TYPE);
   u->opacity = gl->getUniformLocation(program.program, NShader::STR_UNIFORM_OPACITY);
@@ -327,19 +318,9 @@ void CShaderProgram::initUniforms()
   u->lpvAccumGs1MapG = maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_G);
   u->lpvAccumGs1MapB = maps->getMap(NEngine::STR_LPV1_ACCUM_GS_MAP_B);
   u->gvGs1Map = maps->getMap(NEngine::STR_GV1_GS_MAP);
-  u->lpvCs0MapR = maps->getMap(NEngine::STR_LPV0_CS_IMG_R);
-  u->lpvCs0MapG = maps->getMap(NEngine::STR_LPV0_CS_IMG_G);
-  u->lpvCs0MapB = maps->getMap(NEngine::STR_LPV0_CS_IMG_B);
-  u->lpvAccumCs0MapR = maps->getMap(NEngine::STR_LPV0_ACCUM_CS_IMG_R);
-  u->lpvAccumCs0MapG = maps->getMap(NEngine::STR_LPV0_ACCUM_CS_IMG_G);
-  u->lpvAccumCs0MapB = maps->getMap(NEngine::STR_LPV0_ACCUM_CS_IMG_B);
-  u->lpvCs0MapB = maps->getMap(NEngine::STR_LPV0_CS_IMG_B);
-  u->lpvCs1MapR = maps->getMap(NEngine::STR_LPV1_CS_IMG_R);
-  u->lpvCs1MapG = maps->getMap(NEngine::STR_LPV1_CS_IMG_G);
-  u->lpvCs1MapB = maps->getMap(NEngine::STR_LPV1_CS_IMG_B);
-  u->lpvAccumCs1MapR = maps->getMap(NEngine::STR_LPV1_ACCUM_CS_IMG_R);
-  u->lpvAccumCs1MapG = maps->getMap(NEngine::STR_LPV1_ACCUM_CS_IMG_G);
-  u->lpvAccumCs1MapB = maps->getMap(NEngine::STR_LPV1_ACCUM_CS_IMG_B);
+  u->lpv0CsMap = maps->getMap(NEngine::STR_LPV0_CS_IMG);
+  u->lpv1CsMap = maps->getMap(NEngine::STR_LPV1_CS_IMG);
+  u->lpvAccumCsMap = maps->getMap(NEngine::STR_LPV_ACCUM_CS_IMG);
   u->gvCsMap = maps->getMap(NEngine::STR_GV_CS_IMG);
 }
 //------------------------------------------------------------------------------
@@ -518,47 +499,25 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
     setSampler(lpvMaps[i + 5], u->lpvAccumTexB, NShader::SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_ACCUM_B, NMap::FORMAT_BORDER);
     setSampler(lpvMaps[i + 6], u->gvTex, NShader::SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_GV, NMap::FORMAT_BORDER); }
   else if(program.fSamplers & NShader::IMAGE_LPV_CLEAR_COMPUTE)
-  { setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs0MapR, u->lpv0AccumTexR, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_R, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs0MapG, u->lpv0AccumTexG, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_G, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs0MapB, u->lpv0AccumTexB, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs1MapR, u->lpv1TexR, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs1MapG, u->lpv1TexG, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs1MapB, u->lpv1TexB, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs1MapR, u->lpv1AccumTexR, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_R, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs1MapG, u->lpv1AccumTexG, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_G, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs1MapB, u->lpv1AccumTexB, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_B, NMap::FORMAT_IMAGE_W);
+  { setSampler(u->lpv0CsMap, u->lpv0Tex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpv1CsMap, u->lpv1Tex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvAccumCsMap, u->lpvAccumTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV_ACCUM, NMap::FORMAT_IMAGE_W);
     setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W); }
   else if(program.fSamplers & NShader::IMAGE_LPV_INJECTION_COMPUTE)
   { setSampler(u->geomColorMap, u->geomColorTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_COLOR, NMap::FORMAT_IMAGE_R);
     setSampler(u->geomPosMap, u->geomPosTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_POS, NMap::FORMAT_IMAGE_R);
     setSampler(u->geomNormalMap, u->geomNormalTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_NORMAL, NMap::FORMAT_IMAGE_R);
     //setSampler(u->geomDepthMap, u->geomDepthTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_DEPTH, NMap::FORMAT_IMAGE_R);
-    setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs0MapR, u->lpv0AccumTexR, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_R, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs0MapG, u->lpv0AccumTexG, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_G, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvAccumCs0MapB, u->lpv0AccumTexB, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_W); }
+    setSampler(u->lpv0CsMap, u->lpv0Tex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpvAccumCsMap, u->lpvAccumTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_RW); }
   else if(program.fSamplers & NShader::IMAGE_LPV_PROPAGATION_COMPUTE)
-  { setSampler(u->lpvGs0MapR, u->lpvTexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvGs0MapG, u->lpvTexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvGs0MapB, u->lpvTexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
-    setSampler(u->lpvCs0MapR, u->lpv0TexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvCs0MapG, u->lpv0TexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvCs0MapB, u->lpv0TexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvAccumCs0MapR, u->lpv0AccumTexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvAccumCs0MapG, u->lpv0AccumTexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvAccumCs0MapB, u->lpv0AccumTexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvCs1MapR, u->lpv1TexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvCs1MapG, u->lpv1TexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvCs1MapB, u->lpv1TexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvAccumCs1MapR, u->lpv1AccumTexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvAccumCs1MapG, u->lpv1AccumTexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(u->lpvAccumCs1MapB, u->lpv1AccumTexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_B, NMap::FORMAT_IMAGE_RW);
+  { setSampler(u->lpvAccumGs0MapR, u->lpvAccumTexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvAccumGs0MapG, u->lpvAccumTexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpvAccumGs0MapB, u->lpvAccumTexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
+    setSampler(u->lpv0CsMap, u->lpv0Tex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpv1CsMap, u->lpv1Tex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1, NMap::FORMAT_IMAGE_RW);
+    setSampler(u->lpvAccumCsMap, u->lpvAccumTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_ACCUM, NMap::FORMAT_IMAGE_RW);
     setSampler(u->gvCsMap, u->gvTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_R); }
 }
 //------------------------------------------------------------------------------
@@ -588,33 +547,26 @@ void CShaderProgram::end(const SShaderState *technique) const
     gl->disableVertexAttribArray(u->vertexPosition);
 
   if(program.fSamplers & NShader::IMAGE_LPV_CLEAR_COMPUTE)
-  { setSampler(NULL, u->lpv0TexR, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv0TexG, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv0TexB, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv1TexR, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv1TexG, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv1TexB, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_W);
+  { setSampler(NULL, u->lpv0Tex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv1Tex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0Tex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV_ACCUM, NMap::FORMAT_IMAGE_W);
     setSampler(NULL, u->gvTex, NShader::IMAGE_TEX_LPV_CLEAR_COMPUTE_GV, NMap::FORMAT_IMAGE_W); }
   else if(program.fSamplers & NShader::IMAGE_LPV_INJECTION_COMPUTE)
   { setSampler(NULL, u->geomColorTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_COLOR, NMap::FORMAT_IMAGE_R);
     setSampler(NULL, u->geomPosTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_POS, NMap::FORMAT_IMAGE_R);
     setSampler(NULL, u->geomNormalTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_NORMAL, NMap::FORMAT_IMAGE_R);
     //setSampler(NULL, u->geomDepthTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_DEPTH, NMap::FORMAT_IMAGE_R);
-    setSampler(NULL, u->lpv0TexR, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv0TexG, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->lpv0TexB, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0Tex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->lpv0Tex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM, NMap::FORMAT_IMAGE_W);
     setSampler(NULL, u->gvTex, NShader::IMAGE_TEX_LPV_INJECTION_COMPUTE_GV, NMap::FORMAT_IMAGE_W); }
   else if(program.fSamplers & NShader::IMAGE_LPV_PROPAGATION_COMPUTE)
   { setSampler(NULL, u->lpvTexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_R, NMap::FORMAT_IMAGE_W);
     setSampler(NULL, u->lpvTexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_G, NMap::FORMAT_IMAGE_W);
     setSampler(NULL, u->lpvTexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_B, NMap::FORMAT_IMAGE_W);
-    setSampler(NULL, u->gvTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_R);
-    setSampler(NULL, u->lpv0TexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv0TexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv0TexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_B, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv1TexR, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_R, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv1TexG, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_G, NMap::FORMAT_IMAGE_RW);
-    setSampler(NULL, u->lpv1TexB, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_B, NMap::FORMAT_IMAGE_RW); }
+    setSampler(NULL, u->lpv0Tex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->lpv1Tex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1, NMap::FORMAT_IMAGE_RW);
+    setSampler(NULL, u->lpv1Tex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_ACCUM, NMap::FORMAT_IMAGE_W);
+    setSampler(NULL, u->gvTex, NShader::IMAGE_TEX_LPV_PROPAGATION_COMPUTE_GV, NMap::FORMAT_IMAGE_R); }
 }
 //------------------------------------------------------------------------------
 void CShaderProgram::unbind() const

@@ -8,13 +8,13 @@
 //------------------------------------------------------------------------------
 namespace NShader
 {
-  static const uint32 VERTEX_SHADERS_COUNT = 14;
+  static const uint32 VERTEX_SHADERS_COUNT = 15;
   static const uint32 TESSELATION_CONTROL_SHADERS_COUNT = 0;
   static const uint32 TESSELATION_EVALUATION_SHADERS_COUNT = 0;
-  static const uint32 GEOMETRY_SHADERS_COUNT = 3;
-  static const uint32 FRAGMENT_SHADERS_COUNT = 23;
+  static const uint32 GEOMETRY_SHADERS_COUNT = 4;
+  static const uint32 FRAGMENT_SHADERS_COUNT = 24;
   static const uint32 COMPUTE_SHADERS_COUNT = 4;
-  static const uint32 PROGRAMS_COUNT = 30;
+  static const uint32 PROGRAMS_COUNT = 31;
 
   static const uint8 SHADER_MAX_LIGHTS = 1;
 
@@ -55,19 +55,10 @@ namespace NShader
   static const char STR_UNIFORM_LPV_ACCUM_TEX_R[] = "lpvAccumTexR"; // gs in, cs out, out draw in
   static const char STR_UNIFORM_LPV_ACCUM_TEX_G[] = "lpvAccumTexG";
   static const char STR_UNIFORM_LPV_ACCUM_TEX_B[] = "lpvAccumTexB";
+  static const char STR_UNIFORM_LPV0_TEX[] = "lpv0Tex"; // cs swap in
+  static const char STR_UNIFORM_LPV1_TEX[] = "lpv1Tex"; // cs swap out
+  static const char STR_UNIFORM_LPV_ACCUM_TEX[] = "lpvAccumTex"; // cs swap out
   static const char STR_UNIFORM_GV_TEX[] = "gvTex"; // gs in, cs in
-  static const char STR_UNIFORM_LPV0_TEX_R[] = "lpv0TexR"; // cs swap in
-  static const char STR_UNIFORM_LPV0_TEX_G[] = "lpv0TexG";
-  static const char STR_UNIFORM_LPV0_TEX_B[] = "lpv0TexB";
-  static const char STR_UNIFORM_LPV0_ACCUM_TEX_R[] = "lpv0AccumTexR";
-  static const char STR_UNIFORM_LPV0_ACCUM_TEX_G[] = "lpv0AccumTexG";
-  static const char STR_UNIFORM_LPV0_ACCUM_TEX_B[] = "lpv0AccumTexB";
-  static const char STR_UNIFORM_LPV1_TEX_R[] = "lpv1TexR"; // cs swap out
-  static const char STR_UNIFORM_LPV1_TEX_G[] = "lpv1TexG";
-  static const char STR_UNIFORM_LPV1_TEX_B[] = "lpv1TexB";
-  static const char STR_UNIFORM_LPV1_ACCUM_TEX_R[] = "lpv1AccumTexR";
-  static const char STR_UNIFORM_LPV1_ACCUM_TEX_G[] = "lpv1AccumTexG";
-  static const char STR_UNIFORM_LPV1_ACCUM_TEX_B[] = "lpv1AccumTexB";
 
   static const char STR_UNIFORM_TYPE[] = "type";
   static const char STR_UNIFORM_OPACITY[] = "opacity";
@@ -98,9 +89,11 @@ namespace NShader
   static const char STR_VERTEX_BASIC[] = "basic.vs";
   static const char STR_VERTEX_ILLUMINATION[] = "illumination.vs";
   static const char STR_VERTEX_GEOMETRY[] = "geometry.vs";
+  static const char STR_VERTEX_LPV_CLEAR[] = "lpvClear.vs";
   static const char STR_VERTEX_LPV_INJECTION[] = "lpvInjection.vs";
   static const char STR_VERTEX_LPV_PROPAGATION[] = "lpvPropagation.vs";
 
+  static const char STR_GEOMETRY_LPV_CLEAR[] = "lpvClear.gs";
   static const char STR_GEOMETRY_LPV_INJECTION[] = "lpvInjection.gs";
   static const char STR_GEOMETRY_LPV_PROPAGATION[] = "lpvPropagation.gs";
 
@@ -109,6 +102,7 @@ namespace NShader
   static const char STR_FRAGMENT_BASIC[] = "basic.fs";
   static const char STR_FRAGMENT_ILLUMINATION[] = "illumination.fs";
   static const char STR_FRAGMENT_GEOMETRY[] = "geometry.fs";
+  static const char STR_FRAGMENT_LPV_CLEAR[] = "lpvClear.fs";
   static const char STR_FRAGMENT_LPV_INJECTION[] = "lpvInjection.fs";
   static const char STR_FRAGMENT_LPV_PROPAGATION[] = "lpvPropagation.fs";
 
@@ -152,6 +146,7 @@ namespace NShader
     "Illumination Normal Alpha Shadow Jitter",
     "Geometry",
     "Geometry Cascade",
+    "LPV Clear Geometry",
     "LPV Injection Geometry",
     "LPV Propagation Geometry Gathering",
     "LPV Propagation Geometry Scattering",
@@ -177,6 +172,7 @@ namespace NShader
     VX_ILLUM_NOR_SHAD,
     VX_GEOMETRY,
     VX_GEOMETRY_GSC,
+    VX_LPV_CLEAR,
     VX_LPV_INJECT,
     VX_LPV_PROP
   };
@@ -194,6 +190,7 @@ namespace NShader
   enum EShaderGeometry
   {
     GEO_UNUSED = -1,
+    GEO_LPV_CLEAR,
     GEO_LPV_INJECT,
     GEO_LPV_PROP_GATH,
     GEO_LPV_PROP_SCAT
@@ -222,6 +219,7 @@ namespace NShader
     FRAG_ILLUM_ALP_NOR_SHAD,
     FRAG_ILLUM_ALP_NOR_SHAD_SHJIT,
     FRAG_GEOMETRY,
+    FRAG_LPV_CLEAR,
     FRAG_LPV_INJECT,
     FRAG_LPV_PROP_GATH,
     FRAG_LPV_PROP_SCAT
@@ -250,6 +248,7 @@ namespace NShader
     { STR_VERTEX_ILLUMINATION, "NOR_TEX SHAD_TEX" },
     { STR_VERTEX_GEOMETRY, "" },
     { STR_VERTEX_GEOMETRY, "CASCADE" },
+    { STR_VERTEX_LPV_CLEAR, "" },
     { STR_VERTEX_LPV_INJECTION, "" },
     { STR_VERTEX_LPV_PROPAGATION, "" }
   };
@@ -265,6 +264,7 @@ namespace NShader
 
   static const char *const STR_GEOMETRY_SHADER_LIST[][2] =
   {
+    { STR_GEOMETRY_LPV_CLEAR, "" },
     { STR_GEOMETRY_LPV_INJECTION, "" },
     { STR_GEOMETRY_LPV_PROPAGATION, "LPV_GATHERING" },
     { STR_GEOMETRY_LPV_PROPAGATION, "LPV_SCATTERING" }
@@ -292,6 +292,7 @@ namespace NShader
     { STR_FRAGMENT_ILLUMINATION, "ALP_TEX NOR_TEX SHAD_TEX" },
     { STR_FRAGMENT_ILLUMINATION, "ALP_TEX NOR_TEX SHAD_TEX SHADOW_JITTER" },
     { STR_FRAGMENT_GEOMETRY, "" },
+    { STR_FRAGMENT_LPV_CLEAR, "" },
     { STR_FRAGMENT_LPV_INJECTION, "" },
     { STR_FRAGMENT_LPV_PROPAGATION, "LPV_GATHERING" },
     { STR_FRAGMENT_LPV_PROPAGATION, "LPV_SCATTERING" }
@@ -313,7 +314,7 @@ namespace NShader
     VX_BASIC, VX_BASIC, VX_BASIC, VX_BASIC,
     VX_ILLUM, VX_ILLUM_SHAD, VX_ILLUM_SHAD, VX_ILLUM, VX_ILLUM_SHAD, VX_ILLUM_SHAD, VX_ILLUM_NOR, VX_ILLUM_NOR_SHAD, VX_ILLUM_NOR_SHAD, VX_ILLUM_NOR, VX_ILLUM_NOR_SHAD, VX_ILLUM_NOR_SHAD,
     VX_GEOMETRY, VX_GEOMETRY_GSC,
-    VX_LPV_INJECT, VX_LPV_PROP, VX_LPV_PROP,
+    VX_LPV_CLEAR, VX_LPV_INJECT, VX_LPV_PROP, VX_LPV_PROP,
     VX_UNUSED, VX_UNUSED, VX_UNUSED, VX_UNUSED
   };
 
@@ -324,7 +325,7 @@ namespace NShader
     TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED,
     TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED,
     TESC_UNUSED, TESC_UNUSED,
-    TESC_UNUSED, TESC_UNUSED, TESC_UNUSED,
+    TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED,
     TESC_UNUSED, TESC_UNUSED, TESC_UNUSED, TESC_UNUSED
   };
   static const int32 PROGRAM_TESSELATION_EVALUATION_SHADER_LIST[] =
@@ -334,7 +335,7 @@ namespace NShader
     TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED,
     TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED,
     TESE_UNUSED, TESE_UNUSED,
-    TESE_UNUSED, TESE_UNUSED, TESE_UNUSED,
+    TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED,
     TESE_UNUSED, TESE_UNUSED, TESE_UNUSED, TESE_UNUSED
   };
 
@@ -345,7 +346,7 @@ namespace NShader
     GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED,
     GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED,
     GEO_UNUSED, GEO_UNUSED,
-    GEO_LPV_INJECT, GEO_LPV_PROP_GATH, GEO_LPV_PROP_SCAT,
+    GEO_LPV_CLEAR, GEO_LPV_INJECT, GEO_LPV_PROP_GATH, GEO_LPV_PROP_SCAT,
     GEO_UNUSED, GEO_UNUSED, GEO_UNUSED, GEO_UNUSED
   };
 
@@ -356,7 +357,7 @@ namespace NShader
     FRAG_BASIC, FRAG_BASIC_2DA, FRAG_BASIC_3D, FRAG_BASIC_ALP,
     FRAG_ILLUM, FRAG_ILLUM_SHAD, FRAG_ILLUM_SHAD_SHJIT, FRAG_ILLUM_ALP, FRAG_ILLUM_ALP_SHAD, FRAG_ILLUM_ALP_SHAD_SHJIT, FRAG_ILLUM_NOR, FRAG_ILLUM_NOR_SHAD, FRAG_ILLUM_NOR_SHAD_SHJIT, FRAG_ILLUM_ALP_NOR, FRAG_ILLUM_ALP_NOR_SHAD, FRAG_ILLUM_ALP_NOR_SHAD_SHJIT,
     FRAG_GEOMETRY, FRAG_GEOMETRY,
-    FRAG_LPV_INJECT, FRAG_LPV_PROP_GATH, FRAG_LPV_PROP_SCAT,
+    FRAG_LPV_CLEAR, FRAG_LPV_INJECT, FRAG_LPV_PROP_GATH, FRAG_LPV_PROP_SCAT,
     FRAG_UNUSED, FRAG_UNUSED, FRAG_UNUSED, FRAG_UNUSED
   };
 
@@ -367,7 +368,7 @@ namespace NShader
     COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED,
     COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED,
     COMP_UNUSED, COMP_UNUSED,
-    COMP_UNUSED, COMP_UNUSED, COMP_UNUSED,
+    COMP_UNUSED, COMP_UNUSED, COMP_UNUSED, COMP_UNUSED,
     COMP_LPV_CLEAR, COMP_LPV_INJECT, COMP_LPV_PROP_GATH, COMP_LPV_PROP_SCAT
   };
 
@@ -419,13 +420,14 @@ namespace NShader
     PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_JITTER,
     PROGRAM_GEOMETRY,
     PROGRAM_GEOMETRY_CASCADE,
-    PROGRAM_LPV_INJECTION_GEOMETRY, // vbo attribs pack:   reserved float
-    PROGRAM_LPV_PROPAGATION_GEOMETRY_GATHERING,
-    PROGRAM_LPV_PROPAGATION_GEOMETRY_SCATTERING,
+    PROGRAM_LPV_CLEAR_GEOMETRY, // vbo attribs pack:   reserved float
+    PROGRAM_LPV_INJECTION_GEOMETRY,
+    PROGRAM_LPV_PROPAGATION_GATHERING_GEOMETRY,
+    PROGRAM_LPV_PROPAGATION_SCATTERING_GEOMETRY,
     PROGRAM_LPV_CLEAR_COMPUTE, // no vbo
     PROGRAM_LPV_INJECTION_COMPUTE,
-    PROGRAM_LPV_PROPAGATION_COMPUTE_GATHERING,
-    PROGRAM_LPV_PROPAGATION_COMPUTE_SCATTERING
+    PROGRAM_LPV_PROPAGATION_GATHERING_COMPUTE,
+    PROGRAM_LPV_PROPAGATION_SCATTERING_COMPUTE
   };
 
   // shader flags --------------------------------------------------------------
@@ -530,6 +532,7 @@ namespace NShader
     ATTRIB_F,
     ATTRIB_F,
     ATTRIB_F,
+    ATTRIB_F,
     ATTRIB,
     ATTRIB,
     ATTRIB,
@@ -561,6 +564,7 @@ namespace NShader
     UNIFORM_MVP | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_MVPSB | UNIFORM_CAM | UNIFORM_TYPE | UNIFORM_TILE_SHAD | UNIFORM_SHAD_CLIPS | UNIFORM_SHAD_TEX_SIZE | UNIFORM_LAMB_LPOS | UNIFORM_LRAN_LCOL_LSPEC_FRAN_FCOL | UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
     UNIFORM_MVP_GEOM | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_TYPE,
     UNIFORM_MVP_GEOM_CASCADE | UNIFORM_MW | UNIFORM_MWNIT | UNIFORM_TILE_GEOM | UNIFORM_TYPE,
+    UNIFORM,
     UNIFORM_LAMB_LPOS_INJECT | UNIFORM_GEOM_TEX_SIZE | UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
     UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
     UNIFORM_LPV_POS_TEXS_CELLS_PARAMS,
@@ -595,12 +599,13 @@ namespace NShader
     SAMPLER_ILLUMINATION_NORMAL_ALPHA_SHADOW,
     SAMPLER_GEOMETRY,
     SAMPLER_GEOMETRY,
+    SAMPLER,
     SAMPLER_LPV_INJECTION_GEOMETRY,
     SAMPLER_LPV_PROPAGATION_GEOMETRY,
     SAMPLER_LPV_PROPAGATION_GEOMETRY,
     IMAGE_LPV_CLEAR_COMPUTE,
-    IMAGE_LPV_CLEAR_COMPUTE,
     IMAGE_LPV_INJECTION_COMPUTE,
+    IMAGE_LPV_PROPAGATION_COMPUTE,
     IMAGE_LPV_PROPAGATION_COMPUTE
   };
 
@@ -629,6 +634,7 @@ namespace NShader
     REN_STATE_BLEND,
     REN_STATE_CULL,
     REN_STATE_CULL | REN_STATE_TILE | REN_STATE_INSTANCE,
+    REN_STATE_CULL,
     REN_STATE_CULL,
     REN_STATE_CULL,
     REN_STATE_CULL,
@@ -684,47 +690,25 @@ namespace NShader
     SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_LPV_ACCUM_B,
     SAMPLER_TEX_LPV_PROPAGATION_GEOMETRY_GV,
 
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_R = 0,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_G,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_B,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_R,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_G,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0_ACCUM_B,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_R,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_G,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_B,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_R,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_G,
-    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1_ACCUM_B,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV0 = 0,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV1,
+    IMAGE_TEX_LPV_CLEAR_COMPUTE_LPV_ACCUM,
     IMAGE_TEX_LPV_CLEAR_COMPUTE_GV,
 
     IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_COLOR = 0,
     IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_POS,
     IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_NORMAL,
     //IMAGE_TEX_LPV_INJECTION_COMPUTE_GEOM_DEPTH,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_R, // out
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_G,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_B,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_R,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_G,
-    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM_B,
+    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV, // out
+    IMAGE_TEX_LPV_INJECTION_COMPUTE_LPV_ACCUM,
     IMAGE_TEX_LPV_INJECTION_COMPUTE_GV,
 
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_R = 0, // out
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_G,
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_B,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_R, // swap in
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_G,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_B,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_R,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_G,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0_ACCUM_B,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_R, // swap out
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_G,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_B,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_R,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_G,
-    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1_ACCUM_B,
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV0, // swap in
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV1, // swap out
+    IMAGE_TEX_LPV_PROPAGATION_COMPUTE_LPV_ACCUM, // swap out
     IMAGE_TEX_LPV_PROPAGATION_COMPUTE_GV // static
   };
 }
@@ -763,19 +747,10 @@ struct SShaderUniforms
   GLint lpvAccumTexR;
   GLint lpvAccumTexG;
   GLint lpvAccumTexB;
+  GLint lpv0Tex;
+  GLint lpv1Tex;
+  GLint lpvAccumTex;
   GLint gvTex;
-  GLint lpv0TexR;
-  GLint lpv0TexG;
-  GLint lpv0TexB;
-  GLint lpv0AccumTexR;
-  GLint lpv0AccumTexG;
-  GLint lpv0AccumTexB;
-  GLint lpv1TexR;
-  GLint lpv1TexG;
-  GLint lpv1TexB;
-  GLint lpv1AccumTexR;
-  GLint lpv1AccumTexG;
-  GLint lpv1AccumTexB;
 
   GLint type;
   GLint opacity;
@@ -821,27 +796,16 @@ struct SShaderUniforms
   const CMap *lpvAccumGs1MapB;
   const CMap *gvGs1Map;
 
-  const CMap *lpvCs0MapR; // gl43 swap images
-  const CMap *lpvCs0MapG;
-  const CMap *lpvCs0MapB;
-  const CMap *lpvAccumCs0MapR;
-  const CMap *lpvAccumCs0MapG;
-  const CMap *lpvAccumCs0MapB;
-  const CMap *lpvCs1MapR;
-  const CMap *lpvCs1MapG;
-  const CMap *lpvCs1MapB;
-  const CMap *lpvAccumCs1MapR;
-  const CMap *lpvAccumCs1MapG;
-  const CMap *lpvAccumCs1MapB;
+  const CMap *lpv0CsMap; // gl43 swap images
+  const CMap *lpv1CsMap;
+  const CMap *lpvAccumCsMap;
   const CMap *gvCsMap;
 
   inline SShaderUniforms() : vertexPosition(0), vertexNormal(0), vertexNormalTangent(0), vertexNormalBitangent(0), vertexTexCoord(0), vertexColor(0),
     mw(0), mwnit(0), mvp(0), mvpsb(0), cam(0),
     difTex(0), alpTex(0), speTex(0), norTex(0), /*envTex(0), */shadTex(0), shadDepthTex(0),
     geomColorTex(0), geomPosTex(0), geomNormalTex(0), /*geomDepthTex(0),*/
-    lpvTexR(0), lpvTexG(0), lpvTexB(0), lpvAccumTexR(0), lpvAccumTexG(0), lpvAccumTexB(0), gvTex(0),
-    lpv0TexR(0), lpv0TexG(0), lpv0TexB(0), lpv0AccumTexR(0), lpv0AccumTexG(0), lpv0AccumTexB(0),
-    lpv1TexR(0), lpv1TexG(0), lpv1TexB(0), lpv1AccumTexR(0), lpv1AccumTexG(0), lpv1AccumTexB(0),
+    lpvTexR(0), lpvTexG(0), lpvTexB(0), lpvAccumTexR(0), lpvAccumTexG(0), lpvAccumTexB(0), lpv0Tex(0), lpv1Tex(0), lpvAccumTex(0), gvTex(0),
     type(0), opacity(0), tiles(0), tileInstances(0), shadowTexSize(0), shadowClips(0),
     lightAmb(0), lightPos(0), lightRange(0), lightColor(0), lightSpeColor(0),
     fogRange(0), fogColor(0),
@@ -849,9 +813,7 @@ struct SShaderUniforms
     shadowMap(NULL), shadowDepthMap(NULL), geomColorMap(NULL), geomPosMap(NULL), geomNormalMap(NULL), /*geomDepthMap(NULL),*/
     lpvGs0MapR(NULL), lpvGs0MapG(NULL), lpvGs0MapB(NULL), lpvAccumGs0MapR(NULL), lpvAccumGs0MapG(NULL), lpvAccumGs0MapB(NULL), gvGs0Map(NULL),
     lpvGs1MapR(NULL), lpvGs1MapG(NULL), lpvGs1MapB(NULL), lpvAccumGs1MapR(NULL), lpvAccumGs1MapG(NULL), lpvAccumGs1MapB(NULL), gvGs1Map(NULL),
-    lpvCs0MapR(NULL), lpvCs0MapG(NULL), lpvCs0MapB(NULL), lpvAccumCs0MapR(NULL), lpvAccumCs0MapG(NULL), lpvAccumCs0MapB(NULL),
-    lpvCs1MapR(NULL), lpvCs1MapG(NULL), lpvCs1MapB(NULL), lpvAccumCs1MapR(NULL), lpvAccumCs1MapG(NULL), lpvAccumCs1MapB(NULL),
-    gvCsMap(NULL)
+    lpv0CsMap(NULL), lpv1CsMap(NULL), lpvAccumCsMap(NULL), gvCsMap(NULL)
   {
   }
 };

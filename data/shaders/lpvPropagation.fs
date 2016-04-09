@@ -116,7 +116,7 @@ void main()
 
   for(int face = 0; face < 6; face++)
   {
-    vec3 faceDir = dirs[face] * 0.5 - dir;
+    vec3 faceDir = dir + dirs[face] * 0.5;
     float faceLength = length(faceDir);
 
     if(faceLength > 0.6)

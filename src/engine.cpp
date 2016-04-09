@@ -26,6 +26,7 @@ CEngine::CEngine(
   engine.shadowTextureSize = 512;
   engine.shadowJittering = 0.0f;
 
+  //engine.geometryTextureSize = 512;
   engine.lpvPropagationSteps = 0;
 
   context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
@@ -44,6 +45,7 @@ CEngine::CEngine(
     &setSunSkyColor,
     &setLpvPose,
     &staticSwapLPV,
+    &staticGetTime,
     &staticGetClassName,
     &staticGetEngine);
 
@@ -524,6 +526,26 @@ void CEngine::updateTicks()
   engine.fpsCounter++;
   if(engine.fpsCounter == NEngine::FPS_COUNTER_MAX)
     engine.fpsCounter = 0;
+}
+//------------------------------------------------------------------------------
+double CEngine::getTime() const
+{
+#if defined(_WIN32)
+  LARGE_INTEGER freq;
+  LARGE_INTEGER time;
+
+  QueryPerformanceFrequency(&freq);
+  QueryPerformanceCounter(&time);
+
+  return static_cast<double>(time.QuadPart) / static_cast<double>(freq.QuadPart);
+#elif defined(__linux__)
+  struct timeval time;
+  gettimeofday(&time, NULL);
+
+  return static_cast<double>(time.tv_sec) + static_cast<double>(time.tv_usec) / 1000000.0;
+#else
+  return 0.0;
+#endif
 }
 //------------------------------------------------------------------------------
 std::string CEngine::getClassName(const CEngineBase *object)

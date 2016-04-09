@@ -228,5 +228,14 @@
     <None Include="..\data\shaders\geometry.fs">
       <Filter>Shader Files\Fragment</Filter>
     </None>
+    <None Include="..\data\shaders\lpvClear.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvClear.gs">
+      <Filter>Shader Files\Geometry</Filter>
+    </None>
+    <None Include="..\data\shaders\lpvClear.vs">
+      <Filter>Shader Files\Vertex</Filter>
+    </None>
   </ItemGroup>
 </Project>

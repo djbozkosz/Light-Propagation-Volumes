@@ -33,9 +33,9 @@ class CEngine
     CExceptions exceptions;
 
   protected:
-    // static callbacks
-    static inline void staticInitialize(CContext *context) { context->getEngine()->initialize(); }
-    static inline void staticInitializeFinish(CContext *context) { context->getEngine()->initializeFinish(); }
+  // static callbacks
+  static inline void staticInitialize(CContext *context) { context->getEngine()->initialize(); }
+  static inline void staticInitializeFinish(CContext *context) { context->getEngine()->initializeFinish(); }
 #ifdef ENV_SDL
     static inline uint32 staticOnTimeoutInit(uint32 interval, void *context) { SDL_Event event; event.type = reinterpret_cast<CContext *>(context)->engineGetEngine()->initSceneEvent; SDL_PushEvent(&event); return interval; }
     static inline uint32 staticOnTimeout(uint32 interval, void *context) { reinterpret_cast<CContext *>(context)->getEngine()->onTimeout(); return interval; }
@@ -52,6 +52,7 @@ class CEngine
     static inline void setSunSkyColor(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setSunSkyColor(index, v); }
     static inline void setLpvPose(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPose(index, v); }
     static inline void staticSwapLPV(CContext *context) { context->getEngine()->swapLPV(); }
+    static inline double staticGetTime(const CContext *context) { return context->getEngine()->getTime(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
     static inline const SEngine *staticGetEngine(const CContext *context) { return context->getEngine()->getEngine(); }
 
@@ -110,6 +111,7 @@ class CEngine
     inline void setLpvPose(uint32 index, const glm::vec3 &v) { engine.lpvPoses[index * NMath::VEC3 + 0] = v.x; engine.lpvPoses[index * NMath::VEC3 + 1] = v.y; engine.lpvPoses[index * NMath::VEC3 + 2] = v.z; }
     inline void swapLPV() { engine.lpvPropagationSwap = !engine.lpvPropagationSwap; }
     void updateTicks();
+    double getTime() const;
 
     std::string getClassName(const CEngineBase *object);
 

@@ -20,7 +20,7 @@ void CMap::load()
   const bool empty = (map.width) || (map.height) || (map.depth);
 
   const GLenum texFormat = (map.format & (NMap::FORMAT_2D_ARRAY | NMap::FORMAT_3D)) ? ((empty) ? ((map.format & NMap::FORMAT_2D_ARRAY) ? NOpenGL::TEXTURE_2D_ARRAY : NOpenGL::TEXTURE_3D) : NOpenGL::TEXTURE_2D) : ((map.format & NMap::FORMAT_CUBE) ? NOpenGL::TEXTURE_CUBE_MAP : NOpenGL::TEXTURE_2D);
-  const GLint internalFormat = (map.format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_COMPONENT24 : ((map.format & NMap::FORMAT_STENCIL) ? NOpenGL::DEPTH24_STENCIL8 : ((empty) ? ((map.format & NMap::FORMAT_INT) ? NOpenGL::R32I : ((map.format & NMap::FORMAT_UINT) ? NOpenGL::R32UI : NOpenGL::RGBA32F)) : NOpenGL::RGBA));
+  const GLint internalFormat = (map.format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_COMPONENT24 : ((map.format & NMap::FORMAT_STENCIL) ? NOpenGL::DEPTH24_STENCIL8 : ((empty) ? ((map.format & NMap::FORMAT_INT) ? NOpenGL::R32F : ((map.format & NMap::FORMAT_UINT) ? NOpenGL::R32UI : NOpenGL::RGBA32F)) : NOpenGL::RGBA));
   const GLint format = (map.format & NMap::FORMAT_DEPTH) ? NOpenGL::DEPTH_COMPONENT : ((map.format & NMap::FORMAT_STENCIL) ? NOpenGL::DEPTH_STENCIL : NOpenGL::RGBA);
   const GLint dataType = (map.format & NMap::FORMAT_DEPTH) ? NOpenGL::FLOAT : ((map.format & NMap::FORMAT_STENCIL) ? NOpenGL::UNSIGNED_INT : (/*(empty) ? NOpenGL::FLOAT : */NOpenGL::UNSIGNED_BYTE));
 

@@ -7,6 +7,14 @@
 #include <list>
 #include <map>
 
+#if defined(_WIN32)
+#include <windows.h>
+#undef min
+#undef max
+#elif defined(__linux__)
+#include <sys/time.h>
+#endif
+
 #if defined(ENV_QT)
 #include <QElapsedTimer>
 #elif defined(ENV_SDL)
@@ -135,19 +143,10 @@ namespace NEngine
   static const char STR_LPV1_ACCUM_GS_MAP_B[] = "lpv1Tex_5";
   static const char STR_GV1_GS_MAP[] = "lpv1Tex_6";
 
-  static const char STR_LPV0_CS_IMG_R[] = "lpv0Img_0"; // gl 4.3 swap propagation images - 2
-  static const char STR_LPV0_CS_IMG_G[] = "lpv0Img_1";
-  static const char STR_LPV0_CS_IMG_B[] = "lpv0Img_2";
-  static const char STR_LPV0_ACCUM_CS_IMG_R[] = "lpv0Img_3";
-  static const char STR_LPV0_ACCUM_CS_IMG_G[] = "lpv0Img_4";
-  static const char STR_LPV0_ACCUM_CS_IMG_B[] = "lpv0Img_5";
-  static const char STR_LPV1_CS_IMG_R[] = "lpv1Img_0";
-  static const char STR_LPV1_CS_IMG_G[] = "lpv1Img_1";
-  static const char STR_LPV1_CS_IMG_B[] = "lpv1Img_2";
-  static const char STR_LPV1_ACCUM_CS_IMG_R[] = "lpv1Img_3";
-  static const char STR_LPV1_ACCUM_CS_IMG_G[] = "lpv1Img_4";
-  static const char STR_LPV1_ACCUM_CS_IMG_B[] = "lpv1Img_5";
-  static const char STR_GV_CS_IMG[] = "lpvImg_6";
+  static const char STR_LPV0_CS_IMG[] = "lpv0Img"; // gl 4.3 swap propagation images - 2
+  static const char STR_LPV1_CS_IMG[] = "lpv1Img";
+  static const char STR_LPV_ACCUM_CS_IMG[] = "lpvAccumImg";
+  static const char STR_GV_CS_IMG[] = "lpvImg";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
   static const char STR_SELECT_GL_PLATFORM[] = "Selected OpenGL version: %s.";
@@ -373,7 +372,7 @@ struct SEngine
     flags(NEngine::EFLAG_MAXIMIZED),
     gpuPlatform(NEngine::GPU_PLATFORM_MAX),
     lpvMode(NEngine::LPV_MODE_COMPUTE),
-    lpvTechnique(NEngine::LPV_TECHNIQUE_SCATTERING),
+    lpvTechnique(NEngine::LPV_TECHNIQUE_GATHERING),
 
     keys(NEngine::KEY),
 

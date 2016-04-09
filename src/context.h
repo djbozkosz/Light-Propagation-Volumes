@@ -65,6 +65,7 @@ class CContext
     void (*fncEngineSetSunSkyColor)(CContext *context, uint32 index, const glm::vec3 &v);
     void (*fncEngineSetLpvPose)(CContext *context, uint32 index, const glm::vec3 &v);
     void (*fncEngineSwapLPV)(CContext *context);
+    double (*fncEngineGetTime)(const CContext *context);
     std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object);
     const SEngine *(*fncEngineGetEngine)(const CContext *context);
 
@@ -99,6 +100,7 @@ class CContext
       fncEngineSetSunSkyColor(NULL),
       fncEngineSetLpvPose(NULL),
       fncEngineSwapLPV(NULL),
+      fncEngineGetTime(NULL),
       fncEngineGetClassName(NULL),
       fncEngineGetEngine(NULL) {}
 //------------------------------------------------------------------------------
@@ -146,6 +148,7 @@ class CContext
         fncEngineSetSunSkyColor(NULL),
         fncEngineSetLpvPose(NULL),
         fncEngineSwapLPV(NULL),
+        fncEngineGetTime(NULL),
         fncEngineGetClassName(NULL),
         fncEngineGetEngine(NULL) {}
 //------------------------------------------------------------------------------
@@ -198,6 +201,7 @@ class CContext
       void (*fncEngineSetSunSkyColor)(CContext *context, uint32 index, const glm::vec3 &v),
       void (*fncEngineSetLpvPose)(CContext *context, uint32 index, const glm::vec3 &v),
       void (*fncEngineSwapLPV)(CContext *context),
+      double (*fncEngineGetTime)(const CContext *context),
       std::string (*fncEngineGetClassName)(CContext *context, const CEngineBase *object),
       const SEngine *(*fncEngineGetEngine)(const CContext *context))
     {
@@ -215,6 +219,7 @@ class CContext
       if(fncEngineSetSunSkyColor)      this->fncEngineSetSunSkyColor = fncEngineSetSunSkyColor;
       if(fncEngineSetLpvPose)          this->fncEngineSetLpvPose = fncEngineSetLpvPose;
       if(fncEngineSwapLPV)             this->fncEngineSwapLPV = fncEngineSwapLPV;
+      if(fncEngineGetTime)             this->fncEngineGetTime = fncEngineGetTime;
       if(fncEngineGetClassName)        this->fncEngineGetClassName = fncEngineGetClassName;
       if(fncEngineGetEngine)           this->fncEngineGetEngine = fncEngineGetEngine;
     }
@@ -235,6 +240,7 @@ class CContext
     inline void engineSetSunSkyColor(uint32 index, const glm::vec3 &v) { fncEngineSetSunSkyColor(this, index, v); }
     inline void engineSetLpvPose(uint32 index, const glm::vec3 &v) { fncEngineSetLpvPose(this, index, v); }
     inline void engineSwapLPV() { fncEngineSwapLPV(this); }
+    inline double engineGetTime() const { return fncEngineGetTime(this); }
     inline std::string engineGetClassName(const CEngineBase *object) { return fncEngineGetClassName(this, object); return std::string(); }
     inline const SEngine *engineGetEngine() const { return fncEngineGetEngine(this); return NULL; }
 
