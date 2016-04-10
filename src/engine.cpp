@@ -93,6 +93,8 @@ CEngine::CEngine(
   engine.keysMap[Qt::Key_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[Qt::Key_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[Qt::Key_0] = NEngine::KEY_SHADOW_JITTERING_UP;
+  engine.keysMap[Qt::Key_O] = NEngine::KEY_CAM_SPEED_DOWN;
+  engine.keysMap[Qt::Key_P] = NEngine::KEY_CAM_SPEED_UP;
 
   engine.keysMap[Qt::Key_F] = NEngine::KEY_FRUSTUM_UPDATE;
   engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
@@ -128,6 +130,8 @@ CEngine::CEngine(
   engine.keysMap[SDLK_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[SDLK_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
+  engine.keysMap[SDLK_o] = NEngine::KEY_CAM_SPEED_DOWN;
+  engine.keysMap[SDLK_p] = NEngine::KEY_CAM_SPEED_UP;
 
   engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
   engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
@@ -417,6 +421,16 @@ void CEngine::keyPress(NEngine::EKey key)
   }
   else if(key & NEngine::KEY_SHADOW_JITTERING_UP)
     engine.shadowJittering += 8.0f;
+  else if(key & NEngine::KEY_CAM_SPEED_DOWN)
+  {
+    float speed = camera.getCamera()->position.w;
+    speed *= 0.5f;
+    if(speed < 0.0f)
+      speed = 0.0;
+    camera.setSpeed(speed);
+  }
+  else if(key & NEngine::KEY_CAM_SPEED_UP)
+    camera.setSpeed(camera.getCamera()->position.w * 2.0f);
   else if(key & NEngine::KEY_FRUSTUM_UPDATE)
   {
     engine.updateFrustum = !engine.updateFrustum;
@@ -459,6 +473,8 @@ void CEngine::keyPress(NEngine::EKey key)
       f->setChanged();
     window->repaint();
   }
+  else if(key & (NEngine::KEY_CAM_SPEED_DOWN | NEngine::KEY_CAM_SPEED_UP))
+    context.log(CStr("Camera Speed: %f", static_cast<double>(camera.getCamera()->position.w)));
 
   engine.keys = static_cast<NEngine::EKey>(static_cast<uint32>(engine.keys) | static_cast<uint32>(key));
 }
