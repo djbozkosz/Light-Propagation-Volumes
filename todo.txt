@@ -1,11 +1,11 @@
 ﻿Todo:
 
-kuličky lpv
-zrušení fixed planes
-cascaded SM
-point SM
-cascaded LPV
-inject GV
+ok kuličky lpv
+ok zrušení fixed planes
+ok cascaded SM
+ok point SM
+ok cascaded LPV
+ok inject GV
 
 tilované kaskády s instancingem:
   vypočítat a uložit si frusta pro kaskády
