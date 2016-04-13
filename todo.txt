@@ -6,6 +6,10 @@ ok cascaded SM
 ok point SM
 ok cascaded LPV
 ok inject GV
+2d tex
+cs local
+coslobe mul
+subs scat
 
 tilované kaskády s instancingem:
   vypočítat a uložit si frusta pro kaskády
