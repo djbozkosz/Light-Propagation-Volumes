@@ -44,6 +44,14 @@ inline void CCamera::updateMatrices()
   else
     camera.projType = NCamera::PROJ_PERSPECTIVE;
 
+  /*camera.modelView = glm::rotate(
+      glm::rotate(
+        glm::translate(
+          glm::scale(glm::mat4(1.0f), camera.scale),
+        glm::vec3(camera.position.x * -NCamera::SCALE_X, camera.position.y * -NCamera::SCALE_Y, camera.position.z * -NCamera::SCALE_Z)),
+      (camera.rotation.y + NMath::PI_DEG) * NMath::DEG_2_RAD, glm::vec3(0.0f, 1.0f, 0.0f)),
+    camera.rotation.x * NMath::DEG_2_RAD, glm::vec3(1.0f, 0.0f, 0.0f));*/
+
   camera.view = glm::scale(
     glm::translate(
       glm::rotate(

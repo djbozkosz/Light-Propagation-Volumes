@@ -49,10 +49,13 @@ class CWindow : public
     std::vector<float> lpvClearData;
     SMaterial quadMaterial;
     SShaderState quadTechnique;
+    SMaterial sunRaysQuadMaterial;
+    SShaderState sunRaysQuadTechnique;
 
   protected:
     virtual void paintGL();
     void drawTexture(float x, float y, float w, float h, const CMap *texture, uint32 level = 0, bool isShadow = false);
+    void drawPoints(const CFramebuffer *fbo, const CShaderProgram *s, NRenderer::EMode mode, GLuint vbo, uint32 count);
 
 #ifdef ENV_SDL
   public:

@@ -81,7 +81,8 @@ void CSceneObject::render() const
     return;
 
   const SRenderer *ren = context->getRenderer()->getRenderer();
-  if(((!model.backdrop) && (ren->mode != NRenderer::MODE_BACKDROP)) || ((model.backdrop) && (ren->mode == NRenderer::MODE_BACKDROP)))
+  if(((!model.backdrop) && (ren->mode != NRenderer::MODE_SUN_RAYS_BACKDROP) && (ren->mode != NRenderer::MODE_BACKDROP)) ||
+      ((model.backdrop) && ((ren->mode == NRenderer::MODE_SUN_RAYS_BACKDROP) || (ren->mode == NRenderer::MODE_BACKDROP))))
     model.model->render(&object, &model);
 }
 //------------------------------------------------------------------------------

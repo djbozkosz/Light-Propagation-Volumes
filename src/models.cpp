@@ -918,7 +918,7 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
   const SCamera *c = context->getCamera()->getCamera();
   NRenderer::EMode mode = context->getRenderer()->getRenderer()->mode;
 
-  const uint culCascades = (mode == NRenderer::MODE_DEPTH_CASCADE) ? e->shadowCascadesCount : (e->lpvCascadesCount * e->lpvSunSkyCount);
+  const uint culCascades = (mode == NRenderer::MODE_DEPTH_CASCADE) ? e->shadowCascadesCount : (e->lpvCascadesCount * e->lpvSunSkySpecDirsCount);
   const SFrustum *culFrustum = (mode == NRenderer::MODE_DEPTH_CASCADE) ? &e->shadowFrustum[0] : &e->geometryFrustum[0];
 
   if((mode == NRenderer::MODE_DEPTH_CASCADE) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
@@ -928,6 +928,9 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
 
     for(uint32 i = 0; i < culCascades; i++)
     {
+      if((mode == NRenderer::MODE_GEOMETRY_CASCADE) && (!e->sunSkyUsed[i % e->lpvSunSkySpecDirsCount]))
+        continue;
+
       cul->setFrustum(culFrustum[i]);
 
       if(cul->isAABBInFrustum(sceneModel->aabb))
@@ -946,6 +949,8 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
 
   bool mergedMeshes = (
     (mode == NRenderer::MODE_PICK) ||
+    (mode == NRenderer::MODE_SUN_RAYS) ||
+    (mode == NRenderer::MODE_SUN_RAYS_BACKDROP) ||
     (mode == NRenderer::MODE_DEPTH) ||
     (mode == NRenderer::MODE_DEPTH_CASCADE)) ? true : false;
   auto soMesh = sceneModel->meshes.cbegin();
@@ -966,6 +971,9 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
       const SFrustum f = *cul->getFrustum();
       for(uint32 i = 0; i < culCascades; i++)
       {
+        if((mode == NRenderer::MODE_GEOMETRY_CASCADE) && (!e->sunSkyUsed[i % e->lpvSunSkySpecDirsCount]))
+          continue;
+
         cul->setFrustum(culFrustum[i]);
         if(cul->isAABBInFrustum(soLod->aabb))
         {
@@ -983,26 +991,42 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
 
     soLod->mvp = c->viewProjection * soLod->mw;
 
-    const bool depthMode = (mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE);
-    if(depthMode)
+    bool mergedMode = (mode == NRenderer::MODE_DEPTH) || (mode == NRenderer::MODE_DEPTH_CASCADE);
+    if(mergedMode)
     {
       const uint32 c = (mode == NRenderer::MODE_DEPTH) ? 1 : e->shadowCascadesCount;
 
       for(uint32 i = 0; i < c; i++)
       {
-        const glm::mat4 shadowMvp(e->shadowViewProj[i] * soLod->mw);
-        const glm::mat4 shadowMvpBias(glm::mat4(0.5f, 0.0f, 0.0f, 0.0f,   0.0f, 0.5f, 0.0f, 0.0f,   0.0f, 0.0f, 0.5f, 0.0f,   0.5f, 0.5f, 0.5f, 1.0f) * shadowMvp);
+        const float sizeX = 1.0f / e->shadowTiles.x;
+        const float sizeY = 1.0f / e->shadowTiles.y;
+        const float offsetX = (static_cast<float>(i % static_cast<uint32>(e->shadowTiles.x)) / e->shadowTiles.x + sizeX * 0.5f) * 2.0f - 1.0f;
+        const float offsetY = (1.0f - (static_cast<float>(i / static_cast<uint32>(e->shadowTiles.x)) / e->shadowTiles.y) - sizeY * 0.5f) * 2.0f - 1.0f;
+        
+        const glm::mat4 tileBias(sizeX, 0.0f, 0.0f, 0.0f, 0.0f, sizeY, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, offsetX, offsetY, 0.0f, 1.0f);
+        const glm::mat4 shadowBias(0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f);
+        const glm::mat4 shadowMvp(tileBias * e->shadowViewProj[i] * soLod->mw);
+        const glm::mat4 shadowMvpBias(shadowBias * shadowMvp);
         memcpy(&soLod->mvps[NMath::MAT4 * i], glm::value_ptr(shadowMvp), sizeof(float) * NMath::MAT4);
         memcpy(&soLod->mvpsb[NMath::MAT4 * i], glm::value_ptr(shadowMvpBias), sizeof(float) * NMath::MAT4);
       }
     }
     else if((mode == NRenderer::MODE_GEOMETRY) || (mode == NRenderer::MODE_GEOMETRY_CASCADE))
     {
-      const uint32 c = (mode == NRenderer::MODE_GEOMETRY) ? 1 : (e->lpvCascadesCount * e->lpvSunSkyCount);
+      const uint32 c = (mode == NRenderer::MODE_GEOMETRY) ? 1 : (e->lpvCascadesCount * e->lpvSunSkySpecDirsCount);
 
       for(uint32 i = 0; i < c; i++)
       {
-        const glm::mat4 geometryMvp(e->geometryViewProj[i] * soLod->mw);
+        if((mode == NRenderer::MODE_GEOMETRY_CASCADE) && (!e->sunSkyUsed[i % e->lpvSunSkySpecDirsCount]))
+          continue;
+
+        const float sizeX = 1.0f / static_cast<float>(e->lpvSunSkySpecDirsCount);
+        const float sizeY = 1.0f / static_cast<float>(e->lpvCascadesCount);
+        const float offsetX = (static_cast<float>(i % e->lpvSunSkySpecDirsCount) / static_cast<float>(e->lpvSunSkySpecDirsCount) + sizeX * 0.5f) * 2.0f - 1.0f;
+        const float offsetY = (1.0f - (static_cast<float>(i / e->lpvSunSkySpecDirsCount) / static_cast<float>(e->lpvCascadesCount)) - sizeY * 0.5f) * 2.0f - 1.0f;
+
+        const glm::mat4 tileBias(sizeX, 0.0f, 0.0f, 0.0f,   0.0f, sizeY, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f, 0.0f, offsetX, offsetY, 0.0f, 1.0f);
+        const glm::mat4 geometryMvp(tileBias * e->geometryViewProj[i] * soLod->mw);
         memcpy(&soLod->mvpg[NMath::MAT4 * i], glm::value_ptr(geometryMvp), sizeof(float) * NMath::MAT4);
       }
     }
@@ -1021,25 +1045,30 @@ void CModel::render(const SSceneObject *sceneObject, const SSceneModel *sceneMod
           uint32 faceStart = 0;
           uint32 faceCnt = 0;
           auto last = lod->faceGroups.cend(); last--;
+          mergedMode = (mergedMode) || (mode == NRenderer::MODE_PICK) || (mode == NRenderer::MODE_SUN_RAYS) || (mode == NRenderer::MODE_SUN_RAYS_BACKDROP);
 
           for(auto faceGroup = lod->faceGroups.cbegin(); faceGroup != lod->faceGroups.cend(); faceGroup++)
           {
             auto g = faceGroup; g++;
             faceCnt += faceGroup->faces.size();
 
+            if(((mode == NRenderer::MODE_SUN_RAYS) || (mode == NRenderer::MODE_SUN_RAYS_BACKDROP)) && faceGroup->material)
+              soLod->sunRaysColor = faceGroup->material->colorEmission;
+
             if(!mergedMeshes)
             {
+              //std::cout << 
               context->getRenderer()->addMesh(SRenderMesh(lod->vboVertices, lod->vboIndices, soLod->instances, faceStart, faceCnt, &(*soLod), faceGroup->material));
               faceStart += faceCnt;
               faceCnt = 0;
             }
             else if((faceGroup == last) ||
-                    ((depthMode) && (
+                    ((mergedMode) && (
                       ((faceGroup->material) && (faceGroup->material->type & NModel::MATERIAL_COLOR_KEY)) ||
                       ((g != lod->faceGroups.cend()) && (g->material) && (g->material->type & NModel::MATERIAL_COLOR_KEY)))))
             {
               context->getRenderer()->addMesh(SRenderMesh(lod->vboSimpleVertices, lod->vboIndices, soLod->instances, faceStart, faceCnt, &(*soLod),
-                ((depthMode) && (faceGroup->material) && (faceGroup->material->type & NModel::MATERIAL_COLOR_KEY)) ? faceGroup->material : NULL));
+                ((mergedMode) && (faceGroup->material) && (faceGroup->material->type & NModel::MATERIAL_COLOR_KEY)) ? faceGroup->material : NULL));
               faceStart += faceCnt;
               faceCnt = 0;
             }

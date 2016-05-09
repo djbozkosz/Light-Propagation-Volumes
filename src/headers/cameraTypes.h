@@ -56,6 +56,7 @@ struct SCamera
   glm::mat4 projection;
   glm::mat4 view;
   glm::mat4 viewProjection;
+  glm::mat4 modelView;
 
   SCamera() :
     position(0.0, 0.0, 0.0, NCamera::MOVEMENT_SPEED),

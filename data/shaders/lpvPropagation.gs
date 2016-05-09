@@ -2,7 +2,7 @@
 precision lowp float;
 
 layout(points) in;
-#ifdef LPV_GATHERING
+#if defined(LPV_GATHERING) || defined(LPV_SKY) || defined(LPV_LOBE)
 layout(triangle_strip, max_vertices = 4) out;
 #else
 layout(points, max_vertices = 7) out;
@@ -10,10 +10,12 @@ layout(points, max_vertices = 7) out;
 
 flat in int vertexID[];
 
+#if !defined(LPV_GATHERING) && !defined(LPV_SKY) && !defined(LPV_LOBE)
 uniform vec3 lpvTexSize;
-uniform vec2 lpvParams;
+uniform vec4 lpvParams;
+#endif
 
-#ifdef LPV_GATHERING
+#if defined(LPV_GATHERING) || defined(LPV_SKY) || defined(LPV_LOBE)
 out float texPos;
 #else
 out vec3 texPos;
@@ -22,7 +24,7 @@ out vec3 dir;
 
 void main()
 {
-#ifdef LPV_GATHERING
+#if defined(LPV_GATHERING) || defined(LPV_SKY) || defined(LPV_LOBE)
   texPos = vertexID[0];
   gl_Layer = vertexID[0];
   gl_Position = vec4(-1.0,  1.0, 0.0, 1.0) + gl_in[0].gl_Position; EmitVertex();
@@ -50,7 +52,7 @@ void main()
     EmitVertex();
   }
 
-  // gv pass
+  // accum pass
   dir = vec3(0.0, 0.0, 0.0);
   gl_Layer = z;
   gl_Position = vec4(float(x) / lpvTexSize.x * 2.0 - 1.0, float(y) / lpvTexSize.y * 2.0 - 1.0, 0.0, 1.0) + gl_in[0].gl_Position;

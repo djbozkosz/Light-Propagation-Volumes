@@ -45,18 +45,24 @@ namespace NEngine
 
   static const uint32 GEOMETRY_TEXTURE_SIZE = 64;
 
+  static const uint32 SUN_RAYS_TEXTURE_SIZE = 256;
+
   static const float LPV_TEXTURE_SIZE_X = 32.0f;
   static const float LPV_TEXTURE_SIZE_Y = 32.0f;
   static const float LPV_TEXTURE_SIZE_Z = 32.0f;
   static const uint32 LPV_PROPAGATION_STEPS = 5;
   static const float LPV_INTENSITY = 1.0f;
+  static const float LPV_REFL_INTENSITY = 1.0f;
   static const uint32 LPV_MODES_COUNT = 3;
   static const uint32 LPV_TECHNIQUES_COUNT = 2;
   static const uint32 LPV_SH_COUNT = 4;
   static const uint32 LPV_CASCADES_COUNT = 4;
-  static const uint32 LPV_SUN_SKY_DIRS_COUNT = 1; // sun + sky
+  static const uint32 LPV_SPECIAL_DIRS_COUNT = 2; // camp proj
+  static const uint32 LPV_SUN_SKY_DIRS_COUNT = 2; // sun + sky
+  static const uint32 LPV_SKY_DIRS_COUNT = 1;
+  static const uint32 LPV_DIRS_RESERVED_COUNT = 1;
 
-  static const float SHADOW_CASCADES_CLIPS[/*SHADOW_CASCADES_COUNT * NMath::VEC2*/] =
+  static const float SHADOW_CASCADES_CLIPS[] = // SHADOW_CASCADES_COUNT
   {
     2.0f, 200.0f, // side, depth
     7.0f, 200.0f,
@@ -66,50 +72,54 @@ namespace NEngine
     400.0f, 600.0f
   };
 
-  static const float GEOMETRY_CASCADES_CLIPS[/*LPV_CASCADES_COUNT*/] =
+  static const float GEOMETRY_CASCADES_CLIPS[] = // LPV_CASCADES_COUNT
   {
     200.0f,
     200.0f,
     200.0f,
     200.0f
-    /*2.0f * LPV_CUBE_LENGTH, 50.0f, // side, depth
-    5.0f * LPV_CUBE_LENGTH, 100.0f,
-    10.0f * LPV_CUBE_LENGTH, 150.0f,
-    25.0f * LPV_CUBE_LENGTH, 200.0f,
-    80.0f * LPV_CUBE_LENGTH, 250.0f,
-    160.0f * LPV_CUBE_LENGTH, 300.0f*/
   };
 
-  static const float SUN_SKY_POSES[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3*/] =
+  static const float GEOMETRY_CAM_CASCADES_DEPTHS[] = // LPV_CASCADES_COUNT
+  {
+    0.01f, 1.6f,
+    0.01f, 6.4f,
+    1.6f, 19.2f,
+    6.4f, 64.0f
+  };
+
+  static const uint8 SUN_SKY_USED[] = // LPV_SUN_SKY_SPEC_DIRS_COUNT
+  {
+    1, // sun dir
+    0, // sky dir
+    0, // view dir
+    0
+  };
+
+  static const float SUN_SKY_POSES[] = // LPV_SUN_SKY_DIRS_COUNT
   {
     0.0f, 0.0f, 0.0f,
     0.0f, 100000.0f, 0.0f
   };
 
-  static const float SUN_SKY_ROTS[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC2*/] =
+  static const float SUN_SKY_ROTS[] = // LPV_SUN_SKY_DIRS_COUNT
   {
     0.0f, 0.0f,
     90.0f * NMath::DEG_2_RAD, 0.0f
   };
 
-  static const float SUN_SKY_COLORS[/*NEngine::LPV_SUN_SKY_DIRS_COUNT * NMath::VEC3*/] =
+  static const float SUN_SKY_COLORS[] = // LPV_SUN_SKY_DIRS_COUNT
   {
     0.0f, 0.0f, 0.0f,
     0.3f, 0.35f, 0.4f
   };
 
-  static const float LPV_CELL_SIZES[/*LPV_CASCADES_COUNT * NMath::VEC3*/] =
+  static const float LPV_CELL_SIZES[] = // LPV_CASCADES_COUNT
   {
     0.1f, 0.1f, 0.1f,
     0.4f, 0.4f, 0.4f,
     1.2f, 1.2f, 1.2f,
     4.0f, 4.0f, 4.0f
-    /*0.1f, 0.1f, 0.1f,
-    0.3f, 0.3f, 0.3f,
-    0.8f, 0.8f, 0.8f,
-    2.0f, 2.0f, 2.0f,
-    6.0f, 6.0f, 6.0f,
-    20.0f, 20.0f, 20.0f*/
   };
 
   static const char STR_APP_NAME[] = "Light Propagation Volumes";
@@ -134,19 +144,60 @@ namespace NEngine
   static const char STR_LPV0_ACCUM_GS_MAP_R[] = "lpv0Tex_3";
   static const char STR_LPV0_ACCUM_GS_MAP_G[] = "lpv0Tex_4";
   static const char STR_LPV0_ACCUM_GS_MAP_B[] = "lpv0Tex_5";
-  static const char STR_GV0_GS_MAP[] = "lpv0Tex_6";
+  static const char STR_LPV0_NORMAL_GS_MAP[] = "lpv0Tex_6";
   static const char STR_LPV1_GS_MAP_R[] = "lpv1Tex_0";
   static const char STR_LPV1_GS_MAP_G[] = "lpv1Tex_1";
   static const char STR_LPV1_GS_MAP_B[] = "lpv1Tex_2";
   static const char STR_LPV1_ACCUM_GS_MAP_R[] = "lpv1Tex_3";
   static const char STR_LPV1_ACCUM_GS_MAP_G[] = "lpv1Tex_4";
   static const char STR_LPV1_ACCUM_GS_MAP_B[] = "lpv1Tex_5";
-  static const char STR_GV1_GS_MAP[] = "lpv1Tex_6";
+  static const char STR_LPV1_NORMAL_GS_MAP[] = "lpv0Tex_6";
+
+  static const char STR_LPV0_LOBE_GS_FBO[] = "lpv0LobeTex";
+  static const char STR_LPV1_LOBE_GS_FBO[] = "lpv1LobeTex";
+  static const char STR_LPV0_LOBE_GS_MAP[] = "lpv0LobeTex_0";
+  static const char STR_LPV1_LOBE_GS_MAP[] = "lpv1LobeTex_0";
+
+  static const char STR_GV_GS_FBO[] = "gvTex";
+  static const char STR_GV_GS_MAP[] = "gvTex_0";
+
+  static const char STR_SSLPV0_GS_FBO[] = "sslpv0Tex"; // gl 3.2 fbo swap propagation textures - 2
+  static const char STR_SSLPV1_GS_FBO[] = "sslpv1Tex";
+  static const char STR_SSLPV0_GS_MAP_R[] = "sslpv0Tex_0";
+  static const char STR_SSLPV0_GS_MAP_G[] = "sslpv0Tex_1";
+  static const char STR_SSLPV0_GS_MAP_B[] = "sslpv0Tex_2";
+  static const char STR_SSLPV0_ACCUM_GS_MAP_R[] = "sslpv0Tex_3";
+  static const char STR_SSLPV0_ACCUM_GS_MAP_G[] = "sslpv0Tex_4";
+  static const char STR_SSLPV0_ACCUM_GS_MAP_B[] = "sslpv0Tex_5";
+  static const char STR_SSLPV0_NORMAL_GS_MAP[] = "sslpv0Tex_6";
+  static const char STR_SSLPV1_GS_MAP_R[] = "sslpv1Tex_0";
+  static const char STR_SSLPV1_GS_MAP_G[] = "sslpv1Tex_1";
+  static const char STR_SSLPV1_GS_MAP_B[] = "sslpv1Tex_2";
+  static const char STR_SSLPV1_ACCUM_GS_MAP_R[] = "sslpv1Tex_3";
+  static const char STR_SSLPV1_ACCUM_GS_MAP_G[] = "sslpv1Tex_4";
+  static const char STR_SSLPV1_ACCUM_GS_MAP_B[] = "sslpv1Tex_5";
+  static const char STR_SSLPV1_NORMAL_GS_MAP[] = "sslpv0Tex_6";
+
+  static const char STR_SSLPV0_LOBE_GS_FBO[] = "sslpv0LobeTex";
+  static const char STR_SSLPV1_LOBE_GS_FBO[] = "sslpv1LobeTex";
+  static const char STR_SSLPV0_LOBE_GS_MAP[] = "sslpv0LobeTex_0";
+  static const char STR_SSLPV1_LOBE_GS_MAP[] = "sslpv1LobeTex_0";
+
+  static const char STR_SUN_RAYS0_FBO[] = "sunRays0";
+  static const char STR_SUN_RAYS1_FBO[] = "sunRays1";
+  static const char STR_SUN_RAYS0_MAP[] = "sunRays0_0";
+  static const char STR_SUN_RAYS1_MAP[] = "sunRays1_0";
 
   static const char STR_LPV0_CS_IMG[] = "lpv0Img"; // gl 4.3 swap propagation images - 2
   static const char STR_LPV1_CS_IMG[] = "lpv1Img";
   static const char STR_LPV_ACCUM_CS_IMG[] = "lpvAccumImg";
+  static const char STR_LPV_NORMAL_ACCUM_CS_IMG[] = "lpvNormalAccumImg";
   static const char STR_GV_CS_IMG[] = "lpvImg";
+
+  static const char STR_SSLPV0_CS_IMG[] = "sslpv0Img"; // gl 4.3 swap propagation images - 2
+  static const char STR_SSLPV1_CS_IMG[] = "sslpv1Img";
+  static const char STR_SSLPV_ACCUM_CS_IMG[] = "sslpvAccumImg";
+  static const char STR_SSLPV_NORMAL_ACCUM_CS_IMG[] = "sslpvNormalAccumImg";
 
   static const char STR_APP_TITLE[] = "Light Propagation Volumes (Pos: %f %f %f, Draw calls: %d)";
   static const char STR_SELECT_GL_PLATFORM[] = "Selected OpenGL version: %s.";
@@ -234,39 +285,45 @@ namespace NEngine
 
   enum EKey
   {
-    KEY                       = 0x00000000,
+    KEY                         = 0x00000000,
 
-    KEY_FRONT                 = 0x00000001,
-    KEY_BACK                  = 0x00000002,
-    KEY_LEFT                  = 0x00000004,
-    KEY_RIGHT                 = 0x00000008,
-    KEY_DOWN                  = 0x00000010,
-    KEY_UP                    = 0x00000020,
+    KEY_FRONT                   = 0x00000001,
+    KEY_BACK                    = 0x00000002,
+    KEY_LEFT                    = 0x00000004,
+    KEY_RIGHT                   = 0x00000008,
+    KEY_DOWN                    = 0x00000010,
+    KEY_UP                      = 0x00000020,
 
-    KEY_SPECIAL_FRONT         = 0x00000040,
-    KEY_SPECIAL_BACK          = 0x00000080,
-    KEY_SPECIAL_LEFT          = 0x00000100,
-    KEY_SPECIAL_RIGHT         = 0x00000200,
-    KEY_SPECIAL_DOWN          = 0x00000400,
-    KEY_SPECIAL_UP            = 0x00000800,
+    KEY_SPECIAL_FRONT           = 0x00000040,
+    KEY_SPECIAL_BACK            = 0x00000080,
+    KEY_SPECIAL_LEFT            = 0x00000100,
+    KEY_SPECIAL_RIGHT           = 0x00000200,
+    KEY_SPECIAL_DOWN            = 0x00000400,
+    KEY_SPECIAL_UP              = 0x00000800,
 
-    KEY_LPV_MODE              = 0x00001000,
-    KEY_LPV_TECHNIQUE         = 0x00002000,
-    KEY_LPV_PROPAGATION_DOWN  = 0x00004000,
-    KEY_LPV_PROPAGATION_UP    = 0x00008000,
-    KEY_LPV_INTENSITY_DOWN    = 0x00010000,
-    KEY_LPV_INTENSITY_UP      = 0x00020000,
-    KEY_SHADOW_JITTERING_DOWN = 0x00040000,
-    KEY_SHADOW_JITTERING_UP   = 0x00080000,
-    KEY_CAM_SPEED_DOWN        = 0x00100000,
-    KEY_CAM_SPEED_UP          = 0x00200000,
+    KEY_LPV_MODE                = 0x00001000,
+    KEY_LPV_TECHNIQUE           = 0x00002000,
+    KEY_LPV_GV                  = 0x00004000,
+    KEY_LPV_LOBE                = 0x00008000,
+    KEY_LPV_PROPAGATION_DOWN    = 0x00010000,
+    KEY_LPV_PROPAGATION_UP      = 0x00020000,
+    KEY_LPV_INTENSITY_DOWN      = 0x00040000,
+    KEY_LPV_INTENSITY_UP        = 0x00080000,
+    KEY_SHADOW_JITTERING_DOWN   = 0x00100000,
+    KEY_SHADOW_JITTERING_UP     = 0x00200000,
+    KEY_CAM_SPEED_DOWN          = 0x00400000,
+    KEY_CAM_SPEED_UP            = 0x00800000,
+    KEY_LPV_REFL_INTENSITY_DOWN = 0x01000000,
+    KEY_LPV_REFL_INTENSITY_UP   = 0x02000000,
+    KEY_LPV_SKY                 = 0x04000000,
+    KEY_SSLPV                   = 0x10000000,
 
-    KEY_LPV_SPHERE_UPDATE     = 0x08000000,
-    KEY_FRUSTUM_UPDATE        = 0x10000000,
-    KEY_SHOW_GEOMETRY_BUFFERS = 0x20000000,
-    KEY_SHOW_SHADOW_BUFFERS   = 0x40000000,
+    KEY_LPV_SPHERE_UPDATE       = 0x08000000,
+    KEY_FRUSTUM_UPDATE          = 0x10000000,
+    KEY_SHOW_GEOMETRY_BUFFERS   = 0x20000000,
+    KEY_SHOW_SHADOW_BUFFERS     = 0x40000000,
 
-    KEY_QUIT                  = 0x80000000
+    KEY_QUIT                    = 0x80000000
   };
 
   enum EMouseButton
@@ -309,6 +366,10 @@ struct SEngine
   NEngine::EGPUPlatform gpuPlatform;
   NEngine::ELPVMode lpvMode;
   NEngine::ELPVTechnique lpvTechnique;
+  bool lpvGV;
+  bool lpvLobe;
+  bool lpvSky;
+  bool sslpv;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
@@ -343,11 +404,20 @@ struct SEngine
 
   uint32 geometryTextureSize;
   glm::vec2 geometryTiles;
+  std::vector<float> geometryPos; // sky only
   std::vector<float> geometryCascadesClips;
+  std::vector<float> geometryCamCascadesClips;
   std::vector<glm::mat4> geometryViewProj; // geometry proj * view, used: mesh render - geom cascade draw (mvp)
   std::vector<SFrustum> geometryFrustum;
 
-  uint32 lpvSunSkyCount;
+  uint32 sunRaysTextureSize;
+
+  uint32 lpvSpecialDirsCount;
+  uint32 lpvSunSkyDirsCount;
+  uint32 lpvSkyDirsCount;
+  uint32 lpvDirsReservedCount;
+  uint32 lpvSunSkySpecDirsCount;
+  std::vector<uint8> sunSkyUsed;
   std::vector<float> sunSkyPoses; // lpv injection, light data
   std::vector<float> sunSkyRots;
   std::vector<float> sunSkyColors;
@@ -357,6 +427,7 @@ struct SEngine
   uint32 lpvPropagationSteps;
   bool lpvPropagationSwap;
   float lpvIntensity;
+  float lpvReflIntensity;
   std::vector<float> lpvCellSizes;
   std::vector<float> lpvPoses; // lpv inject, propagate, out mesh draw
 
@@ -375,6 +446,10 @@ struct SEngine
     gpuPlatform(NEngine::GPU_PLATFORM_MAX),
     lpvMode(NEngine::LPV_MODE_COMPUTE),
     lpvTechnique(NEngine::LPV_TECHNIQUE_GATHERING),
+    lpvGV(false),
+    lpvLobe(false),
+    lpvSky(false),
+    sslpv(false),
 
     keys(NEngine::KEY),
 
@@ -401,15 +476,22 @@ struct SEngine
     shadowTiles(NEngine::SHADOW_TILES_X, NEngine::SHADOW_TILES_Y),
 
     geometryTextureSize(NEngine::GEOMETRY_TEXTURE_SIZE),
-    geometryTiles(NEngine::LPV_SUN_SKY_DIRS_COUNT, NEngine::LPV_CASCADES_COUNT),
+    geometryTiles(NEngine::LPV_SUN_SKY_DIRS_COUNT + NEngine::LPV_SPECIAL_DIRS_COUNT, NEngine::LPV_CASCADES_COUNT),
 
-    lpvSunSkyCount(NEngine::LPV_SUN_SKY_DIRS_COUNT),
+    sunRaysTextureSize(NEngine::SUN_RAYS_TEXTURE_SIZE),
+
+    lpvSpecialDirsCount(NEngine::LPV_SPECIAL_DIRS_COUNT),
+    lpvSunSkyDirsCount(NEngine::LPV_SUN_SKY_DIRS_COUNT),
+    lpvSkyDirsCount(NEngine::LPV_SKY_DIRS_COUNT),
+    lpvDirsReservedCount(NEngine::LPV_DIRS_RESERVED_COUNT),
+    lpvSunSkySpecDirsCount(lpvSpecialDirsCount + lpvSunSkyDirsCount),
 
     lpvTextureSize(NEngine::LPV_TEXTURE_SIZE_X, NEngine::LPV_TEXTURE_SIZE_Y, NEngine::LPV_TEXTURE_SIZE_Z),
     lpvCascadesCount(NEngine::LPV_CASCADES_COUNT),
     lpvPropagationSteps(NEngine::LPV_PROPAGATION_STEPS),
     lpvPropagationSwap(false),
     lpvIntensity(NEngine::LPV_INTENSITY),
+    lpvReflIntensity(NEngine::LPV_REFL_INTENSITY),
     
 #ifdef ENV_SDL
     initSceneTimer(0),
@@ -424,23 +506,29 @@ struct SEngine
     for(uint32 i = 0; i < shadowCascadesCount; i++)
       shadowViewProj[i] = glm::mat4();
 
+    geometryPos.resize(lpvCascadesCount * NMath::VEC3);
     geometryCascadesClips.resize(lpvCascadesCount * NMath::VEC2);
-    geometryViewProj.resize(lpvCascadesCount * lpvSunSkyCount);
-    geometryFrustum.resize(lpvCascadesCount * lpvSunSkyCount);
+    geometryCamCascadesClips.resize(lpvCascadesCount * NMath::VEC2);
+    geometryViewProj.resize(lpvCascadesCount * lpvSunSkySpecDirsCount);
+    geometryFrustum.resize(lpvCascadesCount * lpvSunSkySpecDirsCount);
+    memset(&geometryPos[0], 0, sizeof(float) * lpvCascadesCount * NMath::VEC3);
+    memcpy(&geometryCamCascadesClips[0], NEngine::GEOMETRY_CAM_CASCADES_DEPTHS, sizeof(float) * geometryCamCascadesClips.size());
     for(uint32 i = 0; i < lpvCascadesCount; i++)
     {
       geometryCascadesClips[i * NMath::VEC2 + 0] = NEngine::LPV_CELL_SIZES[i * NMath::VEC3] * lpvTextureSize.x * 0.5f;
       geometryCascadesClips[i * NMath::VEC2 + 1] = NEngine::GEOMETRY_CASCADES_CLIPS[i];
     }
-    for(uint32 i = 0; i < lpvCascadesCount * lpvSunSkyCount; i++)
+    for(uint32 i = 0; i < lpvCascadesCount * lpvSunSkySpecDirsCount; i++)
       geometryViewProj[i] = glm::mat4();
 
-    sunSkyPoses.resize(lpvSunSkyCount * NMath::VEC3);
-    sunSkyRots.resize(lpvSunSkyCount * NMath::VEC3);
-    sunSkyColors.resize(lpvSunSkyCount * NMath::VEC3);
-    memcpy(&sunSkyPoses[0], NEngine::SUN_SKY_POSES, sizeof(float) * lpvSunSkyCount * NMath::VEC3);
-    memcpy(&sunSkyRots[0], NEngine::SUN_SKY_ROTS, sizeof(float) * lpvSunSkyCount * NMath::VEC2);
-    memcpy(&sunSkyColors[0], NEngine::SUN_SKY_COLORS, sizeof(float) * lpvSunSkyCount * NMath::VEC3);
+    sunSkyUsed.resize(lpvSunSkySpecDirsCount);
+    sunSkyPoses.resize(lpvSunSkyDirsCount * NMath::VEC3);
+    sunSkyRots.resize(lpvSunSkyDirsCount * NMath::VEC3);
+    sunSkyColors.resize(lpvSunSkyDirsCount * NMath::VEC3);
+    memcpy(&sunSkyUsed[0], NEngine::SUN_SKY_USED, sizeof(uint8) * lpvSunSkySpecDirsCount);
+    memcpy(&sunSkyPoses[0], NEngine::SUN_SKY_POSES, sizeof(float) * lpvSunSkyDirsCount * NMath::VEC3);
+    memcpy(&sunSkyRots[0], NEngine::SUN_SKY_ROTS, sizeof(float) * lpvSunSkyDirsCount * NMath::VEC2);
+    memcpy(&sunSkyColors[0], NEngine::SUN_SKY_COLORS, sizeof(float) * lpvSunSkyDirsCount * NMath::VEC3);
 
     lpvCellSizes.resize(lpvCascadesCount * NMath::VEC3);
     lpvPoses.resize(lpvCascadesCount * NMath::VEC3);

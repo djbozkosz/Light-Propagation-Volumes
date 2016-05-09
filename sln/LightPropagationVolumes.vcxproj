@@ -88,6 +88,7 @@
     <None Include="..\data\shaders\lpvPropagation.fs" />
     <None Include="..\data\shaders\lpvPropagation.gs" />
     <None Include="..\data\shaders\lpvPropagation.vs" />
+    <None Include="..\data\shaders\sunRays.fs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{07C1131B-89B3-4C26-B8BA-F602FC350C57}</ProjectGuid>

@@ -4,8 +4,17 @@ precision lowp float;
 #define BLINN_PHONG
 //#define NOR_TEX_DEBUG
 //#define SHADOW_JITTER_CASCADES
-#define SHADOW_CASCADES_BLEND_RATIO 0.5
+#define SSLPV
+//#define SSLPV_CASCADES
+#define LPV_REFLECTIONS
+//#define LPV_CASCADE_REFLECTIONS
+#define SHADOW_CASCADES_BLEND_RATIO 0.8
 #define LPV_CASCADES_BLEND_RATIO 0.1
+#define LPV_MULTI_CASCADES 2
+#define SSLPV_MULTI_CASCADES 1
+#define SSLPV_DEPTH 5
+#define LPV_FIXED_REFL_CASCADE 2
+#define LPV_REFLECTION_DEPTH 5
 
 #define SHADOW_CASCADES_COUNT
 #define LPV_CASCADES_COUNT
@@ -17,7 +26,7 @@ in vec3 normal;
 in vec2 texCoord;
 in vec4 color;
 #ifdef SHAD_TEX
-in vec3 shadowCoord[SHADOW_CASCADES_COUNT];
+in vec4 shadowCoord[SHADOW_CASCADES_COUNT];
 #endif
 #ifdef NOR_TEX
 in mat3 mtbnti;
@@ -38,6 +47,9 @@ uniform sampler2DShadow shadTex;
 uniform sampler3D lpvAccumTexR;
 uniform sampler3D lpvAccumTexG;
 uniform sampler3D lpvAccumTexB;
+uniform sampler3D sslpvAccumTexR;
+uniform sampler3D sslpvAccumTexG;
+uniform sampler3D sslpvAccumTexB;
 #endif
 #ifdef SHADOW_JITTER
 uniform sampler2D shadDepthTex;
@@ -67,7 +79,7 @@ uniform vec3 fogColor;
 uniform vec3 lpvPos[LPV_CASCADES_COUNT];
 uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize[LPV_CASCADES_COUNT];
-uniform vec2 lpvParams;
+uniform vec4 lpvParams;
 #endif
 
 out vec4 glFragColor;
@@ -104,12 +116,17 @@ void main()
 #endif*/
 
   float fragDist = distance(cam, positionWorld);
+  vec3 viewDir = normalize(cam - positionWorld);
   vec3 lpvColor = vec3(0.0, 0.0, 0.0);
 
 #ifdef SHAD_TEX
   int lpvIndex = 0;
+  int lpvReflIndex = 0;
   float lpvEnd = 0.0;
   float lpvStart = 0.0;
+
+  vec4 shBase = vec4(0.2821, -0.4886, 0.4886, -0.4886);
+  //vec4 shBase = vec4(0.8862, -1.0233, 1.0233, -1.0233);
 
   for(lpvIndex = 0; lpvIndex < LPV_CASCADES_COUNT; lpvIndex++)
   {
@@ -120,41 +137,188 @@ void main()
       break;
   }
 
+  lpvReflIndex = lpvIndex;
   float lpvRange = lpvEnd - lpvStart;
+  float lpvRatio = clamp((fragDist - lpvStart - lpvRange * LPV_CASCADES_BLEND_RATIO) / (lpvRange * (1.0 - LPV_CASCADES_BLEND_RATIO)), 0.0, 1.0);
 
-  for(int semiCascade = 0; semiCascade < 2; semiCascade++, lpvIndex++)
+  for(int semiCascade = 0; semiCascade < (LPV_MULTI_CASCADES + 2); semiCascade++, lpvIndex++)
   {
     vec3 lpvColor2 = vec3(0.0, 0.0, 0.0);
 
-    if(lpvIndex < LPV_CASCADES_COUNT)
+    if(lpvIndex >= LPV_CASCADES_COUNT)
+      lpvIndex--;
+
+    if((semiCascade == (LPV_MULTI_CASCADES + 1)) && (fragDist < (lpvRange * LPV_CASCADES_BLEND_RATIO + lpvStart)))
+      break;
+
+    vec3 lpvP = (positionWorld - lpvPos[lpvIndex]) / (lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5) * 0.5 + 0.5;
+    lpvP.x = (lpvP.x + float(lpvIndex)) / float(LPV_CASCADES_COUNT);
+
+    vec4 shNormal = shBase * vec4(1.0, -normalDir.y, -normalDir.z, -normalDir.x);
+    vec4 lpvShR = texture(lpvAccumTexR, lpvP);
+    vec4 lpvShG = texture(lpvAccumTexG, lpvP);
+    vec4 lpvShB = texture(lpvAccumTexB, lpvP);
+    lpvColor2 = vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * lpvParams.y * ((lpvIndex == 0) ? 2.0 : 1.0);
+    //lpvColor2 = lpvShR.rgb;
+
+    if(semiCascade == 0)
+      lpvColor2 *= 1.0 - lpvRatio;
+    else if(semiCascade == (LPV_MULTI_CASCADES + 1))
+      lpvColor2 *= lpvRatio;
+
+    lpvColor += lpvColor2;
+  }
+
+  lpvColor /= float(LPV_MULTI_CASCADES + 1);
+  lpvIndex = lpvReflIndex;
+
+#if defined(SSLPV)
+  if((type & 0x00200000) != 0)
+  {
+    vec3 sslpvColor = vec3(0.0);
+
+    for(int semiCascade = 0; semiCascade < (SSLPV_MULTI_CASCADES + 2); semiCascade++, lpvIndex++)
     {
-      if((semiCascade == 1) && (fragDist < (lpvRange * LPV_CASCADES_BLEND_RATIO + lpvStart)))
+      vec3 lpvColor2 = vec3(0.0, 0.0, 0.0);
+
+      if(lpvIndex >= LPV_CASCADES_COUNT)
+        lpvIndex--;
+
+      if((semiCascade == (SSLPV_MULTI_CASCADES + 1)) && (fragDist < (lpvRange * LPV_CASCADES_BLEND_RATIO + lpvStart)))
         break;
 
-      float lpvE = (semiCascade == 0) ? lpvEnd : (lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5);
-      vec3 lpvP = (positionWorld - lpvPos[lpvIndex]) / lpvE * 0.5 + 0.5;
+      vec3 lpvP = (positionWorld - lpvPos[lpvIndex]) / (lpvCellSize[lpvIndex].x * lpvTexSize.y * 0.5) * 0.5 + 0.5;
       lpvP.x = (lpvP.x + float(lpvIndex)) / float(LPV_CASCADES_COUNT);
 
-      vec4 shBase = vec4(0.2821, -0.4886, 0.4886, -0.4886);
-      //vec4 shBase = vec4(0.8862, -1.0233, 1.0233, -1.0233);
-      vec4 shNormal = shBase * vec4(1.0, -normalDir.y, -normalDir.z, -normalDir.x);
+      vec3 lPos = normalize(lightPos);
+      vec4 shNormal = shBase * vec4(1.0, -lPos.y, -lPos.z, -lPos.x);
+      vec4 lpvShR = texture(sslpvAccumTexR, lpvP);
+      vec4 lpvShG = texture(sslpvAccumTexG, lpvP);
+      vec4 lpvShB = texture(sslpvAccumTexB, lpvP);
+      lpvColor2 = pow(vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * lpvParams.y * ((lpvIndex == 0) ? 2.0 : 1.0), vec3(2.0));
+
+      if(semiCascade == 0)
+        lpvColor2 *= 1.0 - lpvRatio;
+      else if(semiCascade == (SSLPV_MULTI_CASCADES + 1))
+        lpvColor2 *= lpvRatio;
+
+      sslpvColor += lpvColor2;
+    }
+
+    sslpvColor /= float(SSLPV_MULTI_CASCADES + 1);
+    lpvColor += sslpvColor;
+  }
+#elif defined(SSLPV_CASCADES)
+  vec3 lPos = normalize(lightPos);
+  vec3 ssDist = lpvCellSize[0].x * -viewDir * 1.732;
+  vec3 ssPos = positionWorld;
+  float ssRatio = 1.0 / float(SSLPV_DEPTH);
+
+  for(int ssSample = 0; ssSample < SSLPV_DEPTH; ssSample++)
+  {
+    for(int sslpvI = lpvReflIndex; (sslpvI < (lpvReflIndex + 2)) && (sslpvI < LPV_CASCADES_COUNT); sslpvI++)
+    {
+      vec3 lpvP = (ssPos - lpvPos[sslpvI]) / (lpvCellSize[sslpvI].x * lpvTexSize.y * 0.5) * 0.5 + 0.5;
+      lpvP.x = (lpvP.x + float(sslpvI)) / float(LPV_CASCADES_COUNT);
+
+      vec4 shNormal = shBase * vec4(1.0, -lPos.y, -lPos.z, -lPos.x);
       vec4 lpvShR = texture(lpvAccumTexR, lpvP);
       vec4 lpvShG = texture(lpvAccumTexG, lpvP);
       vec4 lpvShB = texture(lpvAccumTexB, lpvP);
-      lpvColor2 = vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * lpvParams.y;
+      lpvColor += vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * ((sslpvI == lpvReflIndex) ? (1.0 - lpvRatio) : lpvRatio) * ssRatio * 0.5 * lpvParams.y;
     }
 
-    if(semiCascade == 0)
-      lpvColor = lpvColor2;
-    else
-      lpvColor = mix(lpvColor, lpvColor2, clamp((fragDist - lpvStart - lpvRange * LPV_CASCADES_BLEND_RATIO) / (lpvRange * (1.0 - LPV_CASCADES_BLEND_RATIO)), 0.0, 1.0));
+    ssPos += ssDist;
+    ssDist *= 1.0;
+    float ssDistWorld = distance(cam, ssPos);
+
+    if(ssDistWorld > lpvEnd)
+    {
+      lpvReflIndex++;
+
+      if(lpvReflIndex >= LPV_CASCADES_COUNT)
+        break;
+      else
+      {
+        lpvStart = lpvEnd;
+        lpvEnd = lpvCellSize[lpvReflIndex].x * lpvTexSize.y * 0.5;
+        lpvRange = lpvEnd - lpvStart;
+        lpvRatio = clamp((ssDistWorld - lpvStart - lpvRange * LPV_CASCADES_BLEND_RATIO) / (lpvRange * (1.0 - LPV_CASCADES_BLEND_RATIO)), 0.0, 1.0);
+      }
+    }
   }
+#endif
+
+#if defined(LPV_REFLECTIONS)
+  vec3 reflDir = reflect(-viewDir, normalDir);
+  vec3 reflDist = lpvCellSize[2].x * reflDir * 1.732;
+  vec3 relfPos = positionWorld;
+  float reflRatio = 1.0 / float(LPV_REFLECTION_DEPTH);
+
+  if(lpvReflIndex <= LPV_FIXED_REFL_CASCADE)
+  {
+    for(int reflSample = 0; reflSample < LPV_REFLECTION_DEPTH; reflSample++)
+    {
+      vec3 lpvP = (relfPos - lpvPos[LPV_FIXED_REFL_CASCADE]) / (lpvCellSize[LPV_FIXED_REFL_CASCADE].x * lpvTexSize.y * 0.5) * 0.5 + 0.5;
+      lpvP.x = (lpvP.x + float(LPV_FIXED_REFL_CASCADE)) / float(LPV_CASCADES_COUNT);
+
+      vec4 shNormal = shBase * vec4(1.0, -reflDir.y, -reflDir.z, -reflDir.x);
+      vec4 lpvShR = texture(lpvAccumTexR, lpvP);
+      vec4 lpvShG = texture(lpvAccumTexG, lpvP);
+      vec4 lpvShB = texture(lpvAccumTexB, lpvP);
+      lpvColor += vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * ((lpvReflIndex == LPV_FIXED_REFL_CASCADE) ? (1.0 - lpvRatio) : 1.0) * reflRatio * 0.5 * lpvParams.z;
+
+      relfPos += reflDist;
+    }
+  }
+#elif defined(LPV_CASCADE_REFLECTIONS)
+  vec3 reflDir = reflect(-viewDir, normalDir);
+  float reflDist = lpvCellSize[0].x * 1.732;
+  vec3 relfPos = positionWorld;
+  vec3 relfPos2 = positionWorld;
+  float reflRatio = 1.0 / float(LPV_REFLECTION_DEPTH);
+
+  for(int reflSample = 0; reflSample < LPV_REFLECTION_DEPTH; reflSample++)
+  {
+    for(int lpvReflI = lpvReflIndex; (lpvReflI < (lpvReflIndex + 2)) && (lpvReflI < LPV_CASCADES_COUNT); lpvReflI++)
+    {
+      vec3 lpvP = (relfPos - lpvPos[lpvReflI]) / (lpvCellSize[lpvReflI].x * lpvTexSize.y * 0.5) * 0.5 + 0.5;
+      lpvP.x = (lpvP.x + float(lpvReflI)) / float(LPV_CASCADES_COUNT);
+
+      vec4 shNormal = shBase * vec4(1.0, -reflDir.y, -reflDir.z, -reflDir.x);
+      vec4 lpvShR = texture(lpvAccumTexR, lpvP);
+      vec4 lpvShG = texture(lpvAccumTexG, lpvP);
+      vec4 lpvShB = texture(lpvAccumTexB, lpvP);
+      lpvColor += vec3(max(0.0, dot(shNormal, lpvShR)), max(0.0, dot(shNormal, lpvShG)), max(0.0, dot(shNormal, lpvShB))) * ((lpvReflI == lpvReflIndex) ? (1.0 - lpvRatio) : lpvRatio) * reflRatio * 0.5 * lpvParams.z;
+    }
+
+    relfPos += reflDist * reflDir;
+    relfPos2 += reflDist * viewDir;
+    reflDist *= 2.0;
+    float reflDistWorld = distance(cam, relfPos2);
+
+    if(reflDistWorld > lpvEnd)
+    {
+      lpvReflIndex++;
+
+      if(lpvReflIndex >= LPV_CASCADES_COUNT)
+        break;
+      else
+      {
+        lpvStart = lpvEnd;
+        lpvEnd = lpvCellSize[lpvReflIndex].x * lpvTexSize.y * 0.5;
+        lpvRange = lpvEnd - lpvStart;
+        lpvRatio = clamp((reflDistWorld - lpvStart - lpvRange * LPV_CASCADES_BLEND_RATIO) / (lpvRange * (1.0 - LPV_CASCADES_BLEND_RATIO)), 0.0, 1.0);
+      }
+    }
+  }
+#endif
 #endif
 
 #ifndef SHAD_TEX
   float depthVis = 1.0;
 #else
-  vec3 sCoord[SHADOW_CASCADES_COUNT];
+  vec4 sCoord[SHADOW_CASCADES_COUNT];
   for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
     sCoord[i] = shadowCoord[i];
 
@@ -188,8 +352,7 @@ void main()
         break;
 
 #ifndef SHADOW_JITTER
-      vec2 tileMin = vec2(float(shadowIndex % int(tiles.x)), float(shadowIndex / int(tiles.x))) * tiles.zw;
-      dVis = texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin, sCoord[shadowIndex].z));
+      dVis = textureProj(shadTex, sCoord[shadowIndex]);
 #else
 #ifdef SHADOW_JITTER_CASCADES
       float depthStart = 0.0;
@@ -202,16 +365,15 @@ void main()
         if(shadowIndex > i)
           continue;
 
-        vec2 tileMin = vec2(float(i % int(tiles.x)), float(i / int(tiles.x))) * tiles.zw;
         float depthEnd = shadowClips[i].x * ((i == (SHADOW_CASCADES_COUNT - 1)) ? 1.0 : 0.25);
 
         for(int j = 0; j < 9; j++)
         {
-          float penumbraVisOffset = (sCoord[i].z - texture(shadDepthTex, sCoord[i].xy * tiles.zw + tileMin + shadowTexSize.xy * 0.5 * vec2(kernelOffset[j % 3], kernelOffset[j / 3])).r) * shadowClips[i].y;
+          float penumbraVisOffset = (sCoord[i].z - textureProj(shadDepthTex, vec3(sCoord[i].xy + shadowTexSize.xy * 0.5 * vec2(kernelOffset[j % 3], kernelOffset[j / 3]), sCoord[i].w)).r) * shadowClips[i].y;
 
           if((penumbraVisOffset >= depthStart) && (penumbraVisOffset < depthEnd))
           {
-            dVis -= 1.0 - texture(shadTex, vec3(sCoord[i].xy * tiles.zw + tileMin, sCoord[i].z));
+            dVis -= 1.0 - textureProj(shadTex, sCoord[shadowIndex]);
             break;
           }
         }
@@ -221,8 +383,6 @@ void main()
       }
       dVis = clamp(dVis, 0.0, 1.0);
 #else
-      vec2 tileMin = vec2(float(shadowIndex % int(tiles.x)), float(shadowIndex / int(tiles.x))) * tiles.zw;
-
       vec2 kernel[16];
       kernel[0] = vec2(0.0, 1.0);
       kernel[1] = vec2(0.382683, 0.92388);
@@ -248,7 +408,7 @@ void main()
 
       for(int i = 0; i < 16; i++)
       {
-        float vis = texture(shadDepthTex, sCoord[shadowIndex].xy * tiles.zw + tileMin + kernel[i] * kernSize).r;
+        float vis = textureProj(shadDepthTex, vec3(sCoord[shadowIndex].xy + kernel[i] * kernSize, sCoord[shadowIndex].w)).r;
 
         //if((i == 0) || (vis < nearestDepth))
         nearestDepth += vis * ikern;
@@ -263,7 +423,7 @@ void main()
 
         dVis = 0.0;
         for(int i = 0; i < 16; i++)
-          dVis += texture(shadTex, vec3(sCoord[shadowIndex].xy * tiles.zw + tileMin + kernel[i] * kernSize * penumbraRatio, sCoord[shadowIndex].z)) * ikern;
+          dVis += textureProj(shadTex, vec4(sCoord[shadowIndex].xy + kernel[i] * kernSize * penumbraRatio, sCoord[shadowIndex].z, sCoord[shadowIndex].w)) * ikern;
       //}
 #endif
 #endif
@@ -276,7 +436,6 @@ void main()
   }
 #endif
 
-  vec3 viewDir = normalize(cam - positionWorld);
   vec3 lightDir = lightPos - positionWorld;
 
   float lightDist = clamp((length(lightDir) - lightRange.x) / (lightRange.y - lightRange.x) * -1.0 + 1.0, 0.0, 1.0);

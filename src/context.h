@@ -59,6 +59,7 @@ class CContext
     void (*fncEngineClearDrawCalls)(CContext *context);
     void (*fncEngineSetShadowViewProj)(CContext *context, uint32 index, const glm::mat4 &m);
     void (*fncEngineSetShadowFrustum)(CContext *context, uint32 index, const SFrustum &f);
+    void (*fncEngineSetGeometryPos)(CContext *context, uint32 index, const glm::vec3 &p);
     void (*fncEngineSetGeometryViewProj)(CContext *context, uint32 index, const glm::mat4 &m);
     void (*fncEngineSetGeometryFrustum)(CContext *context, uint32 index, const SFrustum &f);
     void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r);
@@ -94,6 +95,7 @@ class CContext
       fncEngineClearDrawCalls(NULL),
       fncEngineSetShadowViewProj(NULL),
       fncEngineSetShadowFrustum(NULL),
+      fncEngineSetGeometryPos(NULL),
       fncEngineSetGeometryViewProj(NULL),
       fncEngineSetGeometryFrustum(NULL),
       fncEngineSetSunSkyPose(NULL),
@@ -142,6 +144,7 @@ class CContext
         fncEngineClearDrawCalls(NULL),
         fncEngineSetShadowViewProj(NULL),
         fncEngineSetShadowFrustum(NULL),
+        fncEngineSetGeometryPos(NULL),
         fncEngineSetGeometryViewProj(NULL),
         fncEngineSetGeometryFrustum(NULL),
         fncEngineSetSunSkyPose(NULL),
@@ -195,6 +198,7 @@ class CContext
       void (*fncEngineClearDrawCalls)(CContext *context),
       void (*fncEngineSetShadowViewProj)(CContext *context, uint32 index, const glm::mat4 &m),
       void (*fncEngineSetShadowFrustum)(CContext *context, uint32 index, const SFrustum &f),
+      void (*fncEngineSetGeometryPos)(CContext *context, uint32 index, const glm::vec3 &p),
       void (*fncEngineSetGeometryViewProj)(CContext *context, uint32 index, const glm::mat4 &m),
       void (*fncEngineSetGeometryFrustum)(CContext *context, uint32 index, const SFrustum &f),
       void (*fncEngineSetSunSkyPose)(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r),
@@ -213,6 +217,7 @@ class CContext
       if(fncEngineClearDrawCalls)      this->fncEngineClearDrawCalls = fncEngineClearDrawCalls;
       if(fncEngineSetShadowViewProj)   this->fncEngineSetShadowViewProj = fncEngineSetShadowViewProj;
       if(fncEngineSetShadowFrustum)    this->fncEngineSetShadowFrustum = fncEngineSetShadowFrustum;
+      if(fncEngineSetGeometryPos)      this->fncEngineSetGeometryPos = fncEngineSetGeometryPos;
       if(fncEngineSetGeometryViewProj) this->fncEngineSetGeometryViewProj = fncEngineSetGeometryViewProj;
       if(fncEngineSetGeometryFrustum)  this->fncEngineSetGeometryFrustum = fncEngineSetGeometryFrustum;
       if(fncEngineSetSunSkyPose)       this->fncEngineSetSunSkyPose = fncEngineSetSunSkyPose;
@@ -234,6 +239,7 @@ class CContext
     inline void engineClearDrawCalls() { fncEngineClearDrawCalls(this); }
     inline void engineSetShadowViewProj(uint32 index, const glm::mat4 &m) { fncEngineSetShadowViewProj(this, index, m); }
     inline void engineSetShadowFrustum(uint32 index, const SFrustum &f) { fncEngineSetShadowFrustum(this, index, f); }
+    inline void engineSetGeometryPos(uint32 index, const glm::vec3 &p) { fncEngineSetGeometryPos(this, index, p); }
     inline void engineSetGeometryViewProj(uint32 index, const glm::mat4 &m) { fncEngineSetGeometryViewProj(this, index, m); }
     inline void engineSetGeometryFrustum(uint32 index, const SFrustum &f) { fncEngineSetGeometryFrustum(this, index, f); }
     inline void engineSetSunSkyPose(uint32 index, const glm::vec3 &p, const glm::vec2 &r) { fncEngineSetSunSkyPose(this, index, p, r); }

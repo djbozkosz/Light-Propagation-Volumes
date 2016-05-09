@@ -44,13 +44,14 @@ class CEngine
     static inline void staticIncDrawCalls(CContext *context) { context->getEngine()->incDrawCalls(); }
     static inline void staticSetPlatform(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { context->getEngine()->setPlatform(gpuPlatform, lpvMode, lpvTechnique); }
     static inline void staticClearDrawCalls(CContext *context) { context->getEngine()->clearDrawCalls(); }
-    static inline void setShadowViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setShadowViewProj(index, m); }
-    static inline void setShadowFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setShadowFrustum(index, f); }
-    static inline void setGeometryViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setGeometryViewProj(index, m); }
-    static inline void setGeometryFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setGeometryFrustum(index, f); }
-    static inline void setSunSkyPose(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r) { context->getEngine()->setSunSkyPose(index, p, r); }
-    static inline void setSunSkyColor(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setSunSkyColor(index, v); }
-    static inline void setLpvPose(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPose(index, v); }
+    static inline void staticSetShadowViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setShadowViewProj(index, m); }
+    static inline void staticSetShadowFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setShadowFrustum(index, f); }
+    static inline void staticSetGeometryPos(CContext *context, uint32 index, const glm::vec3 &p) { context->getEngine()->setGeometryPos(index, p); }
+    static inline void staticSetGeometryViewProj(CContext *context, uint32 index, const glm::mat4 &m) { context->getEngine()->setGeometryViewProj(index, m); }
+    static inline void staticSetGeometryFrustum(CContext *context, uint32 index, const SFrustum &f) { context->getEngine()->setGeometryFrustum(index, f); }
+    static inline void staticSetSunSkyPose(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r) { context->getEngine()->setSunSkyPose(index, p, r); }
+    static inline void staticSetSunSkyColor(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setSunSkyColor(index, v); }
+    static inline void staticSetLpvPose(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPose(index, v); }
     static inline void staticSwapLPV(CContext *context) { context->getEngine()->swapLPV(); }
     static inline double staticGetTime(const CContext *context) { return context->getEngine()->getTime(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
@@ -69,11 +70,13 @@ class CEngine
     void mouseMove(const SPoint &point, NEngine::EMouseButton buttons);
     void keyPress(NEngine::EKey key);
     void keyRelease(NEngine::EKey key);
+    void updateSunDir();
 
   public:
     CEngine(
+      uint32 argc = 0, const char *const *const argv = NULL
 #ifdef ENV_QT
-      QObject *parent = NULL
+      , QObject *parent = NULL
 #endif
       );
     virtual ~CEngine();
@@ -104,6 +107,7 @@ class CEngine
     inline void clearDrawCalls() { engine.drawCalls = 0; }
     inline void setShadowViewProj(uint32 index, const glm::mat4 &m) { engine.shadowViewProj[index] = m; }
     inline void setShadowFrustum(uint32 index, const SFrustum &f) { engine.shadowFrustum[index] = f; }
+    inline void setGeometryPos(uint32 index, const glm::vec3 &p) { engine.geometryPos[index * NMath::VEC3 + 0] = p.x; engine.geometryPos[index * NMath::VEC3 + 1] = p.y; engine.geometryPos[index * NMath::VEC3 + 2] = p.z; }
     inline void setGeometryViewProj(uint32 index, const glm::mat4 &m) { engine.geometryViewProj[index] = m; }
     inline void setGeometryFrustum(uint32 index, const SFrustum &f) { engine.geometryFrustum[index] = f; }
     inline void setSunSkyPose(uint32 index, const glm::vec3 &p, const glm::vec2 &r) { float pp[] = { p.x, p.y, p.z }; float rr[] = { r.x, r.y }; memcpy(&engine.sunSkyPoses[index * NMath::VEC3], pp, sizeof(float) * 3); memcpy(&engine.sunSkyRots[index * NMath::VEC2], rr, sizeof(float) * 2); }

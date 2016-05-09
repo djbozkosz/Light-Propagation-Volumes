@@ -47,7 +47,7 @@ void main()
 
   vec3 colorDif = lightColor * lightDot * lightDist;*/
 
-  glFragColor0 = vec4(fragDif.rgb * color.rgb/* * colorDif*/, 1.0);
+  glFragColor0 = vec4(fragDif.rgb * color.rgb/* * colorDif*/, ((type & 0x00200000) != 0) ? 1.0 : 0.0);
   glFragColor1Pos = vec4(positionWorld, 1.0);
   glFragColor2Normal = vec4(normalDir, 1.0); //vec4(mtbnt * normalize(texture(norTex, texCoord).rgb), 1.0);
   //glFragColor3Depth = gl_FragCoord.z;

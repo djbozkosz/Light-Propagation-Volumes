@@ -26,7 +26,7 @@ out vec3 normal;
 out vec2 texCoord;
 out vec4 color;
 #ifdef SHAD_TEX
-out vec3 shadowCoord[SHADOW_CASCADES_COUNT];
+out vec4 shadowCoord[SHADOW_CASCADES_COUNT];
 #endif
 #ifdef NOR_TEX
 out mat3 mtbnti;
@@ -61,7 +61,7 @@ void main()
   color = _vertexColor;
 #ifdef SHAD_TEX
   for(int i = 0; i < SHADOW_CASCADES_COUNT; i++)
-    shadowCoord[i] = vec4(mvpsb[i] * vec4(_vertexPosition, 1.0)).xyz;
+    shadowCoord[i] = mvpsb[i] * vec4(_vertexPosition, 1.0);
 #endif
 #ifdef NOR_TEX
   mtbnti = inv(transpose(mat3(normalize(mwnit * _vertexNormalTangent), normalize(mwnit * _vertexNormalBitangent), normalize(mwnit * _vertexNormal))));

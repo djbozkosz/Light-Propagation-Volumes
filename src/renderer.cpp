@@ -19,6 +19,15 @@ void CRenderer::addMesh(const SRenderMesh &mesh)
 {
   if(renderer.mode == NRenderer::MODE_PICK)
     meshes[NShader::PROGRAM_COLOR].push_back(mesh);
+  else if(renderer.mode == NRenderer::MODE_SUN_RAYS)
+  {
+    if((mesh.material) && (mesh.material->program))
+      meshes[NShader::PROGRAM_COLOR_KEY].push_back(mesh);
+    else
+      meshes[NShader::PROGRAM_COLOR].push_back(mesh);
+  }
+  else if(renderer.mode == NRenderer::MODE_SUN_RAYS_BACKDROP)
+    meshes[NShader::PROGRAM_COLOR].push_back(mesh);
   else if(renderer.mode == NRenderer::MODE_DEPTH)
   {
     if((mesh.material) && (mesh.material->program))
@@ -55,7 +64,7 @@ void CRenderer::dispatch() const
 {
   COpenGL *gl = context->getOpenGL();
 
-  if(renderer.mode == NRenderer::MODE_BACKDROP)
+  if((renderer.mode == NRenderer::MODE_SUN_RAYS_BACKDROP) || (renderer.mode == NRenderer::MODE_BACKDROP))
     gl->depthMask(NOpenGL::FALSE);
 
   for(uint32 i = 0; i < NShader::PROGRAMS_COUNT; i++)
@@ -134,7 +143,7 @@ void CRenderer::dispatch() const
       gl->disable(NOpenGL::BLEND);
   }
 
-  if(renderer.mode == NRenderer::MODE_BACKDROP)
+  if((renderer.mode == NRenderer::MODE_SUN_RAYS_BACKDROP) || (renderer.mode == NRenderer::MODE_BACKDROP))
     gl->depthMask(NOpenGL::TRUE);
 }
 //------------------------------------------------------------------------------

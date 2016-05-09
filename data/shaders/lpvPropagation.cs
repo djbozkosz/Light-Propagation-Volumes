@@ -1,6 +1,25 @@
 #version 430
 precision lowp float;
 
+#if defined(LPV_GATHERING) || defined(LPV_SCATTERING)
+#ifdef LPV_GATHERING
+#define LPV_PROPAGATION_INTENSITY3 1.0
+#else
+#define LPV_PROPAGATION_INTENSITY3 1.2
+#endif
+#ifndef LPV_LOBE
+#define LPV_PROPAGATION_INTENSITY2 (1.0 * LPV_PROPAGATION_INTENSITY3)
+#else
+#define LPV_PROPAGATION_INTENSITY2 (2.2 * LPV_PROPAGATION_INTENSITY3)
+#endif
+#ifndef LPV_GV
+#define LPV_PROPAGATION_INTENSITY (1.0 * LPV_PROPAGATION_INTENSITY2)
+#else
+#define LPV_PROPAGATION_INTENSITY (1.4 * LPV_PROPAGATION_INTENSITY2)
+#endif
+#endif
+#define SSLPV_PROPAGATION_INTENSITY 0.3
+
 #define INJECT_SHIFT 1.0
 #define SH_F2I 1000.0
 #define SH_I2F 0.001
@@ -8,22 +27,10 @@ precision lowp float;
 #define LPV_CASCADES_COUNT
 #define LPV_SH_COEFFS_COUNT 4
 #define LPV_SAMPLE_SIZE 12
-#define LPV_GV_SAMPLE_SIZE 8
 
-#define LPV_DATA_R_SH0 0
-#define LPV_DATA_R_SH1 1
-#define LPV_DATA_R_SH2 2
-#define LPV_DATA_R_SH3 3
-
-#define LPV_DATA_G_SH0 4
-#define LPV_DATA_G_SH1 5
-#define LPV_DATA_G_SH2 6
-#define LPV_DATA_G_SH3 7
-
-#define LPV_DATA_B_SH0 8
-#define LPV_DATA_B_SH1 9
-#define LPV_DATA_B_SH2 10
-#define LPV_DATA_B_SH3 11
+#define LPV_DATA_R_SH 0
+#define LPV_DATA_G_SH 4
+#define LPV_DATA_B_SH 8
 
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
@@ -33,10 +40,44 @@ uniform layout(rgba32f) writeonly image3D lpvAccumTexB;
 uniform layout(r32i) coherent iimage3D lpv0Tex;
 uniform layout(r32i) coherent iimage3D lpv1Tex;
 uniform layout(r32i) coherent iimage3D lpvAccumTex;
+uniform layout(r32i) coherent iimage3D lpvNormalAccumTex;
 uniform layout(r32i) readonly iimage3D gvTex;
 
 uniform vec3 lpvTexSize;
-uniform vec2 lpvParams;
+uniform vec4 lpvParams;
+
+vec4 imgLoad(in layout(r32i) readonly iimage3D img, in ivec3 pos, in float off)
+{
+  return vec4(
+    float(imageLoad(img, pos + ivec3(off + 0, 0, 0)).x) * SH_I2F,
+    float(imageLoad(img, pos + ivec3(off + 1, 0, 0)).x) * SH_I2F,
+    float(imageLoad(img, pos + ivec3(off + 2, 0, 0)).x) * SH_I2F,
+    float(imageLoad(img, pos + ivec3(off + 3, 0, 0)).x) * SH_I2F);
+}
+
+void imgStore(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
+{
+  imageStore(img, pos + ivec3(off + 0, 0, 0), ivec4(data.x * SH_F2I, 0, 0, 0));
+  imageStore(img, pos + ivec3(off + 1, 0, 0), ivec4(data.y * SH_F2I, 0, 0, 0));
+  imageStore(img, pos + ivec3(off + 2, 0, 0), ivec4(data.z * SH_F2I, 0, 0, 0));
+  imageStore(img, pos + ivec3(off + 3, 0, 0), ivec4(data.w * SH_F2I, 0, 0, 0));
+}
+
+void imgStoreAdd(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
+{
+  imageAtomicAdd(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I));
+  imageAtomicAdd(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I));
+  imageAtomicAdd(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I));
+  imageAtomicAdd(img, pos + ivec3(off + 3, 0, 0), int(data.w * SH_F2I));
+}
+
+void imgStoreMax(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
+{
+  imageAtomicMax(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I));
+  imageAtomicMax(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I));
+  imageAtomicMax(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I));
+  imageAtomicMax(img, pos + ivec3(off + 3, 0, 0), int(data.w * SH_F2I));
+}
 
 void main()
 {
@@ -49,9 +90,13 @@ void main()
   {
     uint texX = cascade * uint(lpvTexSize.y) + x;
     uint lpvGlobTexX = texX * LPV_SAMPLE_SIZE;
+    uint gvGlobTexX = texX * LPV_SH_COEFFS_COUNT;
+    uint loveGlobTexX = texX * LPV_SH_COEFFS_COUNT * 2;
     ivec3 texGlobPos = ivec3(lpvGlobTexX, y, z);
-
+    ivec3 gvTexGlobPos = ivec3(gvGlobTexX, y, z);
+    ivec3 lobeTexGlobPos = ivec3(loveGlobTexX, y, z);
     ivec3 texPos = ivec3(texX, y, z);
+
     uint swap = 0;
 
     vec4 cosineLobe = vec4(0.8862, -1.0233, 1.0233, -1.0233);
@@ -67,16 +112,45 @@ void main()
       // clean swap
       if(swap == 0)
       {
-        for(int i = 0; i < LPV_SAMPLE_SIZE; i++)
-          imageStore(lpv1Tex, ivec3(lpvGlobTexX + i, y, z), ivec4(0, 0, 0, 0));
+        imgStore(lpv1Tex, texGlobPos, LPV_DATA_R_SH, vec4(0.0));
+        imgStore(lpv1Tex, texGlobPos, LPV_DATA_G_SH, vec4(0.0));
+        imgStore(lpv1Tex, texGlobPos, LPV_DATA_B_SH, vec4(0.0));
       }
       else
       {
-        for(int i = 0; i < LPV_SAMPLE_SIZE; i++)
-          imageStore(lpv0Tex, ivec3(lpvGlobTexX + i, y, z), ivec4(0, 0, 0, 0));
+        imgStore(lpv0Tex, texGlobPos, LPV_DATA_R_SH, vec4(0.0));
+        imgStore(lpv0Tex, texGlobPos, LPV_DATA_G_SH, vec4(0.0));
+        imgStore(lpv0Tex, texGlobPos, LPV_DATA_B_SH, vec4(0.0));
       }
 
       barrier();
+
+#ifdef LPV_LOBE
+      vec4 cellNormal = imgLoad(lpvNormalAccumTex, lobeTexGlobPos, (swap == 0) ? 0 : LPV_SH_COEFFS_COUNT);
+
+      if(length(cellNormal) == 0.0)
+      {
+        int ratio = 1;
+
+        for(int cell = 1; cell < 6; cell++)
+        {
+          ivec3 p = lobeTexGlobPos + ivec3(dirs[cell]) * ivec3(LPV_SH_COEFFS_COUNT * 2, 1, 1);
+
+          vec4 cNormal = imgLoad(lpvNormalAccumTex, p, (swap == 0) ? 0 : LPV_SH_COEFFS_COUNT);
+
+          if(length(cNormal) > 0.0)
+          {
+            cellNormal = mix(cellNormal, cNormal, 1.0 / float(ratio));
+            ratio++;
+          }
+        }
+      }
+
+      imgStore(lpvNormalAccumTex, lobeTexGlobPos, (swap == 0) ? LPV_SH_COEFFS_COUNT : 0, cellNormal);
+
+      if(length(cellNormal.xyz) > 0.01)
+        cellNormal = normalize(cellNormal);
+#endif
 
 #ifdef LPV_GATHERING
       vec4 shR = vec4(0.0);
@@ -86,6 +160,7 @@ void main()
       for(uint cell = 0; cell < 6; cell++)
       {
         ivec3 p = ivec3((texX + int(dirs[cell].x)) * LPV_SAMPLE_SIZE, y, z) + ivec3(0, int(dirs[cell].y), int(dirs[cell].z));
+        ivec3 pgv = ivec3((texX + int(dirs[cell].x)) * LPV_SH_COEFFS_COUNT, y, z) + ivec3(0, int(dirs[cell].y), int(dirs[cell].z));
 
         vec4 shCellR;
         vec4 shCellG;
@@ -93,27 +168,15 @@ void main()
 
         if(swap == 0)
         {
-          shCellR = vec4(
-            float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_R_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_R_SH1, 0, 0)).x) * SH_I2F,
-            float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_R_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_R_SH3, 0, 0)).x) * SH_I2F);
-          shCellG = vec4(
-            float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_G_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_G_SH1, 0, 0)).x) * SH_I2F,
-            float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_G_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_G_SH3, 0, 0)).x) * SH_I2F);
-          shCellB = vec4(
-            float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_B_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_B_SH1, 0, 0)).x) * SH_I2F,
-            float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_B_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, p + ivec3(LPV_DATA_B_SH3, 0, 0)).x) * SH_I2F);
+          shCellR = imgLoad(lpv0Tex, p, LPV_DATA_R_SH);
+          shCellG = imgLoad(lpv0Tex, p, LPV_DATA_G_SH);
+          shCellB = imgLoad(lpv0Tex, p, LPV_DATA_B_SH);
         }
         else
         {
-          shCellR = vec4(
-            float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_R_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_R_SH1, 0, 0)).x) * SH_I2F,
-            float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_R_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_R_SH3, 0, 0)).x) * SH_I2F);
-          shCellG = vec4(
-            float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_G_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_G_SH1, 0, 0)).x) * SH_I2F,
-            float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_G_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_G_SH3, 0, 0)).x) * SH_I2F);
-          shCellB = vec4(
-            float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_B_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_B_SH1, 0, 0)).x) * SH_I2F,
-            float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_B_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, p + ivec3(LPV_DATA_B_SH3, 0, 0)).x) * SH_I2F);
+          shCellR = imgLoad(lpv1Tex, p, LPV_DATA_R_SH);
+          shCellG = imgLoad(lpv1Tex, p, LPV_DATA_G_SH);
+          shCellB = imgLoad(lpv1Tex, p, LPV_DATA_B_SH);
         }
 
         for(int face = 0; face < 6; face++)
@@ -121,75 +184,50 @@ void main()
           vec3 faceDir = dirs[face] * 0.5 - dirs[cell];
           float faceLength = length(faceDir);
 
-          if(faceLength > 0.6)
-          {
-            float solidAngle = 0.0;
+          if(faceLength < 0.6)
+            continue;
 
-            if(faceLength < 1.4)
-              solidAngle = 0.12732;
-            else
-              solidAngle = 0.13477;
+          float solidAngle = (faceLength < 1.4) ? 0.12732 : 0.13477;
+          vec3 normal = normalize(faceDir);
+          vec4 shNormal = shBase * vec4(1.0, normal.y, normal.z, normal.x);
+          vec4 shDir = cosineLobe * vec4(1.0, dirs[face].y, dirs[face].z, dirs[face].x);
 
-            vec3 normal = normalize(faceDir);
-            vec4 shNormal = shBase * vec4(1.0, normal.y, normal.z, normal.x);
-            vec4 shDir = cosineLobe * vec4(1.0, dirs[face].y, dirs[face].z, dirs[face].x);
+#ifdef LPV_LOBE
+          vec4 shOriginal = shBase * vec4(1.0, cellNormal.y, cellNormal.z, cellNormal.x);
+          vec4 shLobeOriginal = cosineLobe * vec4(1.0, cellNormal.y, cellNormal.z, cellNormal.x);
+          shDir = max(0.0, dot(shDir, shOriginal)) * shLobeOriginal;
+#endif
 
-            shR += solidAngle * max(0.0, dot(shCellR, shNormal)) * shDir;
-            shG += solidAngle * max(0.0, dot(shCellG, shNormal)) * shDir;
-            shB += solidAngle * max(0.0, dot(shCellB, shNormal)) * shDir;
-          }
+          shDir *= LPV_PROPAGATION_INTENSITY;
+          if(lpvParams.w < 0.0)
+            shDir *= SSLPV_PROPAGATION_INTENSITY;
+#ifdef LPV_GV
+          vec4 shGv = (lpvParams.w < 0.0) ? vec4(0.0) : imgLoad(gvTex, pgv, 0); // todo pos
+          shDir *= 1.0 - clamp(shGv.x * shNormal.x + abs(dot(shGv.yzw, shNormal.yzw)), 0.0, 1.0);
+#endif
+
+          shR += solidAngle * max(0.0, dot(shCellR, shNormal)) * shDir;
+          shG += solidAngle * max(0.0, dot(shCellG, shNormal)) * shDir;
+          shB += solidAngle * max(0.0, dot(shCellB, shNormal)) * shDir;
         }
       }
 
       if(swap == 0)
       {
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH0, 0, 0), int(shR.x * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH1, 0, 0), int(shR.y * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH2, 0, 0), int(shR.z * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH3, 0, 0), int(shR.w * SH_F2I));
-
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH0, 0, 0), int(shG.x * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH1, 0, 0), int(shG.y * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH2, 0, 0), int(shG.z * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH3, 0, 0), int(shG.w * SH_F2I));
-
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH0, 0, 0), int(shB.x * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH1, 0, 0), int(shB.y * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH2, 0, 0), int(shB.z * SH_F2I));
-        imageAtomicAdd(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH3, 0, 0), int(shB.w * SH_F2I));
+        imgStoreAdd(lpv1Tex, texGlobPos, LPV_DATA_R_SH, shR);
+        imgStoreAdd(lpv1Tex, texGlobPos, LPV_DATA_G_SH, shG);
+        imgStoreAdd(lpv1Tex, texGlobPos, LPV_DATA_B_SH, shB);
       }
       else
       {
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH0, 0, 0), int(shR.x * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH1, 0, 0), int(shR.y * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH2, 0, 0), int(shR.z * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH3, 0, 0), int(shR.w * SH_F2I));
-
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH0, 0, 0), int(shG.x * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH1, 0, 0), int(shG.y * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH2, 0, 0), int(shG.z * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH3, 0, 0), int(shG.w * SH_F2I));
-
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH0, 0, 0), int(shB.x * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH1, 0, 0), int(shB.y * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH2, 0, 0), int(shB.z * SH_F2I));
-        imageAtomicAdd(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH3, 0, 0), int(shB.w * SH_F2I));
+        imgStoreAdd(lpv0Tex, texGlobPos, LPV_DATA_R_SH, shR);
+        imgStoreAdd(lpv0Tex, texGlobPos, LPV_DATA_G_SH, shG);
+        imgStoreAdd(lpv0Tex, texGlobPos, LPV_DATA_B_SH, shB);
       }
 
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH0, 0, 0), int(shR.x * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH1, 0, 0), int(shR.y * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH2, 0, 0), int(shR.z * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH3, 0, 0), int(shR.w * SH_F2I));
-
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH0, 0, 0), int(shG.x * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH1, 0, 0), int(shG.y * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH2, 0, 0), int(shG.z * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH3, 0, 0), int(shG.w * SH_F2I));
-
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH0, 0, 0), int(shB.x * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH1, 0, 0), int(shB.y * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH2, 0, 0), int(shB.z * SH_F2I));
-      imageAtomicAdd(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH3, 0, 0), int(shB.w * SH_F2I));
+      imgStoreAdd(lpvAccumTex, texGlobPos, LPV_DATA_R_SH, shR);
+      imgStoreAdd(lpvAccumTex, texGlobPos, LPV_DATA_G_SH, shG);
+      imgStoreAdd(lpvAccumTex, texGlobPos, LPV_DATA_B_SH, shB);
 #else
       vec4 shCellR = vec4(0.0);
       vec4 shCellG = vec4(0.0);
@@ -197,32 +235,21 @@ void main()
 
       if(swap == 0)
       {
-        shCellR = vec4(
-          float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH1, 0, 0)).x) * SH_I2F,
-          float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_R_SH3, 0, 0)).x) * SH_I2F);
-        shCellG = vec4(
-          float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH1, 0, 0)).x) * SH_I2F,
-          float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_G_SH3, 0, 0)).x) * SH_I2F);
-        shCellB = vec4(
-          float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH1, 0, 0)).x) * SH_I2F,
-          float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv0Tex, texGlobPos + ivec3(LPV_DATA_B_SH3, 0, 0)).x) * SH_I2F);
+        shCellR = imgLoad(lpv0Tex, texGlobPos, LPV_DATA_R_SH);
+        shCellG = imgLoad(lpv0Tex, texGlobPos, LPV_DATA_G_SH);
+        shCellB = imgLoad(lpv0Tex, texGlobPos, LPV_DATA_B_SH);
       }
       else
       {
-        shCellR = vec4(
-          float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH1, 0, 0)).x) * SH_I2F,
-          float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_R_SH3, 0, 0)).x) * SH_I2F);
-        shCellG = vec4(
-          float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH1, 0, 0)).x) * SH_I2F,
-          float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_G_SH3, 0, 0)).x) * SH_I2F);
-        shCellB = vec4(
-          float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH0, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH1, 0, 0)).x) * SH_I2F,
-          float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH2, 0, 0)).x) * SH_I2F, float(imageLoad(lpv1Tex, texGlobPos + ivec3(LPV_DATA_B_SH3, 0, 0)).x) * SH_I2F);
+        shCellR = imgLoad(lpv1Tex, texGlobPos, LPV_DATA_R_SH);
+        shCellG = imgLoad(lpv1Tex, texGlobPos, LPV_DATA_G_SH);
+        shCellB = imgLoad(lpv1Tex, texGlobPos, LPV_DATA_B_SH);
       }
 
       for(uint cell = 0; cell < 6; cell++)
       {
         ivec3 p = ivec3((texX + int(dirs[cell].x)) * LPV_SAMPLE_SIZE, y, z) + ivec3(0, int(dirs[cell].y), int(dirs[cell].z));
+        ivec3 pgv = ivec3((texX + int(dirs[cell].x)) * LPV_SH_COEFFS_COUNT, y, z) + ivec3(0, int(dirs[cell].y), int(dirs[cell].z));
 
         vec4 shR = vec4(0.0);
         vec4 shG = vec4(0.0);
@@ -246,6 +273,20 @@ void main()
             vec4 shNormal = shBase * vec4(1.0, normal.y, normal.z, normal.x);
             vec4 shDir = cosineLobe * vec4(1.0, dirs[face].y, dirs[face].z, dirs[face].x);
 
+#ifdef LPV_LOBE
+            vec4 shOriginal = shBase * vec4(1.0, cellNormal.y, cellNormal.z, cellNormal.x);
+            vec4 shLobeOriginal = cosineLobe * vec4(1.0, cellNormal.y, cellNormal.z, cellNormal.x);
+            shDir = max(0.0, dot(shDir, shOriginal)) * shLobeOriginal;
+#endif
+
+            shDir *= LPV_PROPAGATION_INTENSITY;
+            if(lpvParams.w < 0.0)
+              shDir *= SSLPV_PROPAGATION_INTENSITY;
+#ifdef LPV_GV
+            vec4 shGv = (lpvParams.w < 0.0) ? vec4(0.0) : imgLoad(gvTex, pgv, 0); // todo pos
+            shDir *= 1.0 - clamp(shGv.x * shNormal.x + abs(dot(shGv.yzw, shNormal.yzw)), 0.0, 1.0);
+#endif
+
             shR += solidAngle * max(0.0, dot(shCellR, shNormal)) * shDir;
             shG += solidAngle * max(0.0, dot(shCellG, shNormal)) * shDir;
             shB += solidAngle * max(0.0, dot(shCellB, shNormal)) * shDir;
@@ -254,53 +295,20 @@ void main()
 
         if(swap == 0)
         {
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_R_SH0, 0, 0), int(shR.x * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_R_SH1, 0, 0), int(shR.y * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_R_SH2, 0, 0), int(shR.z * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_R_SH3, 0, 0), int(shR.w * SH_F2I));
-
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_G_SH0, 0, 0), int(shG.x * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_G_SH1, 0, 0), int(shG.y * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_G_SH2, 0, 0), int(shG.z * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_G_SH3, 0, 0), int(shG.w * SH_F2I));
-
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_B_SH0, 0, 0), int(shB.x * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_B_SH1, 0, 0), int(shB.y * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_B_SH2, 0, 0), int(shB.z * SH_F2I));
-          imageAtomicAdd(lpv1Tex, p + ivec3(LPV_DATA_B_SH3, 0, 0), int(shB.w * SH_F2I));
+          imgStoreAdd(lpv1Tex, p, LPV_DATA_R_SH, shR);
+          imgStoreAdd(lpv1Tex, p, LPV_DATA_G_SH, shG);
+          imgStoreAdd(lpv1Tex, p, LPV_DATA_B_SH, shB);
         }
         else
         {
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_R_SH0, 0, 0), int(shR.x * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_R_SH1, 0, 0), int(shR.y * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_R_SH2, 0, 0), int(shR.z * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_R_SH3, 0, 0), int(shR.w * SH_F2I));
-
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_G_SH0, 0, 0), int(shG.x * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_G_SH1, 0, 0), int(shG.y * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_G_SH2, 0, 0), int(shG.z * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_G_SH3, 0, 0), int(shG.w * SH_F2I));
-
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_B_SH0, 0, 0), int(shB.x * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_B_SH1, 0, 0), int(shB.y * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_B_SH2, 0, 0), int(shB.z * SH_F2I));
-          imageAtomicAdd(lpv0Tex, p + ivec3(LPV_DATA_B_SH3, 0, 0), int(shB.w * SH_F2I));
+          imgStoreAdd(lpv0Tex, p, LPV_DATA_R_SH, shR);
+          imgStoreAdd(lpv0Tex, p, LPV_DATA_G_SH, shG);
+          imgStoreAdd(lpv0Tex, p, LPV_DATA_B_SH, shB);
         }
 
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_R_SH0, 0, 0), int(shR.x * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_R_SH1, 0, 0), int(shR.y * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_R_SH2, 0, 0), int(shR.z * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_R_SH3, 0, 0), int(shR.w * SH_F2I));
-
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_G_SH0, 0, 0), int(shG.x * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_G_SH1, 0, 0), int(shG.y * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_G_SH2, 0, 0), int(shG.z * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_G_SH3, 0, 0), int(shG.w * SH_F2I));
-
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_B_SH0, 0, 0), int(shB.x * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_B_SH1, 0, 0), int(shB.y * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_B_SH2, 0, 0), int(shB.z * SH_F2I));
-        imageAtomicAdd(lpvAccumTex, p + ivec3(LPV_DATA_B_SH3, 0, 0), int(shB.w * SH_F2I));
+        imgStoreAdd(lpvAccumTex, p, LPV_DATA_R_SH, shR);
+        imgStoreAdd(lpvAccumTex, p, LPV_DATA_G_SH, shG);
+        imgStoreAdd(lpvAccumTex, p, LPV_DATA_B_SH, shB);
       }
 #endif
 
@@ -308,20 +316,8 @@ void main()
       barrier();
     }
 
-    imageStore(lpvAccumTexR, texPos, vec4(
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH0, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH1, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH2, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_R_SH3, 0, 0)).x) * SH_I2F));
-    imageStore(lpvAccumTexG, texPos, vec4(
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH0, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH1, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH2, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_G_SH3, 0, 0)).x) * SH_I2F));
-    imageStore(lpvAccumTexB, texPos, vec4(
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH0, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH1, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH2, 0, 0)).x) * SH_I2F,
-      float(imageLoad(lpvAccumTex, texGlobPos + ivec3(LPV_DATA_B_SH3, 0, 0)).x) * SH_I2F));
+    imageStore(lpvAccumTexR, texPos, imgLoad(lpvAccumTex, texGlobPos, LPV_DATA_R_SH));
+    imageStore(lpvAccumTexG, texPos, imgLoad(lpvAccumTex, texGlobPos, LPV_DATA_G_SH));
+    imageStore(lpvAccumTexB, texPos, imgLoad(lpvAccumTex, texGlobPos, LPV_DATA_B_SH));
   }
 }

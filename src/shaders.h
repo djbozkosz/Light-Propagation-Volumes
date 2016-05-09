@@ -112,20 +112,25 @@ inline void CShaderProgram::setSampler(const CMap *texture, GLuint uniform, uint
 inline void CShaderProgram::beginLPV(NShader::ESamplerTex startDepthSampler) const
 {
   const SShaderUniforms *u = &program.uniforms;
-  //const CMap *const lpvMaps[] = { u->lpvGs0MapR, u->lpvGs0MapG, u->lpvGs0MapB, u->lpvGs1MapR, u->lpvGs1MapG, u->lpvGs1MapB };
-  const CMap *const lpvMaps[] = { u->lpvAccumGs0MapR, u->lpvAccumGs0MapG, u->lpvAccumGs0MapB, u->lpvAccumGs1MapR, u->lpvAccumGs1MapG, u->lpvAccumGs1MapB };
+  const CMap *const lpvMaps[] = {
+    u->lpvAccumGs0MapR, u->lpvAccumGs0MapG, u->lpvAccumGs0MapB, u->sslpvAccumGs0MapR, u->sslpvAccumGs0MapG, u->sslpvAccumGs0MapB,
+    u->lpvAccumGs1MapR, u->lpvAccumGs1MapG, u->lpvAccumGs1MapB, u->sslpvAccumGs1MapR, u->sslpvAccumGs1MapG, u->sslpvAccumGs1MapB };
 
-  const uint32 i = (!context->engineGetEngine()->lpvPropagationSwap) ? 0 : 3;
+  const uint32 i = (!context->engineGetEngine()->lpvPropagationSwap) ? 0 : 6;
   uint32 filter = NMap::FORMAT_LINEAR;
 
   setSampler(u->shadowMap, u->shadTex, startDepthSampler, filter | NMap::FORMAT_DEPTH | NMap::FORMAT_BORDER);
 
+  //setSampler(u->gvGsMap, u->lpvAccumTexR, startDepthSampler + 1, filter | NMap::FORMAT_BORDER);
   setSampler(lpvMaps[i + 0], u->lpvAccumTexR, startDepthSampler + 1, filter | NMap::FORMAT_BORDER);
   setSampler(lpvMaps[i + 1], u->lpvAccumTexG, startDepthSampler + 2, filter | NMap::FORMAT_BORDER);
   setSampler(lpvMaps[i + 2], u->lpvAccumTexB, startDepthSampler + 3, filter | NMap::FORMAT_BORDER);
+  setSampler(lpvMaps[i + 3], u->sslpvAccumTexR, startDepthSampler + 4, filter | NMap::FORMAT_BORDER);
+  setSampler(lpvMaps[i + 4], u->sslpvAccumTexG, startDepthSampler + 5, filter | NMap::FORMAT_BORDER);
+  setSampler(lpvMaps[i + 5], u->sslpvAccumTexB, startDepthSampler + 6, filter | NMap::FORMAT_BORDER);
 
   if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
-    setSampler(u->shadowDepthMap, u->shadDepthTex, startDepthSampler + 4, NMap::FORMAT_BORDER);
+    setSampler(u->shadowDepthMap, u->shadDepthTex, startDepthSampler + 7, NMap::FORMAT_BORDER);
 }
 //------------------------------------------------------------------------------
 #endif // SHADERS_H

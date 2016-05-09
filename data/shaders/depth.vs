@@ -35,14 +35,15 @@ void main()
   gl_Position = mvp * vec4(_vertexPosition, 1.0);
 #else
   int ti = tileInstances[gl_InstanceID];
-  vec2 tileMin = vec2(float(ti % int(tiles.x)), float(ti / int(tiles.x))) * tiles.zw;
+  vec2 tileMin = vec2(float(ti % int(tiles.x)), float(ti / int(tiles.x))) * tiles.zw * 2.0 - 1.0;
+  vec2 tileMax = tileMin + tiles.zw * 2.0;
   vec4 p = mvp[ti] * vec4(_vertexPosition, 1.0);
-  vec2 clip = (p.xy * 0.5 + 0.5) * tiles.zw + tileMin;
 
-  gl_ClipDistance[0] = clip.x - tileMin.x;
-  gl_ClipDistance[1] = tiles.z - clip.x + tileMin.x;
-  gl_ClipDistance[2] = clip.y - tileMin.y;
-  gl_ClipDistance[3] = tiles.w - clip.y + tileMin.y;
-  gl_Position = vec4(clip * 2.0 - 1.0, p.z, p.w);
+  gl_ClipDistance[0] = dot(vec4(1.0, 0.0, 0.0, -tileMin.x), p);
+  gl_ClipDistance[1] = dot(vec4(-1.0, 0.0, 0.0, tileMax.x), p);
+  gl_ClipDistance[2] = dot(vec4(0.0, -1.0, 0.0, -tileMin.y), p);
+  gl_ClipDistance[3] = dot(vec4(0.0, 1.0, 0.0, tileMax.y), p);
+
+  gl_Position = p;
 #endif
 }

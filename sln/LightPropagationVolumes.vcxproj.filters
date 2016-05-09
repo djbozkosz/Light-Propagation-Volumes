@@ -237,5 +237,8 @@
     <None Include="..\data\shaders\lpvClear.vs">
       <Filter>Shader Files\Vertex</Filter>
     </None>
+    <None Include="..\data\shaders\sunRays.fs">
+      <Filter>Shader Files\Fragment</Filter>
+    </None>
   </ItemGroup>
 </Project>

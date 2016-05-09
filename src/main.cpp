@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
   (void)argv;
 #endif
 
-  CEngine e;
+  CEngine e(argc, argv);
 
   try
   {
