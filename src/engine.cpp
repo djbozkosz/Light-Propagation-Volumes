@@ -32,7 +32,7 @@ CEngine::CEngine(
 
   uint32 *const args[] = { &engine.maxTextureSize, &engine.shadowTextureSize, &engine.geometryTextureSize };
 
-  for(uint32 i = 0; i < 4; i++)
+  for(uint32 i = 0; i < 5; i++)
   {
     if(argc >= (i + 2))
     {
@@ -41,8 +41,10 @@ CEngine::CEngine(
       {
         if(i < 3)
           *args[i] = d;
-        else
+        else if(i == 3)
           engine.lpvTextureSize = glm::vec3(d);
+        else if(i == 4)
+          engine.timing = true;
       }
     }
   }

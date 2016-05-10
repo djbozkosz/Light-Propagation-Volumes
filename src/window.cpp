@@ -1,7 +1,7 @@
 ﻿//------------------------------------------------------------------------------
 #include "window.h"
 
-//#define TIMING
+#define TIMING(x) if(e->timing) { gl->finish(); t[x] = CEngineBase::context->engineGetTime(); }
 
 //------------------------------------------------------------------------------
 CWindow::CWindow(CContext *context
@@ -304,11 +304,9 @@ void CWindow::paintGL()
   const SEngine *e = CEngineBase::context->engineGetEngine();
   gl->makeCurrent();
 
-#ifdef TIMING
   double t[11];
   memset(t, 0, sizeof(double) * 11);
-  t[0] = CEngineBase::context->engineGetTime();
-#endif
+  TIMING(0)
 
   gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
   CEngineBase::context->engineClearDrawCalls();
@@ -351,10 +349,7 @@ void CWindow::paintGL()
     CFramebuffer *fboGeometry = fbo->getFramebuffer(NEngine::STR_GEOMETRY_FBO);
     CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN);
 
-#ifdef TIMING
-    gl->finish();
-    t[1] = CEngineBase::context->engineGetTime();
-#endif
+    TIMING(1)
 
     if((fboShadow) && (sun))
     { // shadow map
@@ -385,10 +380,7 @@ void CWindow::paintGL()
       fboShadow->setChanged(false);
     }
 
-#ifdef TIMING
-    gl->finish();
-    t[2] = CEngineBase::context->engineGetTime();
-#endif
+    TIMING(2)
 
     if((fboGeometry) && (sun) && (e->lpvMode != NEngine::LPV_MODE_DISABLED))
     { // geometry map
@@ -449,10 +441,7 @@ void CWindow::paintGL()
       fboGeometry->setChanged(false);
     }
 
-#ifdef TIMING
-    gl->finish();
-    t[3] = CEngineBase::context->engineGetTime();
-#endif
+    TIMING(3)
 
     // lpv
     CFramebuffer *fboLpvGs0 = fbo->getFramebuffer(NEngine::STR_LPV0_GS_FBO);
@@ -497,10 +486,7 @@ void CWindow::paintGL()
        (shaderlpvGsClear) && (shaderGvGsClear) && (shaderlpvLobeGsClear) &&
        ((e->lpvMode == NEngine::LPV_MODE_DISABLED) || (e->lpvMode == NEngine::LPV_MODE_GEOMETRY)))
     { // clear fbos
-#ifdef TIMING
-      gl->finish();
-      t[4] = CEngineBase::context->engineGetTime();
-#endif
+      TIMING(4)
 
       gl->depthMask(NOpenGL::FALSE);
       gl->enable(NOpenGL::BLEND);
@@ -516,10 +502,7 @@ void CWindow::paintGL()
       gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA);
       gl->depthMask(NOpenGL::TRUE);
 
-#ifdef TIMING
-      gl->finish();
-      t[5] = CEngineBase::context->engineGetTime();
-#endif
+      TIMING(5)
     }
 
     if(e->lpvPropagationSwap)
@@ -531,10 +514,7 @@ void CWindow::paintGL()
        (shaderlpvGsPropGathLobe) && (shaderlpvGsPropGathGVLobe) && (shaderlpvGsPropScatLobe) && (shaderlpvGsPropScatGVLobe) &&
        (e->lpvMode == NEngine::LPV_MODE_GEOMETRY) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0302))
     { // gl 3.2
-#ifdef TIMING
-      gl->finish();
-      t[6] = CEngineBase::context->engineGetTime();
-#endif
+      TIMING(6)
 
       gl->depthMask(NOpenGL::FALSE); // proceed all fragments
       gl->blendFunc(NOpenGL::ONE, NOpenGL::ONE); // pseudo imageAtomicAdd() with floats
@@ -566,10 +546,7 @@ void CWindow::paintGL()
       }
       gl->disable(NOpenGL::BLEND);
 
-#ifdef TIMING
-      gl->finish();
-      t[7] = CEngineBase::context->engineGetTime();
-#endif
+      TIMING(7)
 
       // propagation
       for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
@@ -648,26 +625,20 @@ void CWindow::paintGL()
       gl->blendFunc(NOpenGL::SRC_ALPHA, NOpenGL::ONE_MINUS_SRC_ALPHA);
       gl->depthMask(NOpenGL::TRUE);
 
-#ifdef TIMING
-      gl->finish();
-      t[8] = CEngineBase::context->engineGetTime();
-#endif
+      TIMING(8)
     }
     else if((shaderlpvCsClear) && (shaderlpvCsInject) && (shaderlpvCsInjectSky) && (shaderlpvCsInjectGV) && (shaderlpvCsPropGath) && (shaderlpvCsPropGathGV) && (shaderlpvCsPropScat) && (shaderlpvCsPropScatGV)
             && (shaderlpvCsPropGathLobe) && (shaderlpvCsPropGathGVLobe) && (shaderlpvCsPropScatLobe) && (shaderlpvCsPropScatGVLobe)
             && (e->lpvMode == NEngine::LPV_MODE_COMPUTE) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403))
     { // gl 4.3
-#ifdef TIMING
-      gl->finish();
-      t[4] = CEngineBase::context->engineGetTime();
-#endif
+      TIMING(4)
+
       shaderlpvCsClear->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR_COMPUTE);
       shaderlpvCsClear->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, NRenderer::MODE_SSLPV_CLEAR_COMPUTE);
-#ifdef TIMING
-      gl->finish();
-      t[5] = CEngineBase::context->engineGetTime();
-      t[6] = CEngineBase::context->engineGetTime();
-#endif
+
+      TIMING(5)
+      TIMING(6)
+
       if(e->lpvGV)
         shaderlpvCsInjectGV->dispatch(e->geometryTextureSize * (e->geometryTiles.x - static_cast<float>(e->lpvDirsReservedCount)), e->geometryTextureSize * e->geometryTiles.y, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
       else
@@ -681,10 +652,8 @@ void CWindow::paintGL()
         if(e->sslpv)
           shaderlpvCsInjectSky->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, NRenderer::MODE_SSLPV_INJECTION_COMPUTE);
       }
-#ifdef TIMING
-      gl->finish();
-      t[7] = CEngineBase::context->engineGetTime();
-#endif
+      TIMING(7)
+      
       const CShaderProgram *const s[] = { shaderlpvCsPropGath, shaderlpvCsPropGathGV, shaderlpvCsPropScat, shaderlpvCsPropScatGV, shaderlpvCsPropGathLobe, shaderlpvCsPropGathGVLobe, shaderlpvCsPropScatLobe, shaderlpvCsPropScatGVLobe };
       uint32 sp = (e->lpvLobe) ? 4 : 0;
       sp += (e->lpvTechnique == NEngine::LPV_TECHNIQUE_SCATTERING) ? 2 : 0;
@@ -693,10 +662,8 @@ void CWindow::paintGL()
       s[sp]->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, (e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING) ? NRenderer::MODE_LPV_PROPAGATION_GATHERING_COMPUTE : NRenderer::MODE_LPV_PROPAGATION_SCATTERING_COMPUTE);
       if(e->sslpv)
         s[sp]->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, (e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING) ? NRenderer::MODE_SSLPV_PROPAGATION_GATHERING_COMPUTE : NRenderer::MODE_SSLPV_PROPAGATION_SCATTERING_COMPUTE);
-#ifdef TIMING
-      gl->finish();
-      t[8] = CEngineBase::context->engineGetTime();
-#endif
+
+      TIMING(8)
     }
 
     // standard
@@ -760,10 +727,7 @@ void CWindow::paintGL()
       gl->disable(NOpenGL::BLEND);
     }
 
-#ifdef TIMING
-    gl->finish();
-    t[9] = CEngineBase::context->engineGetTime();
-#endif
+    TIMING(9)
 
     if((fboShadow) && (e->showShadowBuffer))
     {
@@ -813,12 +777,12 @@ void CWindow::paintGL()
   SDL_GL_SwapWindow(SDLwindow);
 #endif
 
-#ifdef TIMING
-  gl->finish();
-  t[10] = CEngineBase::context->engineGetTime();
-  CEngineBase::context->log(CStr("Shadow map: %f ms\nGeometry map: %f ms\nLPV Clean: %f ms\nLPV Injection: %f ms\nLPV Propagation: %f ms\nRender: %f ms\nTotal: %f ms\n",
-    ((t[2] - t[1]) * 1000.0), ((t[3] - t[2]) * 1000.0), ((t[5] - t[4]) * 1000.0), ((t[7] - t[6]) * 1000.0), ((t[8] - t[7]) * 1000.0), ((t[9] - t[8]) * 1000.0), ((t[10] - t[0]) * 1000.0)));
-#endif
+  TIMING(10)
+  if(e->timing)
+  {
+    CEngineBase::context->log(CStr("Shadow map: %f ms\nGeometry map: %f ms\nLPV Clean: %f ms\nLPV Injection: %f ms\nLPV Propagation: %f ms\nRender: %f ms\nTotal: %f ms\n",
+      ((t[2] - t[1]) * 1000.0), ((t[3] - t[2]) * 1000.0), ((t[5] - t[4]) * 1000.0), ((t[7] - t[6]) * 1000.0), ((t[8] - t[7]) * 1000.0), ((t[9] - t[8]) * 1000.0), ((t[10] - t[0]) * 1000.0)));
+  }
 }
 //------------------------------------------------------------------------------
 void CWindow::resizeGL(int width, int height)

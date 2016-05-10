@@ -370,6 +370,7 @@ struct SEngine
   bool lpvLobe;
   bool lpvSky;
   bool sslpv;
+  bool timing;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
@@ -450,6 +451,7 @@ struct SEngine
     lpvLobe(false),
     lpvSky(false),
     sslpv(false),
+    timing(false),
 
     keys(NEngine::KEY),
 
