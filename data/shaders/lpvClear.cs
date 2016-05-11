@@ -1,12 +1,12 @@
 #version 430
-precision lowp float;
+precision highp float;
 
 #define LPV_CASCADES_COUNT
 #define LPV_SH_COEFFS_COUNT 4
 #define LPV_SAMPLE_SIZE 12
 #define LPV_GV_SAMPLE_SIZE 8
 
-layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
 
 uniform layout(rgba32f) writeonly image3D lpvAccumTexR;
 uniform layout(rgba32f) writeonly image3D lpvAccumTexG;

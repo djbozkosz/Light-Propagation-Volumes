@@ -149,6 +149,18 @@ NModel::EModelState CModel::loadMaterial(CFile *f, SMaterial *mat)
     }
   }
 
+  if(mat->type & NModel::MATERIAL_GLOW)
+  {
+    if(mat->program->getProgram()->name == NShader::PROGRAM_ILLUMINATION_SHADOW)
+      mat->program = context->getShaders()->getProgram(NShader::PROGRAM_ILLUMINATION_SHADOW_SSLPV);
+    else if(mat->program->getProgram()->name == NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW)
+      mat->program = context->getShaders()->getProgram(NShader::PROGRAM_ILLUMINATION_ALPHA_SHADOW_SSLPV);
+    else if(mat->program->getProgram()->name == NShader::PROGRAM_ILLUMINATION_NORMAL_SHADOW)
+      mat->program = context->getShaders()->getProgram(NShader::PROGRAM_ILLUMINATION_NORMAL_SHADOW_SSLPV);
+    else if(mat->program->getProgram()->name == NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW)
+      mat->program = context->getShaders()->getProgram(NShader::PROGRAM_ILLUMINATION_NORMAL_ALPHA_SHADOW_SSLPV);
+  }
+
   if(mat->type & NModel::MATERIAL_ANIMATED)
   {
     f->read(&mat->animatedFramesCount, sizeof(uint32));

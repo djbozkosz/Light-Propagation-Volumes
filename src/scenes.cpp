@@ -48,7 +48,7 @@ void CSceneObject::update(uint8 type)
         {
           for(auto so = object.parent->getSceneObjects()->cbegin(); so != object.parent->getSceneObjects()->cend(); so++)
           {
-            if(so->second.getObject()->type == NScene::OBJECT_TYPE_LIGHT)
+            if((so->second.getObject()->type == NScene::OBJECT_TYPE_LIGHT) && (so->second.getObject()->visible))
             {
               const SSceneLight *light = so->second.getLight();
               if(light->type == NScene::OBJECT_LIGHT_TYPE_AMBIENT)
@@ -77,7 +77,7 @@ void CSceneObject::update(uint8 type)
 //------------------------------------------------------------------------------
 void CSceneObject::render() const
 {
-  if(((object.type != NScene::OBJECT_TYPE_MODEL) && (object.type != NScene::OBJECT_TYPE_TEXT)) || (!model.model))
+  if(((object.type != NScene::OBJECT_TYPE_MODEL) && (object.type != NScene::OBJECT_TYPE_TEXT)) || (!model.model) || (!object.visible))
     return;
 
   const SRenderer *ren = context->getRenderer()->getRenderer();

@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #ifndef MAPS_H
 #define MAPS_H
 
@@ -60,7 +60,7 @@ inline void CMap::bind(GLuint uniform, uint8 sampler, uint32 format) const
   
   if((format & (NMap::FORMAT_IMAGE_R | NMap::FORMAT_IMAGE_W | NMap::FORMAT_IMAGE_RW)))
   {
-    gl->bindImageTexture(sampler, map.texture, 0, NOpenGL::FALSE, 0,
+    gl->bindImageTexture(sampler, map.texture, 0, NOpenGL::TRUE, 0,
       (format & NMap::FORMAT_IMAGE_R) ? NOpenGL::READ_ONLY : ((format & NMap::FORMAT_IMAGE_W) ? NOpenGL::WRITE_ONLY : NOpenGL::READ_WRITE),
       (map.format & NMap::FORMAT_INT) ? NOpenGL::R32I : ((map.format & NMap::FORMAT_UINT) ? NOpenGL::R32UI : NOpenGL::RGBA32F));
     gl->uniform1i(uniform, sampler);

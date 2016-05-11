@@ -19,7 +19,7 @@ precision lowp float;
 #define LPV_DATA_G_SH 4
 #define LPV_DATA_B_SH 8
 
-layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
 
 uniform layout(rgba32f) readonly image2D geomColorTex;
 uniform layout(rgba32f) readonly image2D geomPosTex;
@@ -39,38 +39,30 @@ uniform vec3 lpvTexSize;
 uniform vec3 lpvCellSize[LPV_CASCADES_COUNT];
 uniform vec4 lpvParams;
 
-vec4 imgLoad(in layout(r32i) readonly iimage3D img, in ivec3 pos, in float off)
-{
-  return vec4(
-    float(imageLoad(img, pos + ivec3(off + 0, 0, 0)).x) * SH_I2F,
-    float(imageLoad(img, pos + ivec3(off + 1, 0, 0)).x) * SH_I2F,
-    float(imageLoad(img, pos + ivec3(off + 2, 0, 0)).x) * SH_I2F,
+#define imgLoad(img, pos, off) \
+  vec4( \
+    float(imageLoad(img, pos + ivec3(off + 0, 0, 0)).x) * SH_I2F, \
+    float(imageLoad(img, pos + ivec3(off + 1, 0, 0)).x) * SH_I2F, \
+    float(imageLoad(img, pos + ivec3(off + 2, 0, 0)).x) * SH_I2F, \
     float(imageLoad(img, pos + ivec3(off + 3, 0, 0)).x) * SH_I2F);
-}
 
-void imgStore(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
-{
-  imageStore(img, pos + ivec3(off + 0, 0, 0), ivec4(data.x * SH_F2I, 0, 0, 0));
-  imageStore(img, pos + ivec3(off + 1, 0, 0), ivec4(data.y * SH_F2I, 0, 0, 0));
-  imageStore(img, pos + ivec3(off + 2, 0, 0), ivec4(data.z * SH_F2I, 0, 0, 0));
+#define imgStore(img, pos, off, data) \
+  imageStore(img, pos + ivec3(off + 0, 0, 0), ivec4(data.x * SH_F2I, 0, 0, 0)); \
+  imageStore(img, pos + ivec3(off + 1, 0, 0), ivec4(data.y * SH_F2I, 0, 0, 0)); \
+  imageStore(img, pos + ivec3(off + 2, 0, 0), ivec4(data.z * SH_F2I, 0, 0, 0)); \
   imageStore(img, pos + ivec3(off + 3, 0, 0), ivec4(data.w * SH_F2I, 0, 0, 0));
-}
 
-void imgStoreAdd(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
-{
-  imageAtomicAdd(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I));
-  imageAtomicAdd(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I));
-  imageAtomicAdd(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I));
+#define imgStoreAdd(img, pos, off, data) \
+  imageAtomicAdd(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I)); \
+  imageAtomicAdd(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I)); \
+  imageAtomicAdd(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I)); \
   imageAtomicAdd(img, pos + ivec3(off + 3, 0, 0), int(data.w * SH_F2I));
-}
 
-void imgStoreMax(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
-{
-  imageAtomicMax(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I));
-  imageAtomicMax(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I));
-  imageAtomicMax(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I));
+#define imgStoreMax(img, pos, off, data) \
+  imageAtomicMax(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I)); \
+  imageAtomicMax(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I)); \
+  imageAtomicMax(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I)); \
   imageAtomicMax(img, pos + ivec3(off + 3, 0, 0), int(data.w * SH_F2I));
-}
 
 void main()
 {
@@ -136,7 +128,8 @@ void main()
           imgStoreAdd(lpvAccumTex, texPos, LPV_DATA_B_SH, shB);
 
           texPos = ivec3(lpvP) * ivec3(LPV_SH_COEFFS_COUNT * 2, 1, 1);
-          imgStoreMax(lpvNormalAccumTex, texPos, 0, vec4(normal, 1.0));
+          vec4 accumNormal = vec4(normal, 1.0);
+          imgStoreMax(lpvNormalAccumTex, texPos, 0, accumNormal);
         }
 
 #ifdef LPV_GV

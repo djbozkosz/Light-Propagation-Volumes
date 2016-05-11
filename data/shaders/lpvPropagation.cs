@@ -17,6 +17,8 @@ precision lowp float;
 #else
 #define LPV_PROPAGATION_INTENSITY (1.4 * LPV_PROPAGATION_INTENSITY2)
 #endif
+#else
+#define LPV_PROPAGATION_INTENSITY 1.0
 #endif
 #define SSLPV_PROPAGATION_INTENSITY 0.3
 
@@ -32,7 +34,7 @@ precision lowp float;
 #define LPV_DATA_G_SH 4
 #define LPV_DATA_B_SH 8
 
-layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
 
 uniform layout(rgba32f) writeonly image3D lpvAccumTexR;
 uniform layout(rgba32f) writeonly image3D lpvAccumTexG;
@@ -46,38 +48,30 @@ uniform layout(r32i) readonly iimage3D gvTex;
 uniform vec3 lpvTexSize;
 uniform vec4 lpvParams;
 
-vec4 imgLoad(in layout(r32i) readonly iimage3D img, in ivec3 pos, in float off)
-{
-  return vec4(
-    float(imageLoad(img, pos + ivec3(off + 0, 0, 0)).x) * SH_I2F,
-    float(imageLoad(img, pos + ivec3(off + 1, 0, 0)).x) * SH_I2F,
-    float(imageLoad(img, pos + ivec3(off + 2, 0, 0)).x) * SH_I2F,
-    float(imageLoad(img, pos + ivec3(off + 3, 0, 0)).x) * SH_I2F);
-}
+#define imgLoad(img, pos, off) \
+  vec4( \
+    float(imageLoad(img, pos + ivec3(off + 0, 0, 0)).x) * SH_I2F, \
+    float(imageLoad(img, pos + ivec3(off + 1, 0, 0)).x) * SH_I2F, \
+    float(imageLoad(img, pos + ivec3(off + 2, 0, 0)).x) * SH_I2F, \
+    float(imageLoad(img, pos + ivec3(off + 3, 0, 0)).x) * SH_I2F)
 
-void imgStore(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
-{
-  imageStore(img, pos + ivec3(off + 0, 0, 0), ivec4(data.x * SH_F2I, 0, 0, 0));
-  imageStore(img, pos + ivec3(off + 1, 0, 0), ivec4(data.y * SH_F2I, 0, 0, 0));
-  imageStore(img, pos + ivec3(off + 2, 0, 0), ivec4(data.z * SH_F2I, 0, 0, 0));
+#define imgStore(img, pos, off, data) \
+  imageStore(img, pos + ivec3(off + 0, 0, 0), ivec4(data.x * SH_F2I, 0, 0, 0)); \
+  imageStore(img, pos + ivec3(off + 1, 0, 0), ivec4(data.y * SH_F2I, 0, 0, 0)); \
+  imageStore(img, pos + ivec3(off + 2, 0, 0), ivec4(data.z * SH_F2I, 0, 0, 0)); \
   imageStore(img, pos + ivec3(off + 3, 0, 0), ivec4(data.w * SH_F2I, 0, 0, 0));
-}
 
-void imgStoreAdd(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
-{
-  imageAtomicAdd(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I));
-  imageAtomicAdd(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I));
-  imageAtomicAdd(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I));
+#define imgStoreAdd(img, pos, off, data) \
+  imageAtomicAdd(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I)); \
+  imageAtomicAdd(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I)); \
+  imageAtomicAdd(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I)); \
   imageAtomicAdd(img, pos + ivec3(off + 3, 0, 0), int(data.w * SH_F2I));
-}
 
-void imgStoreMax(in layout(r32i) coherent iimage3D img, in ivec3 pos, in float off, in vec4 data)
-{
-  imageAtomicMax(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I));
-  imageAtomicMax(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I));
-  imageAtomicMax(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I));
+#define imgStoreMax(img, pos, off, data) \
+  imageAtomicMax(img, pos + ivec3(off + 0, 0, 0), int(data.x * SH_F2I)); \
+  imageAtomicMax(img, pos + ivec3(off + 1, 0, 0), int(data.y * SH_F2I)); \
+  imageAtomicMax(img, pos + ivec3(off + 2, 0, 0), int(data.z * SH_F2I)); \
   imageAtomicMax(img, pos + ivec3(off + 3, 0, 0), int(data.w * SH_F2I));
-}
 
 void main()
 {
@@ -97,7 +91,9 @@ void main()
     ivec3 lobeTexGlobPos = ivec3(loveGlobTexX, y, z);
     ivec3 texPos = ivec3(texX, y, z);
 
-    uint swap = 0;
+    //uint swap = 0;
+    uint swap = uint(lpvParams.x);
+    int lobeCoeff = (swap == 0) ? 0 : LPV_SH_COEFFS_COUNT;
 
     vec4 cosineLobe = vec4(0.8862, -1.0233, 1.0233, -1.0233);
     vec4 shBase = vec4(0.2821, -0.4886, 0.4886, -0.4886);
@@ -107,10 +103,11 @@ void main()
     dirs[2] = vec3(0.0, -1.0, 0.0); dirs[3] = vec3(0.0, 1.0, 0.0);
     dirs[4] = vec3(-1.0, 0.0, 0.0); dirs[5] = vec3(1.0, 0.0, 0.0);
 
-    for(uint step = 0; step < uint(lpvParams.x); step++)
-    {
-      // clean swap
-      if(swap == 0)
+    //for(uint step = 0; step < uint(lpvParams.x); step++)
+    //{
+    // clean swap
+#if defined(LPV_CLEAR)
+    if(swap == 0)
       {
         imgStore(lpv1Tex, texGlobPos, LPV_DATA_R_SH, vec4(0.0));
         imgStore(lpv1Tex, texGlobPos, LPV_DATA_G_SH, vec4(0.0));
@@ -123,10 +120,11 @@ void main()
         imgStore(lpv0Tex, texGlobPos, LPV_DATA_B_SH, vec4(0.0));
       }
 
-      barrier();
+      //barrier();
 
+#elif defined(LPV_LOBE_PROP)
 #ifdef LPV_LOBE
-      vec4 cellNormal = imgLoad(lpvNormalAccumTex, lobeTexGlobPos, (swap == 0) ? 0 : LPV_SH_COEFFS_COUNT);
+      vec4 cellNormal = imgLoad(lpvNormalAccumTex, lobeTexGlobPos, lobeCoeff);
 
       if(length(cellNormal) == 0.0)
       {
@@ -136,7 +134,7 @@ void main()
         {
           ivec3 p = lobeTexGlobPos + ivec3(dirs[cell]) * ivec3(LPV_SH_COEFFS_COUNT * 2, 1, 1);
 
-          vec4 cNormal = imgLoad(lpvNormalAccumTex, p, (swap == 0) ? 0 : LPV_SH_COEFFS_COUNT);
+          vec4 cNormal = imgLoad(lpvNormalAccumTex, p, lobeCoeff);
 
           if(length(cNormal) > 0.0)
           {
@@ -146,11 +144,13 @@ void main()
         }
       }
 
-      imgStore(lpvNormalAccumTex, lobeTexGlobPos, (swap == 0) ? LPV_SH_COEFFS_COUNT : 0, cellNormal);
+      imgStore(lpvNormalAccumTex, lobeTexGlobPos, lobeCoeff, cellNormal);
 
       if(length(cellNormal.xyz) > 0.01)
         cellNormal = normalize(cellNormal);
 #endif
+#else
+    vec4 cellNormal = imgLoad(lpvNormalAccumTex, lobeTexGlobPos, lobeCoeff);
 
 #ifdef LPV_GATHERING
       vec4 shR = vec4(0.0);
@@ -312,12 +312,15 @@ void main()
       }
 #endif
 
-      swap = (swap != 0) ? 0 : 1;
-      barrier();
-    }
+    //swap = (swap != 0) ? 0 : 1;
+    //barrier();
+    //}
 
+#endif
+#ifdef LPV_OUT
     imageStore(lpvAccumTexR, texPos, imgLoad(lpvAccumTex, texGlobPos, LPV_DATA_R_SH));
     imageStore(lpvAccumTexG, texPos, imgLoad(lpvAccumTex, texGlobPos, LPV_DATA_G_SH));
     imageStore(lpvAccumTexB, texPos, imgLoad(lpvAccumTex, texGlobPos, LPV_DATA_B_SH));
+#endif
   }
 }

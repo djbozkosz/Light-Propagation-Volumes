@@ -125,9 +125,13 @@ inline void CShaderProgram::beginLPV(NShader::ESamplerTex startDepthSampler) con
   setSampler(lpvMaps[i + 0], u->lpvAccumTexR, startDepthSampler + 1, filter | NMap::FORMAT_BORDER);
   setSampler(lpvMaps[i + 1], u->lpvAccumTexG, startDepthSampler + 2, filter | NMap::FORMAT_BORDER);
   setSampler(lpvMaps[i + 2], u->lpvAccumTexB, startDepthSampler + 3, filter | NMap::FORMAT_BORDER);
-  setSampler(lpvMaps[i + 3], u->sslpvAccumTexR, startDepthSampler + 4, filter | NMap::FORMAT_BORDER);
-  setSampler(lpvMaps[i + 4], u->sslpvAccumTexG, startDepthSampler + 5, filter | NMap::FORMAT_BORDER);
-  setSampler(lpvMaps[i + 5], u->sslpvAccumTexB, startDepthSampler + 6, filter | NMap::FORMAT_BORDER);
+
+  if(program.fUniforms & NShader::UNIFORM_SSLPV)
+  {
+    setSampler(lpvMaps[i + 3], u->sslpvAccumTexR, startDepthSampler + 4, filter | NMap::FORMAT_BORDER);
+    setSampler(lpvMaps[i + 4], u->sslpvAccumTexG, startDepthSampler + 5, filter | NMap::FORMAT_BORDER);
+    setSampler(lpvMaps[i + 5], u->sslpvAccumTexB, startDepthSampler + 6, filter | NMap::FORMAT_BORDER);
+  }
 
   if(program.fUniforms & NShader::UNIFORM_SHAD_TEX_SIZE)
     setSampler(u->shadowDepthMap, u->shadDepthTex, startDepthSampler + 7, NMap::FORMAT_BORDER);

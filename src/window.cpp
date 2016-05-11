@@ -107,17 +107,22 @@ void CWindow::initializeGL()
   gl->initializeGLFunctions(NEngine::GPU_PLATFORM_MAX);
   //context->log(gl->getStatus());
 
-  CEngineBase::context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::VENDOR)));
-  CEngineBase::context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::RENDERER)));
-  CEngineBase::context->log(std::string("Version: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::VERSION)));
-  CEngineBase::context->log(std::string("GLSL Version: ")+reinterpret_cast<const char *>(glGetString(NOpenGL::SHADING_LANGUAGE_VERSION)));
+  CEngineBase::context->log(std::string("Vendor: ")+reinterpret_cast<const char *>(gl->getString(NOpenGL::VENDOR)));
+  CEngineBase::context->log(std::string("Renderer: ")+reinterpret_cast<const char *>(gl->getString(NOpenGL::RENDERER)));
+  CEngineBase::context->log(std::string("Version: ")+reinterpret_cast<const char *>(gl->getString(NOpenGL::VERSION)));
+  CEngineBase::context->log(std::string("GLSL Version: ")+reinterpret_cast<const char *>(gl->getString(NOpenGL::SHADING_LANGUAGE_VERSION)));
+
+  std::string gpuVendor = CStr::strToLow(std::string(reinterpret_cast<const char *>(gl->getString(NOpenGL::VENDOR)))+" "+std::string(reinterpret_cast<const char *>(gl->getString(NOpenGL::RENDERER))));
+  NEngine::EGPUVendor vendor = NEngine::GPU_VENDOR_NVIDIA;
+  if((gpuVendor.find("amd") != std::string::npos) || (gpuVendor.find("ati") != std::string::npos) || (gpuVendor.find("radeon") != std::string::npos))
+    vendor = NEngine::GPU_VENDOR_ATI;
 
   const bool gpu32 = (gl->getStatusFramebufferTexture() != NOpenGLProc::TYPE_NOT_LOADED);
   const bool gpu43 = ((gl->getStatusDispatchCompute() != NOpenGLProc::TYPE_NOT_LOADED) && (gl->getStatusBindImageTexture() != NOpenGLProc::TYPE_NOT_LOADED));
   if(!gpu32)
     CEngineBase::context->getExceptions()->throwException(SException(this, NEngine::STR_ERROR_INIT_GL_PLATFORM));
   CEngineBase::context->log(CStr(NEngine::STR_SELECT_GL_PLATFORM, (gpu43) ? "4.3" : "3.2"));
-  CEngineBase::context->engineSetPlatform((gpu43) ? NEngine::GPU_PLATFORM_GL0403 : NEngine::GPU_PLATFORM_GL0302, NEngine::LPV_MODE_GEOMETRY, NEngine::LPV_TECHNIQUE_GATHERING);
+  CEngineBase::context->engineSetPlatform((gpu43) ? NEngine::GPU_PLATFORM_GL0403 : NEngine::GPU_PLATFORM_GL0302, vendor, NEngine::LPV_MODE_GEOMETRY, NEngine::LPV_TECHNIQUE_GATHERING);
 
   gl->enable(NOpenGL::DEPTH_TEST);
 
@@ -473,6 +478,8 @@ void CWindow::paintGL()
     CShaderProgram *shaderlpvCsInject = sh->getProgram(NShader::PROGRAM_LPV_INJECTION_COMPUTE);
     CShaderProgram *shaderlpvCsInjectSky = sh->getProgram(NShader::PROGRAM_LPV_INJECTION_COMPUTE_SKY);
     CShaderProgram *shaderlpvCsInjectGV = sh->getProgram(NShader::PROGRAM_LPV_INJECTION_COMPUTE_GV);
+    CShaderProgram *shaderlpvCsPropClear = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_COMPUTE_CLEAR);
+    CShaderProgram *shaderlpvCsPropLobe = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_COMPUTE_LOBE);
     CShaderProgram *shaderlpvCsPropGath = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_GATHERING_COMPUTE);
     CShaderProgram *shaderlpvCsPropGathGV = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_GATHERING_COMPUTE_GV);
     CShaderProgram *shaderlpvCsPropScat = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_SCATTERING_COMPUTE);
@@ -481,6 +488,7 @@ void CWindow::paintGL()
     CShaderProgram *shaderlpvCsPropGathGVLobe = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_GATHERING_COMPUTE_GV_LOBE);
     CShaderProgram *shaderlpvCsPropScatLobe = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_SCATTERING_COMPUTE_LOBE);
     CShaderProgram *shaderlpvCsPropScatGVLobe = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_SCATTERING_COMPUTE_GV_LOBE);
+    CShaderProgram *shaderlpvCsPropOut = sh->getProgram(NShader::PROGRAM_LPV_PROPAGATION_COMPUTE_OUT);
 
     if((fboLpvGs0) && (fboLpvGs1) && (fboLpvLobeGs0) && (fboLpvLobeGs1) && (fboGvGs) &&
        (shaderlpvGsClear) && (shaderGvGsClear) && (shaderlpvLobeGsClear) &&
@@ -627,44 +635,62 @@ void CWindow::paintGL()
 
       TIMING(8)
     }
-    else if((shaderlpvCsClear) && (shaderlpvCsInject) && (shaderlpvCsInjectSky) && (shaderlpvCsInjectGV) && (shaderlpvCsPropGath) && (shaderlpvCsPropGathGV) && (shaderlpvCsPropScat) && (shaderlpvCsPropScatGV)
-            && (shaderlpvCsPropGathLobe) && (shaderlpvCsPropGathGVLobe) && (shaderlpvCsPropScatLobe) && (shaderlpvCsPropScatGVLobe)
+    else if((shaderlpvCsClear) && (shaderlpvCsInject) && (shaderlpvCsInjectSky) && (shaderlpvCsInjectGV) && (shaderlpvCsPropClear) && (shaderlpvCsPropLobe) && (shaderlpvCsPropGath) && (shaderlpvCsPropGathGV) && (shaderlpvCsPropScat) && (shaderlpvCsPropScatGV)
+            && (shaderlpvCsPropGathLobe) && (shaderlpvCsPropGathGVLobe) && (shaderlpvCsPropScatLobe) && (shaderlpvCsPropScatGVLobe) && (shaderlpvCsPropOut)
             && (e->lpvMode == NEngine::LPV_MODE_COMPUTE) && (e->gpuPlatform >= NEngine::GPU_PLATFORM_GL0403))
     { // gl 4.3
       TIMING(4)
 
-      shaderlpvCsClear->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_CLEAR_COMPUTE);
-      shaderlpvCsClear->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, NRenderer::MODE_SSLPV_CLEAR_COMPUTE);
+      const uint32 workgroupSizeX = 8;
+      const uint32 workgroupSizeY = (e->gpuVendor == NEngine::GPU_VENDOR_NVIDIA) ? 4 : 8;
+      const uint32 dispatchX = (e->lpvTextureSize.x * e->lpvCascadesCount) / workgroupSizeX;
+      const uint32 dispatchY = (e->lpvTextureSize.y * e->lpvTextureSize.z) / workgroupSizeY;
+
+      // clear
+      shaderlpvCsClear->dispatch(dispatchX, dispatchY, 1, NRenderer::MODE_LPV_CLEAR_COMPUTE);
+      shaderlpvCsClear->dispatch(dispatchX, dispatchY, 1, NRenderer::MODE_SSLPV_CLEAR_COMPUTE);
 
       TIMING(5)
       TIMING(6)
 
       if(e->lpvGV)
-        shaderlpvCsInjectGV->dispatch(e->geometryTextureSize * (e->geometryTiles.x - static_cast<float>(e->lpvDirsReservedCount)), e->geometryTextureSize * e->geometryTiles.y, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
+        shaderlpvCsInjectGV->dispatch((e->geometryTextureSize * (e->geometryTiles.x - static_cast<float>(e->lpvDirsReservedCount))) / workgroupSizeX, (e->geometryTextureSize * e->geometryTiles.y) / workgroupSizeY, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
       else
-        shaderlpvCsInject->dispatch(e->geometryTextureSize * (e->geometryTiles.x - static_cast<float>(e->lpvDirsReservedCount + e->lpvSpecialDirsCount)), e->geometryTextureSize * e->geometryTiles.y, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
+        shaderlpvCsInject->dispatch((e->geometryTextureSize * (e->geometryTiles.x - static_cast<float>(e->lpvDirsReservedCount + e->lpvSpecialDirsCount))) / workgroupSizeX, (e->geometryTextureSize * e->geometryTiles.y) / workgroupSizeY, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
       if(e->sslpv)
-        shaderlpvCsInject->dispatch(e->geometryTextureSize * (e->geometryTiles.x - static_cast<float>(e->lpvDirsReservedCount + e->lpvSpecialDirsCount)), e->geometryTextureSize * e->geometryTiles.y, 1, NRenderer::MODE_SSLPV_INJECTION_COMPUTE);
+        shaderlpvCsInject->dispatch((e->geometryTextureSize * (e->geometryTiles.x - static_cast<float>(e->lpvDirsReservedCount + e->lpvSpecialDirsCount))) / workgroupSizeX, (e->geometryTextureSize * e->geometryTiles.y) / workgroupSizeY, 1, NRenderer::MODE_SSLPV_INJECTION_COMPUTE);
 
       if(e->lpvSky)
       {
-        shaderlpvCsInjectSky->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
+        shaderlpvCsInjectSky->dispatch(dispatchX, dispatchY, 1, NRenderer::MODE_LPV_INJECTION_COMPUTE);
         if(e->sslpv)
-          shaderlpvCsInjectSky->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, NRenderer::MODE_SSLPV_INJECTION_COMPUTE);
+          shaderlpvCsInjectSky->dispatch(dispatchX, dispatchY, 1, NRenderer::MODE_SSLPV_INJECTION_COMPUTE);
       }
       TIMING(7)
-      
+
       const CShaderProgram *const s[] = { shaderlpvCsPropGath, shaderlpvCsPropGathGV, shaderlpvCsPropScat, shaderlpvCsPropScatGV, shaderlpvCsPropGathLobe, shaderlpvCsPropGathGVLobe, shaderlpvCsPropScatLobe, shaderlpvCsPropScatGVLobe };
       uint32 sp = (e->lpvLobe) ? 4 : 0;
       sp += (e->lpvTechnique == NEngine::LPV_TECHNIQUE_SCATTERING) ? 2 : 0;
       sp += (e->lpvGV) ? 1 : 0;
+      
+      // propagation
+      for(uint32 i = 0; i < e->lpvPropagationSteps; i++)
+      {
+        // clear swap
+        lpvPropDispatch(shaderlpvCsPropClear, i);
 
-      s[sp]->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, (e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING) ? NRenderer::MODE_LPV_PROPAGATION_GATHERING_COMPUTE : NRenderer::MODE_LPV_PROPAGATION_SCATTERING_COMPUTE);
-      if(e->sslpv)
-        s[sp]->dispatch(e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y * e->lpvTextureSize.z, 1, (e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING) ? NRenderer::MODE_SSLPV_PROPAGATION_GATHERING_COMPUTE : NRenderer::MODE_SSLPV_PROPAGATION_SCATTERING_COMPUTE);
+        // lobe
+        lpvPropDispatch(shaderlpvCsPropLobe, i);
 
-      TIMING(8)
+        // propagation
+        lpvPropDispatch(s[sp], i);
+      }
+
+      // out
+      lpvPropDispatch(shaderlpvCsPropOut);
     }
+
+    TIMING(8)
 
     // standard
     cam->setPosition(pos);
@@ -913,6 +939,42 @@ void CWindow::drawPoints(const CFramebuffer *fbo, const CShaderProgram *s, NRend
 
   if(fbo)
     CEngineBase::context->getFramebuffers()->unbind();
+}
+//------------------------------------------------------------------------------
+void CWindow::lpvPropDispatch(const CShaderProgram *s, uint32 i)
+{
+  COpenGL *gl = context->getOpenGL();
+  const NRenderer::EMode ren = CEngineBase::context->getRenderer()->getRenderer()->mode;
+  const SEngine *e = CEngineBase::context->engineGetEngine();
+
+  const uint32 workgroupSizeX = 8;
+  const uint32 workgroupSizeY = (e->gpuVendor == NEngine::GPU_VENDOR_NVIDIA) ? 4 : 8;
+  const uint32 dispatchX = (e->lpvTextureSize.x * e->lpvCascadesCount) / workgroupSizeX;
+  const uint32 dispatchY = (e->lpvTextureSize.y * e->lpvTextureSize.z) / workgroupSizeY;
+  const NRenderer::EMode lpvRenMode = (e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING) ? NRenderer::MODE_LPV_PROPAGATION_GATHERING_COMPUTE : NRenderer::MODE_LPV_PROPAGATION_SCATTERING_COMPUTE;
+  const NRenderer::EMode sslpvRenMode = (e->lpvTechnique == NEngine::LPV_TECHNIQUE_GATHERING) ? NRenderer::MODE_SSLPV_PROPAGATION_GATHERING_COMPUTE : NRenderer::MODE_SSLPV_PROPAGATION_SCATTERING_COMPUTE;
+  const GLint u = s->getProgram()->uniforms.lpvParams;
+
+  //gl->memoryBarrier(NOpenGL::ALL_BARRIER_BITS);
+
+  s->bind();
+  s->begin(NULL, lpvRenMode);
+  gl->uniform4f(u, i % 2, 0.0f, 0.0f, ((ren >= NRenderer::MODE_SSLPV_CLEAR_GEOMETRY) && (ren <= NRenderer::MODE_SSLPV_PROPAGATION_SCATTERING_GEOMETRY)) ? -1.0 : 1.0);
+  gl->dispatchCompute(dispatchX, dispatchY, 1);
+  s->end(NULL);
+  s->unbind();
+
+  if(e->sslpv)
+  {
+    s->bind();
+    s->begin(NULL, sslpvRenMode);
+    gl->uniform4f(u, i % 2, 0.0f, 0.0f, ((ren >= NRenderer::MODE_SSLPV_CLEAR_GEOMETRY) && (ren <= NRenderer::MODE_SSLPV_PROPAGATION_SCATTERING_GEOMETRY)) ? -1.0 : 1.0);
+    gl->dispatchCompute(dispatchX, dispatchY, 1);
+    s->end(NULL);
+    s->unbind();
+  }
+
+  //gl->memoryBarrier(NOpenGL::ALL_BARRIER_BITS);
 }
 //------------------------------------------------------------------------------
 //debug only, don't panic !

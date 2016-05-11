@@ -30,6 +30,8 @@ class CSceneObject : public CEngineBase
     inline void setScale(const glm::vec3 &scale) { object.scale = scale; update(NScene::UPDATE_TRANSFORMATION); }
     inline void setModel(const SSceneModel &model) { this->model = model; object.type = NScene::OBJECT_TYPE_MODEL; update(); }
     void setLight(const SSceneLight &light);
+    inline void hide() { object.visible = false; }
+    inline void show() { object.visible = true; }
 
     inline const SSceneObject *getObject() const { return &object; }
     inline const SSceneModel *getModel() const { return &model; }

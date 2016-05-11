@@ -56,6 +56,7 @@ class CWindow : public
     virtual void paintGL();
     void drawTexture(float x, float y, float w, float h, const CMap *texture, uint32 level = 0, bool isShadow = false);
     void drawPoints(const CFramebuffer *fbo, const CShaderProgram *s, NRenderer::EMode mode, GLuint vbo, uint32 count);
+    void lpvPropDispatch(const CShaderProgram *s, uint32 i = 0);
 
 #ifdef ENV_SDL
   public:

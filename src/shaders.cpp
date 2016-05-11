@@ -153,6 +153,10 @@ std::string CShader::setDefines(const std::string &data)
   d = CStr::replaceAll(d, "#define LPV_SUN_SKY_DIRS_COUNT", CStr("#define LPV_SUN_SKY_DIRS_COUNT %d", e->lpvSunSkyDirsCount));
   d = CStr::replaceAll(d, "#define LPV_SUN_SKY_SPEC_DIRS_COUNT", CStr("#define LPV_SUN_SKY_SPEC_DIRS_COUNT %d", e->lpvSunSkySpecDirsCount));
 
+  d = CStr::replaceAll(d, "LOCAL_SIZE_X", "8");
+  d = CStr::replaceAll(d, "LOCAL_SIZE_Y", (e->gpuVendor == NEngine::GPU_VENDOR_NVIDIA) ? "4" : "8");
+  d = CStr::replaceAll(d, "LOCAL_SIZE_Z", "1");
+
   return d;
 }
 //------------------------------------------------------------------------------
@@ -532,7 +536,8 @@ void CShaderProgram::begin(const SShaderState *technique, NRenderer::EMode mode)
   { gl->uniform3fv(u->lpvPos, e->lpvCascadesCount, &e->lpvPoses[0]);
     gl->uniform3f(u->lpvTexSize, e->lpvTextureSize.x * e->lpvCascadesCount, e->lpvTextureSize.y, e->lpvTextureSize.z);
     gl->uniform3fv(u->lpvCellSize, e->lpvCascadesCount, &e->lpvCellSizes[0]);
-    gl->uniform4f(u->lpvParams, e->lpvPropagationSteps, e->lpvIntensity, e->lpvReflIntensity,
+    gl->uniform4f(u->lpvParams,
+      (mode == NRenderer::MODE_STANDARD) ? static_cast<float>(e->noColors) : static_cast<float>(e->lpvPropagationSteps), e->lpvIntensity, e->lpvReflIntensity,
       (((mode >= NRenderer::MODE_SSLPV_CLEAR_GEOMETRY) && (mode <= NRenderer::MODE_SSLPV_PROPAGATION_SCATTERING_GEOMETRY)) ||
        ((mode >= NRenderer::MODE_SSLPV_CLEAR_COMPUTE) && (mode <= NRenderer::MODE_SSLPV_PROPAGATION_SCATTERING_COMPUTE))) ? -1.0 : 1.0); }
 

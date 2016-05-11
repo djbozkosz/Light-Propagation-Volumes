@@ -23,8 +23,8 @@ CEngine::CEngine(
   engine.defaultScreenHeight = 600;
   engine.multisampling = 1;
 
-  //engine.maxTextureSize = 256;
-  //engine.shadowTextureSize = 256;
+  engine.maxTextureSize = 256;
+  engine.shadowTextureSize = 256;
   engine.shadowJittering = 0.0f;
 
   engine.geometryTextureSize = 128;
@@ -116,17 +116,16 @@ CEngine::CEngine(
   engine.keysMap[Qt::Key_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[Qt::Key_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[Qt::Key_0] = NEngine::KEY_SHADOW_JITTERING_UP;
-  engine.keysMap[Qt::Key_O] = NEngine::KEY_CAM_SPEED_DOWN;
-  engine.keysMap[Qt::Key_P] = NEngine::KEY_CAM_SPEED_UP;
-  engine.keysMap[Qt::Key_B] = NEngine::KEY_LPV_REFL_INTENSITY_DOWN;
-  engine.keysMap[Qt::Key_N] = NEngine::KEY_LPV_REFL_INTENSITY_UP;
-  engine.keysMap[Qt::Key_V] = NEngine::KEY_LPV_SKY;
-  engine.keysMap[Qt::Key_C] = NEngine::KEY_SSLPV;
+  engine.keysMap[Qt::Key_R] = NEngine::KEY_CAM_SPEED_DOWN;
+  engine.keysMap[Qt::Key_T] = NEngine::KEY_CAM_SPEED_UP;
+  engine.keysMap[Qt::Key_B] = NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM;
+  engine.keysMap[Qt::Key_N] = NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS;
+  engine.keysMap[Qt::Key_V] = NEngine::KEY_LPV_SKY__SSLPV;
 
-  //engine.keysMap[Qt::Key_F] = NEngine::KEY_FRUSTUM_UPDATE;
+  engine.keysMap[Qt::Key_F] = NEngine::KEY_SWITCH_MODE;
   engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
   engine.keysMap[Qt::Key_H] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
-  engine.keysMap[Qt::Key_M] = NEngine::KEY_LPV_SPHERE_UPDATE;
+  engine.keysMap[Qt::Key_M] = NEngine::KEY_MODEL_SET__MODEL_CHANGE;
 
   engine.keysMap[Qt::Key_Escape] = NEngine::KEY_QUIT;
 
@@ -159,17 +158,16 @@ CEngine::CEngine(
   engine.keysMap[SDLK_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[SDLK_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
-  engine.keysMap[SDLK_o] = NEngine::KEY_CAM_SPEED_DOWN;
-  engine.keysMap[SDLK_p] = NEngine::KEY_CAM_SPEED_UP;
-  engine.keysMap[SDLK_b] = NEngine::KEY_LPV_REFL_INTENSITY_DOWN;
-  engine.keysMap[SDLK_n] = NEngine::KEY_LPV_REFL_INTENSITY_UP;
-  engine.keysMap[SDLK_v] = NEngine::KEY_LPV_SKY;
-  engine.keysMap[SDLK_c] = NEngine::KEY_SSLPV;
+  engine.keysMap[SDLK_r] = NEngine::KEY_CAM_SPEED_DOWN;
+  engine.keysMap[SDLK_t] = NEngine::KEY_CAM_SPEED_UP;
+  engine.keysMap[SDLK_b] = NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM;
+  engine.keysMap[SDLK_n] = NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS;
+  engine.keysMap[SDLK_v] = NEngine::KEY_LPV_SKY__SSLPV;
 
-  //engine.keysMap[SDLK_f] = NEngine::KEY_FRUSTUM_UPDATE;
+  engine.keysMap[SDLK_f] = NEngine::KEY_SWITCH_MODE;
   engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
   engine.keysMap[SDLK_h] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
-  engine.keysMap[SDLK_m] = NEngine::KEY_LPV_SPHERE_UPDATE;
+  engine.keysMap[SDLK_m] = NEngine::KEY_MODEL_SET__MODEL_CHANGE;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
 #endif
@@ -259,8 +257,14 @@ void CEngine::onTimeoutInit()
     //  SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
 
     s->addSceneObjectModel(
-      SSceneObject(NScene::STR_OBJECT_LPV_SPHERE, glm::vec3(-4.5f, 5.0f, 4.5f)/*glm::vec3(0.0f, 1.0f, 0.0f)*/, glm::quat(), glm::vec3(1.0f)),
+      SSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, 0), glm::vec3(-4.5f, 5.0f, 4.5f), glm::quat(), glm::vec3(1.0f)),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"bunny00.4ds"))));
+    s->addSceneObjectModel(
+      SSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, 1), glm::vec3(-4.5f, 5.0f, 4.5f), glm::quat(), glm::vec3(1.0f)),
+      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere00.4ds"))))->hide();
+
+    engine.activeLpvModel = 0;
+    engine.lpvModelsCount = 2;
   }
 
   updateSunDir();
@@ -320,7 +324,9 @@ void CEngine::simulationStep()
   if((engine.keys & NEngine::KEY_SPECIAL_FRONT) ||
      (engine.keys & NEngine::KEY_SPECIAL_BACK) ||
      (engine.keys & NEngine::KEY_SPECIAL_LEFT) ||
-     (engine.keys & NEngine::KEY_SPECIAL_RIGHT))
+     (engine.keys & NEngine::KEY_SPECIAL_RIGHT) ||
+     (engine.keys & NEngine::KEY_SPECIAL_DOWN) ||
+     (engine.keys & NEngine::KEY_SPECIAL_UP))
     updateSunDir();
 
   window->repaint();
@@ -396,13 +402,11 @@ void CEngine::keyPress(NEngine::EKey key)
     else
       engine.sunSkyUsed[0] = 0;
     context.log(CStr("LPV Mode: %s", NEngine::STR_LPV_MODES[engine.lpvMode]));
-    window->repaint();
   }
   else if(key & NEngine::KEY_LPV_TECHNIQUE)
   {
     engine.lpvTechnique = static_cast<NEngine::ELPVTechnique>((static_cast<uint32>(engine.lpvTechnique) + 1) % NEngine::LPV_TECHNIQUES_COUNT);
     context.log(CStr("LPV Technique: %s", NEngine::STR_LPV_TECHNIQUES[engine.lpvTechnique]));
-    window->repaint();
   }
   else if(key & NEngine::KEY_LPV_GV)
   {
@@ -419,13 +423,11 @@ void CEngine::keyPress(NEngine::EKey key)
       engine.sunSkyUsed[2] = 0;
     }
     context.log(CStr("LPV GV: %d", engine.lpvGV));
-    window->repaint();
   }
   else if(key & NEngine::KEY_LPV_LOBE)
   {
     engine.lpvLobe = !engine.lpvLobe;
     context.log(CStr("LPV Lobe: %d", engine.lpvLobe));
-    window->repaint();
   }
   else if(key & NEngine::KEY_LPV_PROPAGATION_DOWN)
   {
@@ -450,6 +452,11 @@ void CEngine::keyPress(NEngine::EKey key)
   }
   else if(key & NEngine::KEY_SHADOW_JITTERING_UP)
     engine.shadowJittering += 8.0f;
+  else if(key & NEngine::KEY_SWITCH_MODE)
+  {
+    engine.keyMode = !engine.keyMode;
+    context.log(CStr("Key Mode: %d", engine.keyMode));
+  }
   else if(key & NEngine::KEY_CAM_SPEED_DOWN)
   {
     float speed = camera.getCamera()->position.w;
@@ -460,79 +467,85 @@ void CEngine::keyPress(NEngine::EKey key)
   }
   else if(key & NEngine::KEY_CAM_SPEED_UP)
     camera.setSpeed(camera.getCamera()->position.w * 2.0f);
-  else if(key & NEngine::KEY_LPV_REFL_INTENSITY_DOWN)
+  else if(key & NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM)
   {
-    engine.lpvReflIntensity *= 0.5f;
-    if(engine.lpvReflIntensity < 0.0f)
-      engine.lpvReflIntensity = 0.0;
+    if(!engine.keyMode)
+    {
+      engine.lpvReflIntensity *= 0.5f;
+      if(engine.lpvReflIntensity < 0.0f)
+        engine.lpvReflIntensity = 0.0;
+    }
+    else
+    {
+      engine.updateFrustum = !engine.updateFrustum;
+      context.log(CStr("Update Frustum: %d", engine.updateFrustum));
+    }
   }
-  else if(key & NEngine::KEY_LPV_REFL_INTENSITY_UP)
-    engine.lpvReflIntensity *= 2.0f;
-  else if(key & NEngine::KEY_LPV_SKY)
+  else if(key & NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS)
   {
-    engine.lpvSky = !engine.lpvSky;
-    if(engine.lpvSky)
-      engine.sunSkyUsed[1] = 1;
-    else if(!engine.lpvGV)
-      engine.sunSkyUsed[1] = 0;
-    context.log(CStr("LPV Sky: %d", engine.lpvSky));
-    window->repaint();
+    if(!engine.keyMode)
+      engine.lpvReflIntensity *= 2.0f;
+    else
+      engine.noColors = !engine.noColors;
   }
-  else if(key & NEngine::KEY_SSLPV)
+  else if(key & NEngine::KEY_LPV_SKY__SSLPV)
   {
-    engine.sslpv = !engine.sslpv;
-    context.log(CStr("Subsurface Scattering LPV: %d", engine.sslpv));
-    window->repaint();
-  }
-  else if(key & NEngine::KEY_FRUSTUM_UPDATE)
-  {
-    engine.updateFrustum = !engine.updateFrustum;
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
-      f->setChanged();
-    window->repaint();
+    if(!engine.keyMode)
+    {
+      engine.lpvSky = !engine.lpvSky;
+      if(engine.lpvSky)
+        engine.sunSkyUsed[1] = 1;
+      else if(!engine.lpvGV)
+        engine.sunSkyUsed[1] = 0;
+      context.log(CStr("LPV Sky: %d", engine.lpvSky));
+    }
+    else
+    {
+      engine.sslpv = !engine.sslpv;
+      context.log(CStr("Subsurface Scattering LPV: %d", engine.sslpv));
+    }
   }
   else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFERS)
-  {
     engine.showGeometryBuffer = !engine.showGeometryBuffer;
-    window->repaint();
-  }
   else if(key & NEngine::KEY_SHOW_SHADOW_BUFFERS)
-  {
     engine.showShadowBuffer = !engine.showShadowBuffer;
-    window->repaint();
-  }
-  else if(key & NEngine::KEY_LPV_SPHERE_UPDATE)
+  else if(key & NEngine::KEY_MODEL_SET__MODEL_CHANGE)
   {
-    scenes.getActiveScene()->getSceneObject(NScene::STR_OBJECT_LPV_SPHERE)->setPosition(glm::vec3(camera.getCamera()->position));
-    window->repaint();
-  }
+    if(engine.keyMode)
+      engine.activeLpvModel = (engine.activeLpvModel + 1) % engine.lpvModelsCount;
 
+    if(CScene *s = scenes.getActiveScene())
+    {
+      for(uint32 i = 0; i < engine.lpvModelsCount; i++)
+      {
+        if(CSceneObject *obj = s->getSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, i)))
+        {
+          if(!engine.keyMode)
+            obj->setPosition(glm::vec3(camera.getCamera()->position));
+          else
+          {
+            if(i == engine.activeLpvModel)
+              obj->show();
+            else
+              obj->hide();
+          }
+        }
+      }
+    }
+  }
   if(key & (NEngine::KEY_LPV_PROPAGATION_DOWN | NEngine::KEY_LPV_PROPAGATION_UP))
-  {
     context.log(CStr("LPV Propagation Steps: %ud", engine.lpvPropagationSteps));
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
-      f->setChanged();
-    window->repaint();
-  }
   else if(key & (NEngine::KEY_LPV_INTENSITY_DOWN | NEngine::KEY_LPV_INTENSITY_UP))
-  {
     context.log(CStr("LPV Intensity: %f", static_cast<double>(engine.lpvIntensity)));
-    window->repaint();
-  }
   else if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
-  {
     context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
-    if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
-      f->setChanged();
-    window->repaint();
-  }
   else if(key & (NEngine::KEY_CAM_SPEED_DOWN | NEngine::KEY_CAM_SPEED_UP))
     context.log(CStr("Camera Speed: %f", static_cast<double>(camera.getCamera()->position.w)));
-  else if(key & (NEngine::KEY_LPV_REFL_INTENSITY_DOWN | NEngine::KEY_LPV_REFL_INTENSITY_UP))
-  {
+  else if((key & (NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM | NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS)) && (!engine.keyMode))
     context.log(CStr("LPV Reflection Intensity: %f", static_cast<double>(engine.lpvReflIntensity)));
+
+  if(key)
     window->repaint();
-  }
 
   engine.keys = static_cast<NEngine::EKey>(static_cast<uint32>(engine.keys) | static_cast<uint32>(key));
 }
@@ -626,37 +639,66 @@ void CEngine::updateSunDir()
 {
   if(CScene *s = scenes.getActiveScene())
   {
-    if(CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN))
+    if(!engine.keyMode)
     {
-      const SSceneObject *o = sun->getObject();
-      glm::quat r = o->rotation;
-      const float d = NMath::PI / 360.0f; // 2 deg
-                                          //const float d = NMath::PI / 72.0f; // 5 deg
-
-      if(engine.keys & NEngine::KEY_SPECIAL_FRONT)
+      if(CSceneObject *sun = s->getSceneObject(NScene::STR_OBJECT_LIGHT_SUN))
       {
-        r.y += d;
-        if(r.y > NMath::DIV_PI)
-          r.y = NMath::DIV_PI;
-      }
-      else if(engine.keys & NEngine::KEY_SPECIAL_BACK)
-      {
-        r.y -= d;
-        if(r.y < -NMath::DIV_PI)
-          r.y = -NMath::DIV_PI;
-      }
-      else if(engine.keys & NEngine::KEY_SPECIAL_LEFT)
-        r.z -= d;
-      else if(engine.keys & NEngine::KEY_SPECIAL_RIGHT)
-        r.z += d;
+        const SSceneObject *o = sun->getObject();
+        glm::quat r = o->rotation;
+        const float d = NMath::PI / 360.0f; // 2 deg
+        //const float d = NMath::PI / 72.0f; // 5 deg
 
-      const glm::vec3 pos(sinf(r.z) * cosf(r.y), sinf(r.y), cosf(r.z) * cosf(r.y));
-      sun->setPosition(pos * NScene::SUN_DIR_MUL);
-      sun->setRotation(r);
-      s->getSceneObject(NScene::STR_OBJECT_BG_SUN)->setPosition(pos * NScene::SUN_MUL);
-      if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
-        f->setChanged();
-      //std::cout << "sun " << o->position.x << " " << o->position.y << " " << o->position.z << ", " << (r.y * NMath::RAD_2_DEG) << " " << (r.z * NMath::RAD_2_DEG) << "\n";
+        if(engine.keys & NEngine::KEY_SPECIAL_FRONT)
+        {
+          r.y += d;
+          if(r.y > NMath::DIV_PI)
+            r.y = NMath::DIV_PI;
+        }
+        else if(engine.keys & NEngine::KEY_SPECIAL_BACK)
+        {
+          r.y -= d;
+          if(r.y < -NMath::DIV_PI)
+            r.y = -NMath::DIV_PI;
+        }
+        else if(engine.keys & NEngine::KEY_SPECIAL_LEFT)
+          r.z -= d;
+        else if(engine.keys & NEngine::KEY_SPECIAL_RIGHT)
+          r.z += d;
+
+        const glm::vec3 pos(sinf(r.z) * cosf(r.y), sinf(r.y), cosf(r.z) * cosf(r.y));
+        sun->setPosition(pos * NScene::SUN_DIR_MUL);
+        sun->setRotation(r);
+        s->getSceneObject(NScene::STR_OBJECT_BG_SUN)->setPosition(pos * NScene::SUN_MUL);
+        if(CFramebuffer *f = framebuffers.getFramebuffer(NEngine::STR_SUN_SHADOW_FBO))
+          f->setChanged();
+        //std::cout << "sun " << o->position.x << " " << o->position.y << " " << o->position.z << ", " << (r.y * NMath::RAD_2_DEG) << " " << (r.z * NMath::RAD_2_DEG) << "\n";
+      }
+    }
+    else
+    {
+      for(uint32 i = 0; i < engine.lpvModelsCount; i++)
+      {
+        if(CSceneObject *obj = s->getSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, i)))
+        {
+          glm::vec3 pos = obj->getObject()->position;
+          const float speed = camera.getCamera()->position.w * 0.01f;
+
+          if(engine.keys & NEngine::KEY_SPECIAL_FRONT)
+            pos.x -= speed;
+          else if(engine.keys & NEngine::KEY_SPECIAL_BACK)
+            pos.x += speed;
+          else if(engine.keys & NEngine::KEY_SPECIAL_LEFT)
+            pos.z -= speed;
+          else if(engine.keys & NEngine::KEY_SPECIAL_RIGHT)
+            pos.z += speed;
+          else if(engine.keys & NEngine::KEY_SPECIAL_DOWN)
+            pos.y -= speed;
+          else if(engine.keys & NEngine::KEY_SPECIAL_UP)
+            pos.y += speed;
+
+          obj->setPosition(pos);
+        }
+      }
     }
   }
 }

@@ -270,6 +270,12 @@ namespace NEngine
     GPU_PLATFORM_MAX    = 0xffff,
   };
 
+  enum EGPUVendor
+  {
+    GPU_VENDOR_NVIDIA = 0,
+    GPU_VENDOR_ATI
+  };
+
   enum ELPVMode
   {
     LPV_MODE_DISABLED = 0,
@@ -285,45 +291,44 @@ namespace NEngine
 
   enum EKey
   {
-    KEY                         = 0x00000000,
+    KEY                                  = 0x00000000,
 
-    KEY_FRONT                   = 0x00000001,
-    KEY_BACK                    = 0x00000002,
-    KEY_LEFT                    = 0x00000004,
-    KEY_RIGHT                   = 0x00000008,
-    KEY_DOWN                    = 0x00000010,
-    KEY_UP                      = 0x00000020,
+    KEY_FRONT                            = 0x00000001,
+    KEY_BACK                             = 0x00000002,
+    KEY_LEFT                             = 0x00000004,
+    KEY_RIGHT                            = 0x00000008,
+    KEY_DOWN                             = 0x00000010,
+    KEY_UP                               = 0x00000020,
 
-    KEY_SPECIAL_FRONT           = 0x00000040,
-    KEY_SPECIAL_BACK            = 0x00000080,
-    KEY_SPECIAL_LEFT            = 0x00000100,
-    KEY_SPECIAL_RIGHT           = 0x00000200,
-    KEY_SPECIAL_DOWN            = 0x00000400,
-    KEY_SPECIAL_UP              = 0x00000800,
+    KEY_SPECIAL_FRONT                    = 0x00000040,
+    KEY_SPECIAL_BACK                     = 0x00000080,
+    KEY_SPECIAL_LEFT                     = 0x00000100,
+    KEY_SPECIAL_RIGHT                    = 0x00000200,
+    KEY_SPECIAL_DOWN                     = 0x00000400,
+    KEY_SPECIAL_UP                       = 0x00000800,
 
-    KEY_LPV_MODE                = 0x00001000,
-    KEY_LPV_TECHNIQUE           = 0x00002000,
-    KEY_LPV_GV                  = 0x00004000,
-    KEY_LPV_LOBE                = 0x00008000,
-    KEY_LPV_PROPAGATION_DOWN    = 0x00010000,
-    KEY_LPV_PROPAGATION_UP      = 0x00020000,
-    KEY_LPV_INTENSITY_DOWN      = 0x00040000,
-    KEY_LPV_INTENSITY_UP        = 0x00080000,
-    KEY_SHADOW_JITTERING_DOWN   = 0x00100000,
-    KEY_SHADOW_JITTERING_UP     = 0x00200000,
-    KEY_CAM_SPEED_DOWN          = 0x00400000,
-    KEY_CAM_SPEED_UP            = 0x00800000,
-    KEY_LPV_REFL_INTENSITY_DOWN = 0x01000000,
-    KEY_LPV_REFL_INTENSITY_UP   = 0x02000000,
-    KEY_LPV_SKY                 = 0x04000000,
-    KEY_SSLPV                   = 0x10000000,
+    KEY_LPV_MODE                         = 0x00001000,
+    KEY_LPV_TECHNIQUE                    = 0x00002000,
+    KEY_LPV_GV                           = 0x00004000,
+    KEY_LPV_LOBE                         = 0x00008000,
+    KEY_LPV_PROPAGATION_DOWN             = 0x00010000,
+    KEY_LPV_PROPAGATION_UP               = 0x00020000,
+    KEY_LPV_INTENSITY_DOWN               = 0x00040000,
+    KEY_LPV_INTENSITY_UP                 = 0x00080000,
+    KEY_SHADOW_JITTERING_DOWN            = 0x00100000,
+    KEY_SHADOW_JITTERING_UP              = 0x00200000,
+    KEY_CAM_SPEED_DOWN                   = 0x00400000,
+    KEY_CAM_SPEED_UP                     = 0x00800000,
+    KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM = 0x01000000,
+    KEY_LPV_REFL_INTENSITY_UP__NO_COLORS = 0x02000000,
+    KEY_LPV_SKY__SSLPV                   = 0x04000000,
 
-    KEY_LPV_SPHERE_UPDATE       = 0x08000000,
-    KEY_FRUSTUM_UPDATE          = 0x10000000,
-    KEY_SHOW_GEOMETRY_BUFFERS   = 0x20000000,
-    KEY_SHOW_SHADOW_BUFFERS     = 0x40000000,
+    KEY_MODEL_SET__MODEL_CHANGE          = 0x08000000,
+    KEY_SWITCH_MODE                      = 0x10000000,
+    KEY_SHOW_GEOMETRY_BUFFERS            = 0x20000000,
+    KEY_SHOW_SHADOW_BUFFERS              = 0x40000000,
 
-    KEY_QUIT                    = 0x80000000
+    KEY_QUIT                             = 0x80000000
   };
 
   enum EMouseButton
@@ -364,6 +369,7 @@ struct SEngine
   bool activeRendering;
   uint8 flags;
   NEngine::EGPUPlatform gpuPlatform;
+  NEngine::EGPUVendor gpuVendor;
   NEngine::ELPVMode lpvMode;
   NEngine::ELPVTechnique lpvTechnique;
   bool lpvGV;
@@ -371,12 +377,17 @@ struct SEngine
   bool lpvSky;
   bool sslpv;
   bool timing;
+  bool noColors;
 
   glm::vec2 cursor;
   glm::vec2 cursorOld;
 
   NEngine::EKey keys;
   std::map<uint32, NEngine::EKey> keysMap;
+  bool keyMode;
+
+  uint32 activeLpvModel;
+  uint32 lpvModelsCount;
 
   uint32 tickOld;
   uint32 tickNew;
@@ -445,6 +456,7 @@ struct SEngine
     activeRendering(false),
     flags(NEngine::EFLAG_MAXIMIZED),
     gpuPlatform(NEngine::GPU_PLATFORM_MAX),
+    gpuVendor(NEngine::GPU_VENDOR_NVIDIA),
     lpvMode(NEngine::LPV_MODE_COMPUTE),
     lpvTechnique(NEngine::LPV_TECHNIQUE_GATHERING),
     lpvGV(false),
@@ -452,8 +464,13 @@ struct SEngine
     lpvSky(false),
     sslpv(false),
     timing(false),
+    noColors(false),
 
     keys(NEngine::KEY),
+    keyMode(false),
+
+    activeLpvModel(0),
+    lpvModelsCount(0),
 
     tickOld(0),
     tickNew(0),

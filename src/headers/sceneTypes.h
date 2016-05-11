@@ -15,7 +15,7 @@ namespace NScene
   static const char STR_OBJECT_LIGHT_SUN[] = "light_sun";
   static const char STR_OBJECT_BG_SKY[] = "bg_sky";
   static const char STR_OBJECT_BG_SUN[] = "bg_sun";
-  static const char STR_OBJECT_LPV_SPHERE[] = "lpv_sphere";
+  static const char STR_OBJECT_LPV_MODEL[] = "lpv_model%d";
 
   enum ESceneObjectType
   {
@@ -55,11 +55,12 @@ struct SSceneObject
   SColor pickColor;
   glm::mat4 mw;
   glm::mat3 mwnit;
+  bool visible;
 
-  inline SSceneObject() : parent(NULL), type(NScene::OBJECT_TYPE_NONE), scale(1.0, 1.0, 1.0) {}
-  inline SSceneObject(const std::string &name, const glm::vec3 &position = glm::vec3(), const glm::quat &rotation = glm::quat(), const glm::vec3 &scale = glm::vec3(1.0, 1.0, 1.0), const SColor &pickColor = SColor()) : parent(NULL), type(NScene::OBJECT_TYPE_NONE), name(name), position(position), rotation(rotation), scale(scale), pickColor(pickColor) {}
-  inline SSceneObject(NScene::ESceneObjectType type, const std::string &name, const glm::vec3 &position = glm::vec3(), const glm::quat &rotation = glm::quat(), const glm::vec3 &scale = glm::vec3(1.0, 1.0, 1.0), const SColor &pickColor = SColor()) : parent(NULL), type(type), name(name), position(position), rotation(rotation), scale(scale), pickColor(pickColor) {}
-  inline SSceneObject(CScene *parent, NScene::ESceneObjectType type, const std::string &name, const glm::vec3 &position = glm::vec3(), const glm::quat &rotation = glm::quat(), const glm::vec3 &scale = glm::vec3(1.0, 1.0, 1.0), const SColor &pickColor = SColor()) : parent(parent), type(type), name(name), position(position), rotation(rotation), scale(scale), pickColor(pickColor) {}
+  inline SSceneObject() : parent(NULL), type(NScene::OBJECT_TYPE_NONE), scale(1.0, 1.0, 1.0), visible(true) {}
+  inline SSceneObject(const std::string &name, const glm::vec3 &position = glm::vec3(), const glm::quat &rotation = glm::quat(), const glm::vec3 &scale = glm::vec3(1.0, 1.0, 1.0), const SColor &pickColor = SColor()) : parent(NULL), type(NScene::OBJECT_TYPE_NONE), name(name), position(position), rotation(rotation), scale(scale), pickColor(pickColor), visible(true) {}
+  inline SSceneObject(NScene::ESceneObjectType type, const std::string &name, const glm::vec3 &position = glm::vec3(), const glm::quat &rotation = glm::quat(), const glm::vec3 &scale = glm::vec3(1.0, 1.0, 1.0), const SColor &pickColor = SColor()) : parent(NULL), type(type), name(name), position(position), rotation(rotation), scale(scale), pickColor(pickColor), visible(true) {}
+  inline SSceneObject(CScene *parent, NScene::ESceneObjectType type, const std::string &name, const glm::vec3 &position = glm::vec3(), const glm::quat &rotation = glm::quat(), const glm::vec3 &scale = glm::vec3(1.0, 1.0, 1.0), const SColor &pickColor = SColor()) : parent(parent), type(type), name(name), position(position), rotation(rotation), scale(scale), pickColor(pickColor), visible(true) {}
 };
 //------------------------------------------------------------------------------
 struct SSceneModel

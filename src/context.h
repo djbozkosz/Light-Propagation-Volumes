@@ -54,7 +54,7 @@ class CContext
     void (*fncInitialize)(CContext *context);
     void (*fncInitializeFinish)(CContext *context);
     void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal);
-    void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique);
+    void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::EGPUVendor gpuVendor, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique);
     void (*fncEngineIncDrawCalls)(CContext *context);
     void (*fncEngineClearDrawCalls)(CContext *context);
     void (*fncEngineSetShadowViewProj)(CContext *context, uint32 index, const glm::mat4 &m);
@@ -193,7 +193,7 @@ class CContext
       void (*fncInitialize)(CContext *context),
       void (*fncInitializeFinish)(CContext *context),
       void (*fncEngineShowMessage)(const CContext *context, const std::string &title, const std::string &text, bool modal),
-      void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique),
+      void (*fncEngineSetPlatform)(CContext *context, NEngine::EGPUPlatform gpuPlatform, NEngine::EGPUVendor gpuVendor, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique),
       void (*fncEngineIncDrawCalls)(CContext *context),
       void (*fncEngineClearDrawCalls)(CContext *context),
       void (*fncEngineSetShadowViewProj)(CContext *context, uint32 index, const glm::mat4 &m),
@@ -234,7 +234,7 @@ class CContext
     inline void engineInitialize() { fncInitialize(this); }
     inline void engineInitializeFinish() { fncInitializeFinish(this); }
     inline void engineShowMessage(const std::string &title, const std::string &text, bool modal = true) const { fncEngineShowMessage(this, title, text, modal); }
-    inline void engineSetPlatform(NEngine::EGPUPlatform gpuPlatform, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { fncEngineSetPlatform(this, gpuPlatform, lpvMode, lpvTechnique); }
+    inline void engineSetPlatform(NEngine::EGPUPlatform gpuPlatform, NEngine::EGPUVendor gpuVendor, NEngine::ELPVMode lpvMode, NEngine::ELPVTechnique lpvTechnique) { fncEngineSetPlatform(this, gpuPlatform, gpuVendor, lpvMode, lpvTechnique); }
     inline void engineIncDrawCalls() { fncEngineIncDrawCalls(this); }
     inline void engineClearDrawCalls() { fncEngineClearDrawCalls(this); }
     inline void engineSetShadowViewProj(uint32 index, const glm::mat4 &m) { fncEngineSetShadowViewProj(this, index, m); }
