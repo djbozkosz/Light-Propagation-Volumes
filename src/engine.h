@@ -2,17 +2,29 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#ifdef ENV_QT
+#include "ui_mainWindow.h"
+#endif
 #include "window.h"
 
 //------------------------------------------------------------------------------
+#ifdef ENV_QT
+namespace Ui
+{
+  class CEngine;
+}
+#endif
+//------------------------------------------------------------------------------
 class CEngine
 #ifdef ENV_QT
-  : public QObject
+  : public QMainWindow
 #endif
 {
   private:
 #ifdef ENV_QT
     Q_OBJECT
+
+    Ui::CEngine *ui;
 #endif
 
     SEngine engine;
@@ -73,11 +85,18 @@ class CEngine
     void keyRelease(NEngine::EKey key);
     void updateSunDir();
 
+#ifdef ENV_QT
+    void onPushButtonClicked();
+    void onComboBoxChanged(int v);
+    void onCheckBoxChanged(int v);
+    void onSliderChanged(int v);
+#endif
+
   public:
     CEngine(
       uint32 argc = 0, const char *const *const argv = NULL
 #ifdef ENV_QT
-      , QObject *parent = NULL
+      , QWidget *parent = NULL
 #endif
       );
     virtual ~CEngine();

@@ -259,27 +259,27 @@ class CContext
     // console
     inline void log(const std::string &msg) const
     {
-#ifdef ENV_QT
+/*#ifdef ENV_QT
       qDebug() << msg.c_str();
-#else
+#else*/
       std::cout << msg << "\n";
-#endif
+//#endif
     }
     inline void warning(const std::string &msg) const
     {
-#ifdef ENV_QT
+/*#ifdef ENV_QT
       qDebug() << "WARNING: " << msg.c_str();
-#else
+#else*/
       std::cout << "WARNING: " << msg << "!\n";
-#endif
+//#endif
     }
     inline void error(const std::string &msg) const
     {
-#ifdef ENV_QT
+/*#ifdef ENV_QT
       qDebug() << "ERROR: " << msg.c_str();
-#else
+#else*/
       std::cout << "ERROR: " << msg << "!\n";
-#endif
+//#endif
     }
 
     // gets

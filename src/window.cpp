@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 CWindow::CWindow(CContext *context
 #ifdef ENV_QT
-  , QObject *parent
+  , QWidget *parent
 #endif
   ) :
 #ifdef ENV_QT
@@ -27,13 +27,14 @@ CWindow::CWindow(CContext *context
   vboQuad(0)
 {
 #if defined(ENV_QT)
-  const SEngine *e = CEngineBase::context->engineGetEngine();
+  //const SEngine *e = CEngineBase::context->engineGetEngine();
 
-  show();
-  setGeometry(50, 50, e->defaultScreenWidth, e->defaultScreenHeight);
-  move(QApplication::desktop()->screen()->rect().center() - rect().center());
+  //show();
+  //setGeometry(50, 50, e->defaultScreenWidth, e->defaultScreenHeight);
+  //move(QApplication::desktop()->screen()->rect().center() - rect().center());
   setMouseTracking(true);
-  //setFocusPolicy(Qt::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
+  setFocus();
 #endif
 }
 //------------------------------------------------------------------------------
@@ -817,7 +818,7 @@ void CWindow::paintGL()
     e->drawCalls);
 
 #if defined(ENV_QT)
-  setWindowTitle(title.c_str());
+  parentWidget()->parentWidget()->setWindowTitle(title.c_str());
 #elif defined(ENV_SDL)
   SDL_SetWindowTitle(SDLwindow, title.c_str());
   SDL_GL_SwapWindow(SDLwindow);
@@ -963,7 +964,7 @@ void CWindow::drawPoints(const CFramebuffer *fbo, const CShaderProgram *s, NRend
 //------------------------------------------------------------------------------
 void CWindow::lpvPropDispatch(const CShaderProgram *s, uint32 i)
 {
-  COpenGL *gl = context->getOpenGL();
+  COpenGL *gl = CEngineBase::context->getOpenGL();
   const NRenderer::EMode ren = CEngineBase::context->getRenderer()->getRenderer()->mode;
   const SEngine *e = CEngineBase::context->engineGetEngine();
 

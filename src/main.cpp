@@ -7,12 +7,12 @@ int main(int argc, char *argv[])
 {
 #ifdef ENV_QT
   QApplication a(argc, argv);
-#else
-  (void)argc;
-  (void)argv;
 #endif
 
   CEngine e(argc, argv);
+#ifdef ENV_QT
+  e.show();
+#endif
 
   try
   {

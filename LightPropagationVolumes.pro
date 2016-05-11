@@ -14,7 +14,7 @@ QMAKE_CXXFLAGS += -pedantic
 QMAKE_CXXFLAGS += -std=c++0x
 QMAKE_CXXFLAGS += -Wdouble-promotion
 QMAKE_CXXFLAGS += -Wunreachable-code
-QMAKE_CXXFLAGS += -O3
+QMAKE_CXXFLAGS += -O0
 
 SOURCES += \
     src/main.cpp \
@@ -63,21 +63,28 @@ HEADERS += \
     src/headers/stringTypes.h \
     src/headers/types.h
 
+FORMS += \
+    ui/mainWindow.ui
+
 OTHER_FILES += \
     data/shaders/color.vs \
     data/shaders/depth.vs \
     data/shaders/basic.vs \
     data/shaders/illumination.vs \
     data/shaders/geometry.vs \
+    data/shaders/lpvClear.vs \
     data/shaders/lpvInjection.vs \
     data/shaders/lpvPropagation.vs \
+    data/shaders/lpvClear.gs \
     data/shaders/lpvInjection.gs \
     data/shaders/lpvPropagation.gs \
     data/shaders/color.fs \
     data/shaders/depth.fs \
+    data/shaders/sunRays.fs \
     data/shaders/basic.fs \
     data/shaders/illumination.fs \
     data/shaders/geometry.fs \
+    data/shaders/lpvClear.fs \
     data/shaders/lpvInjection.fs \
     data/shaders/lpvPropagation.fs \
     data/shaders/lpvClear.cs \

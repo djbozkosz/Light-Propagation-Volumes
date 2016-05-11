@@ -5,6 +5,9 @@
 #ifdef ENV_QT
 #include <QApplication>
 #include <QCoreApplication>
+#include <QObject>
+#include <QWidget>
+#include <QMainWindow>
 #include <QDesktopWidget>
 #include <QEvent>
 #include <QMouseEvent>
@@ -70,7 +73,7 @@ class CWindow : public
   public:
     CWindow(CContext *context
 #ifdef ENV_QT
-      , QObject *parent = NULL
+      , QWidget *parent = NULL
 #endif
       );
     virtual ~CWindow();

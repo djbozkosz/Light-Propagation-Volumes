@@ -5,17 +5,21 @@
 CEngine::CEngine(
   uint32 argc, const char *const *const argv
 #ifdef ENV_QT
-  , QObject *parent
+  , QWidget *parent
 #endif
   ) :
 #ifdef ENV_QT
-  QObject(parent),
+  QMainWindow(parent), ui(new Ui::CEngine),
 #endif
   window(NULL)
 {
-#ifdef ENV_SDL
-  engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
+#ifdef ENV_QT
+  ui->setupUi(this);
 #endif
+
+//#ifdef ENV_SDL
+  engine.flags = NEngine::EFLAG_SHOW_CONSOLE;
+//#endif
   //engine.flags = NEngine::EFLAG_FULLSCREEN;
   engine.gpuPlatform = NEngine::GPU_PLATFORM_GL0302;
 
@@ -82,7 +86,10 @@ CEngine::CEngine(
 #endif
   );
 
+  context.setContext(this, window, &scenes, &models, &renderer, &shaders, &culling, &pickColor, &framebuffers, &maps, &camera, &openGL, &filesystem, &exceptions);
+
 #if defined(ENV_QT)
+  ui->hlCentral->addWidget(window);
   engine.timer.start();
 
   //connect(window, SIGNAL(onInitializeGL()), this, SLOT(initialize()), Qt::DirectConnection);
@@ -92,6 +99,27 @@ CEngine::CEngine(
   connect(window, SIGNAL(onMouseMove(const SPoint &, NEngine::EMouseButton)), this, SLOT(mouseMove(const SPoint &, NEngine::EMouseButton)));
   connect(window, SIGNAL(onKeyPress(NEngine::EKey)), this, SLOT(keyPress(NEngine::EKey)));
   connect(window, SIGNAL(onKeyRelease(NEngine::EKey)), this, SLOT(keyRelease(NEngine::EKey)));
+
+  connect(ui->cbScene, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxChanged(int)));
+  connect(ui->cbLPVMode, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxChanged(int)));
+  connect(ui->cbLPVTech, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxChanged(int)));
+  connect(ui->hsLPVProp, SIGNAL(valueChanged(int)), this, SLOT(onSliderChanged(int)));
+  connect(ui->hsLPVInt, SIGNAL(valueChanged(int)), this, SLOT(onSliderChanged(int)));
+  connect(ui->hsLPVRefl, SIGNAL(valueChanged(int)), this, SLOT(onSliderChanged(int)));
+  connect(ui->cbGV, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->cbLobe, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->cbSky, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->cbSSLPV, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->cbNoColors, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->cbFrustum, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->hsShadJit, SIGNAL(valueChanged(int)), this, SLOT(onSliderChanged(int)));
+  connect(ui->hsCamSpeed, SIGNAL(valueChanged(int)), this, SLOT(onSliderChanged(int)));
+  connect(ui->cbModel, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxChanged(int)));
+  connect(ui->pbPlaceModel, SIGNAL(clicked()), this, SLOT(onPushButtonClicked()));
+  connect(ui->cbGVLPV, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->cbCSM, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->cbMode, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChanged(int)));
+  connect(ui->pbCamAnim, SIGNAL(clicked()), this, SLOT(onPushButtonClicked()));
 
   // fill keys mapping
   engine.keysMap[Qt::Key_W] = NEngine::KEY_FRONT;
@@ -112,7 +140,7 @@ CEngine::CEngine(
   engine.keysMap[Qt::Key_U] = NEngine::KEY_SPECIAL_DOWN;
   engine.keysMap[Qt::Key_O] = NEngine::KEY_SPECIAL_UP;
 
-  engine.keysMap[Qt::Key_1] = NEngine::KEY_LPV_MODE; // with Qt (cz): shift pressed is needed
+  /*engine.keysMap[Qt::Key_1] = NEngine::KEY_LPV_MODE; // with Qt (cz): shift pressed is needed
   engine.keysMap[Qt::Key_2] = NEngine::KEY_LPV_TECHNIQUE;
   engine.keysMap[Qt::Key_3] = NEngine::KEY_LPV_GV;
   engine.keysMap[Qt::Key_4] = NEngine::KEY_LPV_LOBE;
@@ -131,7 +159,7 @@ CEngine::CEngine(
   engine.keysMap[Qt::Key_F] = NEngine::KEY_SWITCH_MODE;
   engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS__SHADOW;
   engine.keysMap[Qt::Key_H] = NEngine::KEY_CAM_PLAY;
-  engine.keysMap[Qt::Key_M] = NEngine::KEY_MODEL_SET__MODEL_CHANGE;
+  engine.keysMap[Qt::Key_M] = NEngine::KEY_MODEL_SET__MODEL_CHANGE;*/
 
   engine.keysMap[Qt::Key_Escape] = NEngine::KEY_QUIT;
 
@@ -181,7 +209,9 @@ CEngine::CEngine(
 //------------------------------------------------------------------------------
 CEngine::~CEngine()
 {
-#ifndef ENV_QT
+#ifdef ENV_QT
+  ui->setupUi(this);
+#else
   delete window;
 #endif
 }
@@ -233,6 +263,7 @@ void CEngine::onTimeoutInit()
   camera.setRotation(glm::vec3(5.0f, -90.0f, 0.0f));
 
   engine.scenes = 3;
+  engine.lpvModelsCount = 2;
   engine.activeLpvModel.resize(engine.scenes);
   engine.camTrackPos.resize(engine.scenes);
   engine.camTrackRot.resize(engine.scenes);
@@ -265,7 +296,7 @@ void CEngine::onTimeoutInit()
     // lpv test models
     const char *const lpvModels[] = { "bunny00", "sphere01" };
 
-    for(uint32 j = 0; j < 2; j++)
+    for(uint32 j = 0; j < engine.lpvModelsCount; j++)
     {
       CSceneObject *so = s->addSceneObjectModel(
         SSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, j), glm::vec3(-4.5f, 5.0f, 4.5f), glm::quat(), glm::vec3(1.0f)),
@@ -435,7 +466,6 @@ void CEngine::onTimeoutInit()
     }
   }
 
-  engine.lpvModelsCount = 2;
   scenes.setActiveScene(CStr(NScene::STR_SCENE, 0));
   updateSunDir();
   window->repaint();
@@ -752,6 +782,130 @@ void CEngine::keyPress(NEngine::EKey key)
 
   engine.keys = static_cast<NEngine::EKey>(static_cast<uint32>(engine.keys) | static_cast<uint32>(key));
 }
+//------------------------------------------------------------------------------
+#ifdef ENV_QT
+void CEngine::onPushButtonClicked()
+{
+  const bool k = engine.keyMode;
+  engine.keyMode = false;
+
+  if(sender() == ui->pbPlaceModel)
+    keyPress(NEngine::KEY_MODEL_SET__MODEL_CHANGE);
+  if(sender() == ui->pbCamAnim)
+    keyPress(NEngine::KEY_CAM_PLAY);
+
+  engine.keyMode = k;
+}
+//------------------------------------------------------------------------------
+void CEngine::onComboBoxChanged(int v)
+{
+  const bool k = engine.keyMode;
+  engine.keyMode = false;
+
+  if(sender() == ui->cbScene)
+  {
+    engine.activeSceneIndex = v + 1;
+    engine.keyMode = true;
+    keyPress(NEngine::KEY_CAM_SPEED_DOWN__SCENE_PREV);
+    ui->cbModel->setCurrentIndex(engine.activeLpvModel[engine.activeSceneIndex]);
+  }
+  else if(sender() == ui->cbLPVMode)
+  {
+    engine.lpvMode = static_cast<NEngine::ELPVMode>(v - 1);
+    keyPress(NEngine::KEY_LPV_MODE);
+  }
+  else if(sender() == ui->cbLPVTech)
+  {
+    engine.lpvTechnique = static_cast<NEngine::ELPVTechnique>(v - 1);
+    keyPress(NEngine::KEY_LPV_TECHNIQUE);
+  }
+  else if(sender() == ui->cbModel)
+  {
+    if(!v)
+      engine.activeLpvModel[engine.activeSceneIndex] = engine.lpvModelsCount - 1;
+    else
+      engine.activeLpvModel[engine.activeSceneIndex] = v - 1;
+    engine.keyMode = true;
+    keyPress(NEngine::KEY_MODEL_SET__MODEL_CHANGE);
+  }
+
+  engine.keyMode = k;
+}
+//------------------------------------------------------------------------------
+void CEngine::onCheckBoxChanged(int v)
+{
+  UNUSED(v);
+
+  const bool k = engine.keyMode;
+  engine.keyMode = false;
+
+  if(sender() == ui->cbGV)
+    keyPress(NEngine::KEY_LPV_GV);
+  else if(sender() == ui->cbLobe)
+    keyPress(NEngine::KEY_LPV_LOBE);
+  else if(sender() == ui->cbSky)
+    keyPress(NEngine::KEY_LPV_SKY__SSLPV);
+  else if(sender() == ui->cbSSLPV)
+  {
+    engine.keyMode = true;
+    keyPress(NEngine::KEY_LPV_SKY__SSLPV);
+  }
+  else if(sender() == ui->cbNoColors)
+  {
+    engine.keyMode = true;
+    keyPress(NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS);
+  }
+  else if(sender() == ui->cbFrustum)
+  {
+    engine.keyMode = true;
+    keyPress(NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM);
+  }
+  else if(sender() == ui->cbGVLPV)
+    keyPress(NEngine::KEY_SHOW_GEOMETRY_BUFFERS__SHADOW);
+  else if(sender() == ui->cbCSM)
+  {
+    engine.keyMode = true;
+    keyPress(NEngine::KEY_SHOW_GEOMETRY_BUFFERS__SHADOW);
+  }
+  else if(sender() == ui->cbMode)
+  {
+    engine.keyMode = k;
+    keyPress(NEngine::KEY_SWITCH_MODE);
+    return;
+  }
+
+  engine.keyMode = k;
+}
+//------------------------------------------------------------------------------
+void CEngine::onSliderChanged(int v)
+{
+  if(sender() == ui->hsLPVProp)
+  {
+    engine.lpvPropagationSteps = v + 1;
+    keyPress(NEngine::KEY_LPV_PROPAGATION_DOWN);
+  }
+  else if(sender() == ui->hsLPVInt)
+  {
+    engine.lpvIntensity = powf(2.0f, v + 1);
+    keyPress(NEngine::KEY_LPV_INTENSITY_DOWN);
+  }
+  else if(sender() == ui->hsLPVRefl)
+  {
+    engine.lpvReflIntensity = powf(2.0f, v + 1);
+    keyPress(NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM);
+  }
+  else if(sender() == ui->hsShadJit)
+  {
+    engine.shadowJittering = v + 1;
+    keyPress(NEngine::KEY_SHADOW_JITTERING_DOWN);
+  }
+  else if(sender() == ui->hsCamSpeed)
+  {
+    camera.setSpeed(powf(2.0f, v + 1));
+    keyPress(NEngine::KEY_CAM_SPEED_DOWN__SCENE_PREV);
+  }
+}
+#endif
 //------------------------------------------------------------------------------
 void CEngine::keyRelease(NEngine::EKey key)
 {
