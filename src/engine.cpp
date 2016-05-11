@@ -23,12 +23,17 @@ CEngine::CEngine(
   engine.defaultScreenHeight = 600;
   engine.multisampling = 1;
 
-  engine.maxTextureSize = 256;
-  engine.shadowTextureSize = 256;
+  //engine.maxTextureSize = 256;
+  //engine.shadowTextureSize = 256;
   engine.shadowJittering = 0.0f;
 
   engine.geometryTextureSize = 128;
-  engine.lpvPropagationSteps = 0;
+  engine.lpvPropagationSteps = 8;
+  engine.lpvLobe = true;
+  engine.lpvSky = true;
+  engine.sslpv = true;
+  engine.sunSkyUsed[1] = 1;
+  engine.lpvReflIntensity = 0.125f;
 
   uint32 *const args[] = { &engine.maxTextureSize, &engine.shadowTextureSize, &engine.geometryTextureSize };
 
@@ -65,6 +70,7 @@ CEngine::CEngine(
     &staticSetSunSkyPose,
     &staticSetSunSkyColor,
     &staticSetLpvPose,
+    &staticSetCamTrack,
     &staticSwapLPV,
     &staticGetTime,
     &staticGetClassName,
@@ -116,15 +122,15 @@ CEngine::CEngine(
   engine.keysMap[Qt::Key_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[Qt::Key_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[Qt::Key_0] = NEngine::KEY_SHADOW_JITTERING_UP;
-  engine.keysMap[Qt::Key_R] = NEngine::KEY_CAM_SPEED_DOWN;
-  engine.keysMap[Qt::Key_T] = NEngine::KEY_CAM_SPEED_UP;
+  engine.keysMap[Qt::Key_R] = NEngine::KEY_CAM_SPEED_DOWN__SCENE_PREV;
+  engine.keysMap[Qt::Key_T] = NEngine::KEY_CAM_SPEED_UP__SCENE_NEXT;
   engine.keysMap[Qt::Key_B] = NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM;
   engine.keysMap[Qt::Key_N] = NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS;
   engine.keysMap[Qt::Key_V] = NEngine::KEY_LPV_SKY__SSLPV;
 
   engine.keysMap[Qt::Key_F] = NEngine::KEY_SWITCH_MODE;
-  engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
-  engine.keysMap[Qt::Key_H] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
+  engine.keysMap[Qt::Key_G] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS__SHADOW;
+  engine.keysMap[Qt::Key_H] = NEngine::KEY_CAM_PLAY;
   engine.keysMap[Qt::Key_M] = NEngine::KEY_MODEL_SET__MODEL_CHANGE;
 
   engine.keysMap[Qt::Key_Escape] = NEngine::KEY_QUIT;
@@ -158,15 +164,15 @@ CEngine::CEngine(
   engine.keysMap[SDLK_8] = NEngine::KEY_LPV_INTENSITY_UP;
   engine.keysMap[SDLK_9] = NEngine::KEY_SHADOW_JITTERING_DOWN;
   engine.keysMap[SDLK_0] = NEngine::KEY_SHADOW_JITTERING_UP;
-  engine.keysMap[SDLK_r] = NEngine::KEY_CAM_SPEED_DOWN;
-  engine.keysMap[SDLK_t] = NEngine::KEY_CAM_SPEED_UP;
+  engine.keysMap[SDLK_r] = NEngine::KEY_CAM_SPEED_DOWN__SCENE_PREV;
+  engine.keysMap[SDLK_t] = NEngine::KEY_CAM_SPEED_UP__SCENE_NEXT;
   engine.keysMap[SDLK_b] = NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM;
   engine.keysMap[SDLK_n] = NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS;
   engine.keysMap[SDLK_v] = NEngine::KEY_LPV_SKY__SSLPV;
 
   engine.keysMap[SDLK_f] = NEngine::KEY_SWITCH_MODE;
-  engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS;
-  engine.keysMap[SDLK_h] = NEngine::KEY_SHOW_SHADOW_BUFFERS;
+  engine.keysMap[SDLK_g] = NEngine::KEY_SHOW_GEOMETRY_BUFFERS__SHADOW;
+  engine.keysMap[SDLK_h] = NEngine::KEY_CAM_PLAY;
   engine.keysMap[SDLK_m] = NEngine::KEY_MODEL_SET__MODEL_CHANGE;
 
   engine.keysMap[SDLK_ESCAPE] = NEngine::KEY_QUIT;
@@ -221,18 +227,24 @@ void CEngine::onTimeoutInit()
   if(scenes.getActiveScene())
     return;
 
-  context.log("Loading Scene...");
-
   camera.setRange(0.01f, 200.0f);
   camera.setSpeed(8.0f);
   camera.setPosition(glm::vec3(2.2f, 5.7f, 4.3f));
   camera.setRotation(glm::vec3(5.0f, -90.0f, 0.0f));
 
-  scenes.addScene(SScene("scene"));
-  if(CScene *s = scenes.setActiveScene("scene"))
+  engine.scenes = 3;
+  engine.activeLpvModel.resize(engine.scenes);
+  engine.camTrackPos.resize(engine.scenes);
+  engine.camTrackRot.resize(engine.scenes);
+
+  for(uint32 i = 0; i < engine.scenes; i++)
   {
-    //const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87f);
-    const glm::quat sunRot(0.0f, 0.0f, 1.17f, 3.13f);
+    context.log(std::string("Loading Scene ")+NScene::STR_SCENES[i]+"...");
+    CScene *s = scenes.addScene(SScene(CStr(NScene::STR_SCENE, i)));
+
+    // lights
+    const glm::quat sunRot(0.0f, 0.0f, 0.91f, 1.87f);
+    //const glm::quat sunRot(0.0f, 0.0f, 1.17f, 3.13f);
     const glm::vec3 sunPos(sinf(sunRot.z) * cosf(sunRot.y), sunRot.y, cosf(sunRot.z) * cosf(sunRot.y));
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_AMB), SSceneLight(NScene::OBJECT_LIGHT_TYPE_AMBIENT, glm::vec3(0.05f, 0.15f, 0.25f) * 0.1f));
     s->addSceneObjectLight(SSceneObject(NScene::STR_OBJECT_LIGHT_FOG), SSceneLight(NScene::OBJECT_LIGHT_TYPE_FOG, glm::vec3(0.819f, 0.839f, 0.729f), glm::vec2(0.0f, 1.0f)));
@@ -242,31 +254,189 @@ void CEngine::onTimeoutInit()
     engine.sunSkyColors[1 * NMath::VEC3 + 1] = skyColor.y;
     engine.sunSkyColors[1 * NMath::VEC3 + 2] = skyColor.z;
 
+    // backdrop
     s->addSceneObjectModel(
       SSceneObject(NScene::STR_OBJECT_BG_SKY, glm::vec3(0.0f), glm::quat(glm::vec3(0.0f, -90.0f, 0.0f))),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"denjasno2.4ds")), true));
     s->addSceneObjectModel(
       SSceneObject(NScene::STR_OBJECT_BG_SUN, sunPos * NScene::SUN_MUL),
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere00.4ds")), true));
-    s->addSceneObjectModel(
-      SSceneObject("scene"),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
 
-    //s->addSceneObjectModel(
-    //  SSceneObject("tree00", glm::vec3(4.0f, 0.0f, 0.0f/*-5.17f, 0.0f, 3.69f*/), glm::quat(glm::vec3(0.0f, 20.0f * NMath::DEG_2_RAD, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f)),
-    //  SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
+    // lpv test models
+    const char *const lpvModels[] = { "bunny00", "sphere01" };
 
-    s->addSceneObjectModel(
-      SSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, 0), glm::vec3(-4.5f, 5.0f, 4.5f), glm::quat(), glm::vec3(1.0f)),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"bunny00.4ds"))));
-    s->addSceneObjectModel(
-      SSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, 1), glm::vec3(-4.5f, 5.0f, 4.5f), glm::quat(), glm::vec3(1.0f)),
-      SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere00.4ds"))))->hide();
+    for(uint32 j = 0; j < 2; j++)
+    {
+      CSceneObject *so = s->addSceneObjectModel(
+        SSceneObject(CStr(NScene::STR_OBJECT_LPV_MODEL, j), glm::vec3(-4.5f, 5.0f, 4.5f), glm::quat(), glm::vec3(1.0f)),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+lpvModels[j]+".4ds"))));
+      if(j)
+        so->hide();
+    }
 
-    engine.activeLpvModel = 0;
-    engine.lpvModelsCount = 2;
+    engine.activeLpvModel[i] = 0;
+
+    if(i == 0)
+    {
+      s->addSceneObjectModel(
+        SSceneObject(NScene::STR_SCENE_BASE),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sponza.4ds"))));
+
+      const float trackPos[] =
+      {
+        -10.6f, 6.6f, -4.4f,
+        -8.5f, 6.5f, -1.5f,
+        -1.6f, 0.8f, -1.6f,
+        -2.2f, 0.5f, 0.0f,
+        -3.6f, 0.4f, 5.1f,
+        -11.2f, 2.4f, 4.3f,
+        -10.3f, 0.4f, 1.3f,
+        -5.5f, 1.7f, -2.2f,
+        -2.2f, 6.1f, 2.2f,
+        6.3f, 6.0f, 5.0f,
+        9.3f, 6.5f, 2.0f,
+        8.4f, 11.9f, -0.3f,
+        2.1f, 6.4f, -2.2f,
+        0.0f, 6.4f, -5.6f,
+
+        -10.6f, 6.6f, -4.4f,
+        -8.5f, 6.5f, -1.5f,
+        -1.6f, 0.8f, -1.6f
+      };
+
+      const float trackRot[] =
+      {
+        19.0f, 0.0f, 0.0f,
+        -2.0f, 74.0f, 0.0f,
+        -4.0f, -47.0f, 0.0f,
+        -40.0f, -142.0f, 0.0f,
+        -17.0f, -183.0f, 0.0f,
+        10.0f, -193.0f, 0.0f,
+        -28.0f, -256.0f, 0.0f,
+        -50.0f, -350.0f, 0.0f,
+        -1.0f, -135.0f, 0.0f,
+        -8.0f, -154.0f, 0.0f,
+        1.0f, -103.0f, 0.0f,
+        25.0f, -91.0f, 0.0f,
+        0.0f, -58.0f, 0.0f,
+        -1.0f, -20.0f, 0.0f,
+
+        19.0f, 0.0f, 0.0f,
+        -2.0f, 74.0f, 0.0f,
+        -4.0f, -47.0f, 0.0f
+      };
+
+      for(uint32 j = 0; j < 17; j++)
+      {
+        engine.camTrackPos[i].push_back(glm::vec3(trackPos[j * 3 + 0], trackPos[j * 3 + 1], trackPos[j * 3 + 2]));
+        engine.camTrackRot[i].push_back(glm::vec3(trackRot[j * 3 + 0], trackRot[j * 3 + 1], trackRot[j * 3 + 2]));
+      }
+    }
+    else if(i == 1)
+    {
+      s->addSceneObjectModel(
+        SSceneObject(NScene::STR_SCENE_BASE),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sibenik.4ds"))));
+
+      const float trackPos[] =
+      {
+        10.0f, -0.7f, 2.5f,
+        4.8f, 1.0f, 1.7f,
+        -3.5f, 3.1f, 0.4f,
+        -10.4f, 22.6f, -0.5f,
+        -5.5f, 7.5f, 0.8f,
+        9.0f, 1.67f, -5.27f,
+
+        10.0f, -0.7f, 2.5f,
+        4.8f, 1.0f, 1.7f,
+        -3.5f, 3.1f, 0.4f,
+      };
+
+      const float trackRot[] =
+      {
+        -42.0f, 112.0f, 0.0f,
+        -10.0f, -107.0f, 0.0f,
+        -63.0f, -114.0f, 0.0f,
+        20.0f, 67.0f, 0.0f,
+        19.0f, 96.0f, 0.0f,
+        9.0f, 1.0f, 0.0f,
+
+        -42.0f, -248.0f, 0.0f,
+        -10.0f, -107.0f, 0.0f,
+        -63.0f, -114.0f, 0.0f,
+      };
+
+      for(uint32 j = 0; j < 9; j++)
+      {
+        engine.camTrackPos[i].push_back(glm::vec3(trackPos[j * 3 + 0], trackPos[j * 3 + 1], trackPos[j * 3 + 2]));
+        engine.camTrackRot[i].push_back(glm::vec3(trackRot[j * 3 + 0], trackRot[j * 3 + 1], trackRot[j * 3 + 2]));
+      }
+    }
+    else if(i == 2)
+    {
+      s->addSceneObjectModel(
+        SSceneObject(NScene::STR_SCENE_BASE),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"motel.4ds"))));
+      s->addSceneObjectModel(
+        SSceneObject("tree00", glm::vec3(25.0f, 0.0f, -5.5f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), glm::vec3(1.0f)),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
+      s->addSceneObjectModel(
+        SSceneObject("tree01", glm::vec3(19.0f, 0.0f, 15.3f), glm::quat(glm::vec3(0.0f, 70.0f, 0.0f)), glm::vec3(1.2f)),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
+      s->addSceneObjectModel(
+        SSceneObject("tree02", glm::vec3(26.0f, 0.0f, 38.0f), glm::quat(glm::vec3(0.0f, 120.0f, 0.0f)), glm::vec3(1.5f)),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
+      s->addSceneObjectModel(
+        SSceneObject("tree03", glm::vec3(-20.0f, 0.0f, 50.0f), glm::quat(glm::vec3(0.0f, -70.0f, 0.0f)), glm::vec3(1.1f)),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
+      s->addSceneObjectModel(
+        SSceneObject("tree04", glm::vec3(-30.0f, 0.0f, 40.0f), glm::quat(glm::vec3(0.0f, 150.0f, 0.0f)), glm::vec3(1.4f)),
+        SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"tree00.4ds"))));
+
+      const float trackPos[] =
+      {
+        -26.7, 4.9f, 43.0f,
+        -12.0f, 3.3f, 3.2f,
+        -6.6f, 1.6f, 15.3f,
+        15.1f, 3.6f, 8.3f,
+        13.6f, 0.6f, 20.0f,
+        9.3f, 2.2f, 46.2f,
+        3.0f, 4.86f, 33.5f,
+        -4.0f, 4.9f, 31.4f,
+        -9.0f, 5.2f, 33.4f,
+
+        -26.7, 4.9f, 43.0f,
+        -12.0f, 3.3f, 3.2f,
+        -6.6f, 1.6f, 15.3f
+      };
+
+      const float trackRot[] =
+      {
+        6.0f, 125.0f, 0.0f,
+        2.0, 17.0f, 0.0f,
+        -6.0f, 54.0f, 0.0f,
+        10.0f, -40.0f, 0.0f,
+        -45.0f, 115.0f, 0.0f,
+        4.0f, -124.0f, 0.0f,
+        7.0f, -148.0f, 0.0f,
+        2.0f, -93.0f, 0.0f,
+        0.0f, -23.0f, 0.0f,
+        
+        6.0f, 125.0f, 0.0f,
+        2.0, 17.0f, 0.0f,
+        -6.0f, 54.0f, 0.0f
+      };
+
+      for(uint32 j = 0; j < 12; j++)
+      {
+        engine.camTrackPos[i].push_back(glm::vec3(trackPos[j * 3 + 0], trackPos[j * 3 + 1], trackPos[j * 3 + 2]));
+        engine.camTrackRot[i].push_back(glm::vec3(trackRot[j * 3 + 0], trackRot[j * 3 + 1], trackRot[j * 3 + 2]));
+      }
+    }
   }
 
+  engine.lpvModelsCount = 2;
+  scenes.setActiveScene(CStr(NScene::STR_SCENE, 0));
   updateSunDir();
   window->repaint();
 
@@ -457,16 +627,35 @@ void CEngine::keyPress(NEngine::EKey key)
     engine.keyMode = !engine.keyMode;
     context.log(CStr("Key Mode: %d", engine.keyMode));
   }
-  else if(key & NEngine::KEY_CAM_SPEED_DOWN)
+  else if(key & NEngine::KEY_CAM_SPEED_DOWN__SCENE_PREV)
   {
-    float speed = camera.getCamera()->position.w;
-    speed *= 0.5f;
-    if(speed < 0.0f)
-      speed = 0.0;
-    camera.setSpeed(speed);
+    if(!engine.keyMode)
+    {
+      float speed = camera.getCamera()->position.w;
+      speed *= 0.5f;
+      if(speed < 0.0f)
+        speed = 0.0;
+      camera.setSpeed(speed);
+    }
+    else
+    {
+      if(!engine.activeSceneIndex)
+        engine.activeSceneIndex = engine.scenes - 1;
+      else
+        engine.activeSceneIndex--;
+      scenes.setActiveScene(CStr(NScene::STR_SCENE, engine.activeSceneIndex));
+    }
   }
-  else if(key & NEngine::KEY_CAM_SPEED_UP)
-    camera.setSpeed(camera.getCamera()->position.w * 2.0f);
+  else if(key & NEngine::KEY_CAM_SPEED_UP__SCENE_NEXT)
+  {
+    if(!engine.keyMode)
+      camera.setSpeed(camera.getCamera()->position.w * 2.0f);
+    else
+    {
+      engine.activeSceneIndex = (engine.activeSceneIndex + 1) % engine.scenes;
+      scenes.setActiveScene(CStr(NScene::STR_SCENE, engine.activeSceneIndex));
+    }
+  }
   else if(key & NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM)
   {
     if(!engine.keyMode)
@@ -505,14 +694,23 @@ void CEngine::keyPress(NEngine::EKey key)
       context.log(CStr("Subsurface Scattering LPV: %d", engine.sslpv));
     }
   }
-  else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFERS)
-    engine.showGeometryBuffer = !engine.showGeometryBuffer;
-  else if(key & NEngine::KEY_SHOW_SHADOW_BUFFERS)
-    engine.showShadowBuffer = !engine.showShadowBuffer;
+  else if(key & NEngine::KEY_SHOW_GEOMETRY_BUFFERS__SHADOW)
+  {
+    if(!engine.keyMode)
+      engine.showGeometryBuffer = !engine.showGeometryBuffer;
+    else
+      engine.showShadowBuffer = !engine.showShadowBuffer;
+  }
+  else if(key & NEngine::KEY_CAM_PLAY)
+  {
+    engine.camPlaying = !engine.camPlaying;
+    engine.activeRendering = engine.camPlaying;
+    context.log(CStr("Camera Run: %d", engine.camPlaying));
+  }
   else if(key & NEngine::KEY_MODEL_SET__MODEL_CHANGE)
   {
     if(engine.keyMode)
-      engine.activeLpvModel = (engine.activeLpvModel + 1) % engine.lpvModelsCount;
+      engine.activeLpvModel[engine.activeSceneIndex] = (engine.activeLpvModel[engine.activeSceneIndex] + 1) % engine.lpvModelsCount;
 
     if(CScene *s = scenes.getActiveScene())
     {
@@ -524,7 +722,7 @@ void CEngine::keyPress(NEngine::EKey key)
             obj->setPosition(glm::vec3(camera.getCamera()->position));
           else
           {
-            if(i == engine.activeLpvModel)
+            if(i == engine.activeLpvModel[engine.activeSceneIndex])
               obj->show();
             else
               obj->hide();
@@ -539,8 +737,13 @@ void CEngine::keyPress(NEngine::EKey key)
     context.log(CStr("LPV Intensity: %f", static_cast<double>(engine.lpvIntensity)));
   else if(key & (NEngine::KEY_SHADOW_JITTERING_DOWN | NEngine::KEY_SHADOW_JITTERING_UP))
     context.log(CStr("Shadow Jittering: %f", static_cast<double>(engine.shadowJittering)));
-  else if(key & (NEngine::KEY_CAM_SPEED_DOWN | NEngine::KEY_CAM_SPEED_UP))
-    context.log(CStr("Camera Speed: %f", static_cast<double>(camera.getCamera()->position.w)));
+  else if(key & (NEngine::KEY_CAM_SPEED_DOWN__SCENE_PREV | NEngine::KEY_CAM_SPEED_UP__SCENE_NEXT))
+  {
+    if(!engine.keyMode)
+      context.log(CStr("Camera Speed: %f", static_cast<double>(camera.getCamera()->position.w)));
+    else
+      context.log(CStr("Selected Scene: %s", NScene::STR_SCENES[engine.activeSceneIndex]));
+  }
   else if((key & (NEngine::KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM | NEngine::KEY_LPV_REFL_INTENSITY_UP__NO_COLORS)) && (!engine.keyMode))
     context.log(CStr("LPV Reflection Intensity: %f", static_cast<double>(engine.lpvReflIntensity)));
 

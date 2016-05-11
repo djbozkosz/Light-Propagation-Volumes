@@ -317,16 +317,16 @@ namespace NEngine
     KEY_LPV_INTENSITY_UP                 = 0x00080000,
     KEY_SHADOW_JITTERING_DOWN            = 0x00100000,
     KEY_SHADOW_JITTERING_UP              = 0x00200000,
-    KEY_CAM_SPEED_DOWN                   = 0x00400000,
-    KEY_CAM_SPEED_UP                     = 0x00800000,
+    KEY_CAM_SPEED_DOWN__SCENE_PREV       = 0x00400000,
+    KEY_CAM_SPEED_UP__SCENE_NEXT         = 0x00800000,
     KEY_LPV_REFL_INTENSITY_DOWN__FRUSTUM = 0x01000000,
     KEY_LPV_REFL_INTENSITY_UP__NO_COLORS = 0x02000000,
     KEY_LPV_SKY__SSLPV                   = 0x04000000,
 
     KEY_MODEL_SET__MODEL_CHANGE          = 0x08000000,
     KEY_SWITCH_MODE                      = 0x10000000,
-    KEY_SHOW_GEOMETRY_BUFFERS            = 0x20000000,
-    KEY_SHOW_SHADOW_BUFFERS              = 0x40000000,
+    KEY_SHOW_GEOMETRY_BUFFERS__SHADOW    = 0x20000000,
+    KEY_CAM_PLAY                         = 0x40000000,
 
     KEY_QUIT                             = 0x80000000
   };
@@ -386,8 +386,14 @@ struct SEngine
   std::map<uint32, NEngine::EKey> keysMap;
   bool keyMode;
 
-  uint32 activeLpvModel;
+  std::vector<uint32> activeLpvModel;
+  uint32 scenes;
   uint32 lpvModelsCount;
+  bool camPlaying;
+  uint32 activeSceneIndex;
+  std::vector<std::vector<glm::vec3> > camTrackPos;
+  std::vector<std::vector<glm::vec3> > camTrackRot;
+  float camTrack;
 
   uint32 tickOld;
   uint32 tickNew;
@@ -469,8 +475,11 @@ struct SEngine
     keys(NEngine::KEY),
     keyMode(false),
 
-    activeLpvModel(0),
+    scenes(0),
     lpvModelsCount(0),
+    camPlaying(false),
+    activeSceneIndex(0),
+    camTrack(0.0f),
 
     tickOld(0),
     tickNew(0),

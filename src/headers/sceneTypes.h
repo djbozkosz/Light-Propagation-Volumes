@@ -16,6 +16,15 @@ namespace NScene
   static const char STR_OBJECT_BG_SKY[] = "bg_sky";
   static const char STR_OBJECT_BG_SUN[] = "bg_sun";
   static const char STR_OBJECT_LPV_MODEL[] = "lpv_model%d";
+  static const char STR_SCENE_BASE[] = "base";
+  static const char STR_SCENE[] = "scene%d";
+
+  static const char *const STR_SCENES[] =
+  {
+    "Sponza",
+    "Sibenik",
+    "Motel"
+  };
 
   enum ESceneObjectType
   {

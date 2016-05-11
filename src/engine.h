@@ -52,6 +52,7 @@ class CEngine
     static inline void staticSetSunSkyPose(CContext *context, uint32 index, const glm::vec3 &p, const glm::vec2 &r) { context->getEngine()->setSunSkyPose(index, p, r); }
     static inline void staticSetSunSkyColor(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setSunSkyColor(index, v); }
     static inline void staticSetLpvPose(CContext *context, uint32 index, const glm::vec3 &v) { context->getEngine()->setLpvPose(index, v); }
+    static inline void staticSetCamTrack(CContext *context, float f) { context->getEngine()->setCamTrack(f); }
     static inline void staticSwapLPV(CContext *context) { context->getEngine()->swapLPV(); }
     static inline double staticGetTime(const CContext *context) { return context->getEngine()->getTime(); }
     static inline std::string staticGetClassName(CContext *context, const CEngineBase *object) { return context->getEngine()->getClassName(object); }
@@ -113,6 +114,7 @@ class CEngine
     inline void setSunSkyPose(uint32 index, const glm::vec3 &p, const glm::vec2 &r) { float pp[] = { p.x, p.y, p.z }; float rr[] = { r.x, r.y }; memcpy(&engine.sunSkyPoses[index * NMath::VEC3], pp, sizeof(float) * 3); memcpy(&engine.sunSkyRots[index * NMath::VEC2], rr, sizeof(float) * 2); }
     inline void setSunSkyColor(uint32 index, const glm::vec3 &v) { engine.sunSkyColors[index * NMath::VEC3 + 0] = v.x; engine.sunSkyColors[index * NMath::VEC3 + 1] = v.y; engine.sunSkyColors[index * NMath::VEC3 + 2] = v.z; }
     inline void setLpvPose(uint32 index, const glm::vec3 &v) { engine.lpvPoses[index * NMath::VEC3 + 0] = v.x; engine.lpvPoses[index * NMath::VEC3 + 1] = v.y; engine.lpvPoses[index * NMath::VEC3 + 2] = v.z; }
+    inline void setCamTrack(float f) { engine.camTrack = f; }
     inline void swapLPV() { engine.lpvPropagationSwap = !engine.lpvPropagationSwap; }
     void updateTicks();
     double getTime() const;

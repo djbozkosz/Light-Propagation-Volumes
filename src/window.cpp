@@ -316,6 +316,26 @@ void CWindow::paintGL()
   gl->clear(NOpenGL::COLOR_BUFFER_BIT | NOpenGL::DEPTH_BUFFER_BIT);
   CEngineBase::context->engineClearDrawCalls();
 
+  //std::cout << glm::to_string(c->position) << "\n";
+  //std::cout << glm::to_string(c->rotation) << "\n";
+  //std::cout << e->camTrack << "\n";
+
+  // spline
+  if(e->camPlaying)
+  {
+    if(e->camTrack >= static_cast<float>(e->camTrackPos[e->activeSceneIndex].size() - 3))
+      CEngineBase::context->engineSetCamTrack(0.0f);
+
+    const float f = fmodf(e->camTrack, 1.0f);
+    const uint32 fi = static_cast<uint32>(e->camTrack);
+    const std::vector<glm::vec3> &tp = e->camTrackPos[e->activeSceneIndex];
+    const std::vector<glm::vec3> &tr = e->camTrackRot[e->activeSceneIndex];
+    cam->setPosition(SSpline::catmullRomSpline(tp[fi + 0], tp[fi + 1], tp[fi + 2], tp[fi + 3], f));
+    cam->setRotation(SSpline::catmullRomSpline(tr[fi + 0], tr[fi + 1], tr[fi + 2], tr[fi + 3], f));
+
+    CEngineBase::context->engineSetCamTrack(e->camTrack + e->simulationStep * c->position.w * 0.025f);
+  }
+
   if(CScene *s = CEngineBase::context->getScenes()->getActiveScene())
   {
     const glm::vec3 pos = glm::vec3(c->position);
