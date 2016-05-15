@@ -14,7 +14,7 @@ QMAKE_CXXFLAGS += -pedantic
 QMAKE_CXXFLAGS += -std=c++0x
 QMAKE_CXXFLAGS += -Wdouble-promotion
 QMAKE_CXXFLAGS += -Wunreachable-code
-QMAKE_CXXFLAGS += -O0
+QMAKE_CXXFLAGS += -O3
 
 SOURCES += \
     src/main.cpp \

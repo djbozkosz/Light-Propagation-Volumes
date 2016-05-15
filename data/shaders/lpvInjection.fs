@@ -1,7 +1,7 @@
 #version 150
 precision lowp float;
 
-#define SSLPV_INTENSITY 1.5
+#define SSLPV_INTENSITY 1.8
 #ifndef LPV_LOBE
 #ifdef LPV_GV
 #define GV_BLOCKING_MUL 2.0

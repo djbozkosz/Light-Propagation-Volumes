@@ -17,7 +17,7 @@ else
   RUN        = ./
 endif
 
-CFLAGS       = -pedantic -Wall -Wextra -Wdouble-promotion -Wunreachable-code -O0 $(CCVER) $(CCFLAGS) $(ENVIRONMENT) -c
+CFLAGS       = -pedantic -Wall -Wextra -Wdouble-promotion -Wunreachable-code -O3 $(CCVER) $(CCFLAGS) $(ENVIRONMENT) -c
 
 SRC          = main.cpp engine.cpp window.cpp scenes.cpp models.cpp renderer.cpp shaders.cpp framebuffers.cpp maps.cpp openGL.cpp filesystem.cpp
 OBJ          = $(SRC:.cpp=.o)
