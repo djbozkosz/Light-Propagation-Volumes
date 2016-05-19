@@ -263,7 +263,7 @@ void CEngine::onTimeoutInit()
   camera.setRotation(glm::vec3(5.0f, -90.0f, 0.0f));
 
   engine.scenes = 3;
-  engine.lpvModelsCount = 2;
+  engine.lpvModelsCount = 3;
   engine.activeLpvModel.resize(engine.scenes);
   engine.camTrackPos.resize(engine.scenes);
   engine.camTrackRot.resize(engine.scenes);
@@ -294,7 +294,7 @@ void CEngine::onTimeoutInit()
       SSceneModel(models.addModel(SModel(std::string(NFile::STR_DATA_MODELS)+"sphere00.4ds")), true));
 
     // lpv test models
-    const char *const lpvModels[] = { "bunny00", "sphere01" };
+    const char *const lpvModels[] = { "bunny00", "sphere01", "cube00" };
 
     for(uint32 j = 0; j < engine.lpvModelsCount; j++)
     {

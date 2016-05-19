@@ -483,6 +483,11 @@
             <string>Sphere</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Red Cube</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
