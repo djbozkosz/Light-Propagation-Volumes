@@ -1,11 +1,17 @@
 ## Light Propagation Volumes
 <p style="text-align: justify; text-indent: 40px;">Master's thesis focused on real-time global illumination method: Light Propagation Volumes. This technique was introduced by Crytek in 2009 and it can calculate multiple indirect light bounce in scene. LPV is usually used with local illumination shading models and Shadow Mapping. LPV calculation of global illumination consists of three steps: injection virtual points lights obtained from Reflective Shadow Maps into LPV 3D grid, propagation of light intensity in grid stored in spherical harmonics coefficients and lookup for light intensity in LPV while scene rendering.</p>
-<p style="text-align: justify; text-indent: 40px;">Implementation in C++ uses Qt/SDL and OpenGL library. LPV technique is implemented in 4 variations: with geometry shaders or compute shaders and both variants uses propagation method gathering or scattering. LPV uses 4 cascades with size 32<sup>3</sup> and Shadow Maps uses 6 cascades. Minimum HW requirements are: GPU with support OpenGL 3.2+ (D3D 10 comparable) for implementation with geometry shaders or OpenGL 4.3+ (D3D 11 comparable) for implementation with compute shaders.</p>
+<p style="text-align: justify; text-indent: 40px;">Implementation in C++ uses Qt/SDL and OpenGL library. LPV technique is implemented in 4 variations: with geometry shaders or compute shaders and both variants uses propagation method gathering or scattering. LPV uses 4 cascades with size 32<sup>3</sup> and Shadow Maps uses 6 cascades.</p>
 
-Video:
-<a href="https://www.youtube.com/watch?v=dE6r0-MfyRI" target="_blank"><img src="http://s32.postimg.org/68vkbgyf9/lpv_git04.jpg" alt="Sponza"></a>
+### Thesis:
+<p>Text available on <a href="http://www.fit.vutbr.cz/study/DP/DP.php.en?id=18581" target="_blank">FIT VUT page</a>. Direct <a href="http://www.fit.vutbr.cz/study/DP/DP.php?id=18581&file=t" target="_blank">link</a>.</p>
 
-Images:
+### Hardware requirements
+<p>GPU with support OpenGL 3.2+ (D3D 10 comparable) for implementation with geometry shaders or OpenGL 4.3+ (D3D 11 comparable) for implementation with compute shaders.</p>
+
+### Video:
+<p><a href="https://www.youtube.com/watch?v=dE6r0-MfyRI" target="_blank"><img src="http://s32.postimg.org/68vkbgyf9/lpv_git04.jpg" alt="Sponza"></a></p>
+
+### Images:
 <img src="http://s32.postimg.org/nc56xyssl/lpv_git00.jpg" alt="Sponza">
 <img src="http://s32.postimg.org/9np6wbww5/lpv_git01.jpg" alt="Sponza">
 <img src="http://s32.postimg.org/4p69vjih1/lpv_git02.jpg" alt="Sponza">
