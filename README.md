@@ -1,4 +1,13 @@
 ## Light Propagation Volumes
+[![FIT VUT: Master's Thesis](https://img.shields.io/badge/fit%20vut-master's%20thesis-lightgrey.svg)](http://www.fit.vutbr.cz/study/DP/DP.php.en?id=18581)
+[![Platform: Windows | Linux](https://img.shields.io/badge/platform-windows%20%7C%20linux-lightgrey.svg)](https://github.com/djbozkosz/Light-Propagation-Volumes/blob/master/Makefile)
+[![C++: 0x](https://img.shields.io/badge/c++-0x-brightgreen.svg)](https://en.wikipedia.org/wiki/C%2B%2B)
+[![OpenGL: 3.2 | 4.3](https://img.shields.io/badge/opengl-3.2%20%7C%204.3-brightgreen.svg)](https://www.google.com/search?q=gpu+drivers)
+[![MinGW: 5.3](https://img.shields.io/badge/mingw-5.3-green.svg)](https://nuwen.net/mingw.html)
+[![Qt: 5](https://img.shields.io/badge/qt-5-green.svg)](https://www.qt.io)
+[![SDL: 2.0](https://img.shields.io/badge/sdl-2.0-green.svg)](https://www.libsdl.org)
+[![GLM: 0.9.7](https://img.shields.io/badge/glm-0.9.7-green.svg)](http://glm.g-truc.net)
+[![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue.svg)](https://github.com/djbozkosz/Light-Propagation-Volumes/blob/master/LICENSE)
 <p style="text-align: justify; text-indent: 40px;">Master's thesis focused on real-time global illumination method: Light Propagation Volumes. This technique was introduced by Crytek in 2009 and it can calculate multiple indirect light bounce in scene. LPV is usually used with local illumination shading models and Shadow Mapping. LPV calculation of global illumination consists of three steps: injection virtual points lights obtained from Reflective Shadow Maps into LPV 3D grid, propagation of light intensity in grid stored in spherical harmonics coefficients and lookup for light intensity in LPV while scene rendering.</p>
 <p style="text-align: justify; text-indent: 40px;">Implementation in C++ uses Qt/SDL and OpenGL library. LPV technique is implemented in 4 variations: with geometry shaders or compute shaders and both variants uses propagation method gathering or scattering. LPV uses 4 cascades with size 32<sup>3</sup> and Shadow Maps uses 6 cascades.</p>
 
