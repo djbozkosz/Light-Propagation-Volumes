@@ -1,0 +1,9 @@
+obj/*.o
+build/Makefile*
+build/*.cpp
+build/*.h
+build/*.o
+build/*/*.cpp
+build/*/*.h
+build/*/*.o
+sln/.vs
