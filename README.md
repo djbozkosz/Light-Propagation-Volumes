@@ -18,13 +18,13 @@
 <p>GPU with support OpenGL 3.2+ (D3D 10 comparable) for implementation with geometry shaders or OpenGL 4.3+ (D3D 11 comparable) for implementation with compute shaders.</p>
 
 ### Video:
-<p><a href="https://www.youtube.com/watch?v=dE6r0-MfyRI" target="_blank"><img src="http://s32.postimg.org/68vkbgyf9/lpv_git04.jpg" alt="Sponza"></a></p>
+<p><a href="https://www.youtube.com/watch?v=dE6r0-MfyRI" target="_blank"><img src="https://s32.postimg.cc/68vkbgyf9/lpv_git04.jpg" alt="Sponza"></a></p>
 
 ### Images:
-<img src="http://s32.postimg.org/nc56xyssl/lpv_git00.jpg" alt="Sponza">
-<img src="http://s32.postimg.org/9np6wbww5/lpv_git01.jpg" alt="Sponza">
-<img src="http://s32.postimg.org/4p69vjih1/lpv_git02.jpg" alt="Sponza">
+<img src="https://s32.postimg.cc/nc56xyssl/lpv_git00.jpg" alt="Sponza">
+<img src="https://s32.postimg.cc/9np6wbww5/lpv_git01.jpg" alt="Sponza">
+<img src="https://s32.postimg.cc/4p69vjih1/lpv_git02.jpg" alt="Sponza">
 
-<!--<img src="http://s30.postimg.org/thk683amp/teaser00.jpg" alt="Sponza">
-<img src="http://s30.postimg.org/401rohswh/teaser01.jpg" alt="Sponza">
-<img src="http://s30.postimg.org/4quhu9v9t/teaser02.jpg" alt="Sponza">-->
+<!--<img src="https://s30.postimg.cc/thk683amp/teaser00.jpg" alt="Sponza">
+<img src="https://s30.postimg.cc/401rohswh/teaser01.jpg" alt="Sponza">
+<img src="https://s30.postimg.cc/4quhu9v9t/teaser02.jpg" alt="Sponza">-->
